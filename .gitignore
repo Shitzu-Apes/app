@@ -1,0 +1,8 @@
+node_modules
+
+build
+abi-gen
+
+.svelte-kit
+
+/src/lib/models/api.d.ts
