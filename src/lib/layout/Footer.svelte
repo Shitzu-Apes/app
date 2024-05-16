@@ -10,17 +10,21 @@
     <a href="https://near.org/" target="_blank" rel="noopener">
       <BuiltOnNear style="height: 1rem;" />
     </a>
-    <a href="https://github.com/Protocol-Pawns" target="_blank" rel="noopener">
+    <a href="https://github.com/Shitzu-Apes" target="_blank" rel="noopener">
       <Icon tag="svg" viewBox="0 0 24 24" style="height: 1rem;">
         <path fill="currentColor" d={mdiGithub} />
       </Icon>
     </a>
-    <a href="https://twitter.com/ProtocolPawns" target="_blank" rel="noopener">
+    <a
+      href="https://twitter.com/ShitzuCommunity"
+      target="_blank"
+      rel="noopener"
+    >
       <Icon tag="svg" viewBox="0 0 24 24" style="height: 1rem;">
         <path fill="currentColor" d={mdiTwitter} />
       </Icon>
     </a>
-    <a href="https://t.me/protocolpawns" target="_blank" rel="noopener">
+    <a href="https://t.me/Shitzu_Community" target="_blank" rel="noopener">
       <Telegram style={`height: ${12 / 16}rem`} />
     </a>
   </div>
