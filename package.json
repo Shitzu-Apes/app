@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "packageManager": "yarn@1.22.21",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
