@@ -149,7 +149,7 @@ export class Wallet {
     return match(wallet)
       .with({ type: P.union("browser", "injected") }, async (wallet) => {
         const accounts = await wallet.signIn({
-          contractId: import.meta.env.VITE_CONTRACT_ID,
+          contractId: import.meta.env.VITE_DOGSHIT_CONTRACT_ID,
         });
         const account = accounts.pop();
         if (!account) return;
@@ -171,7 +171,7 @@ export class Wallet {
       throw new Error("HereWallet not yet initialized");
     }
     const account = await this.hereWallet.signIn({
-      contractId: import.meta.env.VITE_CONTRACT_ID,
+      contractId: import.meta.env.VITE_DOGSHIT_CONTRACT_ID,
     });
     this._account$.set({
       type: "here",

@@ -1968,10 +1968,10 @@
     svelte-hmr "^0.16.0"
     vitefu "^0.2.5"
 
-"@tarnadas/fixed-number@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@tarnadas/fixed-number/-/fixed-number-0.1.1.tgz#632b4401a3c8a2c793d462447f34a0f40c032546"
-  integrity sha512-HEm6F9UEDEeGFzgSBwCBsTdc4uCxHpA1g9M00PfIs/7h6KDA4Ta+bTGncM9SymqEVA0RW3eDHxFsieeW28iRMQ==
+"@tarnadas/fixed-number@0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@tarnadas/fixed-number/-/fixed-number-0.2.0.tgz#e556008c263b82f2662170834ebe2a2d1a33ae28"
+  integrity sha512-l5qzpkIaoy1TYJjjaciUnj/ETdJYe9NXFxEpOQsmlH4oQKNibHMPMpPZLblxy+nnlppU3V1wBzDRGVC87z3pog==
   dependencies:
     ts-pattern "^5.0.1"
 
@@ -5436,6 +5436,7 @@ strict-uri-encode@^2.0.0:
   integrity sha512-QwiXZgpRcKkhTj2Scnn++4PKtWsH0kpzZ62L2R6c/LUVYv7hVnZqcg2+sMuT6R7Jusu1vviK/MFsu6kNJfWlEQ==
 
 "string-width-cjs@npm:string-width@^4.2.0", string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
+  name string-width-cjs
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
@@ -6067,6 +6068,7 @@ word-wrap@^1.2.5:
   integrity sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==
 
 "wrap-ansi-cjs@npm:wrap-ansi@^7.0.0", wrap-ansi@^7.0.0:
+  name wrap-ansi-cjs
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
   integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==

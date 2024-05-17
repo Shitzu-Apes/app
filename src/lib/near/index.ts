@@ -18,13 +18,13 @@ export const near$ = readable(
   ),
 );
 
-export const contract$ = derived(near$, async (n) => {
+export const dogshitContract$ = derived(near$, async (n) => {
   const [near, Account, Contract] = await n;
   const account = new Account(
     near.connection,
-    import.meta.env.VITE_CONTRACT_ID,
+    import.meta.env.VITE_DOGSHIT_CONTRACT_ID,
   );
-  return new Contract(account, import.meta.env.VITE_CONTRACT_ID, {
+  return new Contract(account, import.meta.env.VITE_DOGSHIT_CONTRACT_ID, {
     viewMethods: [
       "get_whitelisted_tokens",
       "get_undistributed_rewards",
@@ -60,5 +60,41 @@ export interface DogshitContract extends Contract {
   ft_total_supply: ContractViewCall<undefined, string>;
   ft_metadata: ContractViewCall<undefined, FungibleTokenMetadata>;
 }
+
+export const validatorContract$ = derived(near$, async (n) => {
+  const [near, Account, Contract] = await n;
+  const account = new Account(
+    near.connection,
+    import.meta.env.VITE_VALIDATOR_CONTRACT_ID,
+  );
+  return new Contract(account, import.meta.env.VITE_VALIDATOR_CONTRACT_ID, {
+    viewMethods: ["get_farm", "get_account"],
+    changeMethods: [],
+    useLocalViewExecution: false,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } satisfies ContractMethods as any) as ValidatorContract;
+});
+
+export interface ValidatorContract extends Contract {
+  get_farm: ContractViewCall<{ farm_id: number }, ValidatorFarm>;
+  get_account: ContractViewCall<{ account_id: string }, ValidatorAccount>;
+}
+
+export type ValidatorFarm = {
+  farm_id: number;
+  name: string;
+  token_id: AccountId;
+  amount: string;
+  start_date: string;
+  end_date: string;
+  active: boolean;
+};
+
+export type ValidatorAccount = {
+  account_id: AccountId;
+  unstaked_balance: string;
+  staked_balance: string;
+  can_withdraw: boolean;
+};
 
 export * from "./wallet";

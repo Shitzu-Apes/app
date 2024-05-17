@@ -108,8 +108,9 @@
         <Button
           variant="outlined"
           on:click={isTG ? wallet.loginViaHere : showWalletSelector}
-          >Login</Button
         >
+          Login
+        </Button>
       {/if}
     </nav>
   {/if}
