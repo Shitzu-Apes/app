@@ -21,7 +21,7 @@
     "@tarnadas/fixed-number": "0.2.0",
     "bs58": "^5.0.0",
     "dayjs": "^1.11.11",
-    "near-api-js": "^3.0.3",
+    "near-api-js": "^4.0.1",
     "ts-pattern": "^5.1.1"
   },
   "devDependencies": {
@@ -32,7 +32,7 @@
     "@smui/icon-button": "7.0.0",
     "@smui/tab": "7.0.0",
     "@smui/tab-bar": "7.0.0",
-    "@sveltejs/adapter-static": "^3.0.1",
+    "@sveltejs/adapter-cloudflare": "^4.4.0",
     "@sveltejs/kit": "^2.5.8",
     "@sveltejs/vite-plugin-svelte": "^3.1.0",
     "@typescript-eslint/eslint-plugin": "^7.9.0",
@@ -58,6 +58,7 @@
     "tsup": "^8.0.2",
     "typescript": "5.4.5",
     "vite": "^5.2.11",
-    "vite-plugin-node-polyfills": "^0.21.0"
+    "vite-plugin-node-polyfills": "^0.21.0",
+    "wrangler": "^3.57.0"
   }
 }
