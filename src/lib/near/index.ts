@@ -68,7 +68,12 @@ export const validatorContract$ = derived(near$, async (n) => {
     import.meta.env.VITE_VALIDATOR_CONTRACT_ID,
   );
   return new Contract(account, import.meta.env.VITE_VALIDATOR_CONTRACT_ID, {
-    viewMethods: ["get_farm", "get_account"],
+    viewMethods: [
+      "get_farm",
+      "get_account",
+      "get_number_of_accounts",
+      "get_pool_summary",
+    ],
     changeMethods: [],
     useLocalViewExecution: false,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -78,6 +83,8 @@ export const validatorContract$ = derived(near$, async (n) => {
 export interface ValidatorContract extends Contract {
   get_farm: ContractViewCall<{ farm_id: number }, ValidatorFarm>;
   get_account: ContractViewCall<{ account_id: string }, ValidatorAccount>;
+  get_number_of_accounts: ContractViewCall<undefined, number>;
+  get_pool_summary: ContractViewCall<undefined, PoolSummary>;
 }
 
 export type ValidatorFarm = {
@@ -95,6 +102,11 @@ export type ValidatorAccount = {
   unstaked_balance: string;
   staked_balance: string;
   can_withdraw: boolean;
+};
+
+export type PoolSummary = {
+  owner: AccountId;
+  total_staked_balance: string;
 };
 
 export * from "./wallet";

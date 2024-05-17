@@ -19,11 +19,18 @@
 
   const nearBalance$ = writable<FixedNumber | undefined>();
   const stake$ = writable<FixedNumber | undefined>();
+  const withdraw$ = writable<FixedNumber | undefined>();
+  let canWithdraw = false;
+  const totalStakers$ = $validatorContract$.then((contract) =>
+    contract.get_number_of_accounts(undefined),
+  );
+  let totalStaked$: Promise<FixedNumber>;
 
   let accountId$ = wallet.accountId$;
 
   $: fetchNearBalance($accountId$);
   $: fetchStake($validatorContract$, $accountId$);
+  fetchTotalStake();
 
   async function fetchNearBalance(accountId?: string) {
     const res = await fetch(import.meta.env.VITE_NODE_URL, {
@@ -58,7 +65,14 @@
     const contract = await c;
     const account = await contract.get_account({ account_id: accountId });
     stake$.set(new FixedNumber(account.staked_balance, 24));
-    console.log("ACCOUNT", account);
+    withdraw$.set(new FixedNumber(account.unstaked_balance, 24));
+    canWithdraw = account.can_withdraw;
+  }
+
+  async function fetchTotalStake() {
+    totalStaked$ = $validatorContract$
+      .then((contract) => contract.get_pool_summary(undefined))
+      .then((summary) => new FixedNumber(summary.total_staked_balance, 24));
   }
 
   async function openDepositModal() {
@@ -70,8 +84,41 @@
         afterUpdateBalances: () => {
           fetchNearBalance($accountId$);
           fetchStake($validatorContract$, $accountId$);
+          fetchTotalStake();
+          $modal$ = null;
         },
       }),
+    );
+  }
+
+  let loading = false;
+  async function withdraw() {
+    loading = true;
+    await wallet.signAndSendTransaction(
+      {
+        receiverId: import.meta.env.VITE_VALIDATOR_CONTRACT_ID,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "withdraw_all",
+              args: {},
+              gas: 30_000_000_000_000,
+              deposit: "0",
+            },
+          },
+        ],
+      },
+      {
+        onSuccess: () => {
+          fetchNearBalance($accountId$);
+          fetchStake($validatorContract$, $accountId$);
+          fetchTotalStake();
+        },
+        onFinally: () => {
+          loading = false;
+        },
+      },
     );
   }
 </script>
@@ -94,8 +141,8 @@
     </div>
   {/if}
   <div class="section-field">
-    <span>Near balance:</span>
-    <span>{$nearBalance$ ? $nearBalance$.format() : "-"}</span>
+    <span>Your wallet balance:</span>
+    <span>{$nearBalance$ ? `${$nearBalance$.format()} NEAR` : "-"}</span>
     {#if $nearBalance$ != null && $nearBalance$.toNumber() < 0.5}
       <MessageBox type="warning">
         Your Near balance is low! Please top up your Near balance to not run out
@@ -104,9 +151,45 @@
     {/if}
   </div>
   <div class="section-field">
-    <span>Validator stake:</span>
-    <span>{$stake$ ? $stake$.format() : "-"}</span>
+    <span>Your validator stake:</span>
+    <span>{$stake$ ? `${$stake$.format()} NEAR` : "-"}</span>
     <Button on:click={openDepositModal}>Stake / Unstake</Button>
+  </div>
+  {#if $withdraw$ != null && $withdraw$.valueOf() > 0}
+    <div class="section-field">
+      <span>
+        {#if canWithdraw}
+          Available for withdrawal:
+        {:else}
+          Pending unstake:
+        {/if}
+      </span>
+      <span>{$withdraw$.format()} NEAR</span>
+
+      {#if canWithdraw}
+        <Button on:click={withdraw} disabled={loading}>Withdraw</Button>
+      {/if}
+    </div>
+  {/if}
+  <div class="section-field">
+    <span>Total validator stake:</span>
+    <span>
+      {#await totalStaked$}
+        -
+      {:then totalStaked}
+        {totalStaked.format()} NEAR
+      {/await}
+    </span>
+  </div>
+  <div class="section-field">
+    <span>Total unique stakers:</span>
+    <span>
+      {#await totalStakers$}
+        -
+      {:then totalStakers}
+        {totalStakers}
+      {/await}
+    </span>
   </div>
 </div>
 

@@ -41,8 +41,8 @@
   <span>{accountId}</span>
 </div>
 <div class="section-field">
-  <span>Near balance:</span>
-  <span>{nearBalance ? nearBalance.format() : "-"}</span>
+  <span>Wallet balance:</span>
+  <span>{nearBalance ? `${nearBalance.format()} NEAR` : "-"}</span>
   {#if nearBalance != null && nearBalance.toNumber() < 0.5}
     <MessageBox type="warning">
       Your Near balance is low! Please top up your Near balance to not run out

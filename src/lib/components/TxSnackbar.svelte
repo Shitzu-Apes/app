@@ -144,7 +144,7 @@
             </div>
             <div>
               <a
-                href="{import.meta.env.VITE_EXPLORER_URL}/txns/{id}"
+                href="{import.meta.env.VITE_EXPLORER_URL}/transactions/{id}"
                 target="_blank"
                 rel="noopener"
               >
