@@ -80,30 +80,24 @@
       {
         receiverId: import.meta.env.VITE_VALIDATOR_CONTRACT_ID,
         actions: [
-          // TODO
           {
             type: "FunctionCall",
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            params: {} as any,
-            // params: isDeposit
-            //   ? {
-            //       methodName: "ft_transfer_call",
-            //       args: {
-            //         receiver_id: import.meta.env.VITE_SHITZU_HOT_ID,
-            //         amount: $input$.toU128(),
-            //         msg: JSON.stringify("Deposit"),
-            //       },
-            //       gas: "50000000000000",
-            //       deposit: "1",
-            //     }
-            //   : {
-            //       methodName: "withdraw",
-            //       args: {
-            //         amount: $input$.toU128(),
-            //       },
-            //       gas: "50000000000000",
-            //       deposit: "0",
-            //     },
+            params: match(active.label)
+              .with("Stake", () => ({
+                methodName: "deposit_and_stake",
+                args: {},
+                gas: 30_000_000_000_000,
+                deposit: $input$.toU128(),
+              }))
+              .with("Unstake", () => ({
+                methodName: "unstake",
+                args: {
+                  amount: $input$.toU128(),
+                },
+                gas: 30_000_000_000_000,
+                deposit: "0",
+              }))
+              .exhaustive(),
           },
         ],
       },
