@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { showSnackbar, showTxSnackbar } from "$lib/snackbar";
 </script>
 
 <div class="flex flex-col gap-[1.2rem]">
