@@ -2,8 +2,6 @@
   import { writable } from "svelte/store";
   import { slide } from "svelte/transition";
 
-  import { ProgressSpinner } from "$lib/components";
-
   export let header: string;
   export let loading: boolean = false;
 
@@ -20,7 +18,7 @@
   <h3 class="header">{header}</h3>
   {#if loading}
     <div class="spinner" transition:slide>
-      <ProgressSpinner inline width={80} height={80} />
+      <div class="i-svg-spinners:3-dots-bounce w-6 h-6 bg-gray-7" />
     </div>
   {:else}
     <div

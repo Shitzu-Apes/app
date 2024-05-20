@@ -1,21 +1,37 @@
 <script lang="ts">
-  import Button from "@smui/button";
-  import Tab, { Label } from "@smui/tab";
-  import TabBar from "@smui/tab-bar";
+  import { createTabs, melt } from "@melt-ui/svelte";
   import { FixedNumber } from "@tarnadas/fixed-number";
   import { writable, type Readable } from "svelte/store";
+  import { crossfade } from "svelte/transition";
+
   import { match } from "ts-pattern";
 
   import { TokenInput } from "$lib/components";
-  import { ModalContent } from "$lib/layout";
   import { wallet } from "$lib/near";
 
+  export let walletConnected: boolean;
   export let nearBalance$: Readable<FixedNumber>;
   export let stake$: Readable<FixedNumber>;
   export let afterUpdateBalances: () => void;
 
-  let newNearBalance: FixedNumber | undefined;
-  let newStakeBalance: FixedNumber | undefined;
+  const [send, receive] = crossfade({
+    duration: 300,
+  });
+
+  let newNearBalance: FixedNumber = $nearBalance$;
+  let newStakeBalance: FixedNumber = $stake$;
+
+  $: {
+    newNearBalance = $nearBalance$;
+    newStakeBalance = $stake$;
+  }
+
+  const {
+    elements: { list, trigger },
+    states: { value },
+  } = createTabs({
+    defaultValue: "Stake",
+  });
 
   let tabs: { label: "Stake" | "Unstake" }[] = [
     {
@@ -25,7 +41,7 @@
       label: "Unstake",
     },
   ];
-  let active = tabs[0];
+  $: active = { label: $value } as (typeof tabs)[number];
 
   let input: TokenInput;
   let inputValue$ = writable<string | undefined>();
@@ -38,8 +54,8 @@
   $: updateOutAmount(active.label, $input$);
   function updateOutAmount(label: "Stake" | "Unstake", val?: FixedNumber) {
     if (!val || val.valueOf() === 0n) {
-      newNearBalance = undefined;
-      newStakeBalance = undefined;
+      newNearBalance = $nearBalance$;
+      newStakeBalance = $stake$;
       return;
     }
     match(label)
@@ -114,19 +130,49 @@
   }
 </script>
 
-<ModalContent header="Stake / Unstake">
-  <TabBar {tabs} let:tab bind:active>
-    <Tab {tab}>
-      <Label>{tab.label}</Label>
-    </Tab>
-  </TabBar>
+<div
+  use:melt={$list}
+  class="flex shrink-0 justify-evenly overflow-x-auto text-white font-bold text-xl mb-5"
+  aria-label="Manage your account"
+>
+  {#each tabs as { label }}
+    <button use:melt={$trigger(label)} class="trigger relative first">
+      {#if $value === label}
+        <div
+          in:send={{ key: "trigger" }}
+          out:receive={{ key: "trigger" }}
+          class="absolute bottom-0 left-1/2 h-1 w-[120%] -translate-x-1/2 rounded-full bg-lime rounded"
+        />
+      {/if}
+      {label}
+    </button>
+  {/each}
+</div>
 
-  <div class="tab">
-    <div class="field">
-      <span>Wallet balance:</span>
-      <div class="balance">
-        <span>{$nearBalance$.format()}</span>
-        {#if newNearBalance}
+<div class="tab">
+  <div class="py-3 px-3 border border-lime rounded-xl flex justify-between">
+    <div>N</div>
+    <TokenInput bind:this={input} bind:value={$inputValue$} decimals={24} />
+    <button on:click={setMax}> max </button>
+  </div>
+
+  {#if walletConnected}
+    <button
+      class="w-full py-3 bg-lime text-black font-bold text-xl rounded-xl mt-3"
+      on:click={() => runTx()}
+      disabled={disabled || loading}>{active.label}</button
+    >
+  {:else}
+    <slot />
+  {/if}
+  <div>
+    <div class="pt-6">
+      <div class="flex flex-col">
+        <div class="flex items-center mb-3">
+          <div>Near Balance</div>
+        </div>
+        <div class="w-full text-xl font-bold flex justify-evenly">
+          <span>{$nearBalance$.format()}</span>
           <span>⇒</span>
           <span
             class="result"
@@ -135,14 +181,17 @@
           >
             {newNearBalance.format()}
           </span>
-        {/if}
+        </div>
       </div>
     </div>
-    <div class="field">
-      <span>Validator stake:</span>
-      <div class="balance">
-        <span>{$stake$.format()}</span>
-        {#if newStakeBalance}
+
+    <div class="pt-6">
+      <div class="flex flex-col">
+        <div class="flex items-center mb-3">
+          <div>Staked</div>
+        </div>
+        <div class="w-full text-xl font-bold flex justify-evenly">
+          <span>{$stake$.format()}</span>
           <span>⇒</span>
           <span
             class="result"
@@ -151,91 +200,8 @@
           >
             {newStakeBalance.format()}
           </span>
-        {/if}
+        </div>
       </div>
     </div>
-
-    <div class="input-wrapper">
-      <TokenInput
-        bind:this={input}
-        bind:value={$inputValue$}
-        decimals={24}
-        --width="0"
-        --flex="1 0 auto"
-      />
-      <Button variant="outlined" class="button-small" on:click={setMax}>
-        max
-      </Button>
-    </div>
-
-    <Button
-      variant="outlined"
-      on:click={() => runTx()}
-      disabled={disabled || loading}>{active.label}</Button
-    >
   </div>
-</ModalContent>
-
-<style lang="scss">
-  .tab {
-    display: flex;
-    flex-direction: column;
-    margin-top: 1rem;
-    gap: 0.4rem;
-  }
-
-  .input-wrapper {
-    display: flex;
-    align-items: center;
-    border: to-rem(2px) solid lightgray;
-    border-radius: 0.4rem;
-    padding: 0.4rem;
-    max-width: 100%;
-
-    &:hover {
-      border-color: var(--bright-blue);
-    }
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    padding: 0.8rem 0 0.3rem;
-
-    &:first-child {
-      padding-top: 0;
-    }
-    &:not(:last-child) {
-      border-bottom: 1px solid var(--color-border);
-    }
-  }
-
-  .balance {
-    display: flex;
-    align-items: center;
-
-    > *:first-child,
-    > *:last-child {
-      flex: 1 1 5rem;
-    }
-
-    .result {
-      text-align: end;
-    }
-
-    span {
-      &.more {
-        color: var(--color-ok);
-      }
-      &.less {
-        color: var(--color-err);
-      }
-    }
-  }
-
-  :global(.button-small) {
-    margin-left: 0.2rem;
-    height: 1.6rem;
-  }
-</style>
+</div>

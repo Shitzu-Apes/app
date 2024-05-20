@@ -1,6 +1,5 @@
 <script lang="ts">
   import { mdiMonitorArrowDown } from "@mdi/js";
-  import Button from "@smui/button";
   import { Icon } from "@smui/icon-button";
 
   import { ModalContent, modal$ } from "$lib/layout";
@@ -17,23 +16,23 @@
 </script>
 
 <ModalContent header="Select Wallet">
-  <div class="wallets">
+  <div class="mx-auto flex flex-col gap-8 w-full max-w-xs">
     {#await $modules$ then modules}
       {#each modules as mod}
-        <Button
+        <button
           disabled={!mod.metadata.available}
           on:click={() => handleWalletClick(mod)}
         >
-          <div class="wallet">
+          <div class="flex mx-auto items-center">
             <img
               src={mod.metadata.iconUrl}
               alt={mod.metadata.name}
-              class={`icon ${mod.metadata.name.replaceAll(" ", "-").toLowerCase()}`}
+              class={`w-10 h-10 object-contain mr-5 ${mod.metadata.name.replaceAll(" ", "-").toLowerCase()}`}
             />
-            <div class="wallet-name">
+            <div class="flex flex-col text-left text-lime uppercase mr-auto">
               <span>{mod.metadata.name}</span>
               {#if mod.metadata.description != null}
-                <span class="url">
+                <span class="text-sm text-coolgray">
                   {new URL(NEAR_WALLETS[mod.id].url).hostname}
                 </span>
               {/if}
@@ -44,37 +43,25 @@
                   href={NEAR_WALLETS[mod.id].extensionUrl}
                   target="_blank"
                   rel="noopener"
-                  class="download"
+                  class="text-lime"
                   on:click|stopPropagation
                 >
-                  <Icon
-                    tag="svg"
-                    viewBox="0 0 24 24"
-                    style="width: 1.8rem; height: 1.8rem;"
-                  >
-                    <path fill="var(--color-link)" d={mdiMonitorArrowDown} />
-                  </Icon>
+                  <div class="i-mdi:download w-8 h-8" />
                 </a>
               {:else if mod.metadata.downloadUrl != null}
                 <a
                   href={mod.metadata.downloadUrl}
                   target="_blank"
                   rel="noopener"
-                  class="download"
+                  class="text-lime"
                   on:click|stopPropagation
                 >
-                  <Icon
-                    tag="svg"
-                    viewBox="0 0 24 24"
-                    style="width: 1.8rem; height: 1.8rem;"
-                  >
-                    <path fill="var(--color-link)" d={mdiMonitorArrowDown} />
-                  </Icon>
+                  <div class="i-mdi:download w-8 h-8" />
                 </a>
               {/if}
             {/if}
           </div>
-        </Button>
+        </button>
       {/each}
 
       {#if modules.length % 2 === 1}

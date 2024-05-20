@@ -5,8 +5,6 @@
   import { FixedNumber } from "@tarnadas/fixed-number";
   import type { ExecutionStatus } from "near-api-js/lib/providers/provider";
 
-  import { ProgressSpinner } from ".";
-
   export let txPromise: Promise<
     void | FinalExecutionOutcome | FinalExecutionOutcome[]
   >;
@@ -97,20 +95,22 @@
   }
 </script>
 
-<div class="tx-snackbar">
+<div class="flex flex-col justify-between">
   {#await outcome}
-    <div>
-      Awaiting confirmation
-      <ProgressSpinner width={48} height={48} borderWidth={6} inline />
+    <div
+      class="flex flex-col items-center py-1 bg-gradient-to-r bg-gradient-from-cyan bg-gradient-to-blue"
+    >
+      <div class="i-svg-spinners:3-dots-bounce w-6 h-6 bg-gray-7" />
+      <h3 class="text-gray-7">Awaiting confirmation</h3>
     </div>
   {:then res}
     {#if res == null}
-      Complete
-      <IconButton size="button" class="material-icons">
-        <Icon tag="svg" viewBox="0 0 24 24">
-          <path fill="currentColor" d={mdiCheck} />
-        </Icon>
-      </IconButton>
+      <div
+        class="flex flex-col items-center py-1 bg-gradient-to-r bg-gradient-from-cyan bg-gradient-to-blue"
+      >
+        <div class="i-line-md:confirm w-6 h-6 bg-gray-7" />
+        <h3 class="text-gray-7">Complete</h3>
+      </div>
     {:else if Array.isArray(res)}
       {#each res as { status, id, functionCalls, tokensBurnt, receiptError }}
         <div class="tx-status">
@@ -181,7 +181,7 @@
   {/await}
 </div>
 
-<style lang="scss">
+<!-- <style lang="scss">
   .tx-snackbar {
     display: flex;
     flex-direction: column;
@@ -212,4 +212,4 @@
     align-items: center;
     color: var(--color-link);
   }
-</style>
+</style> -->

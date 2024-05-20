@@ -1,14 +1,7 @@
 <script lang="ts">
+  import { showSnackbar, showTxSnackbar } from "$lib/snackbar";
 </script>
 
-<div class="page">
+<div class="flex flex-col gap-[1.2rem]">
   <h1>Hello World!</h1>
 </div>
-
-<style lang="scss">
-  .page {
-    display: flex;
-    flex-direction: column;
-    gap: 1.2rem;
-  }
-</style>

@@ -6,48 +6,42 @@
 </script>
 
 <script lang="ts">
-  import Button from "@smui/button";
-  import type { Writable } from "svelte/store";
   import { bind } from "svelte-simple-modal";
 
   import { WalletSelector } from ".";
 
-  import { Near } from "$lib/assets";
   import { modal$, modalSize$, ModalSize } from "$lib/layout";
   import { wallet } from "$lib/near";
 
-  export let showAccountMenu$: Writable<boolean>;
+  export let isTG: boolean;
 
   const iconUrl$ = wallet.iconUrl$;
+  const accountId$ = wallet.accountId$;
 </script>
 
 <div class="login">
-  <Button
-    variant="outlined"
-    on:click={() => {
-      $showAccountMenu$ = !$showAccountMenu$;
-    }}
-  >
-    {#await $iconUrl$ then iconUrl}
-      {#if iconUrl}
-        <img
-          src={iconUrl}
-          alt="wallet icon"
-          style="max-height: 100%; padding: 0.3rem;"
-        />
-      {:else}
-        <Near style="max-height: 100%; padding: 0.3rem;" />
-      {/if}
-    {/await}
-  </Button>
+  {#await $iconUrl$ then iconUrl}
+    {#if iconUrl}
+      <a
+        href="/account"
+        class="border-2 border-lime flex justify-center items-center decoration-none px-4 py-2 rounded-xl"
+      >
+        <img src={iconUrl} alt="wallet icon" class="w-4 h-4 mr-2" />
+        {$accountId$}
+      </a>
+    {:else}
+      <button
+        on:click={() => {
+          if (isTG) {
+            wallet.loginViaHere();
+          } else {
+            showWalletSelector();
+          }
+        }}
+        class="border-2 border-lime px-4 py-2 rounded-xl"
+      >
+        Connect Wallet
+      </button>
+    {/if}
+  {/await}
 </div>
-
-<style>
-  .login {
-    display: flex;
-    align-items: center;
-    gap: 0.2rem;
-    flex-wrap: wrap;
-    justify-content: end;
-  }
-</style>

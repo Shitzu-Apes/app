@@ -1,53 +1,24 @@
 <script lang="ts">
-  import { mdiGithub, mdiTwitter } from "@mdi/js";
-  import { Icon } from "@smui/common";
-
-  import { BuiltOnNear, Telegram } from "$lib/assets";
+  import { BuiltOnNear } from "$lib/assets";
 </script>
 
-<div class="footer">
-  <div class="links">
+<div class="mt-6 flex justify-between items-center w-full px-2 py-3">
+  <div class="flex items-center gap-2">
     <a href="https://near.org/" target="_blank" rel="noopener">
       <BuiltOnNear style="height: 1rem;" />
     </a>
     <a href="https://github.com/Shitzu-Apes" target="_blank" rel="noopener">
-      <Icon tag="svg" viewBox="0 0 24 24" style="height: 1rem;">
-        <path fill="currentColor" d={mdiGithub} />
-      </Icon>
+      <div class="i-simple-icons:github w-4 h-4" />
     </a>
     <a
       href="https://twitter.com/ShitzuCommunity"
       target="_blank"
       rel="noopener"
     >
-      <Icon tag="svg" viewBox="0 0 24 24" style="height: 1rem;">
-        <path fill="currentColor" d={mdiTwitter} />
-      </Icon>
+      <div class="i-simple-icons:x w-4 h-4" />
     </a>
     <a href="https://t.me/Shitzu_Community" target="_blank" rel="noopener">
-      <Telegram style={`height: ${12 / 16}rem`} />
+      <div class="i-simple-icons:telegram w-4 h-4" />
     </a>
   </div>
 </div>
-
-<style lang="scss">
-  .footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    min-width: 100%;
-    max-width: 100%;
-    padding: 0.4rem 0.6rem;
-  }
-
-  .links {
-    display: flex;
-    align-items: center;
-    gap: to-rem(7px);
-
-    a {
-      display: flex;
-      color: rgba(255, 255, 255, 0.6);
-    }
-  }
-</style>

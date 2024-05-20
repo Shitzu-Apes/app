@@ -1,8 +1,7 @@
 <script lang="ts">
-  import "../app.scss";
+  import "@unocss/reset/tailwind.css";
+  import "virtual:uno.css";
 
-  import { mdiClose } from "@mdi/js";
-  import IconButton, { Icon } from "@smui/icon-button";
   import Snackbar, { Actions, Label } from "@smui/snackbar";
   import dayjs from "dayjs";
   import localizedFormat from "dayjs/plugin/localizedFormat";
@@ -86,76 +85,42 @@
   }}
 />
 
-<Snackbar
-  leading
-  bind:this={$snackbar$}
-  timeoutMs={$snackbarComponent$?.timeout ?? -1}
-  class={$snackbarClass$ ?? ""}
-  on:SMUISnackbar:closed={handleCloseSnackbar}
->
-  <Label>
-    {#if $snackbarComponent$}
-      {#if $snackbarComponent$.type === "text"}
-        {$snackbarComponent$.text}
-      {:else if $snackbarComponent$.type === "component"}
-        <svelte:component
-          this={$snackbarComponent$.component}
-          {...$snackbarComponent$.props}
+<div class="bg-gradient-to-r bg-gradient-from-cyan bg-gradient-to-blue">
+  <Snackbar
+    leading
+    bind:this={$snackbar$}
+    timeoutMs={$snackbarComponent$?.timeout ?? -1}
+    class={$snackbarClass$ ?? ""}
+    on:SMUISnackbar:closed={handleCloseSnackbar}
+  >
+    <Actions>
+      {#if $snackbarCanClose$}
+        <button
+          class="i-mdi:close cursor-pointer w-4 h-4 absolute top-1 right-1 cursor-pointer"
         />
       {/if}
-    {/if}
-  </Label>
-  <Actions>
-    {#if $snackbarCanClose$}
-      <IconButton class="material-icons" title="Dismiss">
-        <Icon tag="svg" viewBox="0 0 24 24">
-          <path fill="currentColor" d={mdiClose} />
-        </Icon>
-      </IconButton>
-    {/if}
-  </Actions>
-</Snackbar>
+    </Actions>
+    <Label>
+      {#if $snackbarComponent$}
+        {#if $snackbarComponent$.type === "text"}
+          {$snackbarComponent$.text}
+        {:else if $snackbarComponent$.type === "component"}
+          <svelte:component
+            this={$snackbarComponent$.component}
+            {...$snackbarComponent$.props}
+          />
+        {/if}
+      {/if}
+    </Label>
+  </Snackbar>
+</div>
 
-<Header isTG={data.isTG} />
-<Body>
-  <slot />
-</Body>
-<Footer />
-
-<style lang="scss">
-  :root {
-    --modal-width: 0;
-    --modal-max-height: 0;
-  }
-
-  :global(.snackbar-success .mdc-snackbar__surface) {
-    background-color: var(--color-bg-ok);
-  }
-  :global(.snackbar-error .mdc-snackbar__surface) {
-    background-color: var(--color-bg-err);
-  }
-
-  :global(.section-field) {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    padding: 0 0 0.3rem;
-    margin: 0;
-  }
-  :global(.section-field:first-child) {
-    padding-top: 0;
-  }
-  :global(.section-field:not(:last-child)) {
-    border-bottom: 1px solid var(--color-border);
-    padding-bottom: 0.6rem;
-  }
-  :global(.section-field-gap) {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-
-  :global(.field > :first-child) {
-    font-size: 1.2rem;
-  }
-</style>
+<div class="bg-[#222] min-h-screen w-screen">
+  <div class="min-h-screen prose prose-invert prose-lime mx-auto">
+    <Header isTG={data.isTG} />
+    <Body>
+      <slot />
+    </Body>
+    <Footer />
+  </div>
+</div>

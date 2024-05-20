@@ -48,9 +48,10 @@
   on:change={(event) => formatWithMaxDecimals(event, decimals)}
   class:readonly
   autocomplete="off"
+  class="bg-transparent focus:outline-none"
 />
 
-<style lang="scss">
+<!-- <style lang="scss">
   input {
     width: var(--width, unset);
     flex: var(--flex, unset);
@@ -60,4 +61,4 @@
       cursor: default;
     }
   }
-</style>
+</style> -->
