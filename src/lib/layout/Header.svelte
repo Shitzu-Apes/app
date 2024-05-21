@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { slide } from "svelte/transition";
-
   import { page } from "$app/stores";
   import paths from "$lib/paths";
 
@@ -27,11 +25,11 @@
     {/await}
   </div>
 
-  <nav transition:slide class="flex gap-3 px-3 py-3">
+  <nav class="flex gap-3 px-3 py-3">
     {#each paths as { slug, title }}
       <a
         href={slug}
-        class="border-lime px-3 py-1 rounded-full flex decoration-none"
+        class="border-lime hover:bg-lime/10 px-3 py-1 rounded-full flex decoration-none"
         class:border-2={pathname === slug}
       >
         <div class={`${icons[slug]} w-6 h-6 mr-1`} />

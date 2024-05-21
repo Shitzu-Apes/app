@@ -88,7 +88,9 @@ export function showSnackbar(text: string) {
 }
 
 export function showTxSnackbar(
-  txPromise: Promise<void | FinalExecutionOutcome | FinalExecutionOutcome[]>,
+  txPromise:
+    | Promise<void | FinalExecutionOutcome | FinalExecutionOutcome[]>
+    | Promise<FinalExecutionOutcome>,
 ) {
   const class$ = writable("");
   const canClose$ = writable(false);

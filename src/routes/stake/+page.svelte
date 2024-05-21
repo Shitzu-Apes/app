@@ -1,19 +1,17 @@
 <script lang="ts">
   import { FixedNumber } from "@tarnadas/fixed-number";
   import { writable } from "svelte/store";
-  import { bind } from "svelte-simple-modal";
 
   import type { PageData } from "./$types";
 
   import { showWalletSelector } from "$lib/auth";
-  import { Stake } from "$lib/components";
-  import { ModalSize, modal$, modalSize$ } from "$lib/layout";
+  import { Stake, ValidatorStatistics } from "$lib/components";
+  import { modal$ } from "$lib/layout";
   import {
     validatorContract$,
     wallet,
     type ValidatorContract,
   } from "$lib/near";
-  import ValidatorStatistics from "$lib/components/ValidatorStatistics.svelte";
 
   export let data: PageData;
 
@@ -77,22 +75,6 @@
     );
   }
 
-  async function openDepositModal() {
-    modalSize$.set(ModalSize.Small);
-    modal$.set(
-      bind(Stake, {
-        nearBalance$,
-        stake$,
-        afterUpdateBalances: () => {
-          fetchNearBalance($accountId$);
-          fetchStake($validatorContract$, $accountId$);
-          fetchTotalStake();
-          $modal$ = null;
-        },
-      }),
-    );
-  }
-
   let loading = false;
   async function withdraw() {
     loading = true;
@@ -128,7 +110,7 @@
 <div class="w-full">
   <div class="text-center mb-6" class:pb-6={!$accountId$}>
     <h1 class="mb-0">Stake NEAR</h1>
-    <div>With SHITZU and receive $DOTSHIT</div>
+    <div>With SHITZU and receive $DOGSHIT</div>
   </div>
 
   {#if $accountId$}

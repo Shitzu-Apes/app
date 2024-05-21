@@ -1,6 +1,6 @@
 import { readable } from "svelte/store";
 
-export const tokenPrice = readable<{
+export const tokenPrice$ = readable<{
   [token_address: string]: {
     price: string;
     decimals: number;
@@ -9,7 +9,7 @@ export const tokenPrice = readable<{
 }>({}, (set) => {
   const interval = setInterval(() => {
     fetchData();
-  }, 10000);
+  }, 10_000);
 
   fetchData();
 

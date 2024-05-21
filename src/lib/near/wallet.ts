@@ -258,7 +258,9 @@ export class Wallet {
       )
       .exhaustive();
     if (!txPromise) return;
-    showTxSnackbar(txPromise);
+    // FIXME type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    showTxSnackbar(txPromise as any);
     return txPromise.then(onSuccess).catch(onError).finally(onFinally);
   }
 }

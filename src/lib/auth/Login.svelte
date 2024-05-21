@@ -24,7 +24,7 @@
     {#if iconUrl}
       <a
         href="/account"
-        class="border-2 border-lime flex justify-center items-center decoration-none px-4 py-2 rounded-xl"
+        class="border-2 border-lime hover:bg-lime/10 flex justify-center items-center decoration-none px-4 py-2 rounded-xl"
       >
         <img src={iconUrl} alt="wallet icon" class="w-4 h-4 mr-2" />
         {$accountId$}
@@ -38,7 +38,7 @@
             showWalletSelector();
           }
         }}
-        class="border-2 border-lime px-4 py-2 rounded-xl"
+        class="border-2 border-lime hover:bg-lime/10 px-4 py-2 rounded-xl"
       >
         Connect Wallet
       </button>

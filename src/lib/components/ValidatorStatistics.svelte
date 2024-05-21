@@ -1,12 +1,13 @@
 <script lang="ts">
-  import { tokenPrice } from "$lib/store/tokenPrice";
   import { FixedNumber } from "@tarnadas/fixed-number";
+
+  import { tokenPrice$ } from "$lib/store";
 
   export let totalStakers$: number | null;
   export let totalStaked$: FixedNumber | null;
 
   $: nearPrice =
-    "wrap.near" in $tokenPrice ? $tokenPrice["wrap.near"].price : null;
+    "wrap.near" in $tokenPrice$ ? $tokenPrice$["wrap.near"].price : null;
 </script>
 
 <div class="">

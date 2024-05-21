@@ -1,7 +1,4 @@
 <script lang="ts">
-  import { mdiMonitorArrowDown } from "@mdi/js";
-  import { Icon } from "@smui/icon-button";
-
   import { ModalContent, modal$ } from "$lib/layout";
   import type { UnionModuleState } from "$lib/models";
   import { NEAR_WALLETS, wallet } from "$lib/near";
@@ -97,39 +94,12 @@
     width: 100%;
     max-height: 100%;
     --img-size: 2.2rem;
-
-    img {
-      min-width: var(--img-size);
-      min-height: var(--img-size);
-      max-width: var(--img-size);
-      max-height: var(--img-size);
-      margin-right: 0.8rem;
-    }
-
-    .download {
-      margin-left: 0.6rem;
-      z-index: 100;
-      padding: to-rem(2px);
-
-      &:hover {
-        background-color: rgba(13, 1, 46, 0.4);
-        border-radius: to-rem(4px);
-      }
-    }
   }
 
   .wallet-name {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-
-    .url {
-      margin-top: 0.2rem;
-      flex: 1 0 auto;
-      font-size: 0.7rem;
-      color: rgba(255, 255, 255, 0.7);
-      height: 0.8rem;
-    }
   }
 
   .icon {

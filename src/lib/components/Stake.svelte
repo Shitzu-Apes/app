@@ -3,7 +3,6 @@
   import { FixedNumber } from "@tarnadas/fixed-number";
   import { writable, type Readable } from "svelte/store";
   import { crossfade } from "svelte/transition";
-
   import { match } from "ts-pattern";
 
   import { TokenInput } from "$lib/components";

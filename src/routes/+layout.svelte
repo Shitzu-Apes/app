@@ -115,8 +115,8 @@
   </Snackbar>
 </div>
 
-<div class="bg-[#222] min-h-screen w-screen">
-  <div class="min-h-screen prose prose-invert prose-lime mx-auto">
+<div class="bg-[#222] min-h-screen w-screen max-w-full">
+  <div class="flex flex-col min-h-screen prose prose-invert prose-lime mx-auto">
     <Header isTG={data.isTG} />
     <Body>
       <slot />

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiOpenInNew, mdiCheck, mdiCancel, mdiCheckCircle } from "@mdi/js";
+  import { mdiOpenInNew, mdiCancel, mdiCheckCircle } from "@mdi/js";
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
   import IconButton, { Icon } from "@smui/icon-button";
   import { FixedNumber } from "@tarnadas/fixed-number";

@@ -60,7 +60,7 @@ module.exports = {
       "error",
       {
         // FIXME
-        ignore: ["\\$app/.*", "\\$lib/.*", "svelte/.*"],
+        ignore: ["\\$app/.*", "\\$lib/.*", "svelte/.*", "virtual:.*"],
       },
     ],
   },
