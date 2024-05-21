@@ -4,7 +4,6 @@
     mdiAlertOutline,
     mdiInformationSlabCircle,
   } from "@mdi/js";
-  import { Icon } from "@smui/common";
 
   export let type: "error" | "warning" | "info" = "info";
 
@@ -17,29 +16,26 @@
   class:info={type === "info"}
 >
   {#if type === "error"}
-    <Icon
-      tag="svg"
+    <svg
       viewBox="0 0 24 24"
       style={`min-height: ${size};max-height: ${size};min-width: ${size};max-width: ${size};`}
     >
       <path fill="var(--color-err)" d={mdiAlertCircleOutline} />
-    </Icon>
+    </svg>
   {:else if type === "warning"}
-    <Icon
-      tag="svg"
+    <svg
       viewBox="0 0 24 24"
       style={`min-height: ${size};max-height: ${size};min-width: ${size};max-width: ${size};`}
     >
       <path fill="var(--color-warn)" d={mdiAlertOutline} />
-    </Icon>
+    </svg>
   {:else if type === "info"}
-    <Icon
-      tag="svg"
+    <svg
       viewBox="0 0 24 24"
       style={`min-height: ${size};max-height: ${size};min-width: ${size};max-width: ${size};`}
     >
       <path fill="var(--color-info)" d={mdiInformationSlabCircle} />
-    </Icon>
+    </svg>
   {/if}
   <slot />
 </p>

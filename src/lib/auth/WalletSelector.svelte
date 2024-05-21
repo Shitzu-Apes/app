@@ -13,14 +13,15 @@
 </script>
 
 <ModalContent header="Select Wallet">
-  <div class="mx-auto flex flex-col gap-8 w-full max-w-xs">
+  <div class="mx-auto flex flex-col gap-4 w-full max-w-xs">
     {#await $modules$ then modules}
       {#each modules as mod}
-        <button
-          disabled={!mod.metadata.available}
-          on:click={() => handleWalletClick(mod)}
-        >
-          <div class="flex mx-auto items-center">
+        <div class="flex gap-2 items-center">
+          <button
+            disabled={!mod.metadata.available}
+            on:click={() => handleWalletClick(mod)}
+            class="hover:bg-lime/15 p-2 rounded-xl flex items-center flex-1"
+          >
             <img
               src={mod.metadata.iconUrl}
               alt={mod.metadata.name}
@@ -34,31 +35,31 @@
                 </span>
               {/if}
             </div>
-            {#if mod.type === "injected" && !isMobile()}
-              {#if NEAR_WALLETS[mod.id].extensionUrl != null}
-                <a
-                  href={NEAR_WALLETS[mod.id].extensionUrl}
-                  target="_blank"
-                  rel="noopener"
-                  class="text-lime"
-                  on:click|stopPropagation
-                >
-                  <div class="i-mdi:download w-8 h-8" />
-                </a>
-              {:else if mod.metadata.downloadUrl != null}
-                <a
-                  href={mod.metadata.downloadUrl}
-                  target="_blank"
-                  rel="noopener"
-                  class="text-lime"
-                  on:click|stopPropagation
-                >
-                  <div class="i-mdi:download w-8 h-8" />
-                </a>
-              {/if}
+          </button>
+          {#if mod.type === "injected" && !isMobile()}
+            {#if NEAR_WALLETS[mod.id].extensionUrl != null}
+              <a
+                href={NEAR_WALLETS[mod.id].extensionUrl}
+                target="_blank"
+                rel="noopener"
+                class="text-lime hover:bg-lime/15 p-2 rounded-xl"
+                on:click|stopPropagation
+              >
+                <div class="i-mdi:download w-8 h-8" />
+              </a>
+            {:else if mod.metadata.downloadUrl != null}
+              <a
+                href={mod.metadata.downloadUrl}
+                target="_blank"
+                rel="noopener"
+                class="text-lime hover:bg-lime/15 p-2 rounded-xl"
+                on:click|stopPropagation
+              >
+                <div class="i-mdi:download w-8 h-8" />
+              </a>
             {/if}
-          </div>
-        </button>
+          {/if}
+        </div>
       {/each}
 
       {#if modules.length % 2 === 1}
