@@ -1,6 +1,7 @@
 <script lang="ts">
   import { FixedNumber } from "@tarnadas/fixed-number";
   import { writable } from "svelte/store";
+  import { slide } from "svelte/transition";
 
   import type { PageData } from "./$types";
 
@@ -15,8 +16,8 @@
 
   export let data: PageData;
 
-  const nearBalance$ = writable<FixedNumber>(new FixedNumber("0"));
-  const stake$ = writable<FixedNumber>(new FixedNumber("0"));
+  const nearBalance$ = writable<FixedNumber | undefined>();
+  const stake$ = writable<FixedNumber | undefined>();
   const withdraw$ = writable<FixedNumber | undefined>();
   let canWithdraw = false;
   let totalStakers$: number | null = null;
@@ -158,26 +159,32 @@
   <div
     class="-mt-6 z-10 pb-6 border-2 border-lime rounded-xl px-3 pt-3 bg-black"
   >
-    <Stake
-      walletConnected={$accountId$ != null}
-      {nearBalance$}
-      {stake$}
-      afterUpdateBalances={() => {
-        fetchNearBalance($accountId$);
-        fetchStake($validatorContract$, $accountId$);
-        fetchTotalStake();
-        $modal$ = null;
-      }}
-    >
-      <button
-        class="w-full py-3 bg-lime text-black rounded-xl mt-3"
-        on:click={data.isTG ? wallet.loginViaHere : showWalletSelector}
+    {#if $nearBalance$ != null && $stake$ != null}
+      <Stake
+        walletConnected={$accountId$ != null}
+        nearBalance={$nearBalance$}
+        stake={$stake$}
+        afterUpdateBalances={() => {
+          fetchNearBalance($accountId$);
+          fetchStake($validatorContract$, $accountId$);
+          fetchTotalStake();
+          $modal$ = null;
+        }}
       >
-        Connect Wallet
-      </button>
-    </Stake>
+        <button
+          class="w-full py-3 bg-lime text-black rounded-xl mt-3"
+          on:click={data.isTG ? wallet.loginViaHere : showWalletSelector}
+        >
+          Connect Wallet
+        </button>
+      </Stake>
+    {:else}
+      <div class="w-full" transition:slide>
+        <div class="i-svg-spinners:6-dots-rotate w-12 h-12 bg-gray-7 m-a" />
+      </div>
+    {/if}
     {#if $withdraw$ != null && $withdraw$.valueOf() > 0}
-      <div class="mt-6 pt-6 border-t border-lime">
+      <div class="mt-6 pt-6 border-t border-lime" transition:slide>
         <div class="flex justify-between items-center">
           <div>
             <span class="flex flex-col mt-3">

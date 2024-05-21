@@ -1,29 +1,24 @@
 <script lang="ts">
   import { createTabs, melt } from "@melt-ui/svelte";
   import { FixedNumber } from "@tarnadas/fixed-number";
-  import { writable, type Readable } from "svelte/store";
-  import { crossfade } from "svelte/transition";
+  import { writable } from "svelte/store";
+  import { crossfade, fade, slide } from "svelte/transition";
   import { match } from "ts-pattern";
 
   import { TokenInput } from "$lib/components";
   import { wallet } from "$lib/near";
 
   export let walletConnected: boolean;
-  export let nearBalance$: Readable<FixedNumber>;
-  export let stake$: Readable<FixedNumber>;
+  export let nearBalance: FixedNumber;
+  export let stake: FixedNumber;
   export let afterUpdateBalances: () => void;
 
   const [send, receive] = crossfade({
     duration: 300,
   });
 
-  let newNearBalance: FixedNumber = $nearBalance$;
-  let newStakeBalance: FixedNumber = $stake$;
-
-  $: {
-    newNearBalance = $nearBalance$;
-    newStakeBalance = $stake$;
-  }
+  let newNearBalance: FixedNumber | undefined;
+  let newStakeBalance: FixedNumber | undefined;
 
   const {
     elements: { list, trigger },
@@ -53,18 +48,18 @@
   $: updateOutAmount(active.label, $input$);
   function updateOutAmount(label: "Stake" | "Unstake", val?: FixedNumber) {
     if (!val || val.valueOf() === 0n) {
-      newNearBalance = $nearBalance$;
-      newStakeBalance = $stake$;
+      newNearBalance = undefined;
+      newStakeBalance = undefined;
       return;
     }
     match(label)
       .with("Stake", () => {
-        newNearBalance = $nearBalance$.sub(val);
-        newStakeBalance = $stake$.add(val);
+        newNearBalance = nearBalance.sub(val);
+        newStakeBalance = stake.add(val);
       })
       .with("Unstake", () => {
-        newNearBalance = $nearBalance$.add(val);
-        newStakeBalance = $stake$.sub(val);
+        newNearBalance = nearBalance.add(val);
+        newStakeBalance = stake.sub(val);
       })
       .exhaustive();
   }
@@ -82,8 +77,8 @@
 
   function setMax() {
     $inputValue$ = match(active.label)
-      .with("Stake", () => $nearBalance$.sub(new FixedNumber(5n, 1)).toString())
-      .with("Unstake", () => $stake$.toString())
+      .with("Stake", () => nearBalance.sub(new FixedNumber(5n, 1)).toString())
+      .with("Unstake", () => stake.toString())
       .exhaustive();
   }
 
@@ -130,6 +125,7 @@
 </script>
 
 <div
+  transition:slide
   use:melt={$list}
   class="flex shrink-0 justify-evenly overflow-x-auto text-white font-bold text-xl mb-5"
   aria-label="Manage your account"
@@ -171,15 +167,18 @@
           <div>Near Balance</div>
         </div>
         <div class="w-full text-xl font-bold flex justify-evenly">
-          <span>{$nearBalance$.format()}</span>
-          <span>⇒</span>
-          <span
-            class="result"
-            class:more={newNearBalance > $nearBalance$}
-            class:less={newNearBalance < $nearBalance$}
-          >
-            {newNearBalance.format()}
-          </span>
+          <span class="flex-[1_1_1rem]">{nearBalance.format()}</span>
+          {#if newNearBalance}
+            <span in:fade>⇒</span>
+            <span
+              in:fade
+              class="flex-[1_1_1rem] text-right"
+              class:text-green-4={newNearBalance > nearBalance}
+              class:text-red-4={newNearBalance < nearBalance}
+            >
+              {newNearBalance.format()}
+            </span>
+          {/if}
         </div>
       </div>
     </div>
@@ -189,16 +188,19 @@
         <div class="flex items-center mb-3">
           <div>Staked</div>
         </div>
-        <div class="w-full text-xl font-bold flex justify-evenly">
-          <span>{$stake$.format()}</span>
-          <span>⇒</span>
-          <span
-            class="result"
-            class:more={newStakeBalance > $stake$}
-            class:less={newStakeBalance < $stake$}
-          >
-            {newStakeBalance.format()}
-          </span>
+        <div class="w-full text-xl font-bold flex">
+          <span class="flex-[1_1_1rem]">{stake.format()}</span>
+          {#if newStakeBalance}
+            <span in:fade>⇒</span>
+            <span
+              in:fade
+              class="flex-[1_1_1rem] text-right"
+              class:text-green-4={newStakeBalance > stake}
+              class:text-red-4={newStakeBalance < stake}
+            >
+              {newStakeBalance.format()}
+            </span>
+          {/if}
         </div>
       </div>
     </div>
