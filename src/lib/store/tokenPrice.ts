@@ -9,7 +9,7 @@ export const tokenPrice$ = readable<{
 }>({}, (set) => {
   const interval = setInterval(() => {
     fetchData();
-  }, 10_000);
+  }, 30_000);
 
   fetchData();
 
@@ -17,7 +17,6 @@ export const tokenPrice$ = readable<{
     fetch("https://api.ref.finance/list-token-price")
       .then((res) => res.json())
       .then((data) => {
-        console.log("tokenPrice", data);
         set(data);
       });
   }
