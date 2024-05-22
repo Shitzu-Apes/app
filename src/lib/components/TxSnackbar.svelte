@@ -1,7 +1,5 @@
 <script lang="ts">
-  import { mdiOpenInNew, mdiCancel, mdiCheckCircle } from "@mdi/js";
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
-  import IconButton, { Icon } from "@smui/icon-button";
   import { FixedNumber } from "@tarnadas/fixed-number";
   import type { ExecutionStatus } from "near-api-js/lib/providers/provider";
 
@@ -95,37 +93,27 @@
   }
 </script>
 
-<div class="flex flex-col justify-between">
+<div
+  class="flex flex-col justify-between [&>*]:flex [&>*]:items-center [&>*]:p-3 [&>*]:gap-2 bg-gradient-to-r bg-gradient-from-cyan bg-gradient-to-blue text-gray-8 font-size-[1.1rem] font-bold"
+>
   {#await outcome}
-    <div
-      class="flex flex-col items-center py-1 bg-gradient-to-r bg-gradient-from-cyan bg-gradient-to-blue"
-    >
-      <div class="i-svg-spinners:3-dots-bounce w-6 h-6 bg-gray-7" />
-      <h3 class="text-gray-7">Awaiting confirmation</h3>
+    <div>
+      <div class="i-svg-spinners:6-dots-rotate w-6 h-6 bg-gray-8" />
+      <div>Awaiting confirmation</div>
     </div>
   {:then res}
     {#if res == null}
-      <div
-        class="flex flex-col items-center py-1 bg-gradient-to-r bg-gradient-from-cyan bg-gradient-to-blue"
-      >
-        <div class="i-line-md:confirm w-6 h-6 bg-gray-7" />
-        <h3 class="text-gray-7">Complete</h3>
+      <div>
+        <div class="i-line-md:confirm w-6 h-6 bg-gray-8" />
+        <div>Complete</div>
       </div>
     {:else if Array.isArray(res)}
       {#each res as { status, id, functionCalls, tokensBurnt, receiptError }}
         <div class="tx-status">
           {#if status === "success"}
-            <div class="icon">
-              <Icon tag="svg" viewBox="0 0 24 24">
-                <path fill="var(--color-ok)" d={mdiCheckCircle} />
-              </Icon>
-            </div>
+            <div class="w-6 h-6 text-green-8 i-mdi-check-circle" />
           {:else}
-            <div class="icon">
-              <Icon tag="svg" viewBox="0 0 24 24">
-                <path fill="var(--color-err)" d={mdiCancel} />
-              </Icon>
-            </div>
+            <div class="w-6 h-6 text-red-8 i-mdi-cancel" />
           {/if}
           <div>
             <div>
@@ -144,16 +132,15 @@
             </div>
             <div>
               <a
+                class="text-gray-9 visited:text-gray-9"
                 href="{import.meta.env.VITE_EXPLORER_URL}/transactions/{id}"
                 target="_blank"
                 rel="noopener"
               >
                 Link to transaction
-                <IconButton size="button" class="material-icons">
-                  <Icon tag="svg" viewBox="0 0 24 24">
-                    <path fill="currentColor" d={mdiOpenInNew} />
-                  </Icon>
-                </IconButton>
+                <button class="rounded-xl p-2">
+                  <div class="w-4 h-4 i-mdi-open-in-new" />
+                </button>
               </a>
             </div>
             {#if receiptError}
@@ -166,12 +153,8 @@
         </div>
       {/each}
     {:else if res.status === "error"}
-      <div class="tx-status">
-        <div class="icon">
-          <Icon tag="svg" viewBox="0 0 24 24">
-            <path fill="var(--err-color)" d={mdiCancel} />
-          </Icon>
-        </div>
+      <div>
+        <div class="w-6 h-6 text-red-8 i-mdi-cancel" />
         <div>
           <div>An error occured:</div>
           <div>{res.message}</div>
@@ -180,36 +163,3 @@
     {/if}
   {/await}
 </div>
-
-<!-- <style lang="scss">
-  .tx-snackbar {
-    display: flex;
-    flex-direction: column;
-    font-size: 1rem;
-
-    > * {
-      display: flex;
-      align-items: center;
-    }
-  }
-
-  .tx-status {
-    display: flex;
-    align-items: center;
-  }
-
-  .icon {
-    min-width: to-rem(28px);
-    max-width: to-rem(28px);
-    min-height: to-rem(28px);
-    max-height: to-rem(28px);
-    padding: to-rem(4px);
-    margin-right: 0.4rem;
-  }
-
-  a {
-    display: inline-flex;
-    align-items: center;
-    color: var(--color-link);
-  }
-</style> -->

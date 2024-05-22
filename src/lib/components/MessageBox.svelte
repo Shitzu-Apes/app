@@ -1,13 +1,5 @@
 <script lang="ts">
-  import {
-    mdiAlertCircleOutline,
-    mdiAlertOutline,
-    mdiInformationSlabCircle,
-  } from "@mdi/js";
-
   export let type: "error" | "warning" | "info" = "info";
-
-  const size = "1.6rem";
 </script>
 
 <p
@@ -17,26 +9,11 @@
   class:border-blue-3={type === "info"}
 >
   {#if type === "error"}
-    <svg
-      viewBox="0 0 24 24"
-      style={`min-height: ${size};max-height: ${size};min-width: ${size};max-width: ${size};`}
-    >
-      <path class="fill-red-3" d={mdiAlertCircleOutline} />
-    </svg>
+    <div class="w-6 h-6 text-red-3 i-mdi-alert-circle-outline" />
   {:else if type === "warning"}
-    <svg
-      viewBox="0 0 24 24"
-      style={`min-height: ${size};max-height: ${size};min-width: ${size};max-width: ${size};`}
-    >
-      <path class="fill-yellow-3" d={mdiAlertOutline} />
-    </svg>
+    <div class="w-6 h-6 text-yellow-3 i-mdi-alert-outline" />
   {:else if type === "info"}
-    <svg
-      viewBox="0 0 24 24"
-      style={`min-height: ${size};max-height: ${size};min-width: ${size};max-width: ${size};`}
-    >
-      <path class="fill-blue-3" d={mdiInformationSlabCircle} />
-    </svg>
+    <div class="w-6 h-6 text-blue-3 i-mdi-information-slab-circle" />
   {/if}
   <slot />
 </p>
