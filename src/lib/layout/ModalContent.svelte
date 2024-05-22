@@ -14,15 +14,17 @@
   }
 </script>
 
-<div class="modal">
-  <h3 class="header">{header}</h3>
+<div class="flex flex-col text-white overflow-hidden">
+  <h3 class="mx-5 my-2 pb-2 border-b-1 border-b-gray-3 text-5 font-bold">
+    {header}
+  </h3>
   {#if loading}
     <div class="spinner" transition:slide>
       <div class="i-svg-spinners:3-dots-bounce w-6 h-6 bg-gray-7" />
     </div>
   {:else}
     <div
-      class="content"
+      class="flex flex-col flex-1 overflow-x-hidden px-1 py-2 transition-[min-height_0.6s_ease-in-out]"
       transition:slide
       bind:clientHeight={contentHeight}
       style:min-height="{$maxHeight$}px"
@@ -31,27 +33,3 @@
     </div>
   {/if}
 </div>
-
-<style lang="scss">
-  .modal {
-    display: flex;
-    flex-direction: column;
-    color: white;
-    overflow: hidden;
-  }
-
-  .header {
-    margin: 0.4rem 0 1.2rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid lightgray;
-  }
-
-  .content {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    transition: min-height 0.6s ease-in-out;
-    overflow: hidden auto;
-    padding: 0.6rem 0.2rem;
-  }
-</style>

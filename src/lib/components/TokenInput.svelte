@@ -50,15 +50,3 @@
   autocomplete="off"
   class="bg-transparent focus:outline-none"
 />
-
-<!-- <style lang="scss">
-  input {
-    width: var(--width, unset);
-    flex: var(--flex, unset);
-    font-size: var(--font-size, unset);
-
-    &.readonly {
-      cursor: default;
-    }
-  }
-</style> -->

@@ -36,11 +36,21 @@
   }
 </script>
 
-<div class="section-field">
-  <span>Connected account:</span>
+<div class="flex gap-2 items-center border-2 border-lime rounded-xl p-2">
+  <object
+    title="profile"
+    data="https://stackoverflow.com/does-not-exist.png"
+    type="image/png"
+  >
+    <img
+      src="https://i.near.social/magic/thumbnail/https://near.social/magic/img/account/{accountId}"
+      alt="profile"
+      class="rounded-full w-16 h-16"
+    />
+  </object>
   <span>{accountId}</span>
 </div>
-<div class="section-field">
+<div class="flex gap-2 items-center">
   <span>Wallet balance:</span>
   <span>{nearBalance ? `${nearBalance.format()} NEAR` : "-"}</span>
   {#if nearBalance != null && nearBalance.toNumber() < 0.5}
@@ -50,6 +60,3 @@
     </MessageBox>
   {/if}
 </div>
-
-<style lang="scss">
-</style>
