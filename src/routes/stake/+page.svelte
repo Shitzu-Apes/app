@@ -7,6 +7,7 @@
 
   import { showWalletSelector } from "$lib/auth";
   import { Stake, ValidatorStatistics } from "$lib/components";
+  import MessageBox from "$lib/components/MessageBox.svelte";
   import { modal$ } from "$lib/layout";
   import {
     validatorContract$,
@@ -30,6 +31,10 @@
   fetchTotalStake();
 
   async function fetchNearBalance(accountId?: string) {
+    if (accountId == null) {
+      $nearBalance$ = undefined;
+      return;
+    }
     const res = await fetch(import.meta.env.VITE_NODE_URL, {
       method: "POST",
       headers: {
@@ -58,7 +63,11 @@
   }
 
   async function fetchStake(c: Promise<ValidatorContract>, accountId?: string) {
-    if (!accountId) return;
+    if (accountId == null) {
+      $stake$ = undefined;
+      $withdraw$ = undefined;
+      return;
+    }
     const contract = await c;
     const account = await contract.get_account({ account_id: accountId });
     stake$.set(new FixedNumber(account.staked_balance, 24));
@@ -159,7 +168,11 @@
   <div
     class="-mt-6 z-10 pb-6 border-2 border-lime rounded-xl px-3 pt-3 bg-black"
   >
-    {#if $nearBalance$ != null && $stake$ != null}
+    {#if $accountId$ == null}
+      <MessageBox>
+        Please login in order to stake with Shitzu validator!
+      </MessageBox>
+    {:else if $nearBalance$ != null && $stake$ != null}
       <Stake
         walletConnected={$accountId$ != null}
         nearBalance={$nearBalance$}
