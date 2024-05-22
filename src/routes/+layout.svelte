@@ -9,8 +9,6 @@
   import { onMount, onDestroy } from "svelte";
   import { Modal } from "svelte-simple-modal";
 
-  import type { PageData } from "./$types";
-
   import { Footer, Header, modal$, Body, modalCanClose$ } from "$lib/layout";
   import { ScreenSize } from "$lib/models";
   import { screenSize$ } from "$lib/screen-size";
@@ -19,8 +17,6 @@
     snackbar$,
     snackbarComponent$,
   } from "$lib/snackbar";
-
-  export let data: PageData;
 
   // eslint-disable-next-line import/no-named-as-default-member
   dayjs.extend(localizedFormat);
@@ -118,7 +114,7 @@
 
 <div class="bg-[#222] min-h-screen w-screen max-w-full">
   <div class="flex flex-col min-h-screen prose prose-invert prose-lime mx-auto">
-    <Header isTG={data.isTG} />
+    <Header />
     <Body>
       <slot />
     </Body>

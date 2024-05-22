@@ -3,8 +3,6 @@
   import { writable } from "svelte/store";
   import { slide } from "svelte/transition";
 
-  import type { PageData } from "./$types";
-
   import { showWalletSelector } from "$lib/auth";
   import { Stake, ValidatorStatistics } from "$lib/components";
   import MessageBox from "$lib/components/MessageBox.svelte";
@@ -14,8 +12,6 @@
     wallet,
     type ValidatorContract,
   } from "$lib/near";
-
-  export let data: PageData;
 
   const nearBalance$ = writable<FixedNumber | undefined>();
   const stake$ = writable<FixedNumber | undefined>();
@@ -186,7 +182,7 @@
       >
         <button
           class="w-full py-3 bg-lime text-black rounded-xl mt-3"
-          on:click={data.isTG ? wallet.loginViaHere : showWalletSelector}
+          on:click={wallet.isTG ? wallet.loginViaHere : showWalletSelector}
         >
           Connect Wallet
         </button>

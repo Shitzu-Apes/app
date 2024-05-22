@@ -2,8 +2,6 @@
   import { page } from "$app/stores";
   import paths from "$lib/paths";
 
-  export let isTG: boolean;
-
   const icons: {
     [key in (typeof paths)[number]["slug"]]: string;
   } = {
@@ -21,7 +19,7 @@
     </a>
 
     {#await import("$lib/auth") then { Login }}
-      <Login {isTG} />
+      <Login />
     {/await}
   </div>
 

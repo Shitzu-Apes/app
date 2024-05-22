@@ -18,6 +18,11 @@ import { showSnackbar, showTxSnackbar } from "$lib/snackbar";
 export class Wallet {
   private hereWallet?: HereWallet;
 
+  private _isTG = false;
+  public get isTG() {
+    return this._isTG;
+  }
+
   private selector$ = readable(
     browser
       ? Promise.all([
@@ -139,9 +144,8 @@ export class Wallet {
         const hereWallet = await this.connectHere();
         const accounts = await hereWallet.getAccounts();
         if (accounts.length > 0) {
-          await hereWallet.signIn({
-            contractId: import.meta.env.VITE_DOGSHIT_CONTRACT_ID,
-          });
+          this._isTG = true;
+          await hereWallet.signIn();
         }
       }
     });

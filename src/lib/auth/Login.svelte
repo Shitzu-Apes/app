@@ -14,8 +14,6 @@
   import { modal$, modalSize$, ModalSize } from "$lib/layout";
   import { wallet } from "$lib/near";
 
-  export let isTG: boolean;
-
   const iconUrl$ = wallet.iconUrl$;
   const accountId$ = wallet.accountId$;
 
@@ -37,7 +35,7 @@
     {:else}
       <button
         on:click={() => {
-          if (isTG) {
+          if (wallet.isTG) {
             wallet.loginViaHere();
           } else {
             showWalletSelector();
