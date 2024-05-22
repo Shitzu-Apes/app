@@ -105,7 +105,7 @@
     <Actions>
       {#if $snackbarCanClose$}
         <button
-          class="i-mdi:close text-red-3 cursor-pointer w-6 h-6 my-auto cursor-pointer"
+          class="i-mdi:close text-red-3 cursor-pointer w-5 h-5 absolute top-2 right-2 cursor-pointer rounded-full hover:bg-red-3/15"
           on:click={handleCloseSnackbar}
         />
       {/if}
