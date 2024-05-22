@@ -17,7 +17,7 @@
 <div class="border-b-2 border-lime">
   <div class="flex px-4 py-3 justify-between">
     <a href={window.location.origin} class="novisit">
-      <img class="w-8 h-8" src="/favicon.ico" alt="logo" />
+      <img class="w-8 h-8" src="/assets/favicon.ico" alt="logo" />
     </a>
 
     {#await import("$lib/auth") then { Login }}
