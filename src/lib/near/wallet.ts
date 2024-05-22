@@ -117,7 +117,9 @@ export class Wallet {
   });
 
   constructor() {
-    HereWallet.connect().then((hereWallet) => {
+    HereWallet.connect({
+      nodeUrl: import.meta.env.VITE_NODE_URL,
+    }).then((hereWallet) => {
       this.hereWallet = hereWallet;
     });
 
@@ -133,7 +135,14 @@ export class Wallet {
           type: "wallet-selector",
           account,
         });
-        return;
+      } else {
+        const hereWallet = await this.connectHere();
+        const accounts = await hereWallet.getAccounts();
+        if (accounts.length > 0) {
+          await hereWallet.signIn({
+            contractId: import.meta.env.VITE_DOGSHIT_CONTRACT_ID,
+          });
+        }
       }
     });
 
@@ -143,9 +152,20 @@ export class Wallet {
       });
     }
 
+    this.connectHere = this.connectHere.bind(this);
     this.loginViaWalletSelector = this.loginViaWalletSelector.bind(this);
     this.loginViaHere = this.loginViaHere.bind(this);
     this.signOut = this.signOut.bind(this);
+  }
+
+  private connectHere() {
+    if (this.hereWallet) return Promise.resolve(this.hereWallet);
+    return HereWallet.connect({
+      nodeUrl: import.meta.env.VITE_NODE_URL,
+    }).then((hereWallet) => {
+      this.hereWallet = hereWallet;
+      return this.hereWallet;
+    });
   }
 
   public async loginViaWalletSelector(unionMod: UnionModuleState) {
