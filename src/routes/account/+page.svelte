@@ -5,8 +5,8 @@
   const accountId$ = wallet.accountId$;
 </script>
 
-<div class="flex flex-col gap-4">
-  <h2 class="font-size-7 self-center">Wallet</h2>
+<div class="flex flex-col gap-4 items-start">
+  <h1 class="self-center">Wallet</h1>
   {#if $accountId$}
     <Wallet accountId={$accountId$} />
   {:else}
