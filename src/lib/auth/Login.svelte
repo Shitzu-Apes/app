@@ -53,8 +53,8 @@
     class="flex flex-col gap-2 bg-black text-white border-2 border-lime px-4 py-2 rounded-xl"
   >
     <a use:melt={$item} href="/account" class="hover:bg-lime/15 rounded-xl p-2">
-      Show account</a
-    >
+      Show account
+    </a>
     <div
       use:melt={$item}
       on:m-click={() => {

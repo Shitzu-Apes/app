@@ -142,6 +142,7 @@ export class Wallet {
         });
       } else {
         const hereWallet = await this.connectHere();
+        console.log("hereWallet", hereWallet);
         const accounts = await hereWallet.getAccounts();
         if (accounts.length > 0) {
           this._isTG = true;
@@ -200,10 +201,12 @@ export class Wallet {
     if (!this.hereWallet) {
       throw new Error("HereWallet not yet initialized");
     }
-    const account = await this.hereWallet.signIn();
+    // const account = await this.hereWallet.signIn();
+    const accounts = await this.hereWallet.getAccounts();
+    console.log("accounts", accounts);
     this._account$.set({
       type: "here",
-      account,
+      account: accounts[0],
     });
   }
 
