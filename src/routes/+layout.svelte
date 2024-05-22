@@ -90,13 +90,6 @@
     class={$snackbarClass$ ?? ""}
     on:SMUISnackbar:closed={handleCloseSnackbar}
   >
-    <Actions>
-      {#if $snackbarCanClose$}
-        <button
-          class="i-mdi:close cursor-pointer w-4 h-4 absolute top-1 right-1 cursor-pointer"
-        />
-      {/if}
-    </Actions>
     <Label>
       {#if $snackbarComponent$}
         {#if $snackbarComponent$.type === "text"}
@@ -109,6 +102,14 @@
         {/if}
       {/if}
     </Label>
+    <Actions>
+      {#if $snackbarCanClose$}
+        <button
+          class="i-mdi:close text-red-3 cursor-pointer w-6 h-6 my-auto cursor-pointer"
+          on:click={handleCloseSnackbar}
+        />
+      {/if}
+    </Actions>
   </Snackbar>
 </div>
 
