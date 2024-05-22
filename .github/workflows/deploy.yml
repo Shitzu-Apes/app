@@ -1,0 +1,48 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build
+        run: yarn build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./build
+    env:
+      VITE_NETWORK_ID: ${{ vars.VITE_NETWORK_ID }}
+      VITE_NODE_URL: ${{ vars.VITE_NODE_URL }}
+      VITE_EXPLORER_URL: ${{ vars.VITE_EXPLORER_URL }}
+      VITE_DOGSHIT_CONTRACT_ID: ${{ vars.VITE_DOGSHIT_CONTRACT_ID }}
+      VITE_VALIDATOR_CONTRACT_ID: ${{ vars.VITE_VALIDATOR_CONTRACT_ID }}
+
+  deploy:
+    needs: build
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
