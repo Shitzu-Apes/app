@@ -145,7 +145,7 @@ export class Wallet {
         const accounts = await hereWallet.getAccounts();
         if (accounts.length > 0) {
           this._isTG = true;
-          await hereWallet.signIn();
+          await this.loginViaHere();
         }
       }
     });
@@ -200,9 +200,7 @@ export class Wallet {
     if (!this.hereWallet) {
       throw new Error("HereWallet not yet initialized");
     }
-    const account = await this.hereWallet.signIn({
-      contractId: import.meta.env.VITE_DOGSHIT_CONTRACT_ID,
-    });
+    const account = await this.hereWallet.signIn();
     this._account$.set({
       type: "here",
       account,
