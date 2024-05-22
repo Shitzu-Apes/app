@@ -1,4 +1,14 @@
 <script lang="ts">
+  import { bind } from "svelte-simple-modal";
+
+  import { DexscreenerIcon } from "$lib/assets";
+  import { Dexscreener } from "$lib/components";
+  import { ModalSize, modal$, modalSize$ } from "$lib/layout";
+
+  export async function showPriceChart() {
+    modalSize$.set(ModalSize.Large);
+    modal$.set(bind(Dexscreener, {}));
+  }
 </script>
 
 <div class="flex flex-col gap-[1.2rem]">
@@ -6,5 +16,33 @@
   <div>
     Introducing $SHITZU, the original Meme coin of Aurora, and now available on
     NEAR mainnet. 100% driven by community effort.
+  </div>
+  <a
+    href="/account"
+    class="border-2 border-lime hover:bg-lime/15 flex justify-center items-center decoration-none px-4 py-2 rounded-xl"
+  >
+    <img
+      class="rounded-full w-4 h-4 mr-2"
+      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='16 24 248 248' style='background: %23000'%3E%3Cpath d='M164,164v52h52Zm-45-45,20.4,20.4,20.6-20.6V81H119Zm0,18.39V216h41V137.19l-20.6,20.6ZM166.5,81H164v33.81l26.16-26.17A40.29,40.29,0,0,0,166.5,81ZM72,153.19V216h43V133.4l-11.6-11.61Zm0-18.38,31.4-31.4L115,115V81H72ZM207,121.5h0a40.29,40.29,0,0,0-7.64-23.66L164,133.19V162h2.5A40.5,40.5,0,0,0,207,121.5Z' fill='%23fff'/%3E%3Cpath d='M189 72l27 27V72h-27z' fill='%2300c08b'/%3E%3C/svg%3E%0A"
+      style="width: 28px; height: 28px;"
+      alt="ref finance"
+    />
+    Buy on Ref Finance
+  </a>
+  <button
+    on:click={showPriceChart}
+    class="border-2 border-lime hover:bg-lime/15 flex justify-center items-center decoration-none px-4 py-2 rounded-xl"
+  >
+    <DexscreenerIcon className="w-4 h-4 mr-2" />
+    Show Price Chart
+  </button>
+  <div class="mt-2 text-balance">
+    Shitzu community is running a 50% fee validator with a staking farm that
+    emits various meme tokens from the Near ecosystem. These meme tokens
+    subsidize the staking fee. Due to the price fluctuations of the meme tokens
+    this can result in much higher APRs. If you stake with our validator you
+    will receive a token called $DOGSHIT, which wraps all underlying meme
+    tokens. $DOGSHIT has no other purpose than being burnt to receive the
+    underlying tokens.
   </div>
 </div>
