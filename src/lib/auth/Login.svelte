@@ -24,7 +24,15 @@
 
 <div class="login">
   {#await $iconUrl$ then iconUrl}
-    {#if $accountId$ && iconUrl}
+    {#if wallet.isTG}
+      <a
+        href="/account"
+        class="border-2 border-lime hover:bg-lime/15 flex justify-center items-center decoration-none px-4 py-2 rounded-xl"
+      >
+        <img src={iconUrl} alt="wallet icon" class="w-4 h-4 mr-2" />
+        {$accountId$}
+      </a>
+    {:else if $accountId$ && iconUrl}
       <button
         use:melt={$trigger}
         class="border-2 border-lime hover:bg-lime/15 flex justify-center items-center decoration-none px-4 py-2 rounded-xl"
