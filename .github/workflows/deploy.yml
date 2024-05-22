@@ -1,52 +1,42 @@
 name: Deploy
-
 on:
   push:
-    branches:
-      - main
+    branches: main
+  pull_request:
+    branches: main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    environment: prod
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Build
-        run: yarn build
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./build
-    env:
-      VITE_NETWORK_ID: ${{ vars.VITE_NETWORK_ID }}
-      VITE_NODE_URL: ${{ vars.VITE_NODE_URL }}
-      VITE_EXPLORER_URL: ${{ vars.VITE_EXPLORER_URL }}
-      VITE_DOGSHIT_CONTRACT_ID: ${{ vars.VITE_DOGSHIT_CONTRACT_ID }}
-      VITE_VALIDATOR_CONTRACT_ID: ${{ vars.VITE_VALIDATOR_CONTRACT_ID }}
-
   deploy:
-    needs: build
+    name: Deploy
+    runs-on: ubuntu-latest
 
     permissions:
-      pages: write
-      id-token: write
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    runs-on: ubuntu-latest
+      id-token: write # Needed for auth with Deno Deploy
+      contents: read # Needed to clone the repository
 
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install step
+        run: "yarn install"
+
+      - name: Build step
+        run: "yarn build"
+
+      - name: Upload to Deno Deploy
+        uses: denoland/deployctl@v1
+        with:
+          project: "shitzu-app"
+          entrypoint: "mod.ts"
+          root: "build"
