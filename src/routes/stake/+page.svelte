@@ -192,7 +192,7 @@
         <div class="i-svg-spinners:6-dots-rotate w-12 h-12 bg-gray-7 m-a" />
       </div>
     {/if}
-    {#if $withdraw$ != null && $withdraw$.valueOf() > 0}
+    {#if $withdraw$ != null && $withdraw$.valueOf() > 1_000}
       <div class="mt-6 pt-6 border-t border-lime" transition:slide>
         <div class="flex justify-between items-center">
           <div>
