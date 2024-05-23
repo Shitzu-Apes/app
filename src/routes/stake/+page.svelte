@@ -3,28 +3,34 @@
   import { writable } from "svelte/store";
   import { slide } from "svelte/transition";
 
+  import type { AccountId } from "$lib/abi";
   import { showWalletSelector } from "$lib/auth";
   import { Stake, ValidatorStatistics } from "$lib/components";
   import MessageBox from "$lib/components/MessageBox.svelte";
   import { modal$ } from "$lib/layout";
   import {
+    dogshitContract$,
     validatorContract$,
     wallet,
     type ValidatorContract,
+    type ValidatorFarm,
   } from "$lib/near";
 
   const nearBalance$ = writable<FixedNumber | undefined>();
   const stake$ = writable<FixedNumber | undefined>();
   const withdraw$ = writable<FixedNumber | undefined>();
   let canWithdraw = false;
-  let totalStakers$: number | null = null;
-  let totalStaked$: FixedNumber | null = null;
+  let totalStakers: number | null = null;
+  let totalStaked: FixedNumber | null = null;
+  let farm: ValidatorFarm | null = null;
+  let undistributedRewards: [AccountId, string][] = [];
 
   let accountId$ = wallet.accountId$;
 
   $: fetchNearBalance($accountId$);
   $: fetchStake($validatorContract$, $accountId$);
   fetchTotalStake();
+  fetchFarm();
 
   async function fetchNearBalance(accountId?: string) {
     if (accountId == null) {
@@ -72,13 +78,32 @@
   }
 
   async function fetchTotalStake() {
-    totalStaked$ = await $validatorContract$
+    totalStaked = await $validatorContract$
       .then((contract) => contract.get_pool_summary(undefined))
       .then((summary) => new FixedNumber(summary.total_staked_balance, 24));
 
-    totalStakers$ = await $validatorContract$.then((contract) =>
+    totalStakers = await $validatorContract$.then((contract) =>
       contract.get_number_of_accounts(undefined),
     );
+  }
+
+  async function fetchFarm() {
+    farm = {
+      active: true,
+      amount: "200000000000000000000000000000",
+      start_date: String(BigInt(Date.now()) * 1_000_000n),
+      end_date: "1721865600000000000",
+      farm_id: 0,
+      name: "Dogshit",
+      token_id: "shit.0xshitzu.near",
+    };
+    undistributedRewards = await $dogshitContract$.then((contract) =>
+      contract.get_undistributed_rewards(undefined),
+    );
+    // TODO enable once live
+    // farm = await $validatorContract$.then((contract) =>
+    //   contract.get_farm({ farm_id: 0 }),
+    // );
   }
 
   let loading = false;
@@ -220,5 +245,10 @@
     {/if}
   </div>
 
-  <ValidatorStatistics {totalStaked$} {totalStakers$} />
+  <ValidatorStatistics
+    {farm}
+    {undistributedRewards}
+    {totalStaked}
+    {totalStakers}
+  />
 </div>
