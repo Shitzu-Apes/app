@@ -4,6 +4,32 @@
   import { DexscreenerIcon } from "$lib/assets";
   import { Dexscreener } from "$lib/components";
   import { ModalSize, modal$, modalSize$ } from "$lib/layout";
+  import {
+    refPrices$,
+    shitzuPriceHistory,
+    type ShitzuPriceHistory,
+  } from "$lib/store";
+  import Near from "$lib/assets/Near.svelte";
+
+  $: shitzuPrice = $shitzuPriceHistory
+    ? preparePrice($shitzuPriceHistory)
+    : null;
+
+  function preparePrice(priceHistory: ShitzuPriceHistory): {
+    price: number;
+    diff: number;
+  } {
+    const price =
+      +priceHistory.price_list[priceHistory.price_list.length - 1].price;
+    const yesterday = +priceHistory.price_list[0].price;
+    const diff = (price - yesterday) / yesterday;
+    return {
+      price,
+      diff,
+    };
+  }
+
+  $: nearPrice = $refPrices$["wrap.near"]?.price;
 
   export async function showPriceChart() {
     modalSize$.set(ModalSize.Large);
@@ -12,23 +38,78 @@
 </script>
 
 <div class="flex flex-col gap-[1.2rem]">
-  <h1 class="self-center">Shitzu App</h1>
   <div>
-    Introducing $SHITZU, the original Meme coin of Aurora, and now available on
-    NEAR mainnet. 100% driven by community effort.
+    <div class="text-center">
+      <h2 class="mb-0 text-4xl">SHITZU</h2>
+      <div>Ref Finance Pool 4369</div>
+      <div class="mt-6 text-center text-white text-3xl">
+        {#if shitzuPrice && nearPrice}
+          <div>
+            ${parseFloat((shitzuPrice.price * +nearPrice).toString()).toFixed(
+              6,
+            )}
+          </div>
+          <div
+            class="text-base"
+            class:text-red={shitzuPrice.diff < 0}
+            class:text-lime={shitzuPrice.diff > 0}
+          >
+            {shitzuPrice.diff < 0 ? "" : "+"}{parseFloat(
+              (shitzuPrice.diff * 100).toString(),
+            ).toFixed(2)}% TODAY
+          </div>
+        {:else}
+          -
+        {/if}
+      </div>
+    </div>
+
+    <!-- <div>
+      <div class="flex items-center justify-center">
+        <div class="text-4xl"><Near className="w-8 h-8" /></div>
+        <input
+          type="number"
+          class="max-w-60 decoration-none bg-transparent outline-none text-center text-white text-6xl py-10"
+          placeholder={"0"}
+        />
+        <div>
+          <button class="bg-lime/15 text-lime px-4 py-2 rounded-xl">Max</button>
+        </div>
+      </div>
+
+      <div class="text-center text-3xl">312,784.19 SHITZU</div>
+    </div>
+
+    {#if shitzuPrice && nearPrice}
+      <div class="mt-6">
+        <div class="text-sm font-bold flex items-center gap-1 mb-1">
+          Buy SHITZU <div class="i-mdi:rocket-launch w-4 h-4 inline-flex" />
+        </div>
+        <div class="text-xs">
+          You are buying <Near className="w-5 h-5 inline-flex align-middle" /> 10
+          of SHITZU from
+          <a
+            href="https://app.ref.finance/v2farms/4369-r"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="decoration-none"
+          >
+            Ref Pool 4369
+            <div class="i-mdi:open-in-new w-3 h-3 inline-flex items-center" />
+          </a>. You will receive approximately 312,784.19 SHITZU based on the
+          current price of ${parseFloat(
+            (shitzuPrice.price * +nearPrice).toString(),
+          ).toFixed(6)}.
+        </div>
+      </div>
+    {/if}
+    <button
+      class="bg-lime text-black w-full py-2 rounded-xl my-6 text-2xl font-bold"
+    >
+      Buy
+    </button> -->
   </div>
-  <a
-    href="/account"
-    class="border-2 border-lime hover:bg-lime/15 flex justify-center items-center decoration-none px-4 py-2 rounded-xl"
-  >
-    <img
-      class="rounded-full w-4 h-4 mr-2"
-      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='16 24 248 248' style='background: %23000'%3E%3Cpath d='M164,164v52h52Zm-45-45,20.4,20.4,20.6-20.6V81H119Zm0,18.39V216h41V137.19l-20.6,20.6ZM166.5,81H164v33.81l26.16-26.17A40.29,40.29,0,0,0,166.5,81ZM72,153.19V216h43V133.4l-11.6-11.61Zm0-18.38,31.4-31.4L115,115V81H72ZM207,121.5h0a40.29,40.29,0,0,0-7.64-23.66L164,133.19V162h2.5A40.5,40.5,0,0,0,207,121.5Z' fill='%23fff'/%3E%3Cpath d='M189 72l27 27V72h-27z' fill='%2300c08b'/%3E%3C/svg%3E%0A"
-      style="width: 28px; height: 28px;"
-      alt="ref finance"
-    />
-    Buy on Ref Finance
-  </a>
+
   <button
     on:click={showPriceChart}
     class="border-2 border-lime hover:bg-lime/15 flex justify-center items-center decoration-none px-4 py-2 rounded-xl"
@@ -46,3 +127,15 @@
     underlying tokens.
   </div>
 </div>
+
+<style>
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+</style>

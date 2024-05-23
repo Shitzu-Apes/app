@@ -8,18 +8,17 @@ export type TokenInfo = {
   symbol: string;
 };
 
-export const refPrices$ = readable<
-  Promise<{
-    [token_address: string]: TokenInfo | undefined;
-  }>
->(new Promise<never>(() => {}), (set) => {
+export const refPrices$ = readable<{
+  [token_address: string]: TokenInfo | undefined;
+}>({}, (set) => {
   const interval = setInterval(() => {
     fetchData();
-  }, 30_000);
+  }, 3_000);
 
   fetchData();
 
   function fetchData() {
+    console.log("fetching");
     fetch("https://api.ref.finance/list-token-price")
       .then((res) => res.json())
       .then((data) => {
@@ -41,8 +40,7 @@ const poolIds: Record<string, string> = {
 
 export function getToken$(tokenId: string): Readable<Promise<TokenInfo>> {
   if (tokenPrices[tokenId] == null) {
-    tokenPrices[tokenId] = derived(refPrices$, async (r) => {
-      const refPrices = await r;
+    tokenPrices[tokenId] = derived(refPrices$, async (refPrices) => {
       if (refPrices[tokenId] != null) {
         return refPrices[tokenId]!;
       }
