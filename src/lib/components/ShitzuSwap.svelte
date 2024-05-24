@@ -3,7 +3,7 @@
   import { TokenInput } from "$lib/components";
   import { nearBalance, refreshNearBalance, wallet } from "$lib/near";
   import {
-    refPrices$,
+    tokenPrices$,
     shitzuPriceHistory,
     type ShitzuPriceHistory,
   } from "$lib/store";
@@ -38,7 +38,7 @@
     }
   }
 
-  $: nearPrice = $refPrices$["wrap.near"]?.price;
+  $: nearPrice = $tokenPrices$ ? $tokenPrices$["wrap.near"].price : "0";
 
   const { accountId$ } = wallet;
 

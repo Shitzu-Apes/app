@@ -4,49 +4,56 @@
 
   import type { AccountId } from "$lib/abi";
   import type { ValidatorFarm } from "$lib/near";
-  import { getToken$, getToken } from "$lib/store";
+  import { tokenPrices$ } from "$lib/store";
 
   export let farm: ValidatorFarm | null;
   export let undistributedRewards: [AccountId, string][] = [];
   export let totalStakers: number | null;
   export let totalStaked: FixedNumber | null;
 
-  let tokenAPRs$ = writable<[AccountId, number][]>([]);
+  const tokenAPRs$ = writable<[AccountId, number][]>([]);
 
-  let nearPrice: number | undefined;
-  getToken$("wrap.near").subscribe((n) =>
-    n.then((n) => {
-      nearPrice = Number(n.price);
-    }),
-  );
+  $: nearPrice = $tokenPrices$ ? +$tokenPrices$["wrap.near"].price : 0;
 
   $: if (
     farm != null &&
     undistributedRewards != null &&
     totalStaked != null &&
-    nearPrice != null
+    nearPrice != null &&
+    $tokenPrices$ !== null
   ) {
     const yearlyMultiplier =
       Number(365n * 24n * 60n * 60n) /
       Number(
         (BigInt(farm.end_date) - BigInt(farm.start_date)) / 1_000_000_000n,
       );
-    const _nearPrice = nearPrice;
-    Promise.all(
-      undistributedRewards.map(async ([tokenId, rewards]) => {
-        const token = await getToken(tokenId);
-        if (!token) return [token, 0] as [string, number];
-        return [
-          tokenId,
-          (yearlyMultiplier *
-            new FixedNumber(rewards, token.decimal).toNumber() *
-            Number(token.price ?? 0)) /
-            _nearPrice /
-            totalStaked.toNumber(),
-        ] as [string, number];
-      }),
-    ).then((res) => {
-      $tokenAPRs$ = res;
+
+    $tokenAPRs$ = undistributedRewards.map(([tokenId, rewards]) => {
+      const { price, decimal } = $tokenPrices$[tokenId];
+
+      console.log({
+        tokenId,
+        rewards,
+        price,
+        totalStaked,
+        nearPrice,
+        yearlyMultiplier,
+      });
+      console.log({
+        yearlyMultiplier: yearlyMultiplier,
+        rewards: new FixedNumber(rewards, decimal).toNumber(),
+        price: Number(price ?? 0),
+        totalStaked: totalStaked.toNumber(),
+        nearPrice: nearPrice,
+      });
+      const apr =
+        (yearlyMultiplier *
+          new FixedNumber(rewards, decimal).toNumber() *
+          Number(price ?? 0)) /
+        nearPrice /
+        totalStaked.toNumber();
+
+      return [tokenId, apr] as [AccountId, number];
     });
   }
 </script>
