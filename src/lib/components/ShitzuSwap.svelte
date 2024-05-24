@@ -1,11 +1,14 @@
 <script lang="ts">
   import { Near } from "$lib/assets";
   import { TokenInput } from "$lib/components";
+  import { nearBalance, refreshNearBalance, wallet } from "$lib/near";
   import {
     refPrices$,
     shitzuPriceHistory,
     type ShitzuPriceHistory,
   } from "$lib/store";
+  import { FixedNumber } from "@tarnadas/fixed-number";
+  import { writable } from "svelte/store";
 
   $: shitzuPrice = $shitzuPriceHistory
     ? preparePrice($shitzuPriceHistory)
@@ -25,7 +28,21 @@
     };
   }
 
+  let input: TokenInput;
+  let inputValue$ = writable<string | undefined>();
+  $: input$ = input?.u128$;
+
+  function setMax() {
+    if ($nearBalance) {
+      $inputValue$ = $nearBalance.sub(new FixedNumber(5n, 1)).toString();
+    }
+  }
+
   $: nearPrice = $refPrices$["wrap.near"]?.price;
+
+  const { accountId$ } = wallet;
+
+  $: refreshNearBalance($accountId$);
 </script>
 
 <div>
@@ -56,12 +73,17 @@
     <div class="flex items-center justify-center">
       <div class="text-4xl"><Near className="w-8 h-8" /></div>
       <TokenInput
-        class="max-w-60 decoration-none bg-transparent outline-none text-center text-white text-6xl py-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        class="max-w-60 decoration-none bg-transparent outline-none text-center text-white text-6xl py-10"
+        bind:this={input}
+        bind:value={$inputValue$}
         decimals={24}
         placeholder={"0"}
       />
       <div>
-        <button class="bg-lime/15 text-lime px-4 py-2 rounded-xl">Max</button>
+        <button
+          on:click={setMax}
+          class="bg-lime/15 text-lime px-4 py-2 rounded-xl">Max</button
+        >
       </div>
     </div>
 

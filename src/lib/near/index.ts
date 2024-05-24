@@ -110,3 +110,5 @@ export type PoolSummary = {
 };
 
 export * from "./wallet";
+export * from "./balance";
+export { default as nearBalance } from "./balance";

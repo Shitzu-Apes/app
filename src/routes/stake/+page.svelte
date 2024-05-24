@@ -12,11 +12,12 @@
     dogshitContract$,
     validatorContract$,
     wallet,
+    nearBalance,
+    refreshNearBalance,
     type ValidatorContract,
     type ValidatorFarm,
   } from "$lib/near";
 
-  const nearBalance$ = writable<FixedNumber | undefined>();
   const stake$ = writable<FixedNumber | undefined>();
   const withdraw$ = writable<FixedNumber | undefined>();
   let canWithdraw = false;
@@ -27,42 +28,10 @@
 
   let accountId$ = wallet.accountId$;
 
-  $: fetchNearBalance($accountId$);
+  $: refreshNearBalance($accountId$);
   $: fetchStake($validatorContract$, $accountId$);
   fetchTotalStake();
   fetchFarm();
-
-  async function fetchNearBalance(accountId?: string) {
-    if (accountId == null) {
-      $nearBalance$ = undefined;
-      return;
-    }
-    const res = await fetch(import.meta.env.VITE_NODE_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: "dontcare",
-        method: "query",
-        params: {
-          request_type: "view_account",
-          finality: "final",
-          account_id: accountId,
-        },
-      }),
-    });
-    const json = (await res.json()) as {
-      result: { amount: string; locked: string };
-    };
-    if (!json.result) return;
-    nearBalance$.set(
-      new FixedNumber(json.result.amount, 24).sub(
-        new FixedNumber(json.result.locked, 24),
-      ),
-    );
-  }
 
   async function fetchStake(c: Promise<ValidatorContract>, accountId?: string) {
     if (accountId == null) {
@@ -126,7 +95,7 @@
       },
       {
         onSuccess: () => {
-          fetchNearBalance($accountId$);
+          refreshNearBalance($accountId$);
           fetchStake($validatorContract$, $accountId$);
           fetchTotalStake();
         },
@@ -152,7 +121,7 @@
         <div class="flex flex-col">
           <div class="flex items-center mb-3">
             <div>
-              {#if $nearBalance$ != null && $nearBalance$.toNumber() < 0.5}
+              {#if $nearBalance != null && $nearBalance.toNumber() < 0.5}
                 Balance too low
               {:else}
                 Available to stake
@@ -160,12 +129,12 @@
             </div>
             <div
               class="w-3 h-3 rounded-full bg-cyan ml-2"
-              class:bg-red={$nearBalance$ != null &&
-                $nearBalance$.toNumber() < 0.5}
+              class:bg-red={$nearBalance != null &&
+                $nearBalance.toNumber() < 0.5}
             />
           </div>
           <span class="text-xl font-bold">
-            {$nearBalance$ ? `${$nearBalance$.format()} NEAR` : "-"}
+            {$nearBalance ? `${$nearBalance.format()} NEAR` : "-"}
           </span>
         </div>
 
@@ -193,13 +162,13 @@
       <MessageBox>
         Please login in order to stake with Shitzu validator!
       </MessageBox>
-    {:else if $nearBalance$ != null && $stake$ != null}
+    {:else if $nearBalance != null && $stake$ != null}
       <Stake
         walletConnected={$accountId$ != null}
-        nearBalance={$nearBalance$}
+        nearBalance={$nearBalance}
         stake={$stake$}
         afterUpdateBalances={() => {
-          fetchNearBalance($accountId$);
+          refreshNearBalance($accountId$);
           fetchStake($validatorContract$, $accountId$);
           fetchTotalStake();
           $modal$ = null;
