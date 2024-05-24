@@ -35,7 +35,10 @@
 
   function setMax() {
     if ($nearBalance) {
-      const input = $nearBalance.sub(new FixedNumber(5n, 1));
+      let input = $nearBalance.sub(new FixedNumber(5n, 1));
+
+      input = input.toNumber() < 0 ? new FixedNumber(0n, 24) : input;
+
       $inputValue$ = input.toNumber().toFixed(4);
     }
   }
