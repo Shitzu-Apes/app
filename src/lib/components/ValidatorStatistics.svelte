@@ -31,21 +31,6 @@
     $tokenAPRs$ = undistributedRewards.map(([tokenId, rewards]) => {
       const { price, decimal } = $tokenPrices$[tokenId];
 
-      console.log({
-        tokenId,
-        rewards,
-        price,
-        totalStaked,
-        nearPrice,
-        yearlyMultiplier,
-      });
-      console.log({
-        yearlyMultiplier: yearlyMultiplier,
-        rewards: new FixedNumber(rewards, decimal).toNumber(),
-        price: Number(price ?? 0),
-        totalStaked: totalStaked.toNumber(),
-        nearPrice: nearPrice,
-      });
       const apr =
         (yearlyMultiplier *
           new FixedNumber(rewards, decimal).toNumber() *
