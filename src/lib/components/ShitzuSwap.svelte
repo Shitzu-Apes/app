@@ -90,7 +90,7 @@
     <div class="mt-6 text-center text-white text-3xl">
       {#if shitzuPrice && nearPrice}
         <div>
-          ${parseFloat((shitzuPrice.price * +nearPrice).toString()).toFixed(6)}
+          ${parseFloat(shitzuPrice.price.toString()).toFixed(6)}
         </div>
         <div
           class="text-base"

@@ -16,7 +16,7 @@ export const shitzuPriceHistory = readable<ShitzuPriceHistory | null>(
   null,
   (set) => {
     fetch(
-      "https://api.ref.finance/token-price-report?token=token.0xshitzu.near&base_token=wrap.near&dimension=D",
+      "https://api.ref.finance/token-price-report?token=token.0xshitzu.near&base_token=17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1&dimension=D",
     )
       .then((res) => res.json())
       .then((data) => {
