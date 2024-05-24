@@ -2,7 +2,8 @@
   import { createCollapsible, melt } from "@melt-ui/svelte";
   import { FixedNumber } from "@tarnadas/fixed-number";
   import { writable } from "svelte/store";
-  import { slide } from "svelte/transition";
+
+  import TokenStatistics from "./TokenStatistics.svelte";
 
   import type { AccountId } from "$lib/abi";
   import type { ValidatorFarm } from "$lib/near";
@@ -14,8 +15,11 @@
   export let totalStaked: FixedNumber | null;
 
   const tokenAPRs$ = writable<[AccountId, number][]>([]);
+  let totalAPR: number | null = null;
 
   const near$ = getToken$("wrap.near");
+  // hardcoding this to 9% * 0.75 for now
+  const nearAPR = new FixedNumber(675n, 2);
 
   const {
     elements: { root, content, trigger },
@@ -59,6 +63,7 @@
         return [tokenId, apr] as [AccountId, number];
       }),
     );
+    totalAPR = $tokenAPRs$.reduce((acc, cur) => acc + cur[1], 0);
   }
 </script>
 
@@ -79,7 +84,14 @@
   >
     <div use:melt={$root} class="flex justify-between">
       <span>Annual percentage rate</span>
-      <div class="flex flex-col items-end gap-2">
+      <div class="flex flex-col items-end flex-[1_1_10rem]">
+        {#if totalAPR}
+          {new FixedNumber(String(Math.round(totalAPR * 10_000)), 2)
+            .add(nearAPR)
+            .format({
+              maximumFractionDigits: 2,
+            })}%
+        {/if}
         <button use:melt={$trigger} aria-label="Toggle">
           {#if $open}
             <div class="i-mdi-chevron-double-up size-6" />
@@ -87,21 +99,21 @@
             <div class="i-mdi-chevron-double-down size-6" />
           {/if}
         </button>
-        <!-- {JSON.stringify($tokenAPRs$, undefined, 2)} -->
         {#if $open}
-          <div use:melt={$content} transition:slide>
+          <div use:melt={$content}>
+            {#await getToken("wrap.near") then token}
+              <TokenStatistics icon="/assets/near.svg" {token} apr={nearAPR} />
+            {/await}
             {#each $tokenAPRs$ as tokenAPR}
-              <div class="rounded-lg p-3 shadow text-end">
-                <span
-                  >{tokenAPR[0]}
-                  {new FixedNumber(
+              {#await getToken(tokenAPR[0]) then token}
+                <TokenStatistics
+                  {token}
+                  apr={new FixedNumber(
                     String(Math.round(tokenAPR[1] * 10_000)),
                     2,
-                  ).format({
-                    maximumFractionDigits: 2,
-                  })}%</span
-                >
-              </div>
+                  )}
+                />
+              {/await}
             {/each}
           </div>
         {/if}

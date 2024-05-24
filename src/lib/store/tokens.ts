@@ -6,6 +6,7 @@ export type TokenInfo = {
   price: string;
   decimal: number;
   symbol: string;
+  icon?: string | null;
 };
 
 const refPrices$ = readable<
@@ -41,12 +42,15 @@ export function getToken$(tokenId: string): Readable<Promise<TokenInfo>> {
   if (tokenPrices[tokenId] == null) {
     tokenPrices[tokenId] = derived(refPrices$, async (r) => {
       const refPrices = await r;
-      if (refPrices[tokenId] != null) {
-        return refPrices[tokenId]!;
-      }
       const metadata = await fetchMetadata(tokenId);
       if (!metadata) {
         throw new Error();
+      }
+      if (refPrices[tokenId] != null) {
+        return {
+          icon: metadata.icon,
+          ...refPrices[tokenId]!,
+        };
       }
       return fetch(
         `https://api.dexscreener.com/latest/dex/pairs/near/refv1-${poolIds[tokenId]}`,
@@ -56,6 +60,7 @@ export function getToken$(tokenId: string): Readable<Promise<TokenInfo>> {
             price: "0",
             decimal: metadata.decimals,
             symbol: metadata.symbol,
+            icon: metadata.icon,
           } satisfies TokenInfo;
         }
         const data = await res.json();
@@ -64,12 +69,14 @@ export function getToken$(tokenId: string): Readable<Promise<TokenInfo>> {
             price: data.pairs[0].priceUsd,
             decimal: metadata.decimals,
             symbol: metadata.symbol,
+            icon: metadata.icon,
           } satisfies TokenInfo;
         } catch (err) {
           return {
             price: "0",
             decimal: metadata.decimals,
             symbol: metadata.symbol,
+            icon: metadata.icon,
           } satisfies TokenInfo;
         }
       }) as Promise<TokenInfo>;
