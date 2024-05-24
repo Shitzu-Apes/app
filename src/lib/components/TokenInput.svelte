@@ -16,6 +16,8 @@
   export let readonly = false;
   export let placeholder = "0.0";
   export let decimals: number | undefined;
+  let className: string | undefined = undefined;
+  export { className as class };
   // eslint-disable-next-line @typescript-eslint/ban-types
   export let afterInputChange: Function | undefined = undefined;
 
@@ -48,5 +50,5 @@
   on:change={(event) => formatWithMaxDecimals(event, decimals)}
   class:readonly
   autocomplete="off"
-  class="bg-transparent focus:outline-none"
+  class={className}
 />

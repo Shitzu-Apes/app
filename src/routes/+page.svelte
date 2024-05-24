@@ -10,6 +10,7 @@
     type ShitzuPriceHistory,
   } from "$lib/store";
   import Near from "$lib/assets/Near.svelte";
+  import TokenInput from "$lib/components/TokenInput.svelte";
 
   $: shitzuPrice = $shitzuPriceHistory
     ? preparePrice($shitzuPriceHistory)
@@ -64,12 +65,12 @@
       </div>
     </div>
 
-    <!-- <div>
+    <div>
       <div class="flex items-center justify-center">
         <div class="text-4xl"><Near className="w-8 h-8" /></div>
-        <input
-          type="number"
-          class="max-w-60 decoration-none bg-transparent outline-none text-center text-white text-6xl py-10"
+        <TokenInput
+          class="max-w-60 decoration-none bg-transparent outline-none text-center text-white text-6xl py-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          decimals={24}
           placeholder={"0"}
         />
         <div>
@@ -107,7 +108,7 @@
       class="bg-lime text-black w-full py-2 rounded-xl my-6 text-2xl font-bold"
     >
       Buy
-    </button> -->
+    </button>
   </div>
 
   <button
@@ -127,15 +128,3 @@
     underlying tokens.
   </div>
 </div>
-
-<style>
-  input::-webkit-outer-spin-button,
-  input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  input[type="number"] {
-    -moz-appearance: textfield;
-  }
-</style>

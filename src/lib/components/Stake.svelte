@@ -147,7 +147,12 @@
 <div class="tab">
   <div class="py-3 px-3 border border-lime rounded-xl flex justify-between">
     <div>N</div>
-    <TokenInput bind:this={input} bind:value={$inputValue$} decimals={24} />
+    <TokenInput
+      class="bg-transparent focus:outline-none"
+      bind:this={input}
+      bind:value={$inputValue$}
+      decimals={24}
+    />
     <button on:click={setMax}> max </button>
   </div>
 
