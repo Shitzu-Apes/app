@@ -220,4 +220,14 @@
     {totalStaked}
     {totalStakers}
   />
+
+  <div>
+    Shitzu community is running a 50% fee validator with a staking farm that
+    emits various meme tokens from the Near ecosystem. These meme tokens
+    subsidize the staking fee. Due to the price fluctuations of the meme tokens
+    this can result in much higher APRs. If you stake with our validator you
+    will receive a token called $DOGSHIT, which wraps all underlying meme
+    tokens. $DOGSHIT has no other purpose than being burnt to receive the
+    underlying tokens.
+  </div>
 </div>
