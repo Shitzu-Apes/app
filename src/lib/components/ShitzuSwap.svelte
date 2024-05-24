@@ -185,7 +185,7 @@
           <div class="i-mdi:open-in-new w-3 h-3 inline-flex items-center" />
         </a>. You will receive approximately {shitzuOut.value.format()} SHITZU based
         on the current price of ${parseFloat(
-          (shitzuPrice.price * +nearPrice).toString(),
+          shitzuPrice.price.toString(),
         ).toFixed(6)} with a maximum of 5% slippage.
       </div>
     </div>
