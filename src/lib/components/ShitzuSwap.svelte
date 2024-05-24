@@ -92,19 +92,22 @@
 <div>
   <div>
     <!-- Show Shitzu Balance -->
-    <div
-      class="flex justify-between px-4 py-2 border border-lime rounded-full my-6 text-xs"
+    <a
+      class="flex justify-between px-4 py-2 border border-lime rounded-full my-6 text-xs decoration-none"
+      href="/account"
     >
       <div>Balance</div>
       <div class="flex items-center gap-2">
         {#if $shitzuBalance}
-          <div class="w-3 h-3 rounded-full bg-cyan" />
+          <div class="w-3 h-3 rounded-full bg-emerald" />
           <span>{$shitzuBalance.format()} SHITZU</span>
         {:else}
           <div class="i-svg-spinners:6-dots-rotate w-3 h-3 bg-lime" />
         {/if}
+
+        <div class="i-mdi:arrow-right w-3 h-3" />
       </div>
-    </div>
+    </a>
 
     <!-- Show Shitzu Balance -->
   </div>
