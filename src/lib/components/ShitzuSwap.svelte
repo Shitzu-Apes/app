@@ -117,11 +117,21 @@
         decimals={24}
         placeholder={"0"}
       />
-      <div>
+      <div class="relative">
         <button
           on:click={setMax}
-          class="bg-lime/15 text-lime px-4 py-2 rounded-xl">Max</button
+          class="bg-lime/15 text-lime px-4 py-2 rounded-xl"
         >
+          Max
+        </button>
+        {#if $nearBalance}
+          <div
+            class="absolute bottom-0 left-1/2 transform -translate-x-[50%] translate-y-[120%] text-xs text-center flex items-center"
+          >
+            <Near className="w-5 h-5" />
+            {$nearBalance.format()}
+          </div>
+        {/if}
       </div>
     </div>
 
