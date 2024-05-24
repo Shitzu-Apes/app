@@ -62,22 +62,12 @@
   }
 
   async function fetchFarm() {
-    farm = {
-      active: true,
-      amount: "200000000000000000000000000000",
-      start_date: String(BigInt(Date.now()) * 1_000_000n),
-      end_date: "1721865600000000000",
-      farm_id: 0,
-      name: "Dogshit",
-      token_id: "shit.0xshitzu.near",
-    };
     undistributedRewards = await $dogshitContract$.then((contract) =>
       contract.get_undistributed_rewards(undefined),
     );
-    // TODO enable once live
-    // farm = await $validatorContract$.then((contract) =>
-    //   contract.get_farm({ farm_id: 0 }),
-    // );
+    farm = await $validatorContract$.then((contract) =>
+      contract.get_farm({ farm_id: 0 }),
+    );
   }
 
   let loading = false;
