@@ -4,6 +4,8 @@
   import { nearBalance, refreshNearBalance, wallet } from "$lib/near";
   import {
     tokenPrices$,
+    shitzuBalance,
+    refreshShitzuBalance,
     shitzuPriceHistory,
     type ShitzuPriceHistory,
   } from "$lib/store";
@@ -48,6 +50,7 @@
   const { accountId$ } = wallet;
 
   $: refreshNearBalance($accountId$);
+  $: refreshShitzuBalance($accountId$);
 
   let shitzuOut:
     | {
@@ -87,7 +90,26 @@
 </script>
 
 <div>
-  <div class="text-center">
+  <div>
+    <!-- Show Shitzu Balance -->
+    <div
+      class="flex justify-between px-4 py-2 border border-lime rounded-full my-6 text-xs"
+    >
+      <div>Balance</div>
+      <div class="flex items-center gap-2">
+        {#if $shitzuBalance}
+          <div class="w-3 h-3 rounded-full bg-cyan" />
+          <span>{$shitzuBalance.format()} SHITZU</span>
+        {:else}
+          <div class="i-svg-spinners:6-dots-rotate w-3 h-3 bg-lime" />
+        {/if}
+      </div>
+    </div>
+
+    <!-- Show Shitzu Balance -->
+  </div>
+
+  <div class="text-center not-prose">
     <h2 class="mb-0 text-4xl">SHITZU</h2>
     <div>Ref Finance Pool 4369</div>
     <div class="mt-6 text-center text-white text-3xl">
