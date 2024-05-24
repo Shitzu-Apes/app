@@ -2,10 +2,13 @@
   import { createCollapsible, melt } from "@melt-ui/svelte";
   import { FixedNumber } from "@tarnadas/fixed-number";
   import { writable } from "svelte/store";
+  import { fade, slide } from "svelte/transition";
+  import { bind } from "svelte-simple-modal";
 
-  import TokenStatistics from "./TokenStatistics.svelte";
+  import { BuyNft, TokenStatistics } from ".";
 
   import type { AccountId } from "$lib/abi";
+  import { ModalSize, modal$, modalSize$ } from "$lib/layout";
   import type { ValidatorFarm } from "$lib/near";
   import { getToken, getToken$, type TokenInfo } from "$lib/store";
 
@@ -13,9 +16,12 @@
   export let undistributedRewards: [AccountId, string][] = [];
   export let totalStakers: number | null;
   export let totalStaked: FixedNumber | null;
+  export let hasNft: boolean;
 
-  const tokenAPRs$ = writable<[AccountId, number][]>([]);
-  let totalAPR: number | null = null;
+  let showNftApr = false;
+  const tokenAPRs$ = writable<[number, TokenInfo][]>([]);
+  let totalAPR: FixedNumber | null = null;
+  let totalAPRDiff: FixedNumber | null = null;
 
   const near$ = getToken$("wrap.near");
   // hardcoding this to 9% * 0.75 for now
@@ -35,6 +41,28 @@
     $near$ != null
   ) {
     fetchAPRs(farm, totalStaked, $near$);
+  }
+
+  $: calculateTotalApr($tokenAPRs$, hasNft, showNftApr);
+
+  async function calculateTotalApr(
+    tokenAPRs: [number, TokenInfo][],
+    hasNft: boolean,
+    showNftApr: boolean,
+  ) {
+    const apr = tokenAPRs.reduce((acc, cur) => acc + cur[0], 0);
+    totalAPR = new FixedNumber(String(Math.round(apr * 10_000)), 2)
+      .mul(
+        hasNft || showNftApr ? new FixedNumber(1n, 0) : new FixedNumber(8n, 1),
+      )
+      .add(nearAPR);
+    if (showNftApr && !hasNft) {
+      totalAPRDiff = new FixedNumber(String(Math.round(apr * 10_000)), 2).mul(
+        new FixedNumber(2n, 1),
+      );
+    } else {
+      totalAPRDiff = null;
+    }
   }
 
   async function fetchAPRs(
@@ -60,10 +88,14 @@
           nearPrice /
           totalStaked.toNumber();
 
-        return [tokenId, apr] as [AccountId, number];
+        return [apr, await getToken(tokenId)] as [number, TokenInfo];
       }),
     );
-    totalAPR = $tokenAPRs$.reduce((acc, cur) => acc + cur[1], 0);
+  }
+
+  function handleOpenNftBuyDialog() {
+    modalSize$.set(ModalSize.Small);
+    modal$.set(bind(BuyNft, {}));
   }
 </script>
 
@@ -82,16 +114,36 @@
   <div
     class="border-2 border-lime px-4 py-6 rounded-xl flex flex-col gap-3 bg-black"
   >
+    <button
+      class="w-full py-3 bg-lime text-black font-bold text-xl rounded-xl mt-3 disabled:bg-gray-5"
+      on:click={handleOpenNftBuyDialog}
+      on:mouseenter={() => {
+        showNftApr = true;
+      }}
+      on:mouseleave={() => {
+        showNftApr = false;
+      }}
+    >
+      Buy NFT
+    </button>
+
     <div use:melt={$root} class="flex justify-between">
       <span>Annual percentage rate</span>
       <div class="flex flex-col items-end flex-[1_1_10rem]">
-        {#if totalAPR}
-          {new FixedNumber(String(Math.round(totalAPR * 10_000)), 2)
-            .add(nearAPR)
-            .format({
+        <span>
+          {#if totalAPR}
+            {totalAPR.format({
               maximumFractionDigits: 2,
             })}%
-        {/if}
+          {/if}
+          {#if totalAPRDiff && showNftApr && !hasNft}
+            <span class="text-green-3" in:fade>
+              (+{totalAPRDiff.format({
+                maximumFractionDigits: 2,
+              })}%)
+            </span>
+          {/if}
+        </span>
         <button use:melt={$trigger} aria-label="Toggle">
           {#if $open}
             <div class="i-mdi-chevron-double-up size-6" />
@@ -100,20 +152,22 @@
           {/if}
         </button>
         {#if $open}
-          <div use:melt={$content}>
+          <div use:melt={$content} transition:slide>
             {#await getToken("wrap.near") then token}
-              <TokenStatistics icon="/assets/near.svg" {token} apr={nearAPR} />
+              <TokenStatistics
+                icon="/assets/near.svg"
+                {token}
+                apr={nearAPR}
+                hasNft={true}
+              />
             {/await}
-            {#each $tokenAPRs$ as tokenAPR}
-              {#await getToken(tokenAPR[0]) then token}
-                <TokenStatistics
-                  {token}
-                  apr={new FixedNumber(
-                    String(Math.round(tokenAPR[1] * 10_000)),
-                    2,
-                  )}
-                />
-              {/await}
+            {#each $tokenAPRs$ as [apr, token]}
+              <TokenStatistics
+                {token}
+                apr={new FixedNumber(String(Math.round(apr * 10_000)), 2)}
+                {hasNft}
+                {showNftApr}
+              />
             {/each}
           </div>
         {/if}

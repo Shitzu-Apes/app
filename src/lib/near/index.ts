@@ -109,6 +109,7 @@ export type PoolSummary = {
   total_staked_balance: string;
 };
 
-export * from "./wallet";
 export * from "./balance";
+export * from "./nft";
+export * from "./wallet";
 export { default as nearBalance } from "./balance";

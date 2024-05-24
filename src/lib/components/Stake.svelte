@@ -214,12 +214,6 @@
     <slot />
   {/if}
 
-  <button
-    class="w-full py-3 bg-lime text-black font-bold text-xl rounded-xl mt-3 disabled:bg-gray-5"
-    on:click={handleClaimButton}
-    disabled={stake.valueOf() === 0n}>Claim & burn the 💩</button
-  >
-
   <div>
     <div class="pt-6">
       <div class="flex flex-col">
@@ -264,5 +258,11 @@
         </div>
       </div>
     </div>
+
+    <button
+      class="w-full py-3 bg-lime text-black font-bold text-xl rounded-xl mt-3 disabled:bg-gray-5"
+      on:click={handleClaimButton}
+      disabled={stake.valueOf() === 0n}>Claim & burn the 💩</button
+    >
   </div>
 </div>

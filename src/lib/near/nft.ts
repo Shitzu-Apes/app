@@ -1,14 +1,6 @@
-import { FixedNumber } from "@tarnadas/fixed-number";
-import { writable } from "svelte/store";
-
-export const shitzuBalance = writable<FixedNumber | null>(null);
-
-export async function refreshShitzuBalance(accountId?: string): Promise<void> {
-  if (typeof accountId !== "string") {
-    shitzuBalance.set(null);
-    return;
-  }
-
+export async function checkNftCount(
+  accountId: string,
+): Promise<number | undefined> {
   const res = await fetch(import.meta.env.VITE_NODE_URL, {
     method: "POST",
     headers: {
@@ -21,8 +13,8 @@ export async function refreshShitzuBalance(accountId?: string): Promise<void> {
       params: {
         request_type: "call_function",
         finality: "final",
-        account_id: "token.0xshitzu.near",
-        method_name: "ft_balance_of",
+        account_id: import.meta.env.VITE_NFT_CONTRACT_ID,
+        method_name: "nft_supply_for_owner",
         args_base64: btoa(
           JSON.stringify({
             account_id: accountId,
@@ -31,13 +23,9 @@ export async function refreshShitzuBalance(accountId?: string): Promise<void> {
       },
     }),
   });
-
   const json = await res.json();
-
+  if (!json.result) return;
   const result = new Uint8Array(json.result.result);
   const decoder = new TextDecoder();
-
-  const balance = JSON.parse(decoder.decode(result));
-
-  shitzuBalance.set(new FixedNumber(balance, 18));
+  return JSON.parse(decoder.decode(result));
 }
