@@ -1,6 +1,7 @@
 import {
   HereWallet,
   type SignAndSendTransactionOptions,
+  type SignAndSendTransactionsOptions,
 } from "@here-wallet/core";
 import type {
   BrowserWalletMetadata,
@@ -238,6 +239,52 @@ export class Wallet {
         },
       )
       .exhaustive();
+  }
+
+  public async signAndSendTransactions(
+    params: SignAndSendTransactionsOptions,
+    {
+      onSuccess,
+      onError,
+      onFinally,
+    }: {
+      onSuccess?: () => Promise<void> | void;
+      onError?: () => Promise<void> | void;
+      onFinally?: () => Promise<void> | void;
+    },
+  ) {
+    const txPromise = match(get(this._account$))
+      .with(undefined, () => undefined)
+      .with(
+        {
+          type: "wallet-selector",
+          account: P.any,
+        },
+        async () => {
+          const selector = await get(this.selector$);
+          const wallet = await selector.wallet();
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          return wallet.signAndSendTransactions(params as any);
+        },
+      )
+      .with(
+        {
+          type: "here",
+          account: P.any,
+        },
+        async () => {
+          if (!this.hereWallet) {
+            throw new Error("HereWallet not yet initialized");
+          }
+          return this.hereWallet.signAndSendTransactions(params);
+        },
+      )
+      .exhaustive();
+    if (!txPromise) return;
+    // FIXME type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    showTxSnackbar(txPromise as any);
+    return txPromise.then(onSuccess).catch(onError).finally(onFinally);
   }
 
   public async signAndSendTransaction(

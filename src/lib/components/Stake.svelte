@@ -83,7 +83,7 @@
   }
 
   let loading = false;
-  async function runTx() {
+  async function handleStakeButton() {
     if (!$input$ || $input$.valueOf() === 0n) return;
     loading = true;
     await wallet.signAndSendTransaction(
@@ -115,6 +115,54 @@
         onSuccess: () => {
           afterUpdateBalances();
           $inputValue$ = "";
+        },
+        onFinally: () => {
+          loading = false;
+        },
+      },
+    );
+  }
+
+  async function handleClaimButton() {
+    loading = true;
+    await wallet.signAndSendTransactions(
+      {
+        transactions: [
+          {
+            receiverId: import.meta.env.VITE_VALIDATOR_CONTRACT_ID,
+            actions: [
+              {
+                type: "FunctionCall",
+                params: {
+                  methodName: "claim",
+                  args: {
+                    token_id: import.meta.env.VITE_DOGSHIT_CONTRACT_ID,
+                  },
+                  gas: 50_000_000_000_000,
+                  deposit: "1",
+                },
+              },
+            ],
+          },
+          {
+            receiverId: import.meta.env.VITE_DOGSHIT_CONTRACT_ID,
+            actions: [
+              {
+                type: "FunctionCall",
+                params: {
+                  methodName: "burn",
+                  args: {},
+                  gas: 250_000_000_000_000,
+                  deposit: "1",
+                },
+              },
+            ],
+          },
+        ],
+      },
+      {
+        onSuccess: () => {
+          // TODO
         },
         onFinally: () => {
           loading = false;
@@ -158,13 +206,20 @@
 
   {#if walletConnected}
     <button
-      class="w-full py-3 bg-lime text-black font-bold text-xl rounded-xl mt-3"
-      on:click={() => runTx()}
+      class="w-full py-3 bg-lime text-black font-bold text-xl rounded-xl mt-3 disabled:bg-gray-5"
+      on:click={handleStakeButton}
       disabled={disabled || loading}>{active.label}</button
     >
   {:else}
     <slot />
   {/if}
+
+  <button
+    class="w-full py-3 bg-lime text-black font-bold text-xl rounded-xl mt-3 disabled:bg-gray-5"
+    on:click={handleClaimButton}
+    disabled={stake.valueOf() === 0n}>Claim & burn the 💩</button
+  >
+
   <div>
     <div class="pt-6">
       <div class="flex flex-col">
