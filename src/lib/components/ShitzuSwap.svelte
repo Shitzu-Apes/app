@@ -134,10 +134,10 @@
   </div>
 
   <div>
-    <div class="flex items-center justify-center w-full">
+    <div class="flex items-center justify-center">
       <div class="text-4xl"><Near className="w-8 h-8" /></div>
       <TokenInput
-        class="flex-1 max-w-70 decoration-none bg-transparent outline-none text-center text-white text-5xl py-10"
+        class="flex-1 w-0 max-w-70 decoration-none bg-transparent outline-none text-center text-white text-5xl py-10"
         bind:this={input}
         bind:value={$inputValue$}
         decimals={24}
