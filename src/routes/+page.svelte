@@ -2,15 +2,13 @@
   import { bind } from "svelte-simple-modal";
 
   import { DexscreenerIcon } from "$lib/assets";
-  import { Dexscreener } from "$lib/components";
-  import { ModalSize, modal$, modalSize$ } from "$lib/layout";
-  import ShitzuSwap from "$lib/components/ShitzuSwap.svelte";
-
   import BlackDragonLogo from "$lib/assets/logo/blackdragon.png";
   import IntelNearLogo from "$lib/assets/logo/intelnear.jpeg";
   import LonkLogo from "$lib/assets/logo/lonk.png";
-  import ShitzuLogo from "$lib/assets/logo/shitzu.webp";
   import NDCLogo from "$lib/assets/logo/ndc.jpeg";
+  import ShitzuLogo from "$lib/assets/logo/shitzu.webp";
+  import { Dexscreener, ShitzuSwap } from "$lib/components";
+  import { ModalSize, modal$, modalSize$ } from "$lib/layout";
 
   export async function showPriceChart() {
     modalSize$.set(ModalSize.Large);
