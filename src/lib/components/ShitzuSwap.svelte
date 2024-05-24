@@ -1,17 +1,17 @@
 <script lang="ts">
+  import { FixedNumber } from "@tarnadas/fixed-number";
+  import { writable } from "svelte/store";
+
   import { Near } from "$lib/assets";
   import { TokenInput } from "$lib/components";
   import { nearBalance, refreshNearBalance, wallet } from "$lib/near";
   import {
-    tokenPrices$,
     shitzuBalance,
     refreshShitzuBalance,
     shitzuPriceHistory,
     type ShitzuPriceHistory,
   } from "$lib/store";
   import { calculateShitzuOut } from "$lib/swap";
-  import { FixedNumber } from "@tarnadas/fixed-number";
-  import { writable } from "svelte/store";
 
   $: shitzuPrice = $shitzuPriceHistory
     ? preparePrice($shitzuPriceHistory)
@@ -44,8 +44,6 @@
       $inputValue$ = input.toNumber().toFixed(4);
     }
   }
-
-  $: nearPrice = $tokenPrices$ ? $tokenPrices$["wrap.near"].price : "0";
 
   const { accountId$ } = wallet;
 
@@ -116,7 +114,7 @@
     <h2 class="mb-0 text-4xl">SHITZU</h2>
     <div>Ref Finance Pool 4369</div>
     <div class="mt-6 text-center text-white text-3xl">
-      {#if shitzuPrice && nearPrice}
+      {#if shitzuPrice}
         <div>
           ${parseFloat(shitzuPrice.price.toString()).toFixed(6)}
         </div>
@@ -164,13 +162,15 @@
     </div>
 
     {#if shitzuOut.status === "success"}
-      <div class="text-center text-3xl">{shitzuOut.value.format()} SHITZU</div>
+      <div class="text-center text-3xl">
+        {shitzuOut.value.format()} SHITZU
+      </div>
     {:else if shitzuOut.status === "loading"}
       <div class="i-svg-spinners:6-dots-rotate w-10 h-10 bg-lime mx-auto" />
     {/if}
   </div>
 
-  {#if shitzuPrice && nearPrice && shitzuOut.status === "success" && $input$}
+  {#if shitzuPrice && shitzuOut.status === "success" && $input$}
     <div class="mt-6">
       <div class="text-sm font-bold flex items-center gap-1 mb-1">
         Buy SHITZU <div class="i-mdi:rocket-launch w-4 h-4 inline-flex" />

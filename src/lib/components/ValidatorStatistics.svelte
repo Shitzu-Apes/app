@@ -1,10 +1,12 @@
 <script lang="ts">
+  import { createCollapsible, melt } from "@melt-ui/svelte";
   import { FixedNumber } from "@tarnadas/fixed-number";
   import { writable } from "svelte/store";
+  import { slide } from "svelte/transition";
 
   import type { AccountId } from "$lib/abi";
   import type { ValidatorFarm } from "$lib/near";
-  import { tokenPrices$ } from "$lib/store";
+  import { getToken, getToken$, type TokenInfo } from "$lib/store";
 
   export let farm: ValidatorFarm | null;
   export let undistributedRewards: [AccountId, string][] = [];
@@ -13,33 +15,50 @@
 
   const tokenAPRs$ = writable<[AccountId, number][]>([]);
 
-  $: nearPrice = $tokenPrices$ ? +$tokenPrices$["wrap.near"].price : 0;
+  const near$ = getToken$("wrap.near");
+
+  const {
+    elements: { root, content, trigger },
+    states: { open },
+  } = createCollapsible({
+    forceVisible: true,
+  });
 
   $: if (
     farm != null &&
     undistributedRewards != null &&
     totalStaked != null &&
-    nearPrice != null &&
-    $tokenPrices$ !== null
+    $near$ != null
   ) {
+    fetchAPRs(farm, totalStaked, $near$);
+  }
+
+  async function fetchAPRs(
+    farm: ValidatorFarm,
+    totalStaked: FixedNumber,
+    near: Promise<TokenInfo>,
+  ) {
+    const nearPrice = Number((await near).price);
     const yearlyMultiplier =
       Number(365n * 24n * 60n * 60n) /
       Number(
         (BigInt(farm.end_date) - BigInt(farm.start_date)) / 1_000_000_000n,
       );
 
-    $tokenAPRs$ = undistributedRewards.map(([tokenId, rewards]) => {
-      const { price, decimal } = $tokenPrices$[tokenId];
+    $tokenAPRs$ = await Promise.all(
+      undistributedRewards.map(async ([tokenId, rewards]) => {
+        const { price, decimal } = await getToken(tokenId);
 
-      const apr =
-        (yearlyMultiplier *
-          new FixedNumber(rewards, decimal).toNumber() *
-          Number(price ?? 0)) /
-        nearPrice /
-        totalStaked.toNumber();
+        const apr =
+          (yearlyMultiplier *
+            new FixedNumber(rewards, decimal).toNumber() *
+            Number(price ?? 0)) /
+          nearPrice /
+          totalStaked.toNumber();
 
-      return [tokenId, apr] as [AccountId, number];
-    });
+        return [tokenId, apr] as [AccountId, number];
+      }),
+    );
   }
 </script>
 
@@ -58,11 +77,35 @@
   <div
     class="border-2 border-lime px-4 py-6 rounded-xl flex flex-col gap-3 bg-black"
   >
-    <div class="flex justify-between">
+    <div use:melt={$root} class="flex justify-between">
       <span>Annual percentage rate</span>
-      <span style="color: #b2ff59;">
-        {JSON.stringify($tokenAPRs$, undefined, 2)}
-      </span>
+      <div class="flex flex-col items-end gap-2">
+        <button use:melt={$trigger} aria-label="Toggle">
+          {#if $open}
+            <div class="i-mdi-chevron-double-up size-6" />
+          {:else}
+            <div class="i-mdi-chevron-double-down size-6" />
+          {/if}
+        </button>
+        <!-- {JSON.stringify($tokenAPRs$, undefined, 2)} -->
+        {#if $open}
+          <div use:melt={$content} transition:slide>
+            {#each $tokenAPRs$ as tokenAPR}
+              <div class="rounded-lg p-3 shadow text-end">
+                <span
+                  >{tokenAPR[0]}
+                  {new FixedNumber(
+                    String(Math.round(tokenAPR[1] * 10_000)),
+                    2,
+                  ).format({
+                    maximumFractionDigits: 2,
+                  })}%</span
+                >
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </div>
     </div>
     <div class="flex justify-between">
       <span>Total staked</span>
@@ -86,16 +129,20 @@
     </div>
     <div class="flex justify-between">
       <span>Total staked USD</span>
-      <span>
-        {#if totalStaked == null || nearPrice == null}
-          -
-        {:else}
-          ${totalStaked
-            .mul(new FixedNumber(BigInt(nearPrice * 1e18)))
-            .div(new FixedNumber(BigInt(1e18)))
-            .format()}
-        {/if}
-      </span>
+      {#await $near$}
+        <div class="i-svg-spinners:6-dots-rotate size-6 bg-gray-8" />
+      {:then near}
+        <span>
+          {#if totalStaked == null}
+            <div class="i-svg-spinners:6-dots-rotate size-6 bg-gray-8" />
+          {:else}
+            ${totalStaked
+              .mul(new FixedNumber(BigInt(Number(near.price) * 1e18)))
+              .div(new FixedNumber(BigInt(1e18)))
+              .format()}
+          {/if}
+        </span>
+      {/await}
     </div>
   </div>
 </div>
