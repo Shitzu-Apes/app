@@ -5,6 +5,7 @@ import TokenInput from "./TokenInput.svelte";
 import TxSnackbar from "./TxSnackbar.svelte";
 import ValidatorStatistics from "./ValidatorStatistics.svelte";
 import Wallet from "./Wallet.svelte";
+import ShitzuSwap from "./ShitzuSwap.svelte";
 
 export {
   Dexscreener,
@@ -14,4 +15,5 @@ export {
   TxSnackbar,
   ValidatorStatistics,
   Wallet,
+  ShitzuSwap,
 };
