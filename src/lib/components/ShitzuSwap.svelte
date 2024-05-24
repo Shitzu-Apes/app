@@ -194,7 +194,8 @@
     </div>
   {/if}
   <button
-    class="bg-lime text-black w-full py-2 rounded-xl my-6 text-2xl font-bold"
+    class="bg-lime text-black w-full py-2 rounded-xl my-6 text-2xl font-bold disabled:bg-gray-5"
+    disabled={$input$ == null || $input$.valueOf() === 0n}
     on:click={() => {
       if (!$input$ || shitzuOut.status !== "success") return;
 
