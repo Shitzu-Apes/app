@@ -1,6 +1,7 @@
 import { derived, readable, type Readable } from "svelte/store";
 
 import type { FungibleTokenMetadata } from "$lib/abi";
+import BlackDragonLogo from "$lib/assets/logo/blackdragon.png";
 
 export type TokenInfo = {
   price: string;
@@ -45,6 +46,9 @@ export function getToken$(tokenId: string): Readable<Promise<TokenInfo>> {
       const metadata = await fetchMetadata(tokenId);
       if (!metadata) {
         throw new Error();
+      }
+      if (tokenId === "blackdragon.tkn.near") {
+        metadata.icon = BlackDragonLogo;
       }
       if (refPrices[tokenId] != null) {
         return {
