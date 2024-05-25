@@ -1,8 +1,8 @@
 <!-- module -->
 <script lang="ts" context="module">
-  import ParasLogo from "$lib/assets/logo/Paras.png";
   import MintBaseLogo from "$lib/assets/logo/MintBase.png";
   import MitteLogo from "$lib/assets/logo/Mitte.jpg";
+  import ParasLogo from "$lib/assets/logo/Paras.png";
   import TradeportLogo from "$lib/assets/logo/Tradeport.png";
 
   export const NFT_LINKS = [

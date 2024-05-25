@@ -8,11 +8,11 @@
   import { BuyNft, TokenStatistics } from ".";
 
   import type { AccountId } from "$lib/abi";
+  import SHITZU_FACE from "$lib/assets/logo/shitzu_face.svg";
+  import { NFT_LINKS } from "$lib/components/BuyNft.svelte";
   import { ModalSize, modal$, modalSize$ } from "$lib/layout";
   import type { ValidatorFarm } from "$lib/near";
   import { getToken, getToken$, type TokenInfo } from "$lib/store";
-  import { NFT_LINKS } from "$lib/components/BuyNft.svelte";
-  import SHITZU_FACE from "$lib/assets/logo/shitzu_face.svg";
 
   export let farm: ValidatorFarm | null;
   export let undistributedRewards: [AccountId, string][] = [];

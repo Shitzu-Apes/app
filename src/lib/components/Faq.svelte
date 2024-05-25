@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { slide } from "svelte/transition";
-
   const questions = [
     {
       question: "What is the SHITZU community's staking pool?",
