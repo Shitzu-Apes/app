@@ -82,7 +82,7 @@
             params: {
               methodName: "withdraw_all",
               args: {},
-              gas: 30_000_000_000_000,
+              gas: 30_000_000_000_000n.toString(),
               deposit: "0",
             },
           },

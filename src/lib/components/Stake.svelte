@@ -97,7 +97,7 @@
               .with("Stake", () => ({
                 methodName: "deposit_and_stake",
                 args: {},
-                gas: 30_000_000_000_000,
+                gas: 30_000_000_000_000n.toString(),
                 deposit: $input$.toU128(),
               }))
               .with("Unstake", () => ({
@@ -105,7 +105,7 @@
                 args: {
                   amount: $input$.toU128(),
                 },
-                gas: 30_000_000_000_000,
+                gas: 30_000_000_000_000n.toString(),
                 deposit: "0",
               }))
               .exhaustive(),
@@ -150,7 +150,7 @@
               params: {
                 methodName: "storage_deposit",
                 args: {},
-                gas: 20_000_000_000_000,
+                gas: 20_000_000_000_000n.toString(),
                 deposit,
               },
             },
@@ -173,7 +173,7 @@
                   args: {
                     token_id: import.meta.env.VITE_DOGSHIT_CONTRACT_ID,
                   },
-                  gas: 50_000_000_000_000,
+                  gas: 50_000_000_000_000n.toString(),
                   deposit: "1",
                 },
               },
@@ -187,7 +187,7 @@
                 params: {
                   methodName: "burn",
                   args: {},
-                  gas: 250_000_000_000_000,
+                  gas: 250_000_000_000_000n.toString(),
                   deposit: "1",
                 },
               },

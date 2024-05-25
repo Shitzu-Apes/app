@@ -223,7 +223,7 @@
               params: {
                 methodName: "near_deposit",
                 args: {},
-                gas: 30_000_000_000_000,
+                gas: 30_000_000_000_000n.toString(),
                 deposit: $input$.toU128(),
               },
             },
@@ -238,7 +238,7 @@
                     actions,
                   }),
                 },
-                gas: 270_000_000_000_000,
+                gas: 270_000_000_000_000n.toString(),
                 deposit: "1",
               },
             },
