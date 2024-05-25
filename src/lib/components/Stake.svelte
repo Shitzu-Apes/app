@@ -132,10 +132,18 @@
   async function handleClaimButton() {
     loading = true;
     const transactions: HereCall[] = [];
-    const tokenIds = await Promise.all($dogshitContract$
-      .then((contract) => contract.get_undistributed_rewards(undefined))
-      .then((rewards) => rewards.map(([tokenId]) => tokenId))
-    );
+    // const tokenIds = await Promise.all($dogshitContract$
+    //   .then((contract) => contract.get_undistributed_rewards(undefined))
+    //   .then((rewards) => rewards.map(([tokenId]) => tokenId))
+    // );
+    const tokenIds = [
+      "token.0xshitzu.near",
+      "blackdragon.tkn.near",
+      "token.lonkingnearbackto2024.near",
+      "ndc.tkn.near",
+      "avb.tkn.near",
+      "intel.tkn.near",
+    ];
     const accountId = get(wallet.accountId$);
     if (!accountId) return;
     await Promise.all(
