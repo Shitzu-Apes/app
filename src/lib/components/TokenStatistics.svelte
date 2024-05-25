@@ -11,16 +11,18 @@
   export let showNftApr: boolean | undefined = undefined;
 </script>
 
-<div class="rounded-lg py-1 shadow text-end flex items-center gap-2">
-  {#if icon != null || token.icon != null}
-    <img
-      class="rounded-full size-5"
-      src={icon ?? token.icon}
-      alt={token.symbol}
-    />
-  {/if}
+<div class="rounded-lg py-1 shadow text-end flex items-center gap-2 mr-6">
+  <div class="flex items-center gap-2">
+    {#if icon != null || token.icon != null}
+      <img
+        class="rounded-full size-5"
+        src={icon ?? token.icon}
+        alt={token.symbol}
+      />
+    {/if}
+    <span class="hidden md:inline pr-10">{token.symbol.toUpperCase()}</span>
+  </div>
   <span class="flex-1">
-    <span class="hidden md:inline">{token.symbol.toUpperCase()}</span>
     {#await hasNft then hasNft}
       {#if hasNft}
         {apr.format({

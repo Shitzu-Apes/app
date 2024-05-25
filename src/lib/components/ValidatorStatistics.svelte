@@ -130,26 +130,32 @@
     <div use:melt={$root} class="flex justify-between">
       <span>Annual percentage rate</span>
       <div class="flex flex-col items-end flex-[1_1_10rem]">
-        <span>
-          {#if totalAPR}
-            {totalAPR.format({
-              maximumFractionDigits: 2,
-            })}%
-          {/if}
-          {#if totalAPRDiff && showNftApr && !hasNft}
-            <span class="text-green-3" in:fade>
-              (+{totalAPRDiff.format({
+        <button
+          class="flex itesm-center text-emerald"
+          use:melt={$trigger}
+          aria-label="Toggle"
+        >
+          <span>
+            {#if totalAPR}
+              {totalAPR.format({
                 maximumFractionDigits: 2,
-              })}%)
-            </span>
-          {/if}
-        </span>
-        <button use:melt={$trigger} aria-label="Toggle">
-          {#if $open}
-            <div class="i-mdi-chevron-double-up size-6" />
-          {:else}
-            <div class="i-mdi-chevron-double-down size-6" />
-          {/if}
+              })}%
+            {/if}
+            {#if totalAPRDiff && showNftApr && !hasNft}
+              <span class="text-green-3" in:fade>
+                (+{totalAPRDiff.format({
+                  maximumFractionDigits: 2,
+                })}%)
+              </span>
+            {/if}
+          </span>
+          <div>
+            {#if $open}
+              <div class="i-mdi-unfold-less-horizontal size-6" />
+            {:else}
+              <div class="i-mdi-unfold-more-horizontal size-6" />
+            {/if}
+          </div>
         </button>
         {#if $open}
           <div use:melt={$content} transition:slide>
