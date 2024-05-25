@@ -7,7 +7,12 @@
   import { match } from "ts-pattern";
 
   import { TokenInput } from "$lib/components";
-  import { wallet, isUserRegistered, storageRequirement } from "$lib/near";
+  import {
+    wallet,
+    isUserRegistered,
+    storageRequirement,
+    dogshitContract$,
+  } from "$lib/near";
 
   export let walletConnected: boolean;
   export let nearBalance: FixedNumber;
@@ -127,14 +132,9 @@
   async function handleClaimButton() {
     loading = true;
     const transactions: HereCall[] = [];
-    const tokenIds = [
-      "token.0xshitzu.near",
-      "blackdragon.tkn.near",
-      "token.lonkingnearbackto2024.near",
-      "ndc.tkn.near",
-      "avb.tkn.near",
-      "intel.tkn.near",
-    ];
+    const tokenIds = await $dogshitContract$
+      .then((contract) => contract.get_undistributed_rewards(undefined))
+      .then(([tokenId]) => tokenId);
     const accountId = get(wallet.accountId$);
     if (!accountId) return;
     await Promise.all(
