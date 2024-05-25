@@ -111,5 +111,6 @@ export type PoolSummary = {
 
 export * from "./balance";
 export * from "./nft";
+export * from "./token";
 export * from "./wallet";
 export { default as nearBalance } from "./balance";

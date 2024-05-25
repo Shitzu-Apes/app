@@ -1,12 +1,13 @@
 <script lang="ts">
+  import type { HereCall } from "@here-wallet/core";
   import { createTabs, melt } from "@melt-ui/svelte";
   import { FixedNumber } from "@tarnadas/fixed-number";
-  import { writable } from "svelte/store";
+  import { get, writable } from "svelte/store";
   import { crossfade, fade, slide } from "svelte/transition";
   import { match } from "ts-pattern";
 
   import { TokenInput } from "$lib/components";
-  import { wallet } from "$lib/near";
+  import { wallet, isUserRegistered, storageRequirement } from "$lib/near";
 
   export let walletConnected: boolean;
   export let nearBalance: FixedNumber;
@@ -125,9 +126,43 @@
 
   async function handleClaimButton() {
     loading = true;
+    const transactions: HereCall[] = [];
+    const tokenIds = [
+      "token.0xshitzu.near",
+      "blackdragon.tkn.near",
+      "token.lonkingnearbackto2024.near",
+      "ndc.tkn.near",
+      "avb.tkn.near",
+      "intel.tkn.near",
+    ];
+    const accountId = get(wallet.accountId$);
+    if (!accountId) return;
+    await Promise.all(
+      tokenIds.map(async (tokenId) => {
+        const isRegistered = await isUserRegistered(accountId, tokenId);
+        if (isRegistered) return;
+        const deposit = await storageRequirement(tokenId);
+        transactions.push({
+          receiverId: tokenId,
+          actions: [
+            {
+              type: "FunctionCall",
+              params: {
+                methodName: "storage_deposit",
+                args: {},
+                gas: 20_000_000_000_000,
+                deposit,
+              },
+            },
+          ],
+        });
+      }),
+    );
+
     await wallet.signAndSendTransactions(
       {
         transactions: [
+          ...transactions,
           {
             receiverId: import.meta.env.VITE_VALIDATOR_CONTRACT_ID,
             actions: [
@@ -260,9 +295,18 @@
     </div>
 
     <button
-      class="w-full py-3 bg-lime text-black font-bold text-xl rounded-xl mt-3 disabled:bg-gray-5"
+      class="w-full py-3 bg-lime text-black font-bold text-xl rounded-xl mt-3 disabled:bg-gray-5 relative"
       on:click={handleClaimButton}
-      disabled={stake.valueOf() === 0n}>Claim & burn the 💩</button
+      disabled={stake.valueOf() === 0n || loading}
     >
+      Claim & burn the 💩
+      {#if loading}
+        <div
+          class="flex items-center justify-center absolute w-full h-full top-0 left-0"
+        >
+          <div class="i-svg-spinners:6-dots-rotate size-8 bg-lime" />
+        </div>
+      {/if}
+    </button>
   </div>
 </div>
