@@ -11,6 +11,8 @@
   import { ModalSize, modal$, modalSize$ } from "$lib/layout";
   import type { ValidatorFarm } from "$lib/near";
   import { getToken, getToken$, type TokenInfo } from "$lib/store";
+  import { NFT_LINKS } from "$lib/components/BuyNft.svelte";
+  import SHITZU_FACE from "$lib/assets/logo/shitzu_face.svg";
 
   export let farm: ValidatorFarm | null;
   export let undistributedRewards: [AccountId, string][] = [];
@@ -114,19 +116,6 @@
   <div
     class="border-2 border-lime px-4 py-6 rounded-xl flex flex-col gap-3 bg-black"
   >
-    <button
-      class="w-full py-3 bg-lime text-black font-bold text-xl rounded-xl mt-3 disabled:bg-gray-5"
-      on:click={handleOpenNftBuyDialog}
-      on:mouseenter={() => {
-        showNftApr = true;
-      }}
-      on:mouseleave={() => {
-        showNftApr = false;
-      }}
-    >
-      Buy NFT
-    </button>
-
     <div use:melt={$root} class="flex justify-between">
       <span>Annual percentage rate</span>
       <div class="flex flex-col items-end flex-[1_1_10rem]">
@@ -179,6 +168,42 @@
         {/if}
       </div>
     </div>
+
+    <div
+      class="mt-2 bg-gradient-to-r bg-gradient-from-lime bg-gradient-to-emerald py-4 px-4 rounded-xl text-black flex flex-col not-prose"
+      on:mouseenter={() => {
+        showNftApr = true;
+      }}
+      on:mouseleave={() => {
+        showNftApr = false;
+      }}
+      aria-label="APR Toggle"
+      role="contentinfo"
+    >
+      <h2 class="text-base font-bold">APR Boost</h2>
+      <div class="text-sm">
+        SHITZU Revival NFT holders enjoy an additional boost of 25% on all
+        <span class="font-bold">$DOGSHIT</span> claims.
+      </div>
+
+      <div class="flex justify-between items-center mt-5">
+        <ul class="flex">
+          {#each NFT_LINKS as { platform, logo }}
+            <li class="first:pl-2 -ml-2">
+              <img src={logo} alt={platform} class="w-9 h-9 rounded-full" />
+            </li>
+          {/each}
+        </ul>
+        <button
+          class="bg-lime text-black font-bold text-sm rounded-lg px-5 py-2 flex items-center"
+          on:click={handleOpenNftBuyDialog}
+        >
+          <img src={SHITZU_FACE} alt="SHITZU" class="w-6 h-6 -ml-2 mr-1" />
+          Buy NFT
+        </button>
+      </div>
+    </div>
+
     <div class="flex justify-between">
       <span>Total staked</span>
       <span>
