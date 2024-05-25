@@ -114,7 +114,9 @@
 </div>
 
 <div class="bg-[#222] min-h-screen w-screen max-w-full">
-  <div class="flex flex-col min-h-screen prose prose-invert prose-lime mx-auto">
+  <div
+    class="flex flex-col min-h-screen prose prose-invert prose-lime mx-auto max-w-none"
+  >
     <Header />
     <Body>
       <slot />
