@@ -28,7 +28,7 @@
     "@unocss/reset": "^0.60.2",
     "bs58": "^5.0.0",
     "dayjs": "^1.11.11",
-    "near-api-js": "^4.0.1",
+    "near-api-js": "^2",
     "ts-pattern": "^5.1.1"
   },
   "devDependencies": {
