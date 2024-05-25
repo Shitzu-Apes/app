@@ -132,9 +132,10 @@
   async function handleClaimButton() {
     loading = true;
     const transactions: HereCall[] = [];
-    const tokenIds = await $dogshitContract$
+    const tokenIds = await Promise.all($dogshitContract$
       .then((contract) => contract.get_undistributed_rewards(undefined))
-      .then(([tokenId]) => tokenId);
+      .then((rewards) => rewards.map(([tokenId]) => tokenId))
+    );
     const accountId = get(wallet.accountId$);
     if (!accountId) return;
     await Promise.all(
