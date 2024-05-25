@@ -58,3 +58,9 @@
     </details>
   {/each}
 </div>
+
+<style>
+  summary::-webkit-details-marker {
+    display: none;
+  }
+</style>
