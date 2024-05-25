@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { slide } from "svelte/transition";
+
   const questions = [
     {
       question: "What is the SHITZU community's staking pool?",
@@ -39,7 +41,9 @@
     <details
       class="bg-neutral-800 border border-lime rounded-lg hover:bg-neutral-600 cursor-pointer [&_#chevron]:open:-rotate-180 list-none not-prose py-2 px-2 mb-3"
     >
-      <summary class="w-full px-1 list-none marker:hidden">
+      <summary
+        class="w-full px-1 list-none marker:hidden transition duration-150 transition-ease-out"
+      >
         <div
           class="flex w-full items-start justify-between text-left text-white"
         >
@@ -62,5 +66,13 @@
 <style>
   summary::-webkit-details-marker {
     display: none;
+  }
+
+  details summary {
+    transition: margin 150ms ease-out;
+  }
+
+  details[open] summary {
+    margin-bottom: 0.75rem;
   }
 </style>
