@@ -1,8 +1,8 @@
-export async function view(
+export async function view<T>(
   contract: string,
   method: string,
   args: Record<string, unknown>,
-): Promise<any> {
+): Promise<T> {
   const res = await fetch(import.meta.env.VITE_NODE_URL, {
     method: "POST",
     headers: {

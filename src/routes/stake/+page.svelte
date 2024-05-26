@@ -5,18 +5,16 @@
 
   import type { AccountId } from "$lib/abi";
   import { showWalletSelector } from "$lib/auth";
-  import { Faq, Stake, ValidatorStatistics } from "$lib/components";
-  import MessageBox from "$lib/components/MessageBox.svelte";
+  import { Faq, Stake, MessageBox, ValidatorStatistics } from "$lib/components";
   import { modal$ } from "$lib/layout";
   import {
-    dogshitContract$,
-    validatorContract$,
     wallet,
     nearBalance,
     refreshNearBalance,
-    type ValidatorContract,
-    type ValidatorFarm,
-    checkNftCount,
+    Nft,
+    type PoolFarm,
+    Pool,
+    Dogshit,
   } from "$lib/near";
 
   const stake$ = writable<FixedNumber | undefined>();
@@ -24,50 +22,44 @@
   let canWithdraw = false;
   let totalStakers: number | null = null;
   let totalStaked: FixedNumber | null = null;
-  let farm: ValidatorFarm | null = null;
+  let farm: PoolFarm | null = null;
   let undistributedRewards: [AccountId, string][] = [];
 
   let accountId$ = wallet.accountId$;
 
   $: hasNft = $accountId$
-    ? checkNftCount($accountId$).then((count) => count != null && count > 0)
+    ? Nft.nftSupplyForOwner($accountId$).then(
+        (count) => count != null && count > 0,
+      )
     : Promise.resolve(false);
 
   $: refreshNearBalance($accountId$);
-  $: fetchStake($validatorContract$, $accountId$);
+  $: fetchStake($accountId$);
   fetchTotalStake();
   fetchFarm();
 
-  async function fetchStake(c: Promise<ValidatorContract>, accountId?: string) {
+  async function fetchStake(accountId?: string) {
     if (accountId == null) {
       $stake$ = undefined;
       $withdraw$ = undefined;
       return;
     }
-    const contract = await c;
-    const account = await contract.get_account({ account_id: accountId });
+    const account = await Pool.getAccount(accountId);
     stake$.set(new FixedNumber(account.staked_balance, 24));
     withdraw$.set(new FixedNumber(account.unstaked_balance, 24));
     canWithdraw = account.can_withdraw;
   }
 
   async function fetchTotalStake() {
-    totalStaked = await $validatorContract$
-      .then((contract) => contract.get_pool_summary(undefined))
-      .then((summary) => new FixedNumber(summary.total_staked_balance, 24));
-
-    totalStakers = await $validatorContract$.then((contract) =>
-      contract.get_number_of_accounts(undefined),
+    totalStaked = await Pool.getPoolSummary().then(
+      (summary) => new FixedNumber(summary.total_staked_balance, 24),
     );
+    totalStakers = await Pool.getNumberOfAccounts();
   }
 
   async function fetchFarm() {
-    undistributedRewards = await $dogshitContract$.then((contract) =>
-      contract.get_undistributed_rewards(undefined),
-    );
-    farm = await $validatorContract$.then((contract) =>
-      contract.get_farm({ farm_id: 0 }),
-    );
+    undistributedRewards = await Dogshit.getUndistributedRewards();
+    farm = await Pool.getFarm(0);
   }
 
   let loading = false;
@@ -91,7 +83,7 @@
       {
         onSuccess: () => {
           refreshNearBalance($accountId$);
-          fetchStake($validatorContract$, $accountId$);
+          fetchStake($accountId$);
           fetchTotalStake();
         },
         onFinally: () => {
@@ -164,7 +156,7 @@
         stake={$stake$}
         afterUpdateBalances={() => {
           refreshNearBalance($accountId$);
-          fetchStake($validatorContract$, $accountId$);
+          fetchStake($accountId$);
           fetchTotalStake();
           $modal$ = null;
         }}

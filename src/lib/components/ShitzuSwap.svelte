@@ -4,7 +4,7 @@
 
   import { Near } from "$lib/assets";
   import { TokenInput } from "$lib/components";
-  import { nearBalance, refreshNearBalance, wallet } from "$lib/near";
+  import { Ref, nearBalance, refreshNearBalance, wallet } from "$lib/near";
   import {
     shitzuBalance,
     refreshShitzuBalance,
@@ -12,7 +12,6 @@
     type ShitzuPriceHistory,
     currentShitzuPrice,
   } from "$lib/store";
-  import { calculateShitzuOut } from "$lib/swap";
 
   $: shitzuStat =
     $shitzuPriceHistory && $currentShitzuPrice
@@ -72,7 +71,7 @@
         status: "loading",
       };
 
-      calculateShitzuOut($input$)
+      Ref.calculateShitzuOut($input$)
         .then((res) => {
           shitzuOut = {
             value: res,

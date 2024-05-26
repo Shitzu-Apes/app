@@ -7,12 +7,7 @@
   import { match } from "ts-pattern";
 
   import { TokenInput } from "$lib/components";
-  import {
-    wallet,
-    isUserRegistered,
-    storageRequirement,
-    dogshitContract$,
-  } from "$lib/near";
+  import { wallet, Ft } from "$lib/near";
 
   export let walletConnected: boolean;
   export let nearBalance: FixedNumber;
@@ -148,9 +143,9 @@
     if (!accountId) return;
     await Promise.all(
       tokenIds.map(async (tokenId) => {
-        const isRegistered = await isUserRegistered(accountId, tokenId);
+        const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
         if (isRegistered) return;
-        const deposit = await storageRequirement(tokenId);
+        const deposit = await Ft.storageRequirement(tokenId);
         transactions.push({
           receiverId: tokenId,
           actions: [

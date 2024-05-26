@@ -10,10 +10,10 @@
   import SHITZU_FACE from "$lib/assets/logo/shitzu_face.svg";
   import { NFT_LINKS } from "$lib/components/BuyNft.svelte";
   import { ModalSize, modal$, modalSize$ } from "$lib/layout";
-  import type { ValidatorFarm } from "$lib/near";
+  import type { PoolFarm } from "$lib/near";
   import { getToken, getToken$, type TokenInfo } from "$lib/store";
 
-  export let farm: ValidatorFarm | null;
+  export let farm: PoolFarm | null;
   export let undistributedRewards: [AccountId, string][] = [];
   export let totalStakers: number | null;
   export let totalStaked: FixedNumber | null;
@@ -60,7 +60,7 @@
   }
 
   async function fetchAPRs(
-    farm: ValidatorFarm,
+    farm: PoolFarm,
     totalStaked: FixedNumber,
     near: Promise<TokenInfo>,
   ) {
@@ -125,7 +125,7 @@
                   })}%
                 {/if}
                 {#if totalAPRDiff && showNftApr && !hasNft}
-                  <span class="text-green-3" in:fade>
+                  <span class="text-green-3 ml-1" in:fade>
                     (+{totalAPRDiff.format({
                       maximumFractionDigits: 2,
                     })}%)

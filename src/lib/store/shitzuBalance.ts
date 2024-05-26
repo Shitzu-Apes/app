@@ -1,4 +1,4 @@
-import { view } from "$lib/near/utils";
+import { Ft } from "$lib/near";
 import { FixedNumber } from "@tarnadas/fixed-number";
 import { writable } from "svelte/store";
 
@@ -10,9 +10,7 @@ export async function refreshShitzuBalance(accountId?: string): Promise<void> {
     return;
   }
 
-  const balance = await view("token.0xshitzu.near", "ft_balance_of", {
-    account_id: accountId,
-  });
+  const balance = await Ft.balanceOf("token.0xshitzu.near", accountId, 18);
 
-  shitzuBalance.set(new FixedNumber(balance, 18));
+  shitzuBalance.set(balance);
 }

@@ -1,9 +1,7 @@
 import { FixedNumber } from "@tarnadas/fixed-number";
 import { writable } from "svelte/store";
 
-const nearBalance = writable<FixedNumber | null>(null);
-
-export default nearBalance;
+export const nearBalance = writable<FixedNumber | null>(null);
 
 export async function refreshNearBalance(accountId?: string): Promise<void> {
   if (typeof accountId !== "string") {

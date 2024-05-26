@@ -2,7 +2,7 @@ import { derived, readable, type Readable } from "svelte/store";
 
 import type { FungibleTokenMetadata } from "$lib/abi";
 import BlackDragonLogo from "$lib/assets/logo/blackdragon.png";
-import { view } from "$lib/near/utils";
+import { Ft, Ref, type PoolInfo } from "$lib/near";
 
 export type TokenInfo = {
   price: string;
@@ -17,28 +17,6 @@ type PoolConfig = {
     | "wrap.near"
     | "blackdragon.tkn.near"
     | "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1";
-};
-
-/**
- *  /// Pool kind.
-    pub pool_kind: String,
-    /// List of tokens in the pool.
-    pub token_account_ids: Vec<AccountId>,
-    /// How much NEAR this contract has.
-    pub amounts: Vec<U128>,
-    /// Fee charged for swap.
-    pub total_fee: u32,
-    /// Total number of shares.
-    pub shares_total_supply: U128,
-    pub amp: u64,
- */
-export type PoolInfo = {
-  pool_kind: string;
-  token_account_ids: string[];
-  amounts: string[];
-  total_fee: number;
-  shares_total_supply: string;
-  amp: number;
 };
 
 // Define the poolIds type
@@ -87,7 +65,7 @@ const refPrices$ = readable<
 
     const tokens_metadata = await Promise.all(
       token_ids.map((token_id) => {
-        return fetchMetadata(token_id);
+        return Ft.metadata(token_id);
       }),
     ).then((metadata) => {
       const res = metadata.reduce<{
@@ -106,21 +84,21 @@ const refPrices$ = readable<
       return res;
     });
 
-    const tokens_pool = await view("v2.ref-finance.near", "get_pool_by_ids", {
-      pool_ids,
-    }).then((pools: PoolInfo[]) => {
-      const prices = pools.reduce<{
-        [K in keyof PoolIdsType]?: PoolInfo;
-      }>((acc, pool, i) => {
-        const poolId = Object.keys(poolIds)[i] as keyof PoolIdsType;
+    const tokens_pool = await Ref.getPoolByIds(pool_ids).then(
+      (pools: PoolInfo[]) => {
+        const prices = pools.reduce<{
+          [K in keyof PoolIdsType]?: PoolInfo;
+        }>((acc, pool, i) => {
+          const poolId = Object.keys(poolIds)[i] as keyof PoolIdsType;
 
-        acc[poolId] = pool;
+          acc[poolId] = pool;
 
-        return acc;
-      }, {}) as Record<keyof PoolIdsType, PoolInfo>;
+          return acc;
+        }, {}) as Record<keyof PoolIdsType, PoolInfo>;
 
-      return prices;
-    });
+        return prices;
+      },
+    );
 
     const refPrices: {
       [K in keyof PoolIdsType]?: TokenInfo;
@@ -201,7 +179,7 @@ export function getToken$(tokenId: string): Readable<Promise<TokenInfo>> {
   if (tokenPrices[tokenId] == null) {
     tokenPrices[tokenId] = derived(refPrices$, async (r) => {
       const refPrices = await r;
-      const metadata = await fetchMetadata(tokenId);
+      const metadata = await Ft.metadata(tokenId);
       if (!metadata) {
         throw new Error();
       }
@@ -256,11 +234,4 @@ export function getToken(tokenId: string) {
       return resolve(token);
     });
   });
-}
-
-async function fetchMetadata(
-  tokenId: string,
-): Promise<FungibleTokenMetadata | undefined> {
-  const nep141Metadata = await view(tokenId, "ft_metadata", {});
-  return nep141Metadata;
 }
