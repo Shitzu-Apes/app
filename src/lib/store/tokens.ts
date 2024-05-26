@@ -32,7 +32,7 @@ type PoolConfig = {
     pub shares_total_supply: U128,
     pub amp: u64,
  */
-type PoolInfo = {
+export type PoolInfo = {
   pool_kind: string;
   token_account_ids: string[];
   amounts: string[];

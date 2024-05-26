@@ -10,23 +10,25 @@
     refreshShitzuBalance,
     shitzuPriceHistory,
     type ShitzuPriceHistory,
+    currentShitzuPrice,
   } from "$lib/store";
   import { calculateShitzuOut } from "$lib/swap";
 
-  $: shitzuPrice = $shitzuPriceHistory
-    ? preparePrice($shitzuPriceHistory)
-    : null;
+  $: shitzuStat =
+    $shitzuPriceHistory && $currentShitzuPrice
+      ? preparePrice($shitzuPriceHistory, $currentShitzuPrice)
+      : null;
 
-  function preparePrice(priceHistory: ShitzuPriceHistory): {
-    price: number;
+  function preparePrice(
+    priceHistory: ShitzuPriceHistory,
+    currentShitzuPrice: string,
+  ): {
     diff: number;
   } {
-    const price =
-      +priceHistory.price_list[priceHistory.price_list.length - 1].price;
+    const price = +currentShitzuPrice;
     const yesterday = +priceHistory.price_list[0].price;
     const diff = (price - yesterday) / yesterday;
     return {
-      price,
       diff,
     };
   }
@@ -114,17 +116,19 @@
     <h2 class="mb-0 text-4xl">SHITZU</h2>
     <div>Ref Finance Pool 4369</div>
     <div class="mt-6 text-center text-white text-3xl">
-      {#if shitzuPrice}
+      {#if $currentShitzuPrice}
         <div>
-          ${parseFloat(shitzuPrice.price.toString()).toFixed(6)}
+          ${parseFloat($currentShitzuPrice).toFixed(6)}
         </div>
+      {/if}
+      {#if shitzuStat}
         <div
           class="text-base"
-          class:text-red={shitzuPrice.diff < 0}
-          class:text-lime={shitzuPrice.diff > 0}
+          class:text-red={shitzuStat.diff < 0}
+          class:text-lime={shitzuStat.diff > 0}
         >
-          {shitzuPrice.diff < 0 ? "" : "+"}{parseFloat(
-            (shitzuPrice.diff * 100).toString(),
+          {shitzuStat.diff < 0 ? "" : "+"}{parseFloat(
+            (shitzuStat.diff * 100).toString(),
           ).toFixed(2)}% TODAY
         </div>
       {:else}
@@ -170,7 +174,7 @@
     {/if}
   </div>
 
-  {#if shitzuPrice && shitzuOut.status === "success" && $input$}
+  {#if $currentShitzuPrice && shitzuOut.status === "success" && $input$}
     <div class="mt-6">
       <div class="text-sm font-bold flex items-center gap-1 mb-1">
         Buy SHITZU <div class="i-mdi:rocket-launch w-4 h-4 inline-flex" />
@@ -188,7 +192,7 @@
           <div class="i-mdi:open-in-new w-3 h-3 inline-flex items-center" />
         </a>. You will receive approximately {shitzuOut.value.format()} SHITZU based
         on the current price of ${parseFloat(
-          shitzuPrice.price.toString(),
+          $currentShitzuPrice.toString(),
         ).toFixed(6)} with a maximum of 5% slippage.
       </div>
     </div>
