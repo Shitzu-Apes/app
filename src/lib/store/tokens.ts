@@ -252,7 +252,9 @@ export function getToken(tokenId: string) {
   }
 
   return new Promise<TokenInfo>((resolve) => {
-    getToken$(tokenId).subscribe((token) => resolve(token));
+    getToken$(tokenId).subscribe((token) => {
+      return resolve(token);
+    });
   });
 }
 

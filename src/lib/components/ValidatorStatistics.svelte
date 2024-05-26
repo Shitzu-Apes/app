@@ -141,7 +141,7 @@
           </div>
         </summary>
         <p class="px-2 py-3 text-sm text-gray-300 cursor-auto">
-          {#await getToken("wrap.near") then token}
+          {#await $near$ then token}
             <TokenStatistics
               icon="/assets/near.svg"
               {token}
