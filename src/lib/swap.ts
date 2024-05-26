@@ -1,4 +1,5 @@
 import { FixedNumber } from "@tarnadas/fixed-number";
+import { view } from "./near/utils";
 
 export async function calculateShitzuOut(
   nearIn: FixedNumber,
@@ -10,32 +11,7 @@ export async function calculateShitzuOut(
     token_out: "token.0xshitzu.near",
   };
 
-  const args_base64 = Buffer.from(JSON.stringify(args)).toString("base64");
-
-  const res = await fetch(import.meta.env.VITE_NODE_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: "dontcare",
-      method: "query",
-      params: {
-        request_type: "call_function",
-        finality: "final",
-        account_id: "v2.ref-finance.near",
-        method_name: "get_return",
-        args_base64,
-      },
-    }),
-  });
-
-  const json = await res.json();
-  const result = new Uint8Array(json.result.result);
-  const decoder = new TextDecoder();
-
-  const shitzuOut = JSON.parse(decoder.decode(result));
+  const shitzuOut = await view("v2.ref-finance.near", "get_return", args);
 
   return new FixedNumber(shitzuOut, 18);
 }

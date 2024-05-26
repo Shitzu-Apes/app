@@ -1,3 +1,4 @@
+import { view } from "$lib/near/utils";
 import { FixedNumber } from "@tarnadas/fixed-number";
 import { writable } from "svelte/store";
 
@@ -9,35 +10,9 @@ export async function refreshShitzuBalance(accountId?: string): Promise<void> {
     return;
   }
 
-  const res = await fetch(import.meta.env.VITE_NODE_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: "dontcare",
-      method: "query",
-      params: {
-        request_type: "call_function",
-        finality: "final",
-        account_id: "token.0xshitzu.near",
-        method_name: "ft_balance_of",
-        args_base64: btoa(
-          JSON.stringify({
-            account_id: accountId,
-          }),
-        ),
-      },
-    }),
+  const balance = await view("token.0xshitzu.near", "ft_balance_of", {
+    account_id: accountId,
   });
-
-  const json = await res.json();
-
-  const result = new Uint8Array(json.result.result);
-  const decoder = new TextDecoder();
-
-  const balance = JSON.parse(decoder.decode(result));
 
   shitzuBalance.set(new FixedNumber(balance, 18));
 }

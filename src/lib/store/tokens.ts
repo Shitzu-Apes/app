@@ -259,30 +259,6 @@ export function getToken(tokenId: string) {
 async function fetchMetadata(
   tokenId: string,
 ): Promise<FungibleTokenMetadata | undefined> {
-  const res = await fetch(import.meta.env.VITE_NODE_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: "dontcare",
-      method: "query",
-      params: {
-        request_type: "call_function",
-        finality: "final",
-        account_id: tokenId,
-        method_name: "ft_metadata",
-        args_base64: "",
-      },
-    }),
-  });
-  const json = await res.json();
-  if (!json.result) return;
-  const result = new Uint8Array(json.result.result);
-  const decoder = new TextDecoder();
-  const nep141Metadata = JSON.parse(
-    decoder.decode(result),
-  ) as FungibleTokenMetadata;
+  const nep141Metadata = await view(tokenId, "ft_metadata", {});
   return nep141Metadata;
 }
