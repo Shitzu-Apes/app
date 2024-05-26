@@ -1,8 +1,7 @@
 <script lang="ts">
-  import { createCollapsible, melt } from "@melt-ui/svelte";
   import { FixedNumber } from "@tarnadas/fixed-number";
   import { writable } from "svelte/store";
-  import { fade, slide } from "svelte/transition";
+  import { fade } from "svelte/transition";
   import { bind } from "svelte-simple-modal";
 
   import { BuyNft, TokenStatistics } from ".";
@@ -28,13 +27,6 @@
   const near$ = getToken$("wrap.near");
   // hardcoding this to 9% * 0.75 for now
   const nearAPR = new FixedNumber(675n, 2);
-
-  const {
-    elements: { root, content, trigger },
-    states: { open },
-  } = createCollapsible({
-    forceVisible: true,
-  });
 
   $: if (
     farm != null &&
@@ -116,57 +108,57 @@
   <div
     class="border-2 border-lime px-4 py-6 rounded-xl flex flex-col gap-3 bg-black"
   >
-    <div use:melt={$root} class="flex justify-between">
-      <span>Annual percentage rate</span>
-      <div class="flex flex-col items-end flex-[1_1_10rem]">
-        <button
-          class="flex itesm-center text-emerald"
-          use:melt={$trigger}
-          aria-label="Toggle"
+    <div class="flex justify-between">
+      <details
+        class="w-full not-prose cursor-pointer [&_#fold]:open:block [&_#unfold]:open:hidden"
+      >
+        <summary
+          class="w-full px-1 list-none marker:hidden transition duration-150 transition-ease-out"
         >
-          <span>
-            {#if totalAPR}
-              {totalAPR.format({
-                maximumFractionDigits: 2,
-              })}%
-            {/if}
-            {#if totalAPRDiff && showNftApr && !hasNft}
-              <span class="text-green-3" in:fade>
-                (+{totalAPRDiff.format({
-                  maximumFractionDigits: 2,
-                })}%)
-              </span>
-            {/if}
-          </span>
-          <div>
-            {#if $open}
-              <div class="i-mdi-unfold-less-horizontal size-6" />
-            {:else}
-              <div class="i-mdi-unfold-more-horizontal size-6" />
-            {/if}
+          <div class="flex w-full items-center justify-between text-left">
+            <span>Annual percentage rate</span>
+            <div class="flex items-end text-emerald">
+              <div class="flex items-center">
+                {#if totalAPR}
+                  {totalAPR.format({
+                    maximumFractionDigits: 2,
+                  })}%
+                {/if}
+                {#if totalAPRDiff && showNftApr && !hasNft}
+                  <span class="text-green-3" in:fade>
+                    (+{totalAPRDiff.format({
+                      maximumFractionDigits: 2,
+                    })}%)
+                  </span>
+                {/if}
+                <div id="unfold" class="i-mdi-unfold-more-horizontal size-6" />
+                <div
+                  id="fold"
+                  class="i-mdi-unfold-less-horizontal size-6 hidden"
+                />
+              </div>
+            </div>
           </div>
-        </button>
-        {#if $open}
-          <div use:melt={$content} transition:slide>
-            {#await getToken("wrap.near") then token}
-              <TokenStatistics
-                icon="/assets/near.svg"
-                {token}
-                apr={nearAPR}
-                hasNft={true}
-              />
-            {/await}
-            {#each $tokenAPRs$ as [apr, token]}
-              <TokenStatistics
-                {token}
-                apr={new FixedNumber(String(Math.round(apr * 10_000)), 2)}
-                {hasNft}
-                {showNftApr}
-              />
-            {/each}
-          </div>
-        {/if}
-      </div>
+        </summary>
+        <p class="px-2 py-3 text-sm text-gray-300 cursor-auto">
+          {#await getToken("wrap.near") then token}
+            <TokenStatistics
+              icon="/assets/near.svg"
+              {token}
+              apr={nearAPR}
+              hasNft={true}
+            />
+          {/await}
+          {#each $tokenAPRs$ as [apr, token]}
+            <TokenStatistics
+              {token}
+              apr={new FixedNumber(String(Math.round(apr * 10_000)), 2)}
+              {hasNft}
+              {showNftApr}
+            />
+          {/each}
+        </p>
+      </details>
     </div>
 
     <div
@@ -243,3 +235,17 @@
     </div>
   </div>
 </div>
+
+<style>
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  details summary {
+    transition: margin 150ms ease-out;
+  }
+
+  details[open] summary {
+    margin-bottom: 0.75rem;
+  }
+</style>

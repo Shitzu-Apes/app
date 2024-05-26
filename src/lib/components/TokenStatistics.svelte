@@ -20,7 +20,7 @@
         alt={token.symbol}
       />
     {/if}
-    <span class="hidden md:inline pr-10">{token.symbol.toUpperCase()}</span>
+    <span class="pr-10">{token.symbol.toUpperCase()}</span>
   </div>
   <span class="flex-1">
     {#await hasNft then hasNft}
