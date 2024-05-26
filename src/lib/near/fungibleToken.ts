@@ -4,6 +4,8 @@ import { view } from "./utils";
 
 import type { FungibleTokenMetadata } from "$lib/abi";
 
+const tokenMetadataCache: Record<string, FungibleTokenMetadata> = {};
+
 export abstract class Ft {
   public static async balanceOf(
     tokenId: string,
@@ -22,7 +24,16 @@ export abstract class Ft {
   }
 
   public static async metadata(tokenId: string) {
-    return view<FungibleTokenMetadata>(tokenId, "ft_metadata", {});
+    if (tokenMetadataCache[tokenId] != null) {
+      return tokenMetadataCache[tokenId];
+    }
+    const metadata = await view<FungibleTokenMetadata>(
+      tokenId,
+      "ft_metadata",
+      {},
+    );
+    tokenMetadataCache[tokenId] = metadata;
+    return metadata;
   }
 
   public static async isUserRegistered(

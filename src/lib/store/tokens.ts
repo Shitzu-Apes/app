@@ -160,7 +160,7 @@ const refPrices$ = readable<
   return () => clearInterval(interval);
 });
 
-const tokenPrices: {
+const tokenInfos: {
   [K in keyof PoolIdsType]?: Readable<Promise<TokenInfo>>;
 } = {};
 
@@ -176,13 +176,10 @@ export function getToken$(tokenId: string): Readable<Promise<TokenInfo>> {
     throw new Error("Invalid token id");
   }
 
-  if (tokenPrices[tokenId] == null) {
-    tokenPrices[tokenId] = derived(refPrices$, async (r) => {
+  if (tokenInfos[tokenId] == null) {
+    tokenInfos[tokenId] = derived(refPrices$, async (r) => {
       const refPrices = await r;
       const metadata = await Ft.metadata(tokenId);
-      if (!metadata) {
-        throw new Error();
-      }
       if (tokenId === "blackdragon.tkn.near") {
         metadata.icon = BlackDragonLogo;
       }
@@ -221,7 +218,7 @@ export function getToken$(tokenId: string): Readable<Promise<TokenInfo>> {
       }) as Promise<TokenInfo>;
     });
   }
-  return tokenPrices[tokenId]!;
+  return tokenInfos[tokenId]!;
 }
 
 export function getToken(tokenId: string) {
