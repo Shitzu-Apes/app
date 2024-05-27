@@ -1,18 +1,7 @@
-<script context="module" lang="ts">
-  export async function showWalletSelector() {
-    modalSize$.set(ModalSize.Medium);
-    modal$.set(bind(WalletSelector, {}));
-  }
-</script>
-
 <script lang="ts">
   import { createDropdownMenu, melt } from "@melt-ui/svelte";
-  import { bind } from "svelte-simple-modal";
-
-  import { WalletSelector } from ".";
-
-  import { modal$, modalSize$, ModalSize } from "$lib/layout";
   import { wallet } from "$lib/near";
+  import { showWalletSelector } from ".";
 
   const iconUrl$ = wallet.iconUrl$;
   const accountId$ = wallet.accountId$;

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { wallet } from "$lib/near";
-  import { showWalletSelector } from "$lib/auth/Login.svelte";
+  import { showWalletSelector } from "./showWalletSelector";
 </script>
 
 <button
