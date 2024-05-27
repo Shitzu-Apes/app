@@ -31,6 +31,9 @@ jobs:
       - name: Install step
         run: "yarn install"
 
+      - name: Lint
+        run: "yarn lint"
+
       - name: Build step
         run: "yarn build"
 
