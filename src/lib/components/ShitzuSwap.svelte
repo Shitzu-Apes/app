@@ -12,6 +12,7 @@
     type ShitzuPriceHistory,
     currentShitzuPrice,
   } from "$lib/store";
+  import ConnectWallet from "$lib/auth/ConnectWallet.svelte";
 
   $: shitzuStat =
     $shitzuPriceHistory && $currentShitzuPrice
@@ -97,12 +98,14 @@
     >
       <div>Balance</div>
       <div class="flex items-center gap-2">
-        {#if $shitzuBalance}
-          <div class="w-3 h-3 rounded-full bg-emerald" />
-          <span>{$shitzuBalance.format()} SHITZU</span>
-        {:else}
+        {#await $shitzuBalance}
           <div class="i-svg-spinners:6-dots-rotate w-3 h-3 bg-lime" />
-        {/if}
+        {:then balance}
+          <div class="w-3 h-3 rounded-full bg-emerald" />
+          <span>{balance.format()} SHITZU</span>
+        {:catch}
+          -
+        {/await}
 
         <div class="i-mdi:arrow-right w-3 h-3" />
       </div>
@@ -119,6 +122,8 @@
         <div>
           ${parseFloat($currentShitzuPrice).toFixed(6)}
         </div>
+      {:else}
+        <div class="i-svg-spinners:6-dots-rotate size-6 bg-lime mx-auto" />
       {/if}
       {#if shitzuStat}
         <div
@@ -196,66 +201,71 @@
       </div>
     </div>
   {/if}
-  <button
-    class="bg-lime text-black w-full py-2 rounded-xl my-6 text-2xl font-bold disabled:bg-gray-5"
-    disabled={$input$ == null || $input$.valueOf() === 0n}
-    on:click={() => {
-      if (!$input$ || shitzuOut.status !== "success") return;
 
-      const min_amount_out = shitzuOut.value
-        .mul(new FixedNumber("95", 2))
-        .div(new FixedNumber("100", 2))
-        .toU128();
+  {#if $accountId$}
+    <button
+      class="bg-lime text-black w-full py-2 rounded-xl my-6 text-2xl font-bold disabled:bg-gray-5"
+      disabled={$input$ == null || $input$.valueOf() === 0n}
+      on:click={() => {
+        if (!$input$ || shitzuOut.status !== "success") return;
 
-      const actions = [
-        {
-          pool_id: 4369,
-          token_in: "wrap.near",
-          amount_in: $input$.toU128(),
-          token_out: "token.0xshitzu.near",
-          min_amount_out,
-        },
-      ];
+        const min_amount_out = shitzuOut.value
+          .mul(new FixedNumber("95", 2))
+          .div(new FixedNumber("100", 2))
+          .toU128();
 
-      wallet.signAndSendTransaction(
-        {
-          receiverId: "wrap.near",
-          actions: [
-            {
-              type: "FunctionCall",
-              params: {
-                methodName: "near_deposit",
-                args: {},
-                gas: 30_000_000_000_000n.toString(),
-                deposit: $input$.toU128(),
-              },
-            },
-            {
-              type: "FunctionCall",
-              params: {
-                methodName: "ft_transfer_call",
-                args: {
-                  receiver_id: "v2.ref-finance.near",
-                  amount: $input$.toU128(),
-                  msg: JSON.stringify({
-                    actions,
-                  }),
-                },
-                gas: 270_000_000_000_000n.toString(),
-                deposit: "1",
-              },
-            },
-          ],
-        },
-        {
-          onSuccess: () => {
-            refreshNearBalance($accountId$);
+        const actions = [
+          {
+            pool_id: 4369,
+            token_in: "wrap.near",
+            amount_in: $input$.toU128(),
+            token_out: "token.0xshitzu.near",
+            min_amount_out,
           },
-          onFinally: () => {},
-        },
-      );
-    }}
-  >
-    Buy
-  </button>
+        ];
+
+        wallet.signAndSendTransaction(
+          {
+            receiverId: "wrap.near",
+            actions: [
+              {
+                type: "FunctionCall",
+                params: {
+                  methodName: "near_deposit",
+                  args: {},
+                  gas: 30_000_000_000_000n.toString(),
+                  deposit: $input$.toU128(),
+                },
+              },
+              {
+                type: "FunctionCall",
+                params: {
+                  methodName: "ft_transfer_call",
+                  args: {
+                    receiver_id: "v2.ref-finance.near",
+                    amount: $input$.toU128(),
+                    msg: JSON.stringify({
+                      actions,
+                    }),
+                  },
+                  gas: 270_000_000_000_000n.toString(),
+                  deposit: "1",
+                },
+              },
+            ],
+          },
+          {
+            onSuccess: () => {
+              refreshNearBalance($accountId$);
+            },
+            onFinally: () => {},
+          },
+        );
+      }}
+    >
+      Buy
+    </button>
+  {:else}
+    <ConnectWallet />
+  {/if}
 </div>

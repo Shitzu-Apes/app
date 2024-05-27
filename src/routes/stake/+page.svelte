@@ -4,7 +4,6 @@
   import { slide } from "svelte/transition";
 
   import type { AccountId } from "$lib/abi";
-  import { showWalletSelector } from "$lib/auth";
   import { Faq, Stake, MessageBox, ValidatorStatistics } from "$lib/components";
   import { modal$ } from "$lib/layout";
   import {
@@ -16,6 +15,7 @@
     Pool,
     Dogshit,
   } from "$lib/near";
+  import ConnectWallet from "$lib/auth/ConnectWallet.svelte";
 
   const stake$ = writable<FixedNumber | undefined>();
   const withdraw$ = writable<FixedNumber | undefined>();
@@ -146,6 +146,7 @@
     class="-mt-6 z-10 pb-6 border-2 border-lime rounded-xl px-3 pt-3 bg-black"
   >
     {#if $accountId$ == null}
+      <ConnectWallet />
       <MessageBox>
         Please login in order to stake with Shitzu validator!
       </MessageBox>
@@ -160,14 +161,7 @@
           fetchTotalStake();
           $modal$ = null;
         }}
-      >
-        <button
-          class="w-full py-3 bg-lime text-black rounded-xl mt-3"
-          on:click={wallet.isTG ? wallet.loginViaHere : showWalletSelector}
-        >
-          Connect Wallet
-        </button>
-      </Stake>
+      ></Stake>
     {:else}
       <div class="w-full" transition:slide>
         <div class="i-svg-spinners:6-dots-rotate w-12 h-12 bg-gray-7 m-a" />
