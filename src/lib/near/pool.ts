@@ -60,4 +60,15 @@ export abstract class Pool {
       {},
     );
   }
+
+  public static getUnclaimedReward(account_id: string, farm_id: number) {
+    return view<string>(
+      import.meta.env.VITE_VALIDATOR_CONTRACT_ID,
+      "get_unclaimed_reward",
+      {
+        account_id,
+        farm_id,
+      },
+    );
+  }
 }

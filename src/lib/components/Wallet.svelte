@@ -2,6 +2,7 @@
   import { FixedNumber } from "@tarnadas/fixed-number";
 
   import { MessageBox } from "$lib/components";
+  import DogshitUndistributedReward from "./DogshitUndistributedReward.svelte";
 
   export let accountId: string;
 
@@ -60,3 +61,5 @@
     </MessageBox>
   {/if}
 </div>
+
+<DogshitUndistributedReward />
