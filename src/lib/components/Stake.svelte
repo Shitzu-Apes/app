@@ -1,15 +1,15 @@
 <script lang="ts">
-  import type { HereCall } from "@here-wallet/core";
   import { createTabs, melt } from "@melt-ui/svelte";
   import { FixedNumber } from "@tarnadas/fixed-number";
-  import { get, writable } from "svelte/store";
+  import { writable } from "svelte/store";
   import { crossfade, fade, slide } from "svelte/transition";
   import { match } from "ts-pattern";
 
-  import { TokenInput } from "$lib/components";
-  import { wallet, Ft } from "$lib/near";
-  import Near from "$lib/assets/Near.svelte";
   import BurnTheShit from "./BurnTheShit.svelte";
+
+  import Near from "$lib/assets/Near.svelte";
+  import { TokenInput } from "$lib/components";
+  import { wallet } from "$lib/near";
 
   export let walletConnected: boolean;
   export let nearBalance: FixedNumber;

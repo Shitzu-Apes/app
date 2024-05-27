@@ -4,6 +4,8 @@
   import { slide } from "svelte/transition";
 
   import type { AccountId } from "$lib/abi";
+  import Near from "$lib/assets/Near.svelte";
+  import { ConnectWallet } from "$lib/auth";
   import { Faq, Stake, MessageBox, ValidatorStatistics } from "$lib/components";
   import { modal$ } from "$lib/layout";
   import {
@@ -15,8 +17,6 @@
     Pool,
     Dogshit,
   } from "$lib/near";
-  import ConnectWallet from "$lib/auth/ConnectWallet.svelte";
-  import Near from "$lib/assets/Near.svelte";
 
   const stake$ = writable<FixedNumber | undefined>();
   const withdraw$ = writable<FixedNumber | undefined>();

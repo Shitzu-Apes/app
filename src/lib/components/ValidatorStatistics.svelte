@@ -7,12 +7,12 @@
   import { BuyNft, TokenStatistics } from ".";
 
   import type { AccountId } from "$lib/abi";
+  import { Near } from "$lib/assets";
   import SHITZU_FACE from "$lib/assets/logo/shitzu_face.svg";
   import { NFT_LINKS } from "$lib/components/BuyNft.svelte";
   import { ModalSize, modal$, modalSize$ } from "$lib/layout";
   import type { PoolFarm } from "$lib/near";
   import { getToken, getToken$, type TokenInfo } from "$lib/store";
-  import Near from "$lib/assets/Near.svelte";
 
   export let farm: PoolFarm | null;
   export let undistributedRewards: [AccountId, string][] = [];

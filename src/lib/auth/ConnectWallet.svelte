@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { wallet } from "$lib/near";
   import { showWalletSelector } from "./showWalletSelector";
+
+  import { wallet } from "$lib/near";
 </script>
 
 <button

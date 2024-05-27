@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { Dogshit, Pool, wallet } from "$lib/near";
   import BurnTheShit from "./BurnTheShit.svelte";
   import TokenBalance from "./TokenBalance.svelte";
+
+  import { Dogshit, Pool, wallet } from "$lib/near";
 
   const { accountId$ } = wallet;
 

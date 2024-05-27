@@ -1,7 +1,9 @@
 <script lang="ts">
   import { createDropdownMenu, melt } from "@melt-ui/svelte";
-  import { wallet } from "$lib/near";
+
   import { showWalletSelector } from ".";
+
+  import { wallet } from "$lib/near";
 
   const iconUrl$ = wallet.iconUrl$;
   const accountId$ = wallet.accountId$;

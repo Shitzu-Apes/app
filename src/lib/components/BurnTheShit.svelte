@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { Ft, wallet } from "$lib/near";
   import type { HereCall } from "@here-wallet/core";
   import { createEventDispatcher } from "svelte";
   import { get } from "svelte/store";
+
+  import { Ft, wallet } from "$lib/near";
 
   const dispatch = createEventDispatcher();
 

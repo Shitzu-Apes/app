@@ -3,6 +3,7 @@
   import { writable } from "svelte/store";
 
   import { Near } from "$lib/assets";
+  import { ConnectWallet } from "$lib/auth";
   import { TokenInput } from "$lib/components";
   import { Ref, nearBalance, refreshNearBalance, wallet } from "$lib/near";
   import {
@@ -12,7 +13,6 @@
     type ShitzuPriceHistory,
     currentShitzuPrice,
   } from "$lib/store";
-  import ConnectWallet from "$lib/auth/ConnectWallet.svelte";
 
   $: shitzuStat =
     $shitzuPriceHistory && $currentShitzuPrice

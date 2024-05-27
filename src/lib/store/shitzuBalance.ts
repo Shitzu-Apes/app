@@ -1,6 +1,7 @@
-import { Ft } from "$lib/near";
 import { FixedNumber } from "@tarnadas/fixed-number";
 import { writable } from "svelte/store";
+
+import { Ft } from "$lib/near";
 
 export const shitzuBalance = writable<Promise<FixedNumber>>(
   new Promise(() => {}),

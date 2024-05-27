@@ -1,11 +1,12 @@
 <script lang="ts">
   import { FixedNumber } from "@tarnadas/fixed-number";
 
-  import { MessageBox } from "$lib/components";
   import DogshitUndistributedReward from "./DogshitUndistributedReward.svelte";
-  import Near from "$lib/assets/Near.svelte";
-  import { refreshShitzuBalance, shitzuBalance } from "$lib/store";
+
+  import { Near } from "$lib/assets";
   import ShitzuFace from "$lib/assets/logo/shitzu.webp";
+  import { MessageBox } from "$lib/components";
+  import { refreshShitzuBalance, shitzuBalance } from "$lib/store";
 
   export let accountId: string;
 
