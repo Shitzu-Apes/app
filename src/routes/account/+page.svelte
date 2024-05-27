@@ -6,7 +6,7 @@
 </script>
 
 <div class="flex flex-col gap-4 items-start w-full">
-  <div class="my-6">
+  <div class="my-6 w-full">
     {#if $accountId$}
       <Wallet accountId={$accountId$} />
     {:else}

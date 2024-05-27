@@ -8,30 +8,37 @@
   $: tokenInfo$ = getToken$(reward);
 </script>
 
-<tr>
-  <td class="border border-lime px-4 py-2"
-    >{#await $tokenInfo$}
+<li
+  class="w-full border-b last:border-none border-lime px-4 py-4 flex items-center justify-between"
+>
+  <div>
+    {#await $tokenInfo$}
       <div class="i-svg-spinners:pulse-3 size-6 text-lime" />
     {:then token}
       <div class="flex items-center gap-1">
         <img
           src={token.icon}
           alt={token.symbol}
-          class="size-4 mr-2 rounded-full"
+          class="size-8 mr-2 rounded-full"
         />
-        {token.symbol}
+        <div>
+          {token.symbol}
+          <div class="text-sm text-gray font-400">
+            {reward}
+          </div>
+        </div>
       </div>
     {:catch}
       {reward}
     {/await}
-  </td>
-  <td class="border border-lime px-4 py-2">
+  </div>
+  <div>
     {#await $tokenInfo$}
       <div class="i-svg-spinners:pulse-3 size-6" />
     {:then token}
-      <div class="text-right">
+      <div class="text-right font-bold">
         {new FixedNumber(share, token.decimal).format()}
-        <div class="text-sm text-gray">
+        <div class="text-sm text-gray font-400">
           ${new FixedNumber(share, token.decimal)
             .mul(new FixedNumber(BigInt(+token.price * 1e24), 24))
             .format()}
@@ -40,5 +47,5 @@
     {:catch}
       {reward}
     {/await}
-  </td>
-</tr>
+  </div>
+</li>

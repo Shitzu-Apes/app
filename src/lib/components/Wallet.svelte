@@ -3,12 +3,16 @@
 
   import { MessageBox } from "$lib/components";
   import DogshitUndistributedReward from "./DogshitUndistributedReward.svelte";
+  import Near from "$lib/assets/Near.svelte";
+  import { refreshShitzuBalance, shitzuBalance } from "$lib/store";
+  import ShitzuFace from "$lib/assets/logo/shitzu.webp";
 
   export let accountId: string;
 
   let nearBalance: FixedNumber | undefined;
 
   fetchNearBalance();
+  $: refreshShitzuBalance(accountId);
 
   async function fetchNearBalance() {
     const res = await fetch(import.meta.env.VITE_NODE_URL, {
@@ -54,8 +58,28 @@
   <h2 class="not-prose text-2xl font-bold">{accountId}</h2>
 </div>
 <div class="flex gap-2 items-center">
-  <span>Wallet balance:</span>
-  <span>{nearBalance ? `${nearBalance.format()} NEAR` : "-"}</span>
+  {#if nearBalance != null}
+    <div class="w-full flex justify-evenly">
+      <span class="flex items-center gap-1">
+        <Near className="size-6" />
+        {nearBalance.format()}
+      </span>
+      <!-- Vertical Divider -->
+      <div class="border-l border-gray-4 h-6" />
+      <span>
+        {#await $shitzuBalance}
+          <div class="i-svg-spinners:6-dots-rotate size-6 bg-gray-8" />
+        {:then balance}
+          <span class="flex items-center gap-1">
+            <img src={ShitzuFace} alt="SHITZU" class="w-6 h-6" />
+            {balance.format()}
+          </span>
+        {/await}
+      </span>
+    </div>
+  {:else}
+    <span>-</span>
+  {/if}
   {#if nearBalance != null && nearBalance.toNumber() < 0.5}
     <MessageBox type="warning">
       Your Near balance is low! Please top up your Near balance to not run out
