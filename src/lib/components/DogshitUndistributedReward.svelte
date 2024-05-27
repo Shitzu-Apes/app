@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Dogshit, Pool, wallet } from "$lib/near";
+  import BurnTheShit from "./BurnTheShit.svelte";
   import TokenBalance from "./TokenBalance.svelte";
 
   const { accountId$ } = wallet;
@@ -34,11 +35,11 @@
         <TokenBalance {reward} {share} />
       {/each}
       <li>
-        <button
+        <BurnTheShit
           class="w-full py-3 bg-lime text-black font-bold text-xl disabled:bg-gray-5 relative"
         >
           Claim & burn the 💩
-        </button>
+        </BurnTheShit>
       </li>
     </ul>
   </div>

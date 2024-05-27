@@ -9,6 +9,7 @@
   import { TokenInput } from "$lib/components";
   import { wallet, Ft } from "$lib/near";
   import Near from "$lib/assets/Near.svelte";
+  import BurnTheShit from "./BurnTheShit.svelte";
 
   export let walletConnected: boolean;
   export let nearBalance: FixedNumber;
@@ -117,92 +118,6 @@
         onSuccess: () => {
           afterUpdateBalances();
           $inputValue$ = "";
-        },
-        onFinally: () => {
-          loading = false;
-        },
-      },
-    );
-  }
-
-  async function handleClaimButton() {
-    loading = true;
-    const transactions: HereCall[] = [];
-    // const tokenIds = await Promise.all($dogshitContract$
-    //   .then((contract) => contract.get_undistributed_rewards(undefined))
-    //   .then((rewards) => rewards.map(([tokenId]) => tokenId))
-    // );
-    const tokenIds = [
-      "token.0xshitzu.near",
-      "blackdragon.tkn.near",
-      "token.lonkingnearbackto2024.near",
-      "ndc.tkn.near",
-      "avb.tkn.near",
-      "intel.tkn.near",
-    ];
-    const accountId = get(wallet.accountId$);
-    if (!accountId) return;
-    await Promise.all(
-      tokenIds.map(async (tokenId) => {
-        const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
-        if (isRegistered) return;
-        const deposit = await Ft.storageRequirement(tokenId);
-        transactions.push({
-          receiverId: tokenId,
-          actions: [
-            {
-              type: "FunctionCall",
-              params: {
-                methodName: "storage_deposit",
-                args: {},
-                gas: 20_000_000_000_000n.toString(),
-                deposit,
-              },
-            },
-          ],
-        });
-      }),
-    );
-
-    await wallet.signAndSendTransactions(
-      {
-        transactions: [
-          ...transactions,
-          {
-            receiverId: import.meta.env.VITE_VALIDATOR_CONTRACT_ID,
-            actions: [
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "claim",
-                  args: {
-                    token_id: import.meta.env.VITE_DOGSHIT_CONTRACT_ID,
-                  },
-                  gas: 50_000_000_000_000n.toString(),
-                  deposit: "1",
-                },
-              },
-            ],
-          },
-          {
-            receiverId: import.meta.env.VITE_DOGSHIT_CONTRACT_ID,
-            actions: [
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "burn",
-                  args: {},
-                  gas: 250_000_000_000_000n.toString(),
-                  deposit: "1",
-                },
-              },
-            ],
-          },
-        ],
-      },
-      {
-        onSuccess: () => {
-          // TODO
         },
         onFinally: () => {
           loading = false;
@@ -320,7 +235,7 @@
       </div>
     </div>
 
-    <button
+    <!-- <button
       class="w-full py-3 bg-lime text-black font-bold text-xl rounded-xl mt-3 disabled:bg-gray-5 relative"
       on:click={handleClaimButton}
       disabled={stake.valueOf() === 0n || loading}
@@ -333,6 +248,20 @@
           <div class="i-svg-spinners:6-dots-rotate size-8 bg-lime" />
         </div>
       {/if}
-    </button>
+    </button> -->
+    <BurnTheShit
+      class="w-full py-3 bg-lime text-black font-bold text-xl rounded-xl mt-3 disabled:bg-gray-5 relative"
+      on:claimStart={() => (loading = true)}
+      on:claimEnd={() => (loading = true)}
+    >
+      Claim & burn the 💩
+      {#if loading}
+        <div
+          class="flex items-center justify-center absolute w-full h-full top-0 left-0"
+        >
+          <div class="i-svg-spinners:6-dots-rotate size-8 bg-lime" />
+        </div>
+      {/if}
+    </BurnTheShit>
   </div>
 </div>
