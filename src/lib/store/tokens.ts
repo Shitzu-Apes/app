@@ -2,6 +2,10 @@ import { derived, readable, type Readable } from "svelte/store";
 
 import type { FungibleTokenMetadata } from "$lib/abi";
 import BlackDragonLogo from "$lib/assets/logo/blackdragon.png";
+import IntelNearLogo from "$lib/assets/logo/intelnear.jpeg";
+import LonkLogo from "$lib/assets/logo/lonk.png";
+import NDCLogo from "$lib/assets/logo/ndc.jpeg";
+import ShitzuLogo from "$lib/assets/logo/shitzu.webp";
 import { Ft, Ref, type PoolInfo } from "$lib/near";
 
 export type TokenInfo = {
@@ -232,3 +236,11 @@ export function getToken(tokenId: string) {
     });
   });
 }
+
+export const memes = [
+  { name: "Shitzu", src: ShitzuLogo },
+  { name: "BlackDragon", src: BlackDragonLogo },
+  { name: "Lonk", src: LonkLogo },
+  { name: "IntelNear", src: IntelNearLogo },
+  { name: "NDC", src: NDCLogo },
+];

@@ -2,26 +2,14 @@
   import { bind } from "svelte-simple-modal";
 
   import { DexscreenerIcon } from "$lib/assets";
-  import BlackDragonLogo from "$lib/assets/logo/blackdragon.png";
-  import IntelNearLogo from "$lib/assets/logo/intelnear.jpeg";
-  import LonkLogo from "$lib/assets/logo/lonk.png";
-  import NDCLogo from "$lib/assets/logo/ndc.jpeg";
-  import ShitzuLogo from "$lib/assets/logo/shitzu.webp";
   import { Dexscreener, ShitzuSwap } from "$lib/components";
   import { ModalSize, modal$, modalSize$ } from "$lib/layout";
+  import { memes } from "$lib/store";
 
   export async function showPriceChart() {
     modalSize$.set(ModalSize.Large);
     modal$.set(bind(Dexscreener, {}));
   }
-
-  let memes = [
-    { name: "Shitzu", src: ShitzuLogo },
-    { name: "BlackDragon", src: BlackDragonLogo },
-    { name: "Lonk", src: LonkLogo },
-    { name: "IntelNear", src: IntelNearLogo },
-    { name: "NDC", src: NDCLogo },
-  ];
 </script>
 
 <div class="flex flex-col gap-[1.2rem]">

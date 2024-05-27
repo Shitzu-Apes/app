@@ -3,6 +3,7 @@
 
   import { showWalletSelector } from ".";
 
+  import { page } from "$app/stores";
   import { wallet } from "$lib/near";
 
   const iconUrl$ = wallet.iconUrl$;
@@ -11,6 +12,8 @@
   const {
     elements: { menu, item, trigger },
   } = createDropdownMenu();
+
+  $: isActive = $page.url.pathname === "/account";
 </script>
 
 <div class="login">
@@ -19,6 +22,8 @@
       <a
         href="/account"
         class="border-2 border-lime hover:bg-lime/15 flex justify-center items-center decoration-none px-4 py-2 rounded-xl"
+        class:bg-lime={isActive}
+        class:bg-opacity-15={isActive}
       >
         <img src={iconUrl} alt="wallet icon" class="w-4 h-4 mr-2" />
         {$accountId$}
@@ -27,6 +32,8 @@
       <button
         use:melt={$trigger}
         class="border-2 border-lime hover:bg-lime/15 flex justify-center items-center decoration-none px-4 py-2 rounded-xl"
+        class:bg-lime={isActive}
+        class:bg-opacity-15={isActive}
       >
         <img src={iconUrl} alt="wallet icon" class="w-4 h-4 mr-2" />
         {$accountId$}

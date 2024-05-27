@@ -3,7 +3,7 @@
 
   import DogshitUndistributedReward from "./DogshitUndistributedReward.svelte";
 
-  import { Near } from "$lib/assets";
+  import Near from "$lib/assets/Near.svelte";
   import ShitzuFace from "$lib/assets/logo/shitzu.webp";
   import { MessageBox } from "$lib/components";
   import { refreshShitzuBalance, shitzuBalance } from "$lib/store";

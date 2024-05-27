@@ -10,6 +10,7 @@
   import Near from "$lib/assets/Near.svelte";
   import { TokenInput } from "$lib/components";
   import { wallet } from "$lib/near";
+  import { memes } from "$lib/store";
 
   export let walletConnected: boolean;
   export let nearBalance: FixedNumber;
@@ -235,33 +236,38 @@
       </div>
     </div>
 
-    <!-- <button
-      class="w-full py-3 bg-lime text-black font-bold text-xl rounded-xl mt-3 disabled:bg-gray-5 relative"
-      on:click={handleClaimButton}
-      disabled={stake.valueOf() === 0n || loading}
+    <div
+      class="w-full py-3 text-black font-bold text-xl mt-3 border-t-2 border-lime"
     >
-      Claim & burn the 💩
-      {#if loading}
-        <div
-          class="flex items-center justify-center absolute w-full h-full top-0 left-0"
+      <ul class="flex not-prose justify-center my-3">
+        {#each memes as { name, src }}
+          <li class="first:pl-2 -ml-2">
+            <img {src} alt={name} class="w-9 h-9 rounded-full" />
+          </li>
+        {/each}
+      </ul>
+      <div class="text-sm flex justify-evenly mt-6">
+        <BurnTheShit
+          class="bg-lime text-black font-bold text-sm rounded-lg px-5 py-2 flex items-center"
+          on:claimStart={() => (loading = true)}
+          on:claimEnd={() => (loading = true)}
         >
-          <div class="i-svg-spinners:6-dots-rotate size-8 bg-lime" />
-        </div>
-      {/if}
-    </button> -->
-    <BurnTheShit
-      class="w-full py-3 bg-lime text-black font-bold text-xl rounded-xl mt-3 disabled:bg-gray-5 relative"
-      on:claimStart={() => (loading = true)}
-      on:claimEnd={() => (loading = true)}
-    >
-      Claim & burn the 💩
-      {#if loading}
-        <div
-          class="flex items-center justify-center absolute w-full h-full top-0 left-0"
+          Claim & burn the 💩
+          {#if loading}
+            <div
+              class="flex items-center justify-center absolute w-full h-full top-0 left-0"
+            >
+              <div class="i-svg-spinners:6-dots-rotate size-8 bg-lime" />
+            </div>
+          {/if}
+        </BurnTheShit>
+        <a
+          href="/account"
+          class="border-2 border-lime text-lime font-bold text-sm rounded-lg px-5 py-2 flex items-center decoration-none hover:bg-lime/15"
         >
-          <div class="i-svg-spinners:6-dots-rotate size-8 bg-lime" />
-        </div>
-      {/if}
-    </BurnTheShit>
+          Track $DOGSHIT <div class="i-mdi:arrow-right size-5 ml-1" />
+        </a>
+      </div>
+    </div>
   </div>
 </div>
