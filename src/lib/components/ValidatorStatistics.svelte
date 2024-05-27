@@ -12,6 +12,7 @@
   import { ModalSize, modal$, modalSize$ } from "$lib/layout";
   import type { PoolFarm } from "$lib/near";
   import { getToken, getToken$, type TokenInfo } from "$lib/store";
+  import Near from "$lib/assets/Near.svelte";
 
   export let farm: PoolFarm | null;
   export let undistributedRewards: [AccountId, string][] = [];
@@ -202,7 +203,10 @@
         {#if totalStaked == null}
           -
         {:else}
-          {totalStaked.format()} NEAR
+          <div class="flex items-center gap-1">
+            <Near className="size-6" />
+            {totalStaked.format()}
+          </div>
         {/if}
       </span>
     </div>

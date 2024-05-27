@@ -16,6 +16,7 @@
     Dogshit,
   } from "$lib/near";
   import ConnectWallet from "$lib/auth/ConnectWallet.svelte";
+  import Near from "$lib/assets/Near.svelte";
 
   const stake$ = writable<FixedNumber | undefined>();
   const withdraw$ = writable<FixedNumber | undefined>();
@@ -120,9 +121,14 @@
                 $nearBalance.toNumber() < 0.5}
             />
           </div>
-          <span class="text-xl font-bold">
-            {$nearBalance ? `${$nearBalance.format()} NEAR` : "-"}
-          </span>
+          {#if $nearBalance}
+            <span class="text-xl font-bold flex items-center gap-1">
+              <Near className="size-6" />
+              {$nearBalance.format()}
+            </span>
+          {:else}
+            <span class="text-xl font-bold">-</span>
+          {/if}
         </div>
 
         <div class="border-2 px-3 py-1 border border-lime rounded-full">
@@ -135,9 +141,14 @@
           <div class="flex items-center mb-3">
             <div>Staked</div>
           </div>
-          <span class="text-xl font-bold">
-            {$stake$ ? `${$stake$.format()} NEAR` : "-"}
-          </span>
+          {#if $stake$}
+            <span class="text-xl font-bold flex items-center gap-1">
+              <Near className="size-6" />
+              {$stake$.format()}
+            </span>
+          {:else}
+            <span class="text-xl font-bold">-</span>
+          {/if}
         </div>
       </div>
     </div>

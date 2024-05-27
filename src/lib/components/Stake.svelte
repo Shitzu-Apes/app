@@ -8,6 +8,7 @@
 
   import { TokenInput } from "$lib/components";
   import { wallet, Ft } from "$lib/near";
+  import Near from "$lib/assets/Near.svelte";
 
   export let walletConnected: boolean;
   export let nearBalance: FixedNumber;
@@ -232,15 +233,22 @@
 </div>
 
 <div class="tab">
-  <div class="py-3 px-3 border border-lime rounded-xl flex justify-between">
-    <div>N</div>
+  <div
+    class="py-3 px-3 border border-lime rounded-xl flex justify-between items-center"
+  >
+    <Near className="size-6" />
     <TokenInput
       class="bg-transparent focus:outline-none"
       bind:this={input}
       bind:value={$inputValue$}
       decimals={24}
     />
-    <button on:click={setMax}> max </button>
+    <button
+      on:click={setMax}
+      class="bg-lime/15 text-lime px-4 py-2 rounded-lg text-sm"
+    >
+      Max
+    </button>
   </div>
 
   {#if walletConnected}
@@ -257,18 +265,25 @@
     <div class="pt-6">
       <div class="flex flex-col">
         <div class="flex items-center mb-3">
-          <div>Near Balance</div>
+          <div class="flex items-center gap-1">
+            <div class="i-mdi:account-balance-wallet size-6" />
+            Balance
+          </div>
         </div>
         <div class="w-full text-xl font-bold flex justify-evenly">
-          <span class="flex-[1_1_1rem]">{nearBalance.format()}</span>
+          <span class="flex-[1_1_1rem] flex items-center gap-1 text-lime">
+            <Near className="size-6" />
+            {nearBalance.format()}
+          </span>
           {#if newNearBalance}
             <span in:fade>⇒</span>
             <span
               in:fade
-              class="flex-[1_1_1rem] text-right"
+              class="flex-[1_1_1rem] flex justify-end items-center gap-1"
               class:text-green-4={newNearBalance > nearBalance}
               class:text-red-4={newNearBalance < nearBalance}
             >
+              <Near className="size-6" />
               {newNearBalance.format()}
             </span>
           {/if}
@@ -279,18 +294,25 @@
     <div class="pt-6">
       <div class="flex flex-col">
         <div class="flex items-center mb-3">
-          <div>Staked</div>
+          <div class="flex items-center gap-1">
+            <div class="i-mdi:lightning-bolt size-6" />
+            Staked
+          </div>
         </div>
         <div class="w-full text-xl font-bold flex">
-          <span class="flex-[1_1_1rem]">{stake.format()}</span>
+          <span class="flex-[1_1_1rem] flex items-center gap-1 text-lime">
+            <Near className="size-6" />
+            {stake.format()}
+          </span>
           {#if newStakeBalance}
             <span in:fade>⇒</span>
             <span
               in:fade
-              class="flex-[1_1_1rem] text-right"
+              class="flex-[1_1_1rem] flex justify-end items-center gap-1"
               class:text-green-4={newStakeBalance > stake}
               class:text-red-4={newStakeBalance < stake}
             >
+              <Near className="size-6" />
               {newStakeBalance.format()}
             </span>
           {/if}
