@@ -1,6 +1,5 @@
 <script lang="ts">
   import { Dogshit, Pool, wallet } from "$lib/near";
-  import { getToken$ } from "$lib/store";
   import TokenBalance from "./TokenBalance.svelte";
 
   const { accountId$ } = wallet;

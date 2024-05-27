@@ -37,7 +37,9 @@
   }
 </script>
 
-<div class="flex gap-2 items-center border-2 border-lime rounded-xl p-2">
+<div
+  class="flex flex-col gap-2 justify-center items-center rounded-xl p-2 w-full"
+>
   <object
     title="profile"
     data="https://stackoverflow.com/does-not-exist.png"
@@ -46,10 +48,10 @@
     <img
       src="https://i.near.social/magic/thumbnail/https://near.social/magic/img/account/{accountId}"
       alt="profile"
-      class="rounded-full w-16 h-16"
+      class="rounded-full size-20"
     />
   </object>
-  <span>{accountId}</span>
+  <h2 class="not-prose text-2xl font-bold">{accountId}</h2>
 </div>
 <div class="flex gap-2 items-center">
   <span>Wallet balance:</span>

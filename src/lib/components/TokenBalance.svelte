@@ -29,7 +29,14 @@
     {#await $tokenInfo$}
       <div class="i-svg-spinners:pulse-3 size-6" />
     {:then token}
-      {new FixedNumber(share, token.decimal).format()}
+      <div class="text-right">
+        {new FixedNumber(share, token.decimal).format()}
+        <div class="text-sm text-gray">
+          ${new FixedNumber(share, token.decimal)
+            .mul(new FixedNumber(BigInt(+token.price * 1e24), 24))
+            .format()}
+        </div>
+      </div>
     {:catch}
       {reward}
     {/await}
