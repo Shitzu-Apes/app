@@ -3,6 +3,7 @@
 
   import { DexscreenerIcon } from "$lib/assets";
   import { Dexscreener, ShitzuSwap } from "$lib/components";
+  import RefBanner from "$lib/components/RefBanner.svelte";
   import { ModalSize, modal$, modalSize$ } from "$lib/layout";
   import { memes } from "$lib/store";
 
@@ -49,4 +50,6 @@
       </a>
     </div>
   </div>
+
+  <RefBanner />
 </div>
