@@ -1,8 +1,6 @@
 <script lang="ts">
   import { FixedNumber } from "@tarnadas/fixed-number";
 
-  import DogshitUndistributedReward from "./DogshitUndistributedReward.svelte";
-
   import Near from "$lib/assets/Near.svelte";
   import ShitzuFace from "$lib/assets/logo/shitzu.webp";
   import { MessageBox } from "$lib/components";
@@ -58,7 +56,7 @@
   </object>
   <h2 class="not-prose text-2xl font-bold">{accountId}</h2>
 </div>
-<div class="flex flex-col justify-center gap-2 items-center">
+<div class="flex flex-col justify-center gap-2 items-center mt-6">
   {#if nearBalance != null}
     <div class="w-full flex justify-evenly">
       <span class="flex items-center gap-1">
@@ -88,5 +86,3 @@
     </MessageBox>
   {/if}
 </div>
-
-<DogshitUndistributedReward />

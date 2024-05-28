@@ -1,5 +1,6 @@
 <script lang="ts">
   import { MessageBox, Wallet } from "$lib/components";
+  import DogshitUndistributedReward from "$lib/components/DogshitUndistributedReward.svelte";
   import { wallet } from "$lib/near";
 
   const accountId$ = wallet.accountId$;
@@ -13,4 +14,6 @@
       <MessageBox type="info">Please log in!</MessageBox>
     {/if}
   </div>
+
+  <DogshitUndistributedReward />
 </div>

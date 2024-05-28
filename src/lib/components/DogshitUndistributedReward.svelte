@@ -24,7 +24,7 @@
   });
 </script>
 
-<h2>Manage Your $DOGSHIT</h2>
+<h2 class="not-prose text-xl">Track $DOGSHIT</h2>
 {#await rewardsPromise}
   <div class="i-svg-spinners:pulse-3 size-6" />
 {:then rewards}
