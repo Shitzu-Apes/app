@@ -1,11 +1,12 @@
 <script lang="ts">
+  import type { HereCall } from "@here-wallet/core";
   import { FixedNumber } from "@tarnadas/fixed-number";
   import { writable } from "svelte/store";
 
   import { Near } from "$lib/assets";
   import { ConnectWallet } from "$lib/auth";
   import { TokenInput } from "$lib/components";
-  import { Ref, nearBalance, refreshNearBalance, wallet } from "$lib/near";
+  import { Ft, Ref, nearBalance, refreshNearBalance, wallet } from "$lib/near";
   import {
     shitzuBalance,
     refreshShitzuBalance,
@@ -86,6 +87,88 @@
           };
         });
     }
+  }
+
+  async function handleSwap() {
+    if (!$input$ || shitzuOut.status !== "success" || !$accountId$) return;
+
+    const isRegistered = await Ft.isUserRegistered(
+      "token.0xshitzu.near",
+      $accountId$,
+    );
+
+    const min_amount_out = shitzuOut.value
+      .mul(new FixedNumber("95", 2))
+      .div(new FixedNumber("100", 2))
+      .toU128();
+
+    const transactions: HereCall[] = [];
+
+    if (!isRegistered) {
+      const deposit = await Ft.storageRequirement("token.0xshitzu.near");
+      transactions.push({
+        receiverId: "token.0xshitzu.near",
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "storage_deposit",
+              args: {},
+              gas: 20_000_000_000_000n.toString(),
+              deposit,
+            },
+          },
+        ],
+      });
+    }
+
+    transactions.push({
+      receiverId: "wrap.near",
+      actions: [
+        {
+          type: "FunctionCall",
+          params: {
+            methodName: "near_deposit",
+            args: {},
+            gas: 30_000_000_000_000n.toString(),
+            deposit: $input$.toU128(),
+          },
+        },
+        {
+          type: "FunctionCall",
+          params: {
+            methodName: "ft_transfer_call",
+            args: {
+              receiver_id: "v2.ref-finance.near",
+              amount: $input$.toU128(),
+              msg: JSON.stringify({
+                actions: [
+                  {
+                    pool_id: 4369,
+                    token_in: "wrap.near",
+                    amount_in: $input$.toU128(),
+                    token_out: "token.0xshitzu.near",
+                    min_amount_out,
+                  },
+                ],
+              }),
+            },
+            gas: 270_000_000_000_000n.toString(),
+            deposit: "1",
+          },
+        },
+      ],
+    });
+
+    await wallet.signAndSendTransactions(
+      { transactions },
+      {
+        onSuccess: () => {
+          refreshNearBalance($accountId$);
+        },
+        onFinally: () => {},
+      },
+    );
   }
 </script>
 
@@ -206,62 +289,7 @@
     <button
       class="bg-lime text-black w-full py-2 rounded-xl my-6 text-2xl font-bold disabled:bg-gray-5"
       disabled={$input$ == null || $input$.valueOf() === 0n}
-      on:click={() => {
-        if (!$input$ || shitzuOut.status !== "success") return;
-
-        const min_amount_out = shitzuOut.value
-          .mul(new FixedNumber("95", 2))
-          .div(new FixedNumber("100", 2))
-          .toU128();
-
-        const actions = [
-          {
-            pool_id: 4369,
-            token_in: "wrap.near",
-            amount_in: $input$.toU128(),
-            token_out: "token.0xshitzu.near",
-            min_amount_out,
-          },
-        ];
-
-        wallet.signAndSendTransaction(
-          {
-            receiverId: "wrap.near",
-            actions: [
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "near_deposit",
-                  args: {},
-                  gas: 30_000_000_000_000n.toString(),
-                  deposit: $input$.toU128(),
-                },
-              },
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "ft_transfer_call",
-                  args: {
-                    receiver_id: "v2.ref-finance.near",
-                    amount: $input$.toU128(),
-                    msg: JSON.stringify({
-                      actions,
-                    }),
-                  },
-                  gas: 270_000_000_000_000n.toString(),
-                  deposit: "1",
-                },
-              },
-            ],
-          },
-          {
-            onSuccess: () => {
-              refreshNearBalance($accountId$);
-            },
-            onFinally: () => {},
-          },
-        );
-      }}
+      on:click={handleSwap}
     >
       Buy
     </button>
