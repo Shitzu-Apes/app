@@ -225,13 +225,19 @@
     </div>
   </div>
 
-  <div class="w-full h-full">
-    {#if $shitzuPriceHistory}
+  <div class="w-full h-full -px-2">
+    {#if $shitzuPriceHistory && $currentShitzuPrice}
       <DayPriceChart
-        data={$shitzuPriceHistory?.price_list.map((price) => ({
-          x: price.date_time,
-          y: parseFloat(price.price),
-        }))}
+        data={[
+          ...$shitzuPriceHistory.price_list.map((price) => ({
+            x: price.date_time * 1000,
+            y: parseFloat(price.price),
+          })),
+          {
+            x: Date.now(),
+            y: parseFloat($currentShitzuPrice),
+          },
+        ]}
       />
     {/if}
   </div>
