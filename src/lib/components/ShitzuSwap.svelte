@@ -182,7 +182,7 @@
   <div>
     <!-- Show Shitzu Balance -->
     <a
-      class="flex justify-between px-4 py-2 border border-lime rounded-full my-6 text-xs decoration-none"
+      class="flex justify-between px-4 py-2 border border-lime rounded-full mt-4 mb-6 text-xs decoration-none"
       href="/account"
     >
       <div>Balance</div>
@@ -273,7 +273,7 @@
     <div class="flex items-center justify-center">
       <div class="text-4xl"><Near className="w-8 h-8" /></div>
       <TokenInput
-        class="flex-1 w-0 max-w-70 decoration-none bg-transparent outline-none text-center text-white text-5xl py-10"
+        class="flex-1 w-0 max-w-70 decoration-none bg-transparent outline-none text-center text-white text-5xl py-8"
         bind:this={input}
         bind:value={$inputValue$}
         decimals={24}
@@ -332,7 +332,7 @@
 
   {#if $accountId$}
     <button
-      class="bg-lime text-black w-full py-2 rounded-xl my-6 text-2xl font-bold disabled:bg-gray-5"
+      class="bg-lime text-black w-full py-2 rounded-xl mt-4 mb-6 text-2xl font-bold disabled:bg-gray-5"
       disabled={$input$ == null || $input$.valueOf() === 0n}
       on:click={handleSwap}
     >

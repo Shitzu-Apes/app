@@ -14,7 +14,7 @@
   const margin = {
     top: 20,
     right: 0,
-    bottom: 25,
+    bottom: 10,
     left: 0,
   };
 
@@ -112,7 +112,7 @@
       fill="currentColor"
       text-anchor={i !== 0 ? "middle" : "start"}
     >
-      {Math.floor((X.domain()[0] + 24 * HOURS - tick) / 1000 / 60 / 60)}
+      -{Math.floor((X.domain()[0] + 24 * HOURS - tick) / 1000 / 60 / 60)}h
     </text>
   {/each}
   <text
@@ -123,18 +123,6 @@
     text-anchor="middle"
   >
     now
-  </text>
-  <text>
-    <tspan
-      x="50%"
-      y={height - margin.bottom + 20}
-      font-size="3"
-      fill="currentColor"
-      text-anchor="middle"
-      alignment-baseline="baseline"
-    >
-      Hours Ago
-    </tspan>
   </text>
 
   <!-- Vertical dotted line on closest Data -->

@@ -21,7 +21,7 @@
     {#if wallet.isTG}
       <a
         href="/account"
-        class="border-2 border-lime hover:bg-lime/15 flex justify-center items-center decoration-none px-4 py-2 rounded-xl"
+        class="border-2 border-lime hover:bg-lime/15 flex justify-center items-center decoration-none px-3 py-1 rounded-xl"
         class:bg-lime={isActive}
         class:bg-opacity-15={isActive}
       >
@@ -31,7 +31,7 @@
     {:else if $accountId$ && iconUrl}
       <button
         use:melt={$trigger}
-        class="border-2 border-lime hover:bg-lime/15 flex justify-center items-center decoration-none px-4 py-2 rounded-xl"
+        class="border-2 border-lime hover:bg-lime/15 flex justify-center items-center decoration-none px-3 py-1 rounded-xl"
         class:bg-lime={isActive}
         class:bg-opacity-15={isActive}
       >

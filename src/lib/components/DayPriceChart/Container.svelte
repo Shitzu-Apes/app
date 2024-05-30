@@ -5,11 +5,11 @@
   export let data;
 </script>
 
-<div class="w-full h-full mt-6" bind:this={ref}>
+<div class="w-full h-full" bind:this={ref}>
   {#if ref}
     <Chart
       width={ref.clientWidth}
-      height={ref.clientWidth * 0.5}
+      height={ref.clientWidth * 0.55}
       {data}
       on:hover
     />
