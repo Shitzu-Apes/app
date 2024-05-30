@@ -13,12 +13,9 @@
       return reject("No account");
     }
     Pool.getUnclaimedReward($accountId$, 0)
-      .then((balance) => {
-        Dogshit.simulateBurn(balance.toString())
-          .then((shares) => {
-            resolve(shares);
-          })
-          .catch(reject);
+      .then((balance) => Dogshit.simulateBurn(balance.toString()))
+      .then((shares) => {
+        resolve(shares);
       })
       .catch(reject);
   });
@@ -36,11 +33,9 @@
         <TokenBalance {reward} {share} />
       {/each}
       <li>
-        <BurnTheShit
-          class="w-full py-3 bg-lime text-black font-bold text-xl disabled:bg-gray-5 relative"
+        <BurnTheShit class="w-full py-3 rounded-none"
+          >Claim & burn the 💩</BurnTheShit
         >
-          Claim & burn the 💩
-        </BurnTheShit>
       </li>
     </ul>
   </div>

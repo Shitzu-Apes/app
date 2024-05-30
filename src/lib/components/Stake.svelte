@@ -5,10 +5,8 @@
   import { crossfade, fade, slide } from "svelte/transition";
   import { match } from "ts-pattern";
 
-  import BurnTheShit from "./BurnTheShit.svelte";
-
   import Near from "$lib/assets/Near.svelte";
-  import { TokenInput } from "$lib/components";
+  import { TokenInput, BurnTheShit } from "$lib/components";
   import { wallet } from "$lib/near";
   import { memes } from "$lib/store";
 
@@ -247,19 +245,8 @@
         {/each}
       </ul>
       <div class="text-sm flex justify-evenly mt-6">
-        <BurnTheShit
-          class="bg-lime text-black font-bold text-sm rounded-lg px-5 py-2 flex items-center"
-          on:claimStart={() => (loading = true)}
-          on:claimEnd={() => (loading = true)}
-        >
+        <BurnTheShit class="text-sm rounded-lg">
           Claim & burn the 💩
-          {#if loading}
-            <div
-              class="flex items-center justify-center absolute w-full h-full top-0 left-0"
-            >
-              <div class="i-svg-spinners:6-dots-rotate size-8 bg-lime" />
-            </div>
-          {/if}
         </BurnTheShit>
         <a
           href="/account"

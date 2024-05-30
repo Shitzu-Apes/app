@@ -3,6 +3,8 @@
   import { createEventDispatcher } from "svelte";
   import { get } from "svelte/store";
 
+  import Button from "./Button.svelte";
+
   import { Ft, wallet } from "$lib/near";
 
   const dispatch = createEventDispatcher();
@@ -97,6 +99,6 @@
   }
 </script>
 
-<button class={className} on:click={handleClaimButton}>
+<Button class={className} onClick={handleClaimButton}>
   <slot />
-</button>
+</Button>
