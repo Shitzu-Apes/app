@@ -39,6 +39,11 @@
   let inputValue$ = writable<string | undefined>();
   $: input$ = input?.u128$;
 
+  let displayPrice: {
+    price: number;
+    hoursAgo: number;
+  } | null = null;
+
   function setMax() {
     if ($nearBalance) {
       let input = $nearBalance.sub(new FixedNumber(5n, 1));
@@ -202,25 +207,34 @@
     <h2 class="mb-0 text-4xl">SHITZU</h2>
     <div>Ref Finance Pool 4369</div>
     <div class="mt-6 text-center text-white text-3xl">
-      {#if $currentShitzuPrice}
+      {#if displayPrice}
         <div>
-          ${parseFloat($currentShitzuPrice).toFixed(6)}
+          ${displayPrice.price.toFixed(6)}
+        </div>
+        <div class="text-base text-white">
+          {displayPrice.hoursAgo} hrs ago
         </div>
       {:else}
-        <div class="i-svg-spinners:6-dots-rotate size-6 bg-lime mx-auto" />
-      {/if}
-      {#if shitzuStat}
-        <div
-          class="text-base"
-          class:text-red={shitzuStat.diff < 0}
-          class:text-lime={shitzuStat.diff > 0}
-        >
-          {shitzuStat.diff < 0 ? "" : "+"}{parseFloat(
-            (shitzuStat.diff * 100).toString(),
-          ).toFixed(2)}% TODAY
-        </div>
-      {:else}
-        -
+        {#if $currentShitzuPrice}
+          <div>
+            ${parseFloat($currentShitzuPrice).toFixed(6)}
+          </div>
+        {:else}
+          <div class="i-svg-spinners:6-dots-rotate size-6 bg-lime mx-auto" />
+        {/if}
+        {#if shitzuStat}
+          <div
+            class="text-base"
+            class:text-red={shitzuStat.diff < 0}
+            class:text-lime={shitzuStat.diff > 0}
+          >
+            {shitzuStat.diff < 0 ? "" : "+"}{parseFloat(
+              (shitzuStat.diff * 100).toString(),
+            ).toFixed(2)}% TODAY
+          </div>
+        {:else}
+          -
+        {/if}
       {/if}
     </div>
   </div>
@@ -228,6 +242,13 @@
   <div class="w-full h-full -px-2">
     {#if $shitzuPriceHistory && $currentShitzuPrice}
       <DayPriceChart
+        on:hover={({ detail }) => {
+          if (detail) {
+            displayPrice = detail;
+          } else {
+            displayPrice = null;
+          }
+        }}
         data={[
           ...$shitzuPriceHistory.price_list.map((price) => ({
             x: price.date_time * 1000,

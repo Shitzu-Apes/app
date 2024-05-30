@@ -1,5 +1,6 @@
 <script lang="ts">
   import { curveCatmullRom, line, max, min, scaleLinear } from "d3";
+  import { createEventDispatcher } from "svelte";
 
   const HOURS = 1000 * 60 * 60;
 
@@ -14,8 +15,6 @@
     bottom: 20,
     left: 0,
   };
-
-  $: console.log(data.map((d) => new Date(d.x).toLocaleString()));
 
   $: X = scaleLinear()
     .domain([min(data, (d) => d.x)!, min(data, (d) => d.x)! + 26 * HOURS])
@@ -34,9 +33,55 @@
     const min = X.domain()[0];
     return [min, min + 6 * HOURS, min + 12 * HOURS, min + 18 * HOURS];
   })();
+
+  const dispatch = createEventDispatcher();
+
+  let selected: (typeof data)[number] | null;
+
+  function handleMouseMove(event: MouseEvent) {
+    if (
+      event &&
+      "target" in event &&
+      event.target instanceof SVGElement &&
+      event.target.role === "img"
+    ) {
+      const mouseX = event.clientX - event.target.getBoundingClientRect().left;
+
+      const closestData = data.reduce((prev, curr) => {
+        return Math.abs(X(curr.x) - mouseX) < Math.abs(X(prev.x) - mouseX)
+          ? curr
+          : prev;
+      });
+
+      const hoursAgo = Math.floor(
+        (X.domain()[0] + 24 * HOURS - closestData.x) / 1000 / 60 / 60,
+      );
+
+      if (hoursAgo > 0) {
+        dispatch("hover", {
+          price: closestData.y,
+          hoursAgo,
+        });
+        selected = closestData;
+      } else {
+        dispatch("hover", null);
+        selected = null;
+      }
+    }
+  }
 </script>
 
-<svg {width} {height} class="w-full h-full text-lime">
+<svg
+  {width}
+  {height}
+  class="w-full h-full text-lime cursor-pointer"
+  on:mousemove={handleMouseMove}
+  on:mouseleave={() => {
+    dispatch("hover", null);
+    selected = null;
+  }}
+  role="img"
+>
   <path d={lineFn(data)} fill="none" stroke="lime" stroke-width="2" />
 
   <!-- Pulsing at the current Price -->
@@ -88,4 +133,16 @@
       Hours Ago
     </tspan>
   </text>
+
+  <!-- Vertical dotted line on closest Data -->
+  {#if selected}
+    <line
+      x1={X(selected.x)}
+      y1={height - margin.bottom}
+      x2={X(selected.x)}
+      y2={margin.top}
+      stroke="white/50"
+      stroke-dasharray="2"
+    />
+  {/if}
 </svg>
