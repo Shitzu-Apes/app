@@ -14,7 +14,7 @@
   const margin = {
     top: 20,
     right: 0,
-    bottom: 20,
+    bottom: 25,
     left: 0,
   };
 
@@ -108,7 +108,7 @@
     <text
       x={X(tick)}
       y={height - margin.bottom}
-      font-size="2"
+      font-size="3"
       fill="currentColor"
       text-anchor={i !== 0 ? "middle" : "start"}
     >
@@ -118,7 +118,7 @@
   <text
     x={data.length ? X(data[data.length - 1].x) : X(24 * HOURS)}
     y={height - margin.bottom}
-    font-size="2"
+    font-size="3"
     fill="currentColor"
     text-anchor="middle"
   >
@@ -127,8 +127,8 @@
   <text>
     <tspan
       x="50%"
-      y={height - margin.bottom + 12}
-      font-size="2"
+      y={height - margin.bottom + 20}
+      font-size="3"
       fill="currentColor"
       text-anchor="middle"
       alignment-baseline="baseline"
