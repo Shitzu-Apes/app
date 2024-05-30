@@ -7,6 +7,7 @@
   } = {
     "/": "i-mdi-house",
     "/stake": "i-mdi-lightning-bolt",
+    "/leaderboard": "i-mdi-trophy",
   };
 
   $: pathname = $page.url.pathname;
