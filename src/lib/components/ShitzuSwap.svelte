@@ -239,28 +239,32 @@
     </div>
   </div>
 
-  <div class="w-full h-full -px-2">
-    {#if $shitzuPriceHistory && $currentShitzuPrice}
-      <DayPriceChart
-        on:hover={({ detail }) => {
-          if (detail) {
-            displayPrice = detail;
-          } else {
-            displayPrice = null;
-          }
-        }}
-        data={[
-          ...$shitzuPriceHistory.price_list.map((price) => ({
-            x: price.date_time * 1000,
-            y: parseFloat(price.price),
-          })),
-          {
-            x: Date.now(),
-            y: parseFloat($currentShitzuPrice),
-          },
-        ]}
-      />
+  <div class="relative w-full flex justify-center items-center">
+    {#if !($shitzuPriceHistory && $currentShitzuPrice)}
+      <div class="absolute i-svg-spinners:pulse w-10 h-10 bg-lime" />
     {/if}
+
+    <DayPriceChart
+      on:hover={({ detail }) => {
+        if (detail) {
+          displayPrice = detail;
+        } else {
+          displayPrice = null;
+        }
+      }}
+      data={$shitzuPriceHistory && $currentShitzuPrice
+        ? [
+            ...$shitzuPriceHistory.price_list.map((price) => ({
+              x: price.date_time * 1000,
+              y: parseFloat(price.price),
+            })),
+            {
+              x: Date.now(),
+              y: parseFloat($currentShitzuPrice),
+            },
+          ]
+        : []}
+    />
   </div>
 
   <div>

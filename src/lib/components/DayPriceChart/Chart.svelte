@@ -16,12 +16,23 @@
     left: 0,
   };
 
+  const initialXDomain = [0, 26 * HOURS];
+  const initialYDomain = [0, 1];
+
   $: X = scaleLinear()
-    .domain([min(data, (d) => d.x)!, min(data, (d) => d.x)! + 26 * HOURS])
+    .domain(
+      data.length
+        ? [min(data, (d) => d.x)!, min(data, (d) => d.x)! + 26 * HOURS]
+        : initialXDomain,
+    )
     .range([margin.left, width - margin.right]);
 
   $: Y = scaleLinear()
-    .domain([min(data, (d) => d.y)! * 0.99, max(data, (d) => d.y)!])
+    .domain(
+      data.length
+        ? [min(data, (d) => d.y)! * 0.99, max(data, (d) => d.y)!]
+        : initialYDomain,
+    )
     .range([height - margin.bottom, margin.top]);
 
   $: lineFn = line<{ x: number; y: number }>()
@@ -85,20 +96,22 @@
   <path d={lineFn(data)} fill="none" stroke="lime" stroke-width="2" />
 
   <!-- Pulsing at the current Price -->
-  <circle
-    cx={X(data[data.length - 1].x)}
-    cy={Y(data[data.length - 1].y)}
-    r="10"
-    fill="lime"
-    fill-opacity="25%"
-    class="animate-pulse"
-  />
-  <circle
-    cx={X(data[data.length - 1].x)}
-    cy={Y(data[data.length - 1].y)}
-    r="3"
-    fill="lime"
-  />
+  {#if data.length}
+    <circle
+      cx={X(data[data.length - 1].x)}
+      cy={Y(data[data.length - 1].y)}
+      r="10"
+      fill="lime"
+      fill-opacity="25%"
+      class="animate-pulse"
+    />
+    <circle
+      cx={X(data[data.length - 1].x)}
+      cy={Y(data[data.length - 1].y)}
+      r="3"
+      fill="lime"
+    />
+  {/if}
 
   <!-- X axis -->
   {#each XTicks as tick, i}
@@ -113,7 +126,7 @@
     </text>
   {/each}
   <text
-    x={X(data[data.length - 1].x)}
+    x={data.length ? X(data[data.length - 1].x) : X(24 * HOURS)}
     y={height - margin.bottom}
     font-size="2"
     fill="currentColor"
