@@ -2,6 +2,8 @@
   import { curveCatmullRom, line, max, min, scaleLinear } from "d3";
   import { createEventDispatcher } from "svelte";
 
+  import Line from "./Line.svelte";
+
   const HOURS = 1000 * 60 * 60;
 
   export let width: number;
@@ -93,23 +95,11 @@
   }}
   role="img"
 >
-  <path d={lineFn(data)} fill="none" stroke="lime" stroke-width="2" />
-
-  <!-- Pulsing at the current Price -->
   {#if data.length}
-    <circle
+    <Line
+      d={lineFn(data)}
       cx={X(data[data.length - 1].x)}
       cy={Y(data[data.length - 1].y)}
-      r="10"
-      fill="lime"
-      fill-opacity="25%"
-      class="animate-pulse"
-    />
-    <circle
-      cx={X(data[data.length - 1].x)}
-      cy={Y(data[data.length - 1].y)}
-      r="3"
-      fill="lime"
     />
   {/if}
 
