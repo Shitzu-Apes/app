@@ -1,3 +1,5 @@
+import BurnTheShit from "./BurnTheShit.svelte";
+import Button from "./Button.svelte";
 import BuyNft from "./BuyNft.svelte";
 import { DayPriceChart } from "./DayPriceChart";
 import Dexscreener from "./Dexscreener.svelte";
@@ -12,6 +14,8 @@ import ValidatorStatistics from "./ValidatorStatistics.svelte";
 import Wallet from "./Wallet.svelte";
 
 export {
+  BurnTheShit,
+  Button,
   BuyNft,
   Dexscreener,
   DayPriceChart,

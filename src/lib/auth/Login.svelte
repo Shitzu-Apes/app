@@ -4,6 +4,7 @@
   import { showWalletSelector } from ".";
 
   import { page } from "$app/stores";
+  import { Button } from "$lib/components";
   import { wallet } from "$lib/near";
 
   const iconUrl$ = wallet.iconUrl$;
@@ -39,18 +40,18 @@
         {$accountId$}
       </button>
     {:else}
-      <button
-        on:click={() => {
+      <Button
+        onClick={() => {
           if (wallet.isTG) {
             wallet.loginViaHere();
           } else {
             showWalletSelector();
           }
         }}
-        class="border-2 border-lime hover:bg-lime/15 px-4 py-2 rounded-xl"
+        type="secondary"
       >
         Connect Wallet
-      </button>
+      </Button>
     {/if}
   {/await}
 
