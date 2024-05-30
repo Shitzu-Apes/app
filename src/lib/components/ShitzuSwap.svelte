@@ -5,6 +5,7 @@
 
   import { Near } from "$lib/assets";
   import { ConnectWallet } from "$lib/auth";
+  import { DayPriceChart } from "$lib/components";
   import { TokenInput } from "$lib/components";
   import { Ft, Ref, nearBalance, refreshNearBalance, wallet } from "$lib/near";
   import {
@@ -222,6 +223,17 @@
         -
       {/if}
     </div>
+  </div>
+
+  <div class="w-full h-full">
+    {#if $shitzuPriceHistory}
+      <DayPriceChart
+        data={$shitzuPriceHistory?.price_list.map((price) => ({
+          x: price.date_time,
+          y: parseFloat(price.price),
+        }))}
+      />
+    {/if}
   </div>
 
   <div>

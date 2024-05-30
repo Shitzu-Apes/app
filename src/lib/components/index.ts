@@ -1,4 +1,5 @@
 import BuyNft from "./BuyNft.svelte";
+import { DayPriceChart } from "./DayPriceChart";
 import Dexscreener from "./Dexscreener.svelte";
 import Faq from "./Faq.svelte";
 import MessageBox from "./MessageBox.svelte";
@@ -13,6 +14,7 @@ import Wallet from "./Wallet.svelte";
 export {
   BuyNft,
   Dexscreener,
+  DayPriceChart,
   Faq,
   MessageBox,
   Stake,
