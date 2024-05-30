@@ -93,6 +93,11 @@
     dispatch("hover", null);
     selected = null;
   }}
+  on:drag={handleMouseMove}
+  on:dragend={() => {
+    dispatch("hover", null);
+    selected = null;
+  }}
   role="img"
 >
   {#if data.length}
