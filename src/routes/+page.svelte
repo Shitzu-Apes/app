@@ -1,7 +1,6 @@
 <script lang="ts">
   import { bind } from "svelte-simple-modal";
 
-  import { DexscreenerIcon } from "$lib/assets";
   import { Dexscreener, ShitzuSwap } from "$lib/components";
   import RefBanner from "$lib/components/RefBanner.svelte";
   import { ModalSize, modal$, modalSize$ } from "$lib/layout";
@@ -15,14 +14,6 @@
 
 <div class="flex flex-col gap-[1.2rem]">
   <ShitzuSwap />
-
-  <button
-    on:click={showPriceChart}
-    class="border-2 border-lime hover:bg-lime/15 flex justify-center items-center decoration-none px-4 py-2 rounded-xl"
-  >
-    <DexscreenerIcon className="w-4 h-4 mr-2" />
-    Show Price Chart
-  </button>
   <div
     class="mt-2 bg-gradient-to-r bg-gradient-from-lime bg-gradient-to-emerald py-4 px-4 rounded-xl text-black flex flex-col not-prose"
   >

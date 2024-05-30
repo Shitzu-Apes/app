@@ -203,10 +203,12 @@
     <!-- Show Shitzu Balance -->
   </div>
 
-  <div class="text-center not-prose">
-    <h2 class="mb-0 text-4xl">SHITZU</h2>
-    <div>Ref Finance Pool 4369</div>
-    <div class="mt-6 text-center text-white text-3xl">
+  <div class="text-center not-prose flex justify-between items-center">
+    <div class="flex flex-col justify-start">
+      <h2 class="mb-0 text-4xl text-start">SHITZU</h2>
+      <div>Ref Finance Pool 4369</div>
+    </div>
+    <div class="text-center text-white text-3xl text-end">
       {#if displayPrice}
         <div>
           ${displayPrice.price.toFixed(6)}
