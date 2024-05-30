@@ -51,6 +51,30 @@
 
   let selected: (typeof data)[number] | null;
 
+  function handleMove(xPosition: number) {
+    if (!data.length) return;
+    const closestData = data.reduce((prev, curr) => {
+      return Math.abs(X(curr.x) - xPosition) < Math.abs(X(prev.x) - xPosition)
+        ? curr
+        : prev;
+    });
+
+    const hoursAgo = Math.floor(
+      (X.domain()[0] + 24 * HOURS - closestData.x) / 1000 / 60 / 60,
+    );
+
+    if (hoursAgo > 0) {
+      dispatch("hover", {
+        price: closestData.y,
+        hoursAgo,
+      });
+      selected = closestData;
+    } else {
+      dispatch("hover", null);
+      selected = null;
+    }
+  }
+
   function handleMouseMove(event: MouseEvent) {
     if (
       event &&
@@ -59,26 +83,23 @@
       event.target.role === "img"
     ) {
       const mouseX = event.clientX - event.target.getBoundingClientRect().left;
+      handleMove(mouseX);
+    }
+  }
 
-      const closestData = data.reduce((prev, curr) => {
-        return Math.abs(X(curr.x) - mouseX) < Math.abs(X(prev.x) - mouseX)
-          ? curr
-          : prev;
-      });
-
-      const hoursAgo = Math.floor(
-        (X.domain()[0] + 24 * HOURS - closestData.x) / 1000 / 60 / 60,
-      );
-
-      if (hoursAgo > 0) {
-        dispatch("hover", {
-          price: closestData.y,
-          hoursAgo,
-        });
-        selected = closestData;
-      } else {
-        dispatch("hover", null);
-        selected = null;
+  function handleTouchMove(event: TouchEvent) {
+    event.preventDefault();
+    if (event.touches.length === 1) {
+      const touch = event.touches[0];
+      if (
+        touch &&
+        "target" in touch &&
+        touch.target instanceof SVGElement &&
+        touch.target.role === "img"
+      ) {
+        const mouseX =
+          touch.clientX - touch.target.getBoundingClientRect().left;
+        handleMove(mouseX);
       }
     }
   }
@@ -93,8 +114,8 @@
     dispatch("hover", null);
     selected = null;
   }}
-  on:drag={handleMouseMove}
-  on:dragend={() => {
+  on:touchmove={handleTouchMove}
+  on:touchend={() => {
     dispatch("hover", null);
     selected = null;
   }}
