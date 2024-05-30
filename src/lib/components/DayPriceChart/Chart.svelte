@@ -114,6 +114,7 @@
     dispatch("hover", null);
     selected = null;
   }}
+  on:touchstart={handleTouchMove}
   on:touchmove={handleTouchMove}
   on:touchend={() => {
     dispatch("hover", null);
