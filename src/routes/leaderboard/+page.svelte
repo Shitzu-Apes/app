@@ -3,7 +3,7 @@
 
   import { view } from "$lib/near/utils";
 
-  let ranking = view<[number, string[]][]>(
+  let ranking = view<[number, [string, string][]][]>(
     "rewarder.test.near",
     "get_leaderboard",
     {
@@ -14,7 +14,8 @@
     // we just need to flatten the array
     return ranking.flatMap(([score, accounts]) =>
       accounts.map((account) => ({
-        account,
+        token_id: account[0],
+        account_id: account[1],
         score: new FixedNumber(score.toString(), 24),
       })),
     );
@@ -34,7 +35,8 @@
           <div class="relative mb-4">
             <img
               class="size-28 rounded-full border-3 border-amber"
-              src={`https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/${ranking[0].account}.png`}
+              src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{ranking[0]
+                .token_id}.png"
               alt="avatar"
             />
             <div
@@ -44,7 +46,9 @@
             </div>
           </div>
 
-          <div class="font-light text-lg text-black">root.near</div>
+          <div class="font-light text-lg text-black">
+            {ranking[0].account_id}
+          </div>
           <div class="font-bold text-lg text-black">
             {ranking[0].score.format()}
           </div>
@@ -56,7 +60,8 @@
             <div class="relative mb-4">
               <img
                 class="size-24 rounded-full border-3 border-coolgray"
-                src={`https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/437.png`}
+                src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{ranking[1]
+                  .token_id}.png"
                 alt="avatar"
               />
               <div
@@ -66,9 +71,11 @@
               </div>
             </div>
 
-            <div class="font-light text-lg text-black text-sm">root.near</div>
+            <div class="font-light text-lg text-black text-sm">
+              {ranking[1].account_id}
+            </div>
             <div class="font-bold text-lg text-black text-sm">
-              {ranking[0].score.format()}
+              {ranking[1].score.format()}
             </div>
           </li>
 
@@ -77,7 +84,8 @@
             <div class="relative mb-4">
               <img
                 class="size-24 rounded-full border-3 border-red"
-                src={`https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/123.png`}
+                src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{ranking[2]
+                  .token_id}.png"
                 alt="avatar"
               />
               <div
@@ -87,29 +95,30 @@
               </div>
             </div>
 
-            <div class="font-light text-lg text-black text-sm">root.near</div>
+            <div class="font-light text-lg text-black text-sm">
+              {ranking[2].account_id}
+            </div>
             <div class="font-bold text-lg text-black text-sm">
-              {ranking[0].score.format()}
+              {ranking[2].score.format()}
             </div>
           </li>
         </div>
       </ol>
       <ol class="mt-5 flex flex-col border-2 border-lime rounded-xl">
-        {#each [{ account: "555", score: new FixedNumber("1000000000000000000000000", 24) }, { account: "666", score: new FixedNumber("1000000000000000000000000", 24) }, { account: "777", score: new FixedNumber("1000000000000000000000000", 24) }, { account: "888", score: new FixedNumber("1000000000000000000000000", 24) }, { account: "999", score: new FixedNumber("1000000000000000000000000", 24) }] as { account, score }, i (account)}
+        {#each ranking.slice(3) as { token_id, account_id, score }, i (account_id)}
           <li
             class="flex justify-center items-center text-white py-3 px-3 border-b border-lime last:border-none"
           >
             <div class="mr-3">
               <img
                 class="size-12 rounded-full border-2 border-lime"
-                src={`https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/${account}.png`}
+                src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{token_id}.png"
                 alt="avatar"
               />
-              <!-- Show number of position at the bottom center of the image -->
             </div>
 
             <div>
-              <div class="font-light text-lg">root.near</div>
+              <div class="font-light text-lg">{account_id}</div>
               <div class="font-bold text-base">
                 {score.format()}
               </div>
