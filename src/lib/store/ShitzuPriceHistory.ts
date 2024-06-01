@@ -34,8 +34,26 @@ export const shitzuPriceHistory = readable<ShitzuPriceHistory | null>(
       "https://api.ref.finance/token-price-report?token=token.0xshitzu.near&base_token=17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1&dimension=D",
     )
       .then((res) => res.json())
-      .then((data) => {
-        set(data);
-      });
+      .then(
+        (data: {
+          symbol: string;
+          contract_address: string;
+          price_list: {
+            price: string;
+            date_time: number;
+          }[];
+        }) => {
+          // Filter out the price history that is older than 25 hours
+          const filteredPriceList = data.price_list.filter(
+            (price) => price.date_time > Date.now() / 1000 - 25 * 60 * 60,
+          );
+
+          set(
+            filteredPriceList.length > 0
+              ? { ...data, price_list: filteredPriceList }
+              : null,
+          );
+        },
+      );
   },
 );
