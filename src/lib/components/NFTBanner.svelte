@@ -13,25 +13,27 @@
   }
 </script>
 
-<h2 class="text-base font-bold">APR Boost</h2>
-<div class="text-sm">
-  SHITZU Revival NFT holders enjoy an additional boost of 25% on all
-  <span class="font-bold">$DOGSHIT</span> claims.
-</div>
+<div class="flex flex-col not-prose text-black">
+  <h2 class="text-base font-bold">APR Boost</h2>
+  <div class="text-sm">
+    SHITZU Revival NFT holders enjoy an additional boost of 25% on all
+    <span class="font-bold">$DOGSHIT</span> claims.
+  </div>
 
-<div class="flex justify-between items-center mt-5">
-  <ul class="flex">
-    {#each NFT_LINKS as { platform, logo }}
-      <li class="first:pl-2 -ml-2">
-        <img src={logo} alt={platform} class="w-9 h-9 rounded-full" />
-      </li>
-    {/each}
-  </ul>
-  <button
-    class="bg-lime text-black font-bold text-sm rounded-lg px-5 py-2 flex items-center"
-    on:click={handleOpenNftBuyDialog}
-  >
-    <img src={SHITZU_FACE} alt="SHITZU" class="w-6 h-6 -ml-2 mr-1" />
-    Buy NFT
-  </button>
+  <div class="flex justify-between items-center mt-5">
+    <ul class="flex">
+      {#each NFT_LINKS as { platform, logo }}
+        <li class="first:pl-2 -ml-2">
+          <img src={logo} alt={platform} class="w-9 h-9 rounded-full" />
+        </li>
+      {/each}
+    </ul>
+    <button
+      class="bg-lime text-black font-bold text-sm rounded-lg px-5 py-2 flex items-center"
+      on:click={handleOpenNftBuyDialog}
+    >
+      <img src={SHITZU_FACE} alt="SHITZU" class="w-6 h-6 -ml-2 mr-1" />
+      Buy NFT
+    </button>
+  </div>
 </div>

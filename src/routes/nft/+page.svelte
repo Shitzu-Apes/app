@@ -1,6 +1,7 @@
 <script lang="ts">
   import { FixedNumber } from "@tarnadas/fixed-number";
 
+  import NftBanner from "$lib/components/NFTBanner.svelte";
   import { wallet } from "$lib/near";
   import { view } from "$lib/near/utils";
 
@@ -81,6 +82,8 @@
       >
         Unstake
       </button>
+    {:catch}
+      <NftBanner />
     {/await}
   </div>
 
