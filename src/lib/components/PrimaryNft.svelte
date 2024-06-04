@@ -2,7 +2,6 @@
   import type { HereCall } from "@here-wallet/core";
   import { FixedNumber } from "@tarnadas/fixed-number";
 
-  import Faq from "$lib/components/Faq.svelte";
   import NftBanner from "$lib/components/NFTBanner.svelte";
   import { Nft, wallet, type Token } from "$lib/near";
   import { Rewarder } from "$lib/near/rewarder";
@@ -214,14 +213,4 @@
       </button>
     {/if}
   {/await}
-
-  <Faq
-    qnas={[
-      {
-        question: "What is a primary NFT?",
-        answer:
-          "The primary NFT is the NFT that you have chosen to stake. You can only stake one NFT at a time. Staking an NFT allows you to earn rewards.",
-      },
-    ]}
-  />
 </div>

@@ -43,17 +43,6 @@
 <div
   class="flex flex-col gap-2 justify-center items-center rounded-xl p-2 w-full"
 >
-  <object
-    title="profile"
-    data="https://stackoverflow.com/does-not-exist.png"
-    type="image/png"
-  >
-    <img
-      src="https://i.near.social/magic/thumbnail/https://near.social/magic/img/account/{accountId}"
-      alt="profile"
-      class="rounded-full size-20"
-    />
-  </object>
   <h2 class="not-prose text-2xl font-bold">{accountId}</h2>
 </div>
 <div class="flex flex-col justify-center gap-2 items-center mt-6">
