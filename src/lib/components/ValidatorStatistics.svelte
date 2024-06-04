@@ -4,7 +4,7 @@
   import { fade } from "svelte/transition";
 
   import { TokenStatistics } from ".";
-  import NftBanner from "./NFTBanner.svelte";
+  import StakeNftBanner from "./Banner/StakeNFTBanner.svelte";
 
   import type { AccountId } from "$lib/abi";
   import { Near } from "$lib/assets";
@@ -165,7 +165,7 @@
       aria-label="APR Toggle"
       role="contentinfo"
     >
-      <NftBanner />
+      <StakeNftBanner />
     </div>
 
     <div class="flex justify-between">

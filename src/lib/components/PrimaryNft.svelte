@@ -2,7 +2,7 @@
   import type { HereCall } from "@here-wallet/core";
   import { FixedNumber } from "@tarnadas/fixed-number";
 
-  import NftBanner from "$lib/components/NFTBanner.svelte";
+  import NftBanner from "$lib/components/Banner/BuyNFTBanner.svelte";
   import { Nft, wallet, type Token } from "$lib/near";
   import { Rewarder } from "$lib/near/rewarder";
 

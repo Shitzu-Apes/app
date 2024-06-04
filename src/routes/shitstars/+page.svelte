@@ -71,6 +71,15 @@
         <ol
           class="w-full bg-gradient-to-b bg-gradient-from-lime bg-gradient-to-emerald rounded-b-2xl py-3"
         >
+          <div class="w-full flex justify-end">
+            <a
+              href="/account"
+              class="text-black flex text-sm items-center mb-3 mr-3"
+            >
+              Participate{" "}
+              <div class="i-mdi:arrow-right size-3" />
+            </a>
+          </div>
           <!-- First place -->
           <li class="flex flex-col items-center">
             <div class="relative mb-4">
@@ -90,7 +99,10 @@
             <div class="font-light text-lg text-black">
               {ranking[0].account_id}
             </div>
-            <div class="font-bold text-lg text-black">
+            <div
+              class="font-bold text-lg bg-amber rounded-full px-2 mt-2 text-black flex items-center gap-1"
+            >
+              <div class="i-mdi:stars size-6" />
               {ranking[0].score.format()}
             </div>
           </li>
@@ -115,7 +127,10 @@
               <div class="font-light text-lg text-black text-sm">
                 {ranking[1].account_id}
               </div>
-              <div class="font-bold text-lg text-black text-sm">
+              <div
+                class="font-bold text-lg bg-coolgray rounded-full px-2 mt-2 text-black flex items-center gap-1"
+              >
+                <div class="i-mdi:stars size-6" />
                 {ranking[1].score.format()}
               </div>
             </li>
@@ -139,7 +154,10 @@
               <div class="font-light text-lg text-black text-sm">
                 {ranking[2].account_id || "Anonymous"}
               </div>
-              <div class="font-bold text-lg text-black text-sm">
+              <div
+                class="font-bold text-lg bg-red rounded-full px-2 mt-2 text-black flex items-center gap-1"
+              >
+                <div class="i-mdi:stars size-6" />
                 {ranking[2].score.format()}
               </div>
             </li>
@@ -173,6 +191,14 @@
             </li>
           {/each}
         </ol>
+
+        <a
+          href="/account"
+          class="flex items-center justify-center bg-lime text-black px-4 py-2 w-full mt-3"
+        >
+          Stake and earn Shitstars now
+          <div class="i-mdi:arrow-right size-6 ml-2" />
+        </a>
       {:catch error}
         <p>{error.message}</p>
       {/await}

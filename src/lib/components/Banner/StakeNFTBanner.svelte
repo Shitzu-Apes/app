@@ -1,10 +1,8 @@
 <script lang="ts">
   import { bind } from "svelte-simple-modal";
 
-  import { BuyNft } from ".";
-
   import SHITZU_FACE from "$lib/assets/logo/shitzu_face.svg";
-  import { NFT_LINKS } from "$lib/components/BuyNft.svelte";
+  import { BuyNft } from "$lib/components";
   import { ModalSize, modal$, modalSize$ } from "$lib/layout";
 
   function handleOpenNftBuyDialog() {
@@ -20,20 +18,20 @@
     <span class="font-bold">$DOGSHIT</span> claims.
   </div>
 
-  <div class="flex justify-between items-center mt-5">
-    <ul class="flex">
-      {#each NFT_LINKS as { platform, logo }}
-        <li class="first:pl-2 -ml-2">
-          <img src={logo} alt={platform} class="w-9 h-9 rounded-full" />
-        </li>
-      {/each}
-    </ul>
+  <div class="flex justify-evenly items-center mt-5">
     <button
-      class="bg-lime text-black font-bold text-sm rounded-lg px-5 py-2 flex items-center"
+      class="bg-lime text-black font-bold text-sm rounded-lg px-5 py-2 flex items-center w-[45%] justify-center"
       on:click={handleOpenNftBuyDialog}
     >
       <img src={SHITZU_FACE} alt="SHITZU" class="w-6 h-6 -ml-2 mr-1" />
       Buy NFT
     </button>
+    <a
+      href="/account"
+      class="bg-lime text-black font-bold text-sm rounded-lg px-5 py-2 flex items-center w-[45%] justify-center"
+    >
+      <div class="i-mdi:stars size-6 mr-2" />
+      Stake NFT
+    </a>
   </div>
 </div>
