@@ -109,88 +109,95 @@
 
           <!-- Second place -->
           <div class="w-full flex justify-between px-2 -mt-4">
-            <li class="flex flex-col items-center">
-              <div class="relative mb-4">
-                <img
-                  class="size-24 rounded-full border-3 border-coolgray"
-                  src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{ranking[1]
-                    .token_id}.png"
-                  alt="avatar"
-                />
-                <div
-                  class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-coolgray text-black text-center rounded-full size-6 font-bold flex justify-center items-center text-sm"
-                >
-                  2
+            {#if ranking.length > 1}
+              <li class="flex flex-col items-center">
+                <div class="relative mb-4">
+                  <img
+                    class="size-24 rounded-full border-3 border-coolgray"
+                    src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{ranking[1]
+                      .token_id}.png"
+                    alt="avatar"
+                  />
+                  <div
+                    class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-coolgray text-black text-center rounded-full size-6 font-bold flex justify-center items-center text-sm"
+                  >
+                    2
+                  </div>
                 </div>
-              </div>
 
-              <div class="font-light text-lg text-black text-sm">
-                {ranking[1].account_id}
-              </div>
-              <div
-                class="font-bold text-lg bg-coolgray rounded-full px-2 mt-2 text-black flex items-center gap-1"
-              >
-                <div class="i-mdi:stars size-6" />
-                {ranking[1].score.format()}
-              </div>
-            </li>
-
-            <!-- Third Place -->
-            <li class="flex flex-col items-center">
-              <div class="relative mb-4">
-                <img
-                  class="size-24 rounded-full border-3 border-red"
-                  src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{ranking[2]
-                    .token_id}.png"
-                  alt="avatar"
-                />
-                <div
-                  class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-red text-black text-center rounded-full size-6 font-bold flex justify-center items-center text-sm"
-                >
-                  3
+                <div class="font-light text-lg text-black text-sm">
+                  {ranking[1].account_id}
                 </div>
-              </div>
+                <div
+                  class="font-bold text-lg bg-coolgray rounded-full px-2 mt-2 text-black flex items-center gap-1"
+                >
+                  <div class="i-mdi:stars size-6" />
+                  {ranking[1].score.format()}
+                </div>
+              </li>
+            {/if}
 
-              <div class="font-light text-lg text-black text-sm">
-                {ranking[2].account_id || "Anonymous"}
-              </div>
-              <div
-                class="font-bold text-lg bg-red rounded-full px-2 mt-2 text-black flex items-center gap-1"
-              >
-                <div class="i-mdi:stars size-6" />
-                {ranking[2].score.format()}
-              </div>
-            </li>
+            {#if ranking.length > 2}
+              <!-- Third Place -->
+              <li class="flex flex-col items-center">
+                <div class="relative mb-4">
+                  <img
+                    class="size-24 rounded-full border-3 border-red"
+                    src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{ranking[2]
+                      .token_id}.png"
+                    alt="avatar"
+                  />
+                  <div
+                    class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-red text-black text-center rounded-full size-6 font-bold flex justify-center items-center text-sm"
+                  >
+                    3
+                  </div>
+                </div>
+
+                <div class="font-light text-lg text-black text-sm">
+                  {ranking[2].account_id || "Anonymous"}
+                </div>
+                <div
+                  class="font-bold text-lg bg-red rounded-full px-2 mt-2 text-black flex items-center gap-1"
+                >
+                  <div class="i-mdi:stars size-6" />
+                  {ranking[2].score.format()}
+                </div>
+              </li>
+            {/if}
           </div>
         </ol>
-        <ol class="mt-5 flex flex-col border-2 border-lime rounded-xl">
-          {#each ranking.slice(3) as { token_id, account_id, score }, i (account_id)}
-            <li
-              class="flex justify-center items-center text-white py-3 px-3 border-b border-lime last:border-none"
-            >
-              <div class="mr-3">
-                <img
-                  class="size-12 rounded-full border-2 border-lime"
-                  src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{token_id}.png"
-                  alt="avatar"
-                />
-              </div>
 
-              <div>
-                <div class="font-light text-lg">{account_id}</div>
-                <div class="font-bold text-base">
-                  {score.format()}
-                </div>
-              </div>
-
-              <div
-                class="ml-auto text-2xl flex justify-center items-center bg-lime size-5 text-black rounded-full text-sm font-bold"
+        {#if ranking.length > 3}
+          <ol class="mt-5 flex flex-col border-2 border-lime rounded-xl">
+            {#each ranking.slice(3) as { token_id, account_id, score }, i (account_id)}
+              <li
+                class="flex justify-center items-center text-white py-3 px-3 border-b border-lime last:border-none"
               >
-                {i + 4}
-              </div>
-            </li>
-          {/each}
-        </ol>
+                <div class="mr-3">
+                  <img
+                    class="size-12 rounded-full border-2 border-lime"
+                    src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{token_id}.png"
+                    alt="avatar"
+                  />
+                </div>
+
+                <div>
+                  <div class="font-light text-lg">{account_id}</div>
+                  <div class="font-bold text-base">
+                    {score.format()}
+                  </div>
+                </div>
+
+                <div
+                  class="ml-auto text-2xl flex justify-center items-center bg-lime size-5 text-black rounded-full text-sm font-bold"
+                >
+                  {i + 4}
+                </div>
+              </li>
+            {/each}
+          </ol>
+        {/if}
 
         <a
           href="/account"
