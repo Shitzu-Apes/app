@@ -1,12 +1,12 @@
 <script lang="ts">
   import { FixedNumber } from "@tarnadas/fixed-number";
 
-  import { getToken$ } from "$lib/store";
+  import { getToken$, isTokenId } from "$lib/store";
 
   export let reward: string;
   export let share: string;
 
-  $: tokenInfo$ = getToken$(reward);
+  $: tokenInfo$ = getToken$(isTokenId(reward));
 </script>
 
 <li
@@ -24,8 +24,8 @@
         />
         <div>
           {token.symbol}
-          <div class="text-sm text-gray font-400">
-            {reward}
+          <div class="text-xs md:text-sm text-gray font-400">
+            {reward.slice(0, 20)}
           </div>
         </div>
       </div>

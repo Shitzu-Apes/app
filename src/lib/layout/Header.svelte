@@ -7,6 +7,7 @@
   } = {
     "/": "i-mdi-house",
     "/stake": "i-mdi-lightning-bolt",
+    "/shitstars": "i-mdi-stars",
   };
 
   $: pathname = $page.url.pathname;
@@ -24,7 +25,7 @@
       {/await}
     </div>
 
-    <nav class="flex gap-3 px-3 pb-2">
+    <nav class="flex gap-3 px-3 pb-2 overflow-x-auto">
       {#each paths as { slug, title }}
         <a
           href={slug}

@@ -220,6 +220,13 @@ const isKeyOf = <ObjectType extends Record<PropertyKey, unknown>>(
   return Object.prototype.hasOwnProperty.call(object, property);
 };
 
+export const isTokenId = (tokenId: string) => {
+  if (!isKeyOf(poolIds, tokenId)) {
+    throw new Error("Invalid token id");
+  }
+  return tokenId;
+};
+
 export function getToken$(
   tokenId: keyof PoolIdsType,
 ): Readable<Promise<TokenInfo>> {

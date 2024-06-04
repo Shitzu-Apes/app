@@ -2,15 +2,12 @@
   import { FixedNumber } from "@tarnadas/fixed-number";
   import { writable } from "svelte/store";
   import { fade } from "svelte/transition";
-  import { bind } from "svelte-simple-modal";
 
-  import { BuyNft, TokenStatistics } from ".";
+  import { TokenStatistics } from ".";
+  import StakeNftBanner from "./Banner/StakeNFTBanner.svelte";
 
   import type { AccountId } from "$lib/abi";
   import { Near } from "$lib/assets";
-  import SHITZU_FACE from "$lib/assets/logo/shitzu_face.svg";
-  import { NFT_LINKS } from "$lib/components/BuyNft.svelte";
-  import { ModalSize, modal$, modalSize$ } from "$lib/layout";
   import type { PoolFarm } from "$lib/near";
   import { getToken, getToken$, type TokenInfo } from "$lib/store";
 
@@ -86,11 +83,6 @@
         return [apr, await getToken(tokenId)] as [number, TokenInfo];
       }),
     );
-  }
-
-  function handleOpenNftBuyDialog() {
-    modalSize$.set(ModalSize.Small);
-    modal$.set(bind(BuyNft, {}));
   }
 </script>
 
@@ -173,28 +165,7 @@
       aria-label="APR Toggle"
       role="contentinfo"
     >
-      <h2 class="text-base font-bold">APR Boost</h2>
-      <div class="text-sm">
-        SHITZU Revival NFT holders enjoy an additional boost of 25% on all
-        <span class="font-bold">$DOGSHIT</span> claims.
-      </div>
-
-      <div class="flex justify-between items-center mt-5">
-        <ul class="flex">
-          {#each NFT_LINKS as { platform, logo }}
-            <li class="first:pl-2 -ml-2">
-              <img src={logo} alt={platform} class="w-9 h-9 rounded-full" />
-            </li>
-          {/each}
-        </ul>
-        <button
-          class="bg-lime text-black font-bold text-sm rounded-lg px-5 py-2 flex items-center"
-          on:click={handleOpenNftBuyDialog}
-        >
-          <img src={SHITZU_FACE} alt="SHITZU" class="w-6 h-6 -ml-2 mr-1" />
-          Buy NFT
-        </button>
-      </div>
+      <StakeNftBanner />
     </div>
 
     <div class="flex justify-between">

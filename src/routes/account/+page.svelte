@@ -1,7 +1,5 @@
 <script lang="ts">
-  import { MessageBox, Wallet } from "$lib/components";
-  import DogshitUndistributedReward from "$lib/components/DogshitUndistributedReward.svelte";
-  import RefBanner from "$lib/components/RefBanner.svelte";
+  import { MessageBox, Wallet, PrimaryNft } from "$lib/components";
   import { wallet } from "$lib/near";
 
   const accountId$ = wallet.accountId$;
@@ -16,7 +14,5 @@
     {/if}
   </div>
 
-  <RefBanner />
-
-  <DogshitUndistributedReward />
+  <PrimaryNft />
 </div>
