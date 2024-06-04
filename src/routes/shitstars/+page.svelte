@@ -1,7 +1,7 @@
 <script lang="ts">
   import { FixedNumber } from "@tarnadas/fixed-number";
 
-  import Faq from "$lib/components/Faq.svelte";
+  import { Button, Faq } from "$lib/components";
   import { Nft } from "$lib/near";
   import { Rewarder } from "$lib/near/rewarder";
 
@@ -199,13 +199,10 @@
           </ol>
         {/if}
 
-        <a
-          href="/account"
-          class="flex items-center justify-center bg-lime text-black px-4 py-2 w-full mt-3"
-        >
-          Stake and earn Shitstars now
+        <Button href="/account" class="mt-3">
+          Stake & earn Shitstars now
           <div class="i-mdi:arrow-right size-6 ml-2" />
-        </a>
+        </Button>
       {:catch error}
         <p>{error.message}</p>
       {/await}

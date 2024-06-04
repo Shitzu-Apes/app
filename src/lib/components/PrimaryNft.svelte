@@ -2,7 +2,7 @@
   import type { HereCall } from "@here-wallet/core";
   import { FixedNumber } from "@tarnadas/fixed-number";
 
-  import NftBanner from "$lib/components/Banner/BuyNFTBanner.svelte";
+  import { BuyNftBanner, Button } from "$lib/components";
   import { Nft, wallet, type Token } from "$lib/near";
   import { Rewarder } from "$lib/near/rewarder";
 
@@ -164,10 +164,10 @@
           Unstake
         </button>
       {:else}
-        <NftBanner />
+        <BuyNftBanner />
       {/if}
     {:catch}
-      <NftBanner />
+      <BuyNftBanner />
     {/await}
   </div>
 
@@ -182,7 +182,8 @@
             class="flex items-center w-[30%] py-4 place-content-center cursor-pointer"
           >
             <button
-              class="relative rounded-xl overflow-hidden border-2 border-transparent hover:border-lime"
+              class="relative rounded-xl overflow-hidden border-2 hover:border-lime"
+              class:border-transparent={selectedNftTokenId !== nft.token_id}
               class:border-lime={selectedNftTokenId === nft.token_id}
               on:click={() => (selectedNftTokenId = nft.token_id)}
             >
@@ -205,12 +206,17 @@
           </li>
         {/each}
       </ul>
-      <button
-        class="w-full bg-gradient-to-r bg-lime text-black font-bold rounded-lg py-3 px-3 mt-3"
+      <Button
         on:click={stake}
+        disabled={!selectedNftTokenId}
+        class="w-full py-3 mt-3"
       >
-        Set {selectedNftTokenId} as Primary NFT
-      </button>
+        {#if selectedNftTokenId}
+          Set {selectedNftTokenId} as Primary NFT
+        {:else}
+          Please select a new primary NFT
+        {/if}
+      </Button>
     {/if}
   {/await}
 </div>
