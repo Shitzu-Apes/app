@@ -16,7 +16,7 @@
 <div class="flex flex-col not-prose text-black">
   <h2 class="text-base font-bold">APR Boost</h2>
   <div class="text-sm">
-    SHITZU Revival NFT holders enjoy an additional boost of 25% on all
+    SHITZU Revival NFT stakers enjoy an additional boost of 25% on all
     <span class="font-bold">$DOGSHIT</span> claims.
   </div>
 
