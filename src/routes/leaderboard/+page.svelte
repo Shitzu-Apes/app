@@ -1,24 +1,61 @@
 <script lang="ts">
   import { FixedNumber } from "@tarnadas/fixed-number";
 
-  import { view } from "$lib/near/utils";
+  import { Nft } from "$lib/near";
+  import { Rewarder } from "$lib/near/rewarder";
 
-  let ranking = view<[number, [string, string][]][]>(
-    "rewarder.test.near",
-    "get_leaderboard",
-    {
-      limit: null,
-    },
-  ).then((ranking) => {
+  let ranking: Promise<
+    { token_id: string; account_id: string; score: FixedNumber }[]
+  > = Rewarder.getLeaderboard(10).then(async (ranking) => {
+    const nonStakedNfts: string[] = ranking
+      .flatMap(([, account]) => {
+        const nonStaked = account.filter(([, accountId]) => accountId === null);
+        return nonStaked.map(([tokenId]) => tokenId);
+      })
+      .filter((tokenId) => tokenId !== null)
+      .flat() as string[];
+
+    const nonStakedTokens = await Promise.all(
+      nonStakedNfts.map(async (tokenId) => {
+        const owner = await Nft.nftToken(tokenId);
+        return [tokenId, owner.owner_id];
+      }),
+    ).then((tokens) => {
+      const tokenMap = tokens.reduce(
+        (acc, [tokenId, accountId]) => {
+          acc[tokenId] = accountId;
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
+
+      return tokenMap;
+    });
+
     // the ranking is already sorted
     // we just need to flatten the array
-    return ranking.flatMap(([score, accounts]) =>
-      accounts.map((account) => ({
-        token_id: account[0],
-        account_id: account[1],
-        score: new FixedNumber(score.toString(), 18),
-      })),
+    const result = ranking.flatMap(([score, accounts]) =>
+      accounts.map((account) => {
+        const token_id = account[0];
+        let account_id = account[1];
+
+        if (account_id === null) {
+          if (token_id in nonStakedTokens) {
+            account_id = nonStakedTokens[token_id];
+          } else {
+            account_id = "Anonymous";
+          }
+        }
+
+        return {
+          token_id: account[0],
+          account_id,
+          score: new FixedNumber(score.toString(), 18),
+        };
+      }),
     );
+
+    return result;
   });
 </script>
 
@@ -96,7 +133,7 @@
             </div>
 
             <div class="font-light text-lg text-black text-sm">
-              {ranking[2].account_id}
+              {ranking[2].account_id || "Anonymous"}
             </div>
             <div class="font-bold text-lg text-black text-sm">
               {ranking[2].score.format()}
