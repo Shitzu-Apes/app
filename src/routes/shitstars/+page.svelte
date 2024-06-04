@@ -225,7 +225,7 @@
       {
         question: "How do I earn Shitstars through donation?",
         answer:
-          "Donate SHITZU to shitstars.0xshitzu.near and receive Shitstars equal to four times the donation amount.",
+          "Donate SHITZU to rewards.0xshitzu.near and receive Shitstars equal to four times the donation amount.",
       },
       {
         question: "How do I earn Shitstars through Shitzu Boost?",

@@ -1,8 +1,7 @@
 <script lang="ts">
   import { bind } from "svelte-simple-modal";
 
-  import { Dexscreener, ShitzuSwap } from "$lib/components";
-  import RefBanner from "$lib/components/RefBanner.svelte";
+  import { Dexscreener, RefBanner, ShitzuSwap } from "$lib/components";
   import { ModalSize, modal$, modalSize$ } from "$lib/layout";
   import { memes } from "$lib/store";
 
