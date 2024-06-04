@@ -242,7 +242,7 @@
       {
         question: "How do I earn Shitstars through staking with Shitzu Pool?",
         answer:
-          "Stake with the Shitzu pool and receive Shitstars equal to ten times the Shitzu earned upon burning $DOGSHIT.",
+          "Stake with the Shitzu pool and receive Shitstars equal to three times the Shitzu earned upon burning $DOGSHIT.",
       },
     ]}
   />
