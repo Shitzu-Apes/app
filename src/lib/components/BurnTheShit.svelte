@@ -5,7 +5,7 @@
 
   import Button from "./Button.svelte";
 
-  import { Ft, wallet } from "$lib/near";
+  import { Dogshit, Ft, wallet } from "$lib/near";
 
   const dispatch = createEventDispatcher();
 
@@ -15,18 +15,9 @@
   async function handleClaimButton() {
     dispatch("claimStart", { loading: true });
     const transactions: HereCall[] = [];
-    // const tokenIds = await Promise.all($dogshitContract$
-    //   .then((contract) => contract.get_undistributed_rewards(undefined))
-    //   .then((rewards) => rewards.map(([tokenId]) => tokenId))
-    // );
-    const tokenIds = [
-      "token.0xshitzu.near",
-      "blackdragon.tkn.near",
-      "token.lonkingnearbackto2024.near",
-      "ndc.tkn.near",
-      "avb.tkn.near",
-      "intel.tkn.near",
-    ];
+    const tokenIds = await Dogshit.getUndistributedRewards().then((rewards) =>
+      rewards.map(([tokenId]) => tokenId),
+    );
     const accountId = get(wallet.accountId$);
     if (!accountId) return;
     await Promise.all(
