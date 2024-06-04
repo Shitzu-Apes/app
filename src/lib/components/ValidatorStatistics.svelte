@@ -15,7 +15,7 @@
   export let undistributedRewards: [AccountId, string][] = [];
   export let totalStakers: number | null;
   export let totalStaked: FixedNumber | null;
-  export let hasNft: boolean;
+  export let hasStakedNft: boolean;
 
   let showNftApr = false;
   const tokenAPRs$ = writable<[number, TokenInfo][]>([]);
@@ -35,7 +35,7 @@
     fetchAPRs(farm, totalStaked, $near$);
   }
 
-  $: calculateTotalApr($tokenAPRs$, hasNft, showNftApr);
+  $: calculateTotalApr($tokenAPRs$, hasStakedNft, showNftApr);
 
   async function calculateTotalApr(
     tokenAPRs: [number, TokenInfo][],
@@ -117,7 +117,7 @@
                     maximumFractionDigits: 2,
                   })}%
                 {/if}
-                {#if totalAPRDiff && showNftApr && !hasNft}
+                {#if totalAPRDiff && showNftApr && !hasStakedNft}
                   <span class="text-green-3 ml-1" in:fade>
                     (+{totalAPRDiff.format({
                       maximumFractionDigits: 2,
@@ -146,7 +146,7 @@
             <TokenStatistics
               {token}
               apr={new FixedNumber(String(Math.round(apr * 10_000)), 2)}
-              {hasNft}
+              hasNft={hasStakedNft}
               {showNftApr}
             />
           {/each}

@@ -12,11 +12,11 @@
     wallet,
     nearBalance,
     refreshNearBalance,
-    Nft,
     type PoolFarm,
     Pool,
     Dogshit,
   } from "$lib/near";
+  import { Rewarder } from "$lib/near/rewarder";
 
   const stake$ = writable<FixedNumber | undefined>();
   const withdraw$ = writable<FixedNumber | undefined>();
@@ -28,10 +28,8 @@
 
   let accountId$ = wallet.accountId$;
 
-  $: hasNft = $accountId$
-    ? Nft.nftSupplyForOwner($accountId$).then(
-        (count) => count != null && count > 0,
-      )
+  $: hasStakedNft = $accountId$
+    ? Rewarder.primaryNftOf($accountId$).then((nft) => nft != null)
     : Promise.resolve(false);
 
   $: refreshNearBalance($accountId$);
@@ -206,13 +204,13 @@
     {/if}
   </div>
 
-  {#await hasNft then hasNft}
+  {#await hasStakedNft then hasStakedNft}
     <ValidatorStatistics
       {farm}
       {undistributedRewards}
       {totalStaked}
       {totalStakers}
-      {hasNft}
+      {hasStakedNft}
     />
   {/await}
 
