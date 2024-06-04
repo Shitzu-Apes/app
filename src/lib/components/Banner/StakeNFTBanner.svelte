@@ -2,7 +2,7 @@
   import { bind } from "svelte-simple-modal";
 
   import SHITZU_FACE from "$lib/assets/logo/shitzu_face.svg";
-  import { BuyNft } from "$lib/components";
+  import { Button, BuyNft } from "$lib/components";
   import { ModalSize, modal$, modalSize$ } from "$lib/layout";
 
   function handleOpenNftBuyDialog() {
@@ -19,19 +19,16 @@
   </div>
 
   <div class="flex justify-evenly items-center mt-5">
-    <button
+    <Button
       class="bg-lime text-black font-bold text-sm rounded-lg px-5 py-2 flex items-center w-[45%] justify-center"
-      on:click={handleOpenNftBuyDialog}
+      onClick={handleOpenNftBuyDialog}
     >
       <img src={SHITZU_FACE} alt="SHITZU" class="w-6 h-6 -ml-2 mr-1" />
       Buy NFT
-    </button>
-    <a
-      href="/account"
-      class="bg-lime text-black font-bold text-sm rounded-lg px-5 py-2 flex items-center w-[45%] justify-center"
-    >
+    </Button>
+    <Button href="/account">
       <div class="i-mdi:stars size-6 mr-2" />
       Stake NFT
-    </a>
+    </Button>
   </div>
 </div>

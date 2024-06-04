@@ -158,12 +158,14 @@
             {token.score.format()}
           </div>
         </div>
-        <button
+        <Button
+          type="custom"
           class="absolute bottom-3 right-3 flex items-center justify-center text-black border-b border-black font-bold text-xs mt-3 self-end ml-auto"
-          on:click={unstake}
+          onClick={unstake}
+          spinnerColor="text-black"
         >
           Unstake
-        </button>
+        </Button>
       {:else}
         <BuyNftBanner />
       {/if}
@@ -211,7 +213,7 @@
           {/each}
         </ul>
         <Button
-          on:click={stake}
+          onClick={stake}
           disabled={!selectedNftTokenId}
           class="w-full py-3 mt-3"
         >

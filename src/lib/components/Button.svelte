@@ -1,12 +1,13 @@
 <script lang="ts">
   import type { MouseEventHandler } from "svelte/elements";
-  import { match } from "ts-pattern";
+  import { P, match } from "ts-pattern";
 
-  export let type: "primary" | "secondary" = "primary";
+  export let type: "primary" | "secondary" | "custom" = "primary";
   export let onClick: MouseEventHandler<HTMLButtonElement> | undefined =
     undefined;
   export let href: string | undefined = undefined;
   export let disabled: boolean | undefined = undefined;
+  export let spinnerColor = "text-lime";
 
   let className: string = "";
   export { className as class };
@@ -17,11 +18,18 @@
 {#if href != null}
   <a
     {href}
-    class:rounded-xl={!className.includes("rounded")}
+    class:rounded-xl={!className.includes("rounded") && type !== "custom"}
     class="{className} {match(type)
       .with('primary', () => 'bg-lime text-black hover:bg-lime/85')
       .with('secondary', () => 'bg-transparent text-lime hover:bg-lime/15')
-      .exhaustive()} font-bold border-2 border-lime flex justify-center items-center decoration-none px-4 py-2 relative disabled:bg-gray-5 disabled:border-gray-5"
+      .with('custom', () => '')
+      .exhaustive()} {match(type)
+      .with(
+        P.union('primary', 'secondary'),
+        () =>
+          'font-bold border-2 border-lime flex justify-center items-center decoration-none px-4 py-2 relative disabled:bg-gray-5 disabled:border-gray-5',
+      )
+      .otherwise(() => '')}"
   >
     <slot />
   </a>
@@ -39,18 +47,25 @@
       }
     }}
     disabled={disabled || loading}
-    class:rounded-xl={!className.includes("rounded")}
+    class:rounded-xl={!className.includes("rounded") && type !== "custom"}
     class="{className} {match(type)
       .with('primary', () => 'bg-lime text-black hover:bg-lime/85')
       .with('secondary', () => 'bg-transparent text-lime hover:bg-lime/15')
-      .exhaustive()} font-bold border-2 border-lime flex justify-center items-center decoration-none px-4 py-2 relative disabled:bg-gray-5 disabled:border-gray-5"
+      .with('custom', () => '')
+      .exhaustive()} {match(type)
+      .with(
+        P.union('primary', 'secondary'),
+        () =>
+          'font-bold border-2 border-lime flex justify-center items-center decoration-none px-4 py-2 relative disabled:bg-gray-5 disabled:border-gray-5',
+      )
+      .otherwise(() => '')}"
   >
     <slot />
     {#if loading}
       <div
         class="flex items-center justify-center absolute w-full h-full top-0 left-0"
       >
-        <div class="i-svg-spinners:6-dots-rotate text-size-6 text-lime" />
+        <div class="i-svg-spinners:6-dots-rotate text-size-6 {spinnerColor}" />
       </div>
     {/if}
   </button>
