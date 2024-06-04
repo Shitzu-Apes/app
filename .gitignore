@@ -6,3 +6,5 @@ abi-gen
 .svelte-kit
 
 /src/lib/models/api.d.ts
+
+.env.local

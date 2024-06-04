@@ -4,54 +4,23 @@
 
   import NftBanner from "$lib/components/NFTBanner.svelte";
   // import { wallet } from "$lib/near";
-  import { view } from "$lib/near/utils";
+  import { Nft } from "$lib/near";
+  import { Rewarder } from "$lib/near/rewarder";
 
   let selectedNftTokenId = "";
-
-  type Token = {
-    token_id: string;
-    owner_id: string;
-    metadata: {
-      title: string | null;
-      description: string | null;
-      media: string | null;
-      media_hash: string | null;
-      copies: number | null;
-      issued_at: string | null;
-      expires_at: string | null;
-      starts_at: string | null;
-      updated_at: string | null;
-      extra: string | null;
-      reference: string | null;
-      reference_hash: string | null;
-    } | null;
-    approved_account_ids: Record<string, number> | null;
-  };
 
   // const { accountId$ } = wallet;
   const accountId$ = writable<string>("lucy_hane.test.near");
 
-  let primaryNftTokenId = view<[string, string]>(
-    "rewarder.test.near",
-    "primary_nft_of",
-    {
-      account_id: $accountId$,
-    },
-  ).then(async ([token_id, score]) => {
-    const token = await view<Token>("nft.test.near", "nft_token", {
-      token_id,
-    });
+  let primaryNftTokenId = Rewarder.primaryNftOf($accountId$).then(
+    async ([token_id, score]) => {
+      const token = await Nft.nftToken(token_id);
 
-    return { token_id, score, token };
-  });
-
-  let nfts: Promise<{ token_id: string }[]> = view<Token[]>(
-    "nft.test.near",
-    "nft_tokens_for_owner",
-    {
-      account_id: $accountId$,
+      return { token_id, score, token };
     },
   );
+
+  let nfts = Nft.nftTokensForOwner($accountId$);
 </script>
 
 <div class="w-full">
