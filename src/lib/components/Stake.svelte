@@ -3,10 +3,14 @@
   import { FixedNumber } from "@tarnadas/fixed-number";
   import { writable } from "svelte/store";
   import { crossfade, fade, slide } from "svelte/transition";
+  import { bind } from "svelte-simple-modal";
   import { match } from "ts-pattern";
+
+  import DogshitUndistributedReward from "./DogshitUndistributedReward.svelte";
 
   import Near from "$lib/assets/Near.svelte";
   import { TokenInput, BurnTheShit } from "$lib/components";
+  import { ModalSize, modal$, modalSize$ } from "$lib/layout";
   import { wallet } from "$lib/near";
   import { memes } from "$lib/store";
 
@@ -123,6 +127,11 @@
         },
       },
     );
+  }
+
+  function handleTrackDogShit() {
+    modalSize$.set(ModalSize.Small);
+    modal$.set(bind(DogshitUndistributedReward, {}));
   }
 </script>
 
@@ -248,12 +257,12 @@
         <BurnTheShit class="text-sm rounded-lg">
           Claim & burn the 💩
         </BurnTheShit>
-        <a
-          href="/account"
+        <button
+          on:click={handleTrackDogShit}
           class="border-2 border-lime text-lime font-bold text-sm rounded-lg px-5 py-2 flex items-center decoration-none hover:bg-lime/15"
         >
           Track $DOGSHIT <div class="i-mdi:arrow-right size-5 ml-1" />
-        </a>
+        </button>
       </div>
     </div>
   </div>

@@ -24,8 +24,8 @@
         />
         <div>
           {token.symbol}
-          <div class="text-sm text-gray font-400">
-            {reward}
+          <div class="text-xs md:text-sm text-gray font-400">
+            {reward.slice(0, 20)}
           </div>
         </div>
       </div>
