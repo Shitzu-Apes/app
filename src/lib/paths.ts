@@ -1,8 +1,7 @@
 const paths = [
   { slug: "/", title: "Home" },
   { slug: "/stake", title: "Stake" },
-  { slug: "/nft", title: "NFT" },
-  { slug: "/leaderboard", title: "Leaderboard" },
+  { slug: "/shitstars", title: "Shitstars" },
 ] as const;
 
 export default paths;

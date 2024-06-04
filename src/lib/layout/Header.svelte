@@ -7,8 +7,7 @@
   } = {
     "/": "i-mdi-house",
     "/stake": "i-mdi-lightning-bolt",
-    "/leaderboard": "i-mdi-trophy",
-    "/nft": "i-mdi-cards",
+    "/shitstars": "i-mdi-stars",
   };
 
   $: pathname = $page.url.pathname;

@@ -34,26 +34,28 @@
 
     // the ranking is already sorted
     // we just need to flatten the array
-    const result = ranking.flatMap(([score, accounts]) =>
-      accounts.map((account) => {
-        const token_id = account[0];
-        let account_id = account[1];
+    const result = ranking
+      .flatMap(([score, accounts]) =>
+        accounts.map((account) => {
+          const token_id = account[0];
+          let account_id = account[1];
 
-        if (account_id === null) {
-          if (token_id in nonStakedTokens) {
-            account_id = nonStakedTokens[token_id];
-          } else {
-            account_id = "Anonymous";
+          if (account_id === null) {
+            if (token_id in nonStakedTokens) {
+              account_id = nonStakedTokens[token_id];
+            } else {
+              account_id = "Anonymous";
+            }
           }
-        }
 
-        return {
-          token_id: account[0],
-          account_id,
-          score: new FixedNumber(score.toString(), 18),
-        };
-      }),
-    );
+          return {
+            token_id: account[0],
+            account_id,
+            score: new FixedNumber(score.toString(), 18),
+          };
+        }),
+      )
+      .slice(0, 10);
 
     return result;
   });
