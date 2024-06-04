@@ -1,5 +1,6 @@
 <script lang="ts">
   import { FixedNumber } from "@tarnadas/fixed-number";
+  import { slide } from "svelte/transition";
 
   import { Button, Faq } from "$lib/components";
   import { Nft } from "$lib/near";
@@ -66,9 +67,15 @@
   <div class="w-full flex flex-col -mt-1">
     <div class="not-prose">
       {#await ranking}
-        <p>Loading...</p>
+        <div
+          transition:slide
+          class="flex items-center justify-center w-full h-xs"
+        >
+          <div class="i-svg-spinners:6-dots-rotate text-size-12 text-lime" />
+        </div>
       {:then ranking}
         <ol
+          transition:slide
           class="w-full bg-gradient-to-b bg-gradient-from-lime bg-gradient-to-emerald rounded-b-2xl py-3"
         >
           <div class="w-full flex justify-end">

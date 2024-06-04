@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { HereCall } from "@here-wallet/core";
   import { FixedNumber } from "@tarnadas/fixed-number";
+  import { slide } from "svelte/transition";
 
   import { BuyNftBanner, Button } from "$lib/components";
   import { Nft, wallet, type Token } from "$lib/near";
@@ -172,51 +173,55 @@
   </div>
 
   {#await nfts}
-    <p>Loading...</p>
+    <div transition:slide class="flex items-center justify-center w-full h-24">
+      <div class="i-svg-spinners:6-dots-rotate text-size-12 text-lime" />
+    </div>
   {:then nfts}
-    {#if nfts && nfts.length > 0}
-      <h2 class="text-2xl font-bold">Pick Your Primary NFT</h2>
-      <ul class="not-prose flex w-full flex-wrap gap-4">
-        {#each nfts as nft}
-          <li
-            class="flex items-center w-[30%] py-4 place-content-center cursor-pointer"
-          >
-            <button
-              class="relative rounded-xl overflow-hidden border-2 hover:border-lime"
-              class:border-transparent={selectedNftTokenId !== nft.token_id}
-              class:border-lime={selectedNftTokenId === nft.token_id}
-              on:click={() => (selectedNftTokenId = nft.token_id)}
+    <div transition:slide>
+      {#if nfts && nfts.length > 0}
+        <h2 class="text-2xl font-bold">Pick Your Primary NFT</h2>
+        <ul class="not-prose flex w-full flex-wrap gap-4">
+          {#each nfts as nft}
+            <li
+              class="flex items-center w-[30%] py-4 place-content-center cursor-pointer"
             >
-              <img
-                class="size-24"
-                src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{nft.token_id}.png"
-                alt="avatar"
-              />
-
-              <!-- banner bottom center of the image to show token id -->
-              <div
-                class="absolute bottom-0 left-1/2 transform -translate-x-1/2 border-lime bg-lime-9/90 text-lime text-center w-full font-bold flex justify-center items-center"
+              <button
+                class="relative rounded-xl overflow-hidden border-2 hover:border-lime"
+                class:border-transparent={selectedNftTokenId !== nft.token_id}
+                class:border-lime={selectedNftTokenId === nft.token_id}
+                on:click={() => (selectedNftTokenId = nft.token_id)}
               >
-                {#if selectedNftTokenId === nft.token_id}
-                  <div class="i-mdi:check size-5 text-current" />
-                {/if}
-                {nft.token_id}
-              </div>
-            </button>
-          </li>
-        {/each}
-      </ul>
-      <Button
-        on:click={stake}
-        disabled={!selectedNftTokenId}
-        class="w-full py-3 mt-3"
-      >
-        {#if selectedNftTokenId}
-          Set {selectedNftTokenId} as Primary NFT
-        {:else}
-          Please select a new primary NFT
-        {/if}
-      </Button>
-    {/if}
+                <img
+                  class="size-24"
+                  src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{nft.token_id}.png"
+                  alt="avatar"
+                />
+
+                <!-- banner bottom center of the image to show token id -->
+                <div
+                  class="absolute bottom-0 left-1/2 transform -translate-x-1/2 border-lime bg-lime-9/90 text-lime text-center w-full font-bold flex justify-center items-center"
+                >
+                  {#if selectedNftTokenId === nft.token_id}
+                    <div class="i-mdi:check size-5 text-current" />
+                  {/if}
+                  {nft.token_id}
+                </div>
+              </button>
+            </li>
+          {/each}
+        </ul>
+        <Button
+          on:click={stake}
+          disabled={!selectedNftTokenId}
+          class="w-full py-3 mt-3"
+        >
+          {#if selectedNftTokenId}
+            Set {selectedNftTokenId} as Primary NFT
+          {:else}
+            Please select a new primary NFT
+          {/if}
+        </Button>
+      {/if}
+    </div>
   {/await}
 </div>
