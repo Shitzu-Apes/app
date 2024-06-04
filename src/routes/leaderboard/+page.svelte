@@ -16,7 +16,7 @@
       accounts.map((account) => ({
         token_id: account[0],
         account_id: account[1],
-        score: new FixedNumber(score.toString(), 24),
+        score: new FixedNumber(score.toString(), 18),
       })),
     );
   });

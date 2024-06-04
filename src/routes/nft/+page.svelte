@@ -1,17 +1,19 @@
 <script lang="ts">
   import { FixedNumber } from "@tarnadas/fixed-number";
+  import { writable } from "svelte/store";
 
   import NftBanner from "$lib/components/NFTBanner.svelte";
-  import { wallet } from "$lib/near";
+  // import { wallet } from "$lib/near";
   import { view } from "$lib/near/utils";
 
-  const { accountId$ } = wallet;
+  // const { accountId$ } = wallet;
+  const accountId$ = writable<string>("arielle_kemmer.test.near");
 
   let primaryNftTokenId = view<[string, string]>(
     "rewarder.test.near",
     "primary_nft_of",
     {
-      account_id: "mireya_carroll.test.near",
+      account_id: "arielle_kemmer.test.near",
     },
   ).then(async ([token_id, score]) => {
     const token = await view<{
@@ -36,8 +38,6 @@
       token_id,
     });
 
-    console.log({ token });
-
     return { token_id, score, token };
   });
 
@@ -47,6 +47,10 @@
     }));
     resolve(nfts);
   });
+
+  $: view<string>("shitzu.test.near", "ft_balance_of", {
+    account_id: "arielle_kemmer.test.near",
+  }).then(console.log);
 </script>
 
 <div class="w-full">
@@ -74,7 +78,7 @@
           {$accountId$}
         </div>
         <div class="font-bold text-lg text-black">
-          {new FixedNumber(token.score, 24).format()}
+          {new FixedNumber(token.score, 18).format()}
         </div>
       </div>
       <button
