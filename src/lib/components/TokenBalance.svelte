@@ -1,12 +1,12 @@
 <script lang="ts">
   import { FixedNumber } from "@tarnadas/fixed-number";
 
-  import { getToken$ } from "$lib/store";
+  import { getToken$, isTokenId } from "$lib/store";
 
   export let reward: string;
   export let share: string;
 
-  $: tokenInfo$ = getToken$(reward);
+  $: tokenInfo$ = getToken$(isTokenId(reward));
 </script>
 
 <li
