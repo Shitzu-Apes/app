@@ -20,7 +20,9 @@ type PoolConfig = {
   denom:
     | "wrap.near"
     | "blackdragon.tkn.near"
-    | "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1";
+    | "ftv2.nekotoken.near"
+    | "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1"
+    | "a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near";
 };
 
 // Define the poolIds type
@@ -28,10 +30,16 @@ type PoolIdsType = {
   "wrap.near": PoolConfig;
   "token.0xshitzu.near": PoolConfig;
   "blackdragon.tkn.near": PoolConfig;
-  "ndc.tkn.near": PoolConfig;
-  "intel.tkn.near": PoolConfig;
   "token.lonkingnearbackto2024.near": PoolConfig;
+  "intel.tkn.near": PoolConfig;
+  "nearnvidia.near": PoolConfig;
+  "ndc.tkn.near": PoolConfig;
   "avb.tkn.near": PoolConfig;
+  "pussy.laboratory.jumpfinance.near": PoolConfig;
+  "babyblackdragon.tkn.near": PoolConfig;
+  "bean.tkn.near": PoolConfig;
+  "slush.tkn.near": PoolConfig;
+  "ftv2.nekotoken.near": PoolConfig;
 };
 
 export type TokenId = keyof PoolIdsType;
@@ -44,10 +52,41 @@ const poolIds: PoolIdsType = {
   },
   "token.0xshitzu.near": { poolId: 4369, denom: "wrap.near" },
   "blackdragon.tkn.near": { poolId: 4276, denom: "wrap.near" },
-  "ndc.tkn.near": { poolId: 4353, denom: "blackdragon.tkn.near" },
-  "intel.tkn.near": { poolId: 4663, denom: "wrap.near" },
   "token.lonkingnearbackto2024.near": { poolId: 4314, denom: "wrap.near" },
+  "intel.tkn.near": { poolId: 4663, denom: "wrap.near" },
+  "nearnvidia.near": { poolId: 4547, denom: "wrap.near" },
+  "ndc.tkn.near": { poolId: 4353, denom: "blackdragon.tkn.near" },
   "avb.tkn.near": { poolId: 20, denom: "wrap.near" },
+  "pussy.laboratory.jumpfinance.near": { poolId: 4829, denom: "wrap.near" },
+  "babyblackdragon.tkn.near": { poolId: 4840, denom: "wrap.near" },
+  "bean.tkn.near": { poolId: 4473, denom: "ftv2.nekotoken.near" },
+  "slush.tkn.near": { poolId: 4623, denom: "wrap.near" },
+  "ftv2.nekotoken.near": {
+    poolId: 3804,
+    denom: "a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near",
+  },
+};
+
+export function getTokenSortIndex(tokenId: string): number {
+  if (!isKeyOf(tokenSortIndex, tokenId)) {
+    return 1_000;
+  }
+  return tokenSortIndex[tokenId];
+}
+const tokenSortIndex: Record<keyof PoolIdsType, number> = {
+  "wrap.near": -1,
+  "token.0xshitzu.near": 1_000,
+  "blackdragon.tkn.near": 800,
+  "token.lonkingnearbackto2024.near": 799,
+  "intel.tkn.near": 600,
+  "nearnvidia.near": 599,
+  "ndc.tkn.near": 500,
+  "avb.tkn.near": 300,
+  "pussy.laboratory.jumpfinance.near": 299,
+  "babyblackdragon.tkn.near": 298,
+  "bean.tkn.near": 297,
+  "slush.tkn.near": 296,
+  "ftv2.nekotoken.near": -1,
 };
 
 // Now define the refPrices$ with mutable keys and auto-completion
@@ -122,11 +161,17 @@ const refPrices$ = readable<
       const denomAmount = pool.amounts[denomIdx];
       const tokenAmount = pool.amounts[tokenIdx];
 
-      const denomDecimals =
+      let denomDecimals: number;
+      if (
         config.denom ===
-        "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1"
-          ? 6
-          : tokens_metadata[config.denom]!.decimals;
+          "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1" ||
+        config.denom ===
+          "a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near"
+      ) {
+        denomDecimals = 6;
+      } else {
+        denomDecimals = tokens_metadata[config.denom]!.decimals;
+      }
       const tokenDecimals = metadata.decimals;
 
       let price =
@@ -175,11 +220,9 @@ const isKeyOf = <ObjectType extends Record<PropertyKey, unknown>>(
   return Object.prototype.hasOwnProperty.call(object, property);
 };
 
-export function getToken$(tokenId: string): Readable<Promise<TokenInfo>> {
-  if (!isKeyOf(poolIds, tokenId)) {
-    throw new Error("Invalid token id");
-  }
-
+export function getToken$(
+  tokenId: keyof PoolIdsType,
+): Readable<Promise<TokenInfo>> {
   if (tokenInfos[tokenId] == null) {
     tokenInfos[tokenId] = derived(refPrices$, async (r) => {
       const refPrices = await r;

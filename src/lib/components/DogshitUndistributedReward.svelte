@@ -3,6 +3,7 @@
   import TokenBalance from "./TokenBalance.svelte";
 
   import { Dogshit, Pool, wallet } from "$lib/near";
+  import { getTokenSortIndex } from "$lib/store";
 
   const { accountId$ } = wallet;
 
@@ -15,16 +16,19 @@
     Pool.getUnclaimedReward($accountId$, 0)
       .then((balance) => Dogshit.simulateBurn(balance.toString()))
       .then((shares) => {
+        shares.sort(
+          (a, b) => getTokenSortIndex(b[0]) - getTokenSortIndex(a[0]),
+        );
         resolve(shares);
       })
       .catch(reject);
   });
 </script>
 
-<h2 class="not-prose text-xl">Track $DOGSHIT</h2>
 {#await rewardsPromise}
   <div class="i-svg-spinners:pulse-3 size-6" />
 {:then rewards}
+  <h2 class="not-prose text-xl">Track $DOGSHIT</h2>
   <div
     class="not-prose w-full border-collapse border border-lime rounded-lg overflow-hidden"
   >
@@ -33,9 +37,9 @@
         <TokenBalance {reward} {share} />
       {/each}
       <li>
-        <BurnTheShit class="w-full py-3 rounded-none"
-          >Claim & burn the 💩</BurnTheShit
-        >
+        <BurnTheShit class="w-full py-3 rounded-none">
+          Claim & burn the 💩
+        </BurnTheShit>
       </li>
     </ul>
   </div>
