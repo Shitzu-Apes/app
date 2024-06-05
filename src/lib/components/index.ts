@@ -7,6 +7,7 @@ import BuyNft from "./BuyNft.svelte";
 import { DayPriceChart } from "./DayPriceChart";
 import Dexscreener from "./Dexscreener.svelte";
 import DogshitUndistributedReward from "./DogshitUndistributedReward.svelte";
+import Donation from "./Donation.svelte";
 import Faq from "./Faq.svelte";
 import MessageBox from "./MessageBox.svelte";
 import PrimaryNft from "./PrimaryNft.svelte";
@@ -28,6 +29,7 @@ export {
   Dexscreener,
   DayPriceChart,
   DogshitUndistributedReward,
+  Donation,
   Faq,
   MessageBox,
   PrimaryNft,

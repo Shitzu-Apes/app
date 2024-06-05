@@ -2,7 +2,7 @@
   import { FixedNumber } from "@tarnadas/fixed-number";
   import { slide } from "svelte/transition";
 
-  import { Button, Faq } from "$lib/components";
+  import { Button, Faq, Donation } from "$lib/components";
   import { Nft } from "$lib/near";
   import { Rewarder } from "$lib/near/rewarder";
 
@@ -176,7 +176,9 @@
         </ol>
 
         {#if ranking.length > 3}
-          <ol class="mt-5 flex flex-col border-2 border-lime rounded-xl">
+          <ol
+            class="mt-5 flex flex-col border-2 border-lime rounded-xl bg-black"
+          >
             {#each ranking.slice(3) as { token_id, account_id, score }, i (account_id)}
               <li
                 class="flex justify-center items-center text-white py-3 px-3 border-b border-lime last:border-none"
@@ -216,6 +218,7 @@
     </div>
   </div>
 
+  <Donation />
   <Faq
     qnas={[
       {
