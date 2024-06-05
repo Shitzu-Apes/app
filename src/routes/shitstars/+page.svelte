@@ -4,11 +4,15 @@
 
   import { Button, Faq, Donation } from "$lib/components";
   import { Nft } from "$lib/near";
+  import { wallet } from "$lib/near";
   import { Rewarder } from "$lib/near/rewarder";
+  import { primaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
 
   let ranking: Promise<
     { token_id: string; account_id: string; score: FixedNumber }[]
   > = Rewarder.getLeaderboard(10).then(async (ranking) => {
+    const primaryNft = await $primaryNftTokenId;
+
     const nonStakedNfts: string[] = ranking
       .flatMap(([, account]) => {
         const nonStaked = account.filter(([, accountId]) => accountId === null);
@@ -36,6 +40,7 @@
 
     // the ranking is already sorted
     // we just need to flatten the array
+    let isInRanking = false;
     const result = ranking
       .flatMap(([score, accounts]) =>
         accounts.map((account) => {
@@ -50,6 +55,11 @@
             }
           }
 
+          if (token_id === primaryNft?.token_id) {
+            account_id = "You";
+            isInRanking = true;
+          }
+
           return {
             token_id: account[0],
             account_id,
@@ -59,8 +69,24 @@
       )
       .slice(0, 10);
 
+    if (!isInRanking && primaryNft) {
+      result.push({
+        token_id: primaryNft.token_id,
+        account_id: "You",
+        score: primaryNft.score,
+      });
+    }
+
     return result;
   });
+
+  const { accountId$ } = wallet;
+
+  $: {
+    if ($accountId$) {
+      refreshPrimaryNftOf($accountId$);
+    }
+  }
 </script>
 
 <div>
@@ -71,7 +97,7 @@
           transition:slide
           class="flex items-center justify-center w-full h-xs"
         >
-          <div class="i-svg-spinners:6-dots-rotate text-size-12 text-lime" />
+          <div class="i-svg-spinners:blocks-wave text-size-20 text-lime" />
         </div>
       {:then ranking}
         <ol
@@ -103,7 +129,7 @@
               </div>
             </div>
 
-            <div class="font-light text-lg text-black">
+            <div class="font-bold text-lg text-black">
               {ranking[0].account_id}
             </div>
             <div
@@ -132,7 +158,7 @@
                   </div>
                 </div>
 
-                <div class="font-light text-lg text-black text-sm">
+                <div class="text-lg text-black text-sm font-bold">
                   {ranking[1].account_id}
                 </div>
                 <div
@@ -161,8 +187,8 @@
                   </div>
                 </div>
 
-                <div class="font-light text-lg text-black text-sm">
-                  {ranking[2].account_id || "Anonymous"}
+                <div class="font-bold text-lg text-black text-sm">
+                  {ranking[2].account_id}
                 </div>
                 <div
                   class="font-bold text-lg bg-red rounded-full px-2 mt-2 text-black flex items-center gap-1"
@@ -181,7 +207,10 @@
           >
             {#each ranking.slice(3) as { token_id, account_id, score }, i (account_id)}
               <li
-                class="flex justify-center items-center text-white py-3 px-3 border-b border-lime last:border-none"
+                class="flex justify-center items-center text-white py-3 px-3 border-b border-lime last:border-none {account_id ===
+                'You'
+                  ? 'bg-lime/50'
+                  : ''}"
               >
                 <div class="mr-3">
                   <img
@@ -201,7 +230,7 @@
                 <div
                   class="ml-auto text-2xl flex justify-center items-center bg-lime size-5 text-black rounded-full text-sm font-bold"
                 >
-                  {i + 4}
+                  {i + 4 <= 10 ? i + 4 : "-"}
                 </div>
               </li>
             {/each}
