@@ -129,8 +129,10 @@
               </div>
             </div>
 
-            <div class="font-bold text-lg text-black">
-              {ranking[0].account_id}
+            <div
+              class="font-bold text-lg text-black text-sm max-w-[200px] text-ellipsis overflow-hidden"
+            >
+              {ranking[2].account_id}
             </div>
             <div
               class="font-bold text-lg bg-amber rounded-full px-2 mt-2 text-black flex items-center gap-1"
@@ -158,7 +160,9 @@
                   </div>
                 </div>
 
-                <div class="text-lg text-black text-sm font-bold">
+                <div
+                  class="font-bold text-lg text-black text-sm max-w-[200px] text-ellipsis overflow-hidden"
+                >
                   {ranking[1].account_id}
                 </div>
                 <div
@@ -187,7 +191,9 @@
                   </div>
                 </div>
 
-                <div class="font-bold text-lg text-black text-sm">
+                <div
+                  class="font-bold text-lg text-black text-sm max-w-[200px] text-ellipsis overflow-hidden"
+                >
                   {ranking[2].account_id}
                 </div>
                 <div
@@ -220,8 +226,10 @@
                   />
                 </div>
 
-                <div>
-                  <div class="font-light text-lg">{account_id}</div>
+                <div class="max-w-[200px]">
+                  <div class="font-light text-lg text-ellipsis overflow-hidden">
+                    {account_id}
+                  </div>
                   <div class="font-bold text-base flex items-center">
                     <div class="i-mdi:stars size-5 mr-1" />
                     {score.format()}
