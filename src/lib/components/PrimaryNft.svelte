@@ -2,6 +2,8 @@
   import type { HereCall } from "@here-wallet/core";
   import { slide } from "svelte/transition";
 
+  import Squircle from "./Squircle.svelte";
+
   import { BuyNftBanner, Button } from "$lib/components";
   import { Nft, wallet, type Token } from "$lib/near";
   import { primaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
@@ -116,10 +118,9 @@
     {:then token}
       {#if token}
         <div class="flex flex-col justify-center items-start">
-          <img
-            class="size-24 rounded-3xl border-4 border-lime flex-1"
+          <Squircle
+            class="size-24 text-lime flex-1"
             src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{token.token_id}.png"
-            alt="avatar"
           />
         </div>
         <div
@@ -165,20 +166,19 @@
               class="flex items-center w-[30%] py-4 place-content-center cursor-pointer"
             >
               <button
-                class="relative rounded-xl overflow-hidden border-2 hover:border-lime"
+                class="relative"
                 class:border-transparent={selectedNftTokenId !== nft.token_id}
                 class:border-lime={selectedNftTokenId === nft.token_id}
                 on:click={() => (selectedNftTokenId = nft.token_id)}
               >
-                <img
-                  class="size-24"
+                <Squircle
+                  class="size-24 text-transparent hover:text-lime"
                   src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{nft.token_id}.png"
-                  alt="avatar"
                 />
 
                 <!-- banner bottom center of the image to show token id -->
                 <div
-                  class="absolute bottom-0 left-1/2 transform -translate-x-1/2 border-lime bg-lime-9/90 text-lime text-center w-full font-bold flex justify-center items-center"
+                  class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full border-lime bg-lime-9/90 text-lime text-center w-full font-bold flex justify-center items-center"
                 >
                   {#if selectedNftTokenId === nft.token_id}
                     <div class="i-mdi:check size-5 text-current" />
