@@ -24,7 +24,6 @@
     "@near-wallet-selector/here-wallet": "^8.9.7",
     "@near-wallet-selector/meteor-wallet": "^8.9.7",
     "@near-wallet-selector/my-near-wallet": "^8.9.7",
-    "@tarnadas/fixed-number": "0.2.2",
     "@unocss/reset": "^0.60.2",
     "bs58": "^5.0.0",
     "dayjs": "^1.11.11",
@@ -73,7 +72,6 @@
     "typescript": "5.4.5",
     "unocss": "^0.60.2",
     "vite": "^5.2.11",
-    "vite-plugin-node-polyfills": "^0.21.0",
-    "wrangler": "^3.57.0"
+    "vite-plugin-node-polyfills": "^0.21.0"
   }
 }

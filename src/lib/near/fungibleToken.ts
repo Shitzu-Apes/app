@@ -1,8 +1,7 @@
-import { FixedNumber } from "@tarnadas/fixed-number";
-
 import { view } from "./utils";
 
 import type { FungibleTokenMetadata } from "$lib/abi";
+import { FixedNumber } from "$lib/util";
 
 const tokenMetadataCache: Record<string, FungibleTokenMetadata> = {};
 

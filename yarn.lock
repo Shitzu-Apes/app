@@ -2660,13 +2660,6 @@
   dependencies:
     tslib "^2.4.0"
 
-"@tarnadas/fixed-number@0.2.2":
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/@tarnadas/fixed-number/-/fixed-number-0.2.2.tgz#d1ff39691e984d9a3b28dbe90eed035bcade5cee"
-  integrity sha512-AFHnDU227RvGBJdTc210h1vSHMZLXZzIKW1uC19VVDsf/D4ZKHPSL4hm2ueDu2HZIVbf1JtkEkGDd0AHgh/tsA==
-  dependencies:
-    ts-pattern "^5.0.1"
-
 "@types/cookie@^0.6.0":
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/@types/cookie/-/cookie-0.6.0.tgz#eac397f28bf1d6ae0ae081363eca2f425bedf0d5"
@@ -7870,7 +7863,7 @@ ts-interface-checker@^0.1.9:
   resolved "https://registry.yarnpkg.com/ts-interface-checker/-/ts-interface-checker-0.1.13.tgz#784fd3d679722bc103b1b4b8030bcddb5db2a699"
   integrity sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==
 
-ts-pattern@^5.0.1, ts-pattern@^5.1.1:
+ts-pattern@^5.1.1:
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/ts-pattern/-/ts-pattern-5.1.2.tgz#1b000a2978a8eb4e1c4cf401413a8625331fbb03"
   integrity sha512-u+ElKUIWnqisjpRBhv6Y89yNq7Pmz6xL0v7pTSckrVZ0+5Vf32oh/3jmxWl80rAOGcnbBa7fCyeqNdP4yXzWWg==

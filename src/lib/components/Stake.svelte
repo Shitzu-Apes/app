@@ -1,6 +1,5 @@
 <script lang="ts">
   import { createTabs, melt } from "@melt-ui/svelte";
-  import { FixedNumber } from "@tarnadas/fixed-number";
   import { writable } from "svelte/store";
   import { crossfade, fade, slide } from "svelte/transition";
   import { bind } from "svelte-simple-modal";
@@ -13,6 +12,7 @@
   import { ModalSize, modal$, modalSize$ } from "$lib/layout";
   import { wallet } from "$lib/near";
   import { memes } from "$lib/store";
+  import { FixedNumber } from "$lib/util";
 
   export let walletConnected: boolean;
   export let nearBalance: FixedNumber;

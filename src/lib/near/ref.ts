@@ -1,6 +1,6 @@
-import { FixedNumber } from "@tarnadas/fixed-number";
-
 import { view } from "./utils";
+
+import { FixedNumber } from "$lib/util";
 
 /**
  *  /// Pool kind.

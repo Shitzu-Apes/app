@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { FixedNumber } from "@tarnadas/fixed-number";
-
   import { getToken$, isTokenId } from "$lib/store";
+  import { FixedNumber } from "$lib/util";
 
   export let reward: string;
   export let share: string;

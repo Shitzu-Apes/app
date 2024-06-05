@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { FixedNumber } from "@tarnadas/fixed-number";
   import { writable } from "svelte/store";
   import { slide } from "svelte/transition";
 
@@ -17,6 +16,7 @@
     Dogshit,
   } from "$lib/near";
   import { Rewarder } from "$lib/near/rewarder";
+  import { FixedNumber } from "$lib/util";
 
   const stake$ = writable<FixedNumber | undefined>();
   const withdraw$ = writable<FixedNumber | undefined>();

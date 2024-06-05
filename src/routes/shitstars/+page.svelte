@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { FixedNumber } from "@tarnadas/fixed-number";
   import { slide } from "svelte/transition";
 
   import { Button, Faq, Donation, Squircle } from "$lib/components";
@@ -7,6 +6,7 @@
   import { wallet } from "$lib/near";
   import { Rewarder } from "$lib/near/rewarder";
   import { primaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
+  import { FixedNumber } from "$lib/util";
 
   let ranking: Promise<
     { token_id: string; account_id: string; score: FixedNumber }[]

@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { HereCall } from "@here-wallet/core";
-  import { FixedNumber } from "@tarnadas/fixed-number";
   import { writable } from "svelte/store";
 
   import { Near } from "$lib/assets";
@@ -15,6 +14,7 @@
     type ShitzuPriceHistory,
     currentShitzuPrice,
   } from "$lib/store";
+  import { FixedNumber } from "$lib/util";
 
   $: shitzuStat =
     $shitzuPriceHistory && $currentShitzuPrice

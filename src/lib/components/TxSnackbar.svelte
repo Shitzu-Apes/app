@@ -1,7 +1,8 @@
 <script lang="ts">
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
-  import { FixedNumber } from "@tarnadas/fixed-number";
   import type { ExecutionStatus } from "near-api-js/lib/providers/provider";
+
+  import { FixedNumber } from "$lib/util";
 
   export let txPromise: Promise<
     void | FinalExecutionOutcome | FinalExecutionOutcome[]

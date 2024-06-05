@@ -1,8 +1,8 @@
-import { FixedNumber } from "@tarnadas/fixed-number";
 import { writable } from "svelte/store";
 
 import { Nft, type Token } from "$lib/near";
 import { Rewarder } from "$lib/near/rewarder";
+import { FixedNumber } from "$lib/util";
 
 export const primaryNftTokenId = writable<
   Promise<{

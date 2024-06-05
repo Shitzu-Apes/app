@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { FixedNumber } from "@tarnadas/fixed-number";
   import { writable } from "svelte/store";
   import { fade } from "svelte/transition";
 
@@ -10,6 +9,7 @@
   import { Near } from "$lib/assets";
   import type { PoolFarm } from "$lib/near";
   import { getToken, getToken$, type TokenInfo } from "$lib/store";
+  import { FixedNumber } from "$lib/util";
 
   export let farm: PoolFarm | null;
   export let undistributedRewards: [AccountId, string][] = [];

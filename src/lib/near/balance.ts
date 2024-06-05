@@ -1,5 +1,6 @@
-import { FixedNumber } from "@tarnadas/fixed-number";
 import { writable } from "svelte/store";
+
+import { FixedNumber } from "$lib/util";
 
 export const nearBalance = writable<FixedNumber | null>(null);
 

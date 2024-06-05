@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { FixedNumber } from "@tarnadas/fixed-number";
   import { createEventDispatcher } from "svelte";
   import { writable } from "svelte/store";
 
@@ -11,6 +10,7 @@
   import { wallet } from "$lib/near";
   import { showSnackbar } from "$lib/snackbar";
   import { refreshShitzuBalance, shitzuBalance } from "$lib/store";
+  import { FixedNumber } from "$lib/util";
 
   const SUGGESTED_AMOUNT = [
     1_000n,

@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { FixedNumber } from "@tarnadas/fixed-number";
-
   import Near from "$lib/assets/Near.svelte";
   import ShitzuFace from "$lib/assets/logo/shitzu.webp";
   import { MessageBox } from "$lib/components";
   import { refreshShitzuBalance, shitzuBalance } from "$lib/store";
+  import { FixedNumber } from "$lib/util";
 
   export let accountId: string;
 

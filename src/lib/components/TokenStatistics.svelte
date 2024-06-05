@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { FixedNumber } from "@tarnadas/fixed-number";
   import { fade } from "svelte/transition";
 
   import type { TokenInfo } from "$lib/store";
+  import { FixedNumber } from "$lib/util";
 
   export let icon: string | undefined = undefined;
   export let token: TokenInfo;

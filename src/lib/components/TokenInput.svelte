@@ -1,9 +1,9 @@
 <svelte:options accessors />
 
 <script lang="ts">
-  import { FixedNumber } from "@tarnadas/fixed-number";
   import { derived, writable } from "svelte/store";
 
+  import { FixedNumber } from "$lib/util";
   import {
     filterAllowedCharacters,
     formatWithMaxDecimals,

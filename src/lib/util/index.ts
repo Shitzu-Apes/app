@@ -1,4 +1,6 @@
-import type { HtmlInputEvent } from "./models";
+import type { HtmlInputEvent } from "../models";
+
+export * from "./FixedNumber";
 
 export function filterAllowedCharacters(value: string): string {
   const commaPos = value.indexOf(".");
