@@ -70,9 +70,9 @@
     bind:value={donationAmount}
   />
   <span class="text-xs my-3">
-    You are donating {donationAmount.toLocaleString()} SHITZU and will earn
-    {(donationAmount * 4).toLocaleString()} Shitstars! Become the Shitstar - your
-    contribution matters!
+    You are donating {(donationAmount || 0).toLocaleString()} SHITZU and will earn
+    {((donationAmount || 0) * 4).toLocaleString()} Shitstars! Become the Shitstar
+    - your contribution matters!
   </span>
   <button
     class="mt-3 w-full bg-gradient-to-r bg-gradient-from-lime bg-gradient-to-emerald text-black rounded-lg p-3 flex justify-center items-center gap-3 font-bold"
