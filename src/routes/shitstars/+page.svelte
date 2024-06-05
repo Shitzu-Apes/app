@@ -132,7 +132,7 @@
             <div
               class="font-bold text-lg text-black text-sm max-w-[200px] text-ellipsis overflow-hidden"
             >
-              {ranking[2].account_id}
+              {ranking[0].account_id}
             </div>
             <div
               class="font-bold text-lg bg-amber rounded-full px-2 mt-2 text-black flex items-center gap-1"
