@@ -219,6 +219,11 @@
   <Faq
     qnas={[
       {
+        question: "What is Shitstars?",
+        answer:
+          "Shitstars is a point and reputation system within the SHITZU ecosystem. It rewards users for their participation and contributions. The individual who earns the most Shitstars is also called the Shitstar.",
+      },
+      {
         question: "What is the relationship between Shitstars and NFTs?",
         answer:
           "Shitstars are attached to a single primary NFT, and remain attached even if the owner of the NFT changes.",
