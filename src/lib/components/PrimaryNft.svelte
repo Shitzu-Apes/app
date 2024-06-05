@@ -1,37 +1,14 @@
 <script lang="ts">
   import type { HereCall } from "@here-wallet/core";
-  import { FixedNumber } from "@tarnadas/fixed-number";
   import { slide } from "svelte/transition";
 
   import { BuyNftBanner, Button } from "$lib/components";
   import { Nft, wallet, type Token } from "$lib/near";
-  import { Rewarder } from "$lib/near/rewarder";
+  import { primaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
 
   let selectedNftTokenId = "";
 
   const { accountId$ } = wallet;
-
-  let primaryNftTokenId: Promise<{
-    token_id: string;
-    score: FixedNumber;
-    token: Token;
-  } | null> = new Promise((resolve) => resolve(null));
-  function refreshPrimaryNftOf() {
-    if ($accountId$) {
-      primaryNftTokenId = Rewarder.primaryNftOf($accountId$).then(
-        async (somePrimaryNftTokenId) => {
-          if (!somePrimaryNftTokenId) {
-            return null;
-          }
-
-          const [token_id, score] = somePrimaryNftTokenId;
-          const token = await Nft.nftToken(token_id);
-
-          return { token_id, score: new FixedNumber(score, 18), token };
-        },
-      );
-    }
-  }
 
   let nfts: Promise<Token[] | null> = new Promise((resolve) => resolve(null));
 
@@ -44,13 +21,13 @@
   $: {
     if ($accountId$) {
       refreshNfts();
-      refreshPrimaryNftOf();
+      refreshPrimaryNftOf($accountId$);
     }
   }
 
   async function stake() {
     const transactions: HereCall[] = [];
-    if (await primaryNftTokenId) {
+    if (await $primaryNftTokenId) {
       transactions.push({
         receiverId: import.meta.env.VITE_REWARDER_CONTRACT_ID,
         actions: [
@@ -90,7 +67,7 @@
         onSuccess: () => {
           if ($accountId$) {
             refreshNfts();
-            refreshPrimaryNftOf();
+            refreshPrimaryNftOf($accountId$);
           }
         },
         onFinally: () => {},
@@ -118,7 +95,7 @@
         onSuccess: () => {
           if ($accountId$) {
             refreshNfts();
-            refreshPrimaryNftOf();
+            refreshPrimaryNftOf($accountId$);
           }
         },
         onFinally: () => {},
@@ -131,7 +108,7 @@
   <div
     class="relative w-full flex items-center bg-gradient-to-r bg-gradient-from-emerald bg-gradient-to-lime w-full rounded-lg py-3 px-3 gap-6 mt-3"
   >
-    {#await primaryNftTokenId}
+    {#await $primaryNftTokenId}
       <!-- Skeleton of the below -->
       <div class="w-full flex justify-center items-center">
         <div class="i-svg-spinners:pulse-3 size-24" />
