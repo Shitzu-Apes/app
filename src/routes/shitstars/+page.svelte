@@ -222,7 +222,8 @@
 
                 <div>
                   <div class="font-light text-lg">{account_id}</div>
-                  <div class="font-bold text-base">
+                  <div class="font-bold text-base flex items-center">
+                    <div class="i-mdi:stars size-5 mr-1" />
                     {score.format()}
                   </div>
                 </div>
