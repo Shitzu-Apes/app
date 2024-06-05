@@ -2660,10 +2660,10 @@
   dependencies:
     tslib "^2.4.0"
 
-"@tarnadas/fixed-number@0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@tarnadas/fixed-number/-/fixed-number-0.2.0.tgz#e556008c263b82f2662170834ebe2a2d1a33ae28"
-  integrity sha512-l5qzpkIaoy1TYJjjaciUnj/ETdJYe9NXFxEpOQsmlH4oQKNibHMPMpPZLblxy+nnlppU3V1wBzDRGVC87z3pog==
+"@tarnadas/fixed-number@0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@tarnadas/fixed-number/-/fixed-number-0.2.2.tgz#d1ff39691e984d9a3b28dbe90eed035bcade5cee"
+  integrity sha512-AFHnDU227RvGBJdTc210h1vSHMZLXZzIKW1uC19VVDsf/D4ZKHPSL4hm2ueDu2HZIVbf1JtkEkGDd0AHgh/tsA==
   dependencies:
     ts-pattern "^5.0.1"
 

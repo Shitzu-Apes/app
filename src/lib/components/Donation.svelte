@@ -1,15 +1,29 @@
 <script lang="ts">
   import { FixedNumber } from "@tarnadas/fixed-number";
   import { createEventDispatcher } from "svelte";
+  import { writable } from "svelte/store";
+
+  import Button from "./Button.svelte";
+  import TokenInput from "./TokenInput.svelte";
 
   import SHITZU from "$lib/assets/logo/shitzu.webp";
   import SHITZU_FACE from "$lib/assets/logo/shitzu_face.svg";
   import { wallet } from "$lib/near";
+  import { showSnackbar } from "$lib/snackbar";
   import { refreshShitzuBalance, shitzuBalance } from "$lib/store";
 
-  const SUGGESTED_AMOUNT = [1000, 5000, 10000, 20000, 50000, 100000];
+  const SUGGESTED_AMOUNT = [
+    1_000n,
+    5_000n,
+    10_000n,
+    20_000n,
+    50_000n,
+    100_000n,
+  ].map((val) => new FixedNumber(val * 1_000_000_000_000_000_000n, 18));
 
-  let donationAmount: number = SUGGESTED_AMOUNT[1];
+  let input: TokenInput;
+  let inputValue$ = writable<string | undefined>();
+  $: input$ = input?.u128$;
 
   const dispatch = createEventDispatcher();
 
@@ -17,19 +31,32 @@
 
   $: refreshShitzuBalance($accountId$);
 
+  $: if ($shitzuBalance) {
+    updateDefaultInput($shitzuBalance);
+  }
+
+  async function updateDefaultInput(bal: Promise<FixedNumber>) {
+    const shitzuBalance = await bal;
+    if (shitzuBalance.valueOf() < SUGGESTED_AMOUNT[1].valueOf()) {
+      $inputValue$ = shitzuBalance.toString();
+    } else {
+      $inputValue$ = SUGGESTED_AMOUNT[1].toString();
+    }
+  }
+
   let error: string | null = null;
 
   async function donate() {
-    const amount = new FixedNumber(BigInt(donationAmount * 1e18), 18);
+    if ($input$ == null) return;
 
     const balance = await $shitzuBalance;
 
-    if (amount.toNumber() > balance.toNumber()) {
+    if ($input$.valueOf() > balance.valueOf()) {
       error = "Insufficient balance";
       return;
     }
 
-    wallet.signAndSendTransaction(
+    return wallet.signAndSendTransaction(
       {
         receiverId: "token.0xshitzu.near",
         actions: [
@@ -39,10 +66,10 @@
               methodName: "ft_transfer_call",
               args: {
                 receiver_id: "rewards.0xshitzu.near",
-                amount: amount.toU128(),
+                amount: $input$.toU128(),
                 msg: "Donation",
               },
-              gas: 300_000_000_000_000n.toString(),
+              gas: 50_000_000_000_000n.toString(),
               deposit: "1",
             },
           },
@@ -50,10 +77,11 @@
       },
       {
         onSuccess: () => {
-          dispatch("donation", { amount: donationAmount });
-        },
-        onFinally: () => {
-          dispatch("donation", { amount: donationAmount });
+          dispatch("donation", { amount: $input$ });
+          refreshShitzuBalance($accountId$);
+          showSnackbar(
+            `You successfully donated ${$input$!.format()} SHITZU and received ${$input$?.mul(new FixedNumber(4n)).format({ maximumFractionDigits: 2 })} Shitstars! - Donate more to climb up the leaderboard`,
+          );
         },
       },
     );
@@ -77,88 +105,52 @@
       <!-- Big button take 1/3 width -->
       <li class="w-[30%]">
         <button
-          class="w-full bg-lime text-black rounded-lg p-3 flex justify-center items-center"
-          class:opacity-50={donationAmount !== suggestedAmount}
+          class="w-full text-black rounded-lg p-3 flex justify-center items-center border-2 border-transparent hover:border-lime {$input$?.valueOf() !==
+          suggestedAmount.valueOf()
+            ? 'bg-lime/50'
+            : 'bg-lime'}"
           on:click={async () => {
             error = null;
             const balance = await $shitzuBalance;
-            if (suggestedAmount > balance.toNumber()) {
-              donationAmount = balance.toNumber();
+            if (suggestedAmount.valueOf() > balance.valueOf()) {
+              $inputValue$ = balance.toString();
             } else {
-              donationAmount = suggestedAmount;
+              $inputValue$ = suggestedAmount.toString();
             }
           }}
         >
           <img src={SHITZU} class="size-6 mr-1" alt="Shitzu face" />
-          {suggestedAmount.toLocaleString()}
+          {suggestedAmount.format({ maximumFractionDigits: 0 })}
         </button>
       </li>
     {/each}
   </ol>
-  <input
-    type="number"
+  <TokenInput
     class="w-full mt-3 p-3 border border-black rounded-lg text-black appearance-none focus:outline-none focus:border-lime focus:ring-1 focus:ring-lime focus:ring-opacity-50 bg-white"
-    bind:value={donationAmount}
-    on:input={async (e) => {
+    bind:this={input}
+    bind:value={$inputValue$}
+    decimals={18}
+    afterInputChange={() => {
       error = null;
-
-      // typeguard for e, e.target and e.target.value
-      if (
-        !(e instanceof InputEvent) ||
-        !e.target ||
-        "value" in e.target === false ||
-        typeof e.target.value !== "string"
-      ) {
-        return;
-      }
-
-      const value = parseInt(e.target.value, 10);
-
-      if (value < 0) {
-        error = "Invalid amount";
-        return;
-      }
-
-      const balance = await $shitzuBalance;
-
-      if (value > balance.toNumber()) {
-        donationAmount = balance.toNumber();
-        return;
-      }
-
-      donationAmount = value;
     }}
   />
   <span class="text-xs my-3">
     {#if error}
       <span class="text-red-500">{error}</span>
     {:else}
-      You are donating {(donationAmount || 0).toLocaleString()} SHITZU and will earn
-      {((donationAmount || 0) * 4).toLocaleString()} Shitstars! Become the Shitstar
+      You are donating {$input$?.format() ?? "0"} SHITZU and will earn
+      {$input$?.mul(new FixedNumber(4n)).format() ?? "0"} Shitstars! Become the Shitstar
       - your contribution matters!
     {/if}
   </span>
-  <button
-    class="mt-3 w-full bg-gradient-to-r bg-gradient-from-lime bg-gradient-to-emerald text-black rounded-lg p-3 flex justify-center items-center gap-3 font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-    on:click={() => {
-      donate();
-    }}
-    disabled={error !== null}
+  <Button
+    type="custom"
+    class="relative mt-3 w-full bg-gradient-to-r bg-gradient-from-lime bg-gradient-to-emerald text-black rounded-lg p-3 flex justify-center items-center gap-3 font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+    spinnerColor="text-black"
+    onClick={donate}
+    disabled={error != null || $input$ == null || $input$.valueOf() === 0n}
   >
     <img src={SHITZU_FACE} class="size-6 mr-1" alt="Shitzu face" />
     Donate
-  </button>
+  </Button>
 </div>
-
-<style scoped>
-  input::-webkit-outer-spin-button,
-  input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  /* Firefox */
-  input[type="number"] {
-    -moz-appearance: textfield;
-  }
-</style>

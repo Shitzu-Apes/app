@@ -27,7 +27,7 @@
       .with(
         P.union('primary', 'secondary'),
         () =>
-          'font-bold border-2 border-lime flex justify-center items-center decoration-none px-4 py-2 relative disabled:bg-gray-5 disabled:border-gray-5',
+          'font-bold border-2 border-lime flex justify-center items-center decoration-none px-4 py-2 relative disabled:bg-gray-5 disabled:border-gray-5 disabled:cursor-not-allowed',
       )
       .otherwise(() => '')}"
   >
@@ -56,7 +56,7 @@
       .with(
         P.union('primary', 'secondary'),
         () =>
-          'font-bold border-2 border-lime flex justify-center items-center decoration-none px-4 py-2 relative disabled:bg-gray-5 disabled:border-gray-5',
+          'font-bold border-2 border-lime flex justify-center items-center decoration-none px-4 py-2 relative disabled:bg-gray-5 disabled:border-gray-5 disabled:cursor-not-allowed',
       )
       .otherwise(() => '')}"
   >

@@ -9,7 +9,7 @@
   import DogshitUndistributedReward from "./DogshitUndistributedReward.svelte";
 
   import Near from "$lib/assets/Near.svelte";
-  import { TokenInput, BurnTheShit } from "$lib/components";
+  import { TokenInput, BurnTheShit, Button } from "$lib/components";
   import { ModalSize, modal$, modalSize$ } from "$lib/layout";
   import { wallet } from "$lib/near";
   import { memes } from "$lib/store";
@@ -88,10 +88,8 @@
       .exhaustive();
   }
 
-  let loading = false;
   async function handleStakeButton() {
     if (!$input$ || $input$.valueOf() === 0n) return;
-    loading = true;
     await wallet.signAndSendTransaction(
       {
         receiverId: import.meta.env.VITE_VALIDATOR_CONTRACT_ID,
@@ -121,9 +119,6 @@
         onSuccess: () => {
           afterUpdateBalances();
           $inputValue$ = "";
-        },
-        onFinally: () => {
-          loading = false;
         },
       },
     );
@@ -175,11 +170,13 @@
   </div>
 
   {#if walletConnected}
-    <button
-      class="w-full py-3 bg-lime text-black font-bold text-xl rounded-xl mt-3 disabled:bg-gray-5"
-      on:click={handleStakeButton}
-      disabled={disabled || loading}>{active.label}</button
+    <Button
+      class="w-full py-3 mt-3 text-xl"
+      onClick={handleStakeButton}
+      {disabled}
     >
+      {active.label}
+    </Button>
   {:else}
     <slot />
   {/if}

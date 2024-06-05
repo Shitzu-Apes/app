@@ -103,7 +103,7 @@ export function showTxSnackbar(
         waiting$.set(true);
         triggerUpdate$.update((val) => val + 1);
         destroyTimer = undefined;
-      }, 10_000) as unknown as number;
+      }, 8_000) as unknown as number;
     }
   });
   pushComponent({
