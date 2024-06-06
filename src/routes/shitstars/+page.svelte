@@ -8,6 +8,8 @@
   import { primaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
   import { FixedNumber } from "$lib/util";
 
+  const BASE_URL = import.meta.env.VITE_NFT_BASE_URL;
+
   let ranking: Promise<
     { token_id: string; account_id: string; score: FixedNumber }[]
   > = Rewarder.getLeaderboard(10).then(async (ranking) => {
@@ -117,9 +119,7 @@
           <li class="flex flex-col items-center">
             <div class="relative mb-4">
               <Squircle
-                src={"https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/" +
-                  ranking[0].token_id +
-                  ".png"}
+                src="{BASE_URL}/{ranking[0].token_id}.png"
                 class="text-amber size-34"
               />
               <div
@@ -149,8 +149,7 @@
                 <div class="relative mb-4">
                   <Squircle
                     class="size-28 text-coolgray"
-                    src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{ranking[1]
-                      .token_id}.png"
+                    src="{BASE_URL}/{ranking[1].token_id}.png"
                   />
                   <div
                     class="absolute bottom-1 left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-coolgray text-black text-center rounded-full size-6 font-bold flex justify-center items-center text-sm"
@@ -179,8 +178,7 @@
                 <div class="relative mb-4">
                   <Squircle
                     class="size-28 text-red"
-                    src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{ranking[2]
-                      .token_id}.png"
+                    src="{BASE_URL}/{ranking[2].token_id}.png"
                   />
                   <div
                     class="absolute bottom-1 left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-red text-black text-center rounded-full size-6 font-bold flex justify-center items-center text-sm"
@@ -219,7 +217,7 @@
                 <div class="mr-3">
                   <Squircle
                     class="size-18 text-lime"
-                    src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{token_id}.png"
+                    src="{BASE_URL}/{token_id}.png"
                   />
                 </div>
 
