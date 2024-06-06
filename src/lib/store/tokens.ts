@@ -193,6 +193,14 @@ const refPrices$ = readable<
           // add back to the queue
           token_ids.push(token_id);
         }
+      } else if (config.denom === "ftv2.nekotoken.near") {
+        // blackdragon price should exist by now
+        if ("ftv2.nekotoken.near" in refPrices) {
+          price = +price * +refPrices["ftv2.nekotoken.near"]!.price;
+        } else {
+          // add back to the queue
+          token_ids.push(token_id);
+        }
       }
 
       refPrices[token_id] = {
