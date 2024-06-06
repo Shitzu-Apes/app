@@ -232,9 +232,9 @@
           "When you stake with the SHITZU validator, you receive a token called $DOGSHIT. This token wraps all the underlying meme tokens emitted by the staking pool.",
       },
       {
-        question: "What benefits do I have as an NFT holder?",
+        question: "What benefits do I have as an NFT staker?",
         answer:
-          "As an NFT holder you receive a 25% boost on all $DOGSHIT claims. The APRs will automatically display the correct APR based on your connected wallet.",
+          "As an NFT staker you receive a 25% boost on all $DOGSHIT claims. The APRs will automatically display the correct APR based on your connected wallet.",
       },
       {
         question: "What is the purpose of the $DOGSHIT token?",
