@@ -201,7 +201,9 @@
             <div class="i-svg-spinners:6-dots-rotate size-6 bg-gray-8" />
           {:else}
             ${totalStaked
-              .mul(new FixedNumber(BigInt(Number(near.price) * 1e18)))
+              .mul(
+                new FixedNumber(BigInt(Math.trunc(Number(near.price) * 1e18))),
+              )
               .div(new FixedNumber(BigInt(1e18)))
               .format()}
           {/if}

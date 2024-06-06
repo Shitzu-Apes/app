@@ -6,6 +6,11 @@
   export let share: string;
 
   $: tokenInfo$ = getToken$(isTokenId(reward));
+  // if (reward === "bean.tkn.near") {
+  //   tokenInfo$.subscribe((token) => {
+  //     console.log("TKN", token);
+  //   });
+  // }
 </script>
 
 <li
@@ -40,7 +45,7 @@
         {new FixedNumber(share, token.decimal).format()}
         <div class="text-sm text-gray font-400">
           ${new FixedNumber(share, token.decimal)
-            .mul(new FixedNumber(BigInt(+token.price * 1e24), 24))
+            .mul(new FixedNumber(BigInt(Math.trunc(+token.price * 1e24)), 24))
             .format()}
         </div>
       </div>
