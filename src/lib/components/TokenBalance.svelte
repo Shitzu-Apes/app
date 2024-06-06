@@ -26,7 +26,7 @@
           alt={token.symbol}
           class="size-8 mr-2 rounded-full"
         />
-        <div>
+        <div class="text-white">
           {token.symbol}
           <div class="text-xs md:text-sm text-gray font-400">
             {reward.slice(0, 20)}
@@ -41,7 +41,7 @@
     {#await $tokenInfo$}
       <div class="i-svg-spinners:pulse-3 size-6" />
     {:then token}
-      <div class="text-right font-bold">
+      <div class="text-right font-bold text-white">
         {new FixedNumber(share, token.decimal).format()}
         <div class="text-sm text-gray font-400">
           ${new FixedNumber(share, token.decimal)

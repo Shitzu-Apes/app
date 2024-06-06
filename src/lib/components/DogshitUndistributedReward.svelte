@@ -2,7 +2,6 @@
   import BurnTheShit from "./BurnTheShit.svelte";
   import TokenBalance from "./TokenBalance.svelte";
 
-  import ModalContent from "$lib/layout/ModalContent.svelte";
   import { Dogshit, Pool, wallet } from "$lib/near";
   import { getTokenSortIndex } from "$lib/store";
 
@@ -26,7 +25,8 @@
   });
 </script>
 
-<ModalContent header="Track $DOGSHIT">
+<div class="flex flex-col w-[90%] mx-auto justify-center items-center">
+  <h1 class="text-2xl text-lime mb-6">Track $DOGSHIT</h1>
   {#await rewardsPromise}
     <div class="i-svg-spinners:pulse-3 size-6" />
   {:then rewards}
@@ -45,4 +45,4 @@
       </ul>
     </div>
   {/await}
-</ModalContent>
+</div>

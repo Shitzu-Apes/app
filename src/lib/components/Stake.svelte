@@ -2,7 +2,6 @@
   import { createTabs, melt } from "@melt-ui/svelte";
   import { writable } from "svelte/store";
   import { crossfade, fade, slide } from "svelte/transition";
-  import { bind } from "svelte-simple-modal";
   import { match } from "ts-pattern";
 
   import DogshitUndistributedReward from "./DogshitUndistributedReward.svelte";
@@ -10,7 +9,7 @@
 
   import Near from "$lib/assets/Near.svelte";
   import { TokenInput, BurnTheShit, Button } from "$lib/components";
-  import { ModalSize, modal$, modalSize$ } from "$lib/layout";
+  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import { wallet } from "$lib/near";
   import { memes, primaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
   import { FixedNumber } from "$lib/util";
@@ -134,8 +133,7 @@
   }
 
   function handleTrackDogShit() {
-    modalSize$.set(ModalSize.Small);
-    modal$.set(bind(DogshitUndistributedReward, {}));
+    openBottomSheet(DogshitUndistributedReward);
   }
 </script>
 

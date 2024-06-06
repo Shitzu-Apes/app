@@ -6,7 +6,7 @@
   import Near from "$lib/assets/Near.svelte";
   import { ConnectWallet } from "$lib/auth";
   import { Faq, Stake, MessageBox, ValidatorStatistics } from "$lib/components";
-  import { modal$ } from "$lib/layout";
+  import { close } from "$lib/layout/BottomSheet/Container.svelte";
   import {
     wallet,
     nearBalance,
@@ -168,7 +168,7 @@
           refreshNearBalance($accountId$);
           fetchStake($accountId$);
           fetchTotalStake();
-          $modal$ = null;
+          close();
         }}
       ></Stake>
     {:else}

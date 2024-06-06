@@ -7,9 +7,9 @@
   import dayjs from "dayjs";
   import localizedFormat from "dayjs/plugin/localizedFormat";
   import { onMount, onDestroy } from "svelte";
-  import { Modal } from "svelte-simple-modal";
 
-  import { Footer, Header, modal$, Body, modalCanClose$ } from "$lib/layout";
+  import { Footer, Header, Body } from "$lib/layout";
+  import { BottomSheet } from "$lib/layout/BottomSheet";
   import { ScreenSize } from "$lib/models";
   import { screenSize$ } from "$lib/screen-size";
   import {
@@ -51,36 +51,7 @@
   $: snackbarCanClose$ = $snackbarComponent$?.canClose$;
 </script>
 
-<Modal
-  show={$modal$}
-  closeButton={$modalCanClose$}
-  closeOnEsc={$modalCanClose$}
-  closeOnOuterClick={$modalCanClose$}
-  styleWindow={{
-    width: "var(--modal-width)",
-    maxWidth: "100vw",
-    maxHeight: "var(--modal-max-height)",
-    margin: "auto",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "stretch",
-    backgroundColor: "rgb(23 29 23)",
-    border: "2px solid var(--bright-border)",
-    boxShadow: "rgb(141 229 177) 0px 0px 1rem",
-  }}
-  styleWindowWrap={{
-    margin: "0",
-  }}
-  styleCloseButton={{
-    cursor: "pointer",
-    borderRadius: "25%",
-  }}
-  styleContent={{
-    maxHeight: "100%",
-    display: "flex",
-    flexDirection: "column",
-  }}
-/>
+<BottomSheet />
 
 <div class="bg-gradient-to-r bg-gradient-from-cyan bg-gradient-to-blue">
   <Snackbar

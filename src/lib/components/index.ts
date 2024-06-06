@@ -5,7 +5,6 @@ import BurnTheShit from "./BurnTheShit.svelte";
 import Button from "./Button.svelte";
 import BuyNft from "./BuyNft.svelte";
 import { DayPriceChart } from "./DayPriceChart";
-import Dexscreener from "./Dexscreener.svelte";
 import DogshitUndistributedReward from "./DogshitUndistributedReward.svelte";
 import Donation from "./Donation.svelte";
 import Faq from "./Faq.svelte";
@@ -27,7 +26,6 @@ export {
   BurnTheShit,
   Button,
   BuyNft,
-  Dexscreener,
   DayPriceChart,
   DogshitUndistributedReward,
   Donation,

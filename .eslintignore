@@ -4,3 +4,6 @@ package-lock.json
 yarn.lock
 /abi
 /src/smui.css
+
+# need to support all Svelte Component
+src/lib/layout/BottomSheet

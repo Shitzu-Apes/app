@@ -1,13 +1,10 @@
 <script lang="ts">
-  import { bind } from "svelte-simple-modal";
-
   import SHITZU_FACE from "$lib/assets/logo/shitzu_face.svg";
   import { Button, BuyNft } from "$lib/components";
-  import { ModalSize, modal$, modalSize$ } from "$lib/layout";
+  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
 
   function handleOpenNftBuyDialog() {
-    modalSize$.set(ModalSize.Small);
-    modal$.set(bind(BuyNft, {}));
+    openBottomSheet(BuyNft);
   }
 </script>
 

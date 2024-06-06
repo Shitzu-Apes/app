@@ -1,14 +1,6 @@
 <script lang="ts">
-  import { bind } from "svelte-simple-modal";
-
-  import { Dexscreener, RefBanner, ShitzuSwap } from "$lib/components";
-  import { ModalSize, modal$, modalSize$ } from "$lib/layout";
+  import { RefBanner, ShitzuSwap } from "$lib/components";
   import { memes } from "$lib/store";
-
-  export async function showPriceChart() {
-    modalSize$.set(ModalSize.Large);
-    modal$.set(bind(Dexscreener, {}));
-  }
 </script>
 
 <div class="flex flex-col gap-[1.2rem]">

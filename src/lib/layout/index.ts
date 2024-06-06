@@ -1,8 +1,5 @@
 import Body from "./Body.svelte";
 import Footer from "./Footer.svelte";
 import Header from "./Header.svelte";
-import ModalContent from "./ModalContent.svelte";
 
-export { Body, Footer, Header, ModalContent };
-
-export * from "./modal";
+export { Body, Footer, Header };
