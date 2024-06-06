@@ -207,7 +207,7 @@
 
         {#if ranking.length > 3}
           <ol
-            class="mt-5 flex flex-col border-2 border-lime rounded-xl bg-black"
+            class="mt-5 flex flex-col border-2 border-lime rounded-xl bg-black overflow-hidden"
           >
             {#each ranking.slice(3) as { token_id, account_id, score }, i (account_id)}
               <li
