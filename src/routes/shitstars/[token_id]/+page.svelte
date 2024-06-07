@@ -106,14 +106,14 @@
 </script>
 
 <main class="not-prose w-full flex flex-col items-center justify-center">
-  <a href="/shitstars" class="mr-auto">
-    <div class="i-mdi:chevron-left size-8" />
+  <a href="/shitstars" class="mr-auto mt-3">
+    <div class="i-mdi:arrow-left size-8" />
   </a>
   {#await token}
     <div transition:slide class="i-svg-spinners:pulse-3 size-40" />
   {:then token}
     <div class="w-full" transition:slide>
-      <div class="w-full flex gap-3 my-6">
+      <div class="w-full flex gap-3 mb-6 mt-3">
         <div class="relative">
           <Squircle
             src="{import.meta.env.VITE_NFT_BASE_URL}/{token_id}.png"
