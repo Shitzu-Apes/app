@@ -5,3 +5,4 @@ export * from "./nft";
 export * from "./pool";
 export * from "./ref";
 export * from "./wallet";
+export * from "./rewarder";

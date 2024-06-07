@@ -1,0 +1,64 @@
+{
+  "Backgrounds": {
+    "Black Dragon": 0.002,
+    "Cosmos": 0.046,
+    "Garden": 0.159,
+    "Doghouse": 0.391,
+    "Pool": 0.402
+  },
+  "Base": {
+    "Base": 1.0
+  },
+  "Clothes": {
+    "Astronaut": 0.005,
+    "Kimono": 0.008,
+    "Naked": 0.009,
+    "Puffer Jacket": 0.033,
+    "Aurora Swag": 0.038,
+    "Dogtag": 0.067,
+    "Jumper": 0.084,
+    "Floral": 0.143,
+    "Resto Worker": 0.144,
+    "Tux": 0.156,
+    "NEAR Swag": 0.156,
+    "Tank Top": 0.157
+  },
+  "Eyes": {
+    "NVG": 0.007,
+    "Dizzy": 0.008,
+    "Visor": 0.019,
+    "Disguise": 0.024,
+    "Eyepatch": 0.07,
+    "Blindfold": 0.072,
+    "Heart Eyes": 0.154,
+    "3D Glasses": 0.158,
+    "Squeal": 0.161,
+    "Crypto Laser Eyes": 0.162,
+    "Monocle": 0.165
+  },
+  "Headwears": {
+    "Crown": 0.004,
+    "Astronaut Helmet": 0.006,
+    "None": 0.007,
+    "Cowboy Hat": 0.035,
+    "Hopping Zombie Hat": 0.041,
+    "Clown": 0.065,
+    "Noogler Hat": 0.149,
+    "Funky Earring": 0.162,
+    "Art hat": 0.166,
+    "Viking": 0.175,
+    "Afro": 0.19
+  },
+  "Mouths": {
+    "None": 0.001,
+    "Dead Rat": 0.027,
+    "Plushy": 0.037,
+    "Dead Squirrel": 0.071,
+    "Bone": 0.073,
+    "Dogtoy": 0.152,
+    "Party Blower": 0.153,
+    "Growl": 0.154,
+    "Pipe": 0.162,
+    "Tongue out": 0.17
+  }
+}
