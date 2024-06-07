@@ -6,18 +6,27 @@
   import { match } from "ts-pattern";
 
   import DogshitUndistributedReward from "./DogshitUndistributedReward.svelte";
+  import MessageBox from "./MessageBox.svelte";
 
   import Near from "$lib/assets/Near.svelte";
   import { TokenInput, BurnTheShit, Button } from "$lib/components";
   import { ModalSize, modal$, modalSize$ } from "$lib/layout";
   import { wallet } from "$lib/near";
-  import { memes } from "$lib/store";
+  import { memes, primaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
   import { FixedNumber } from "$lib/util";
 
   export let walletConnected: boolean;
   export let nearBalance: FixedNumber;
   export let stake: FixedNumber;
   export let afterUpdateBalances: () => void;
+
+  const { accountId$ } = wallet;
+
+  $: {
+    if ($accountId$) {
+      refreshPrimaryNftOf($accountId$);
+    }
+  }
 
   const [send, receive] = crossfade({
     duration: 300,
@@ -260,6 +269,16 @@
         >
           Track $DOGSHIT <div class="i-mdi:arrow-right size-5 ml-1" />
         </button>
+      </div>
+      <div class="text-amber text-xs mt-3">
+        {#await $primaryNftTokenId then token}
+          {#if !token}
+            <MessageBox type="warning">
+              You haven't staked an NFT and won't get 25% boost on your $DOGSHIT
+              rewards
+            </MessageBox>
+          {/if}
+        {/await}
       </div>
     </div>
   </div>
