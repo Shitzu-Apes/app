@@ -120,7 +120,7 @@
         <div class="flex flex-col justify-center items-start">
           <Squircle
             class="size-24 text-lime flex-1"
-            src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{token.token_id}.png"
+            src="{import.meta.env.VITE_NFT_BASE_URL}/{token.token_id}.png"
           />
         </div>
         <div
@@ -173,16 +173,23 @@
               >
                 <Squircle
                   class="size-24 text-transparent hover:text-lime"
-                  src="https://bafybeifqejvrnlzraceyapuzne6d2cl2s5bolosrufpwp3lw22pqfcafo4.ipfs.nftstorage.link/{nft.token_id}.png"
+                  src="{import.meta.env.VITE_NFT_BASE_URL}/{nft.token_id}.png"
                 />
 
                 <!-- banner bottom center of the image to show token id -->
                 <div
-                  class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full border-lime bg-lime-9/90 text-lime text-center w-full font-bold flex justify-center items-center"
+                  class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 translate-y-0 bg-lime text-black text-center px-2 rounded-full font-bold flex justify-center items-center"
                 >
-                  {#if selectedNftTokenId === nft.token_id}
-                    <div class="i-mdi:check size-5 text-current" />
-                  {/if}
+                  <div class="relative size-5">
+                    <div
+                      class="absolute inset-0 i-mdi:check-box-outline size-5 text-current"
+                      class:opacity-0={selectedNftTokenId !== nft.token_id}
+                    />
+                    <div
+                      class="absolute inset-0 i-mdi:check-box-outline-blank size-5 opacity-0 text-black"
+                      class:opacity-100={selectedNftTokenId !== nft.token_id}
+                    />
+                  </div>
                   {nft.token_id}
                 </div>
               </button>
