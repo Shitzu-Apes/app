@@ -3,13 +3,19 @@
   import { writable } from "svelte/store";
 
   import Button from "./Button.svelte";
+  import MessageBox from "./MessageBox.svelte";
   import TokenInput from "./TokenInput.svelte";
 
   import SHITZU from "$lib/assets/logo/shitzu.webp";
   import SHITZU_FACE from "$lib/assets/logo/shitzu_face.svg";
   import { wallet } from "$lib/near";
   import { showSnackbar } from "$lib/snackbar";
-  import { refreshShitzuBalance, shitzuBalance } from "$lib/store";
+  import {
+    primaryNftTokenId,
+    refreshPrimaryNftOf,
+    refreshShitzuBalance,
+    shitzuBalance,
+  } from "$lib/store";
   import { FixedNumber } from "$lib/util";
 
   const SUGGESTED_AMOUNT = [
@@ -30,6 +36,12 @@
   const { accountId$ } = wallet;
 
   $: refreshShitzuBalance($accountId$);
+
+  $: {
+    if ($accountId$) {
+      refreshPrimaryNftOf($accountId$);
+    }
+  }
 
   $: if ($shitzuBalance) {
     updateDefaultInput($shitzuBalance);
@@ -138,9 +150,24 @@
     {#if error}
       <span class="text-red-500">{error}</span>
     {:else}
-      You are donating {$input$?.format() ?? "0"} SHITZU and will earn
-      {$input$?.mul(new FixedNumber(4n)).format() ?? "0"} Shitstars! Become the Shitstar
-      - your contribution matters!
+      {#await $primaryNftTokenId then token}
+        {#if token}
+          <span class="leading-tight inline-block mt-2">
+            You are donating {$input$?.format() ?? "0"} SHITZU and SHITZU Revival
+            #{token.token_id}
+            will earn
+            {$input$?.mul(new FixedNumber(4n)).format() ?? "0"} Shitstars! Become
+            the Shitstar - your contribution matters!
+          </span>
+        {:else}
+          <div class="mt-2">
+            <MessageBox type="warning">
+              You haven't staked an NFT and won't earn any Shitstars - But your
+              contribution still matters!
+            </MessageBox>
+          </div>
+        {/if}
+      {/await}
     {/if}
   </span>
   <Button
