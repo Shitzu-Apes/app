@@ -117,7 +117,7 @@
           </div>
           <!-- First place -->
           <li class="flex flex-col items-center">
-            <div class="relative mb-4">
+            <a href="/shitstars/{ranking[0].token_id}" class="relative mb-4">
               <Squircle
                 src="{BASE_URL}/{ranking[0].token_id}.png"
                 class="text-amber size-34"
@@ -127,7 +127,7 @@
               >
                 1
               </div>
-            </div>
+            </a>
 
             <div
               class="font-bold text-lg leading-snug text-black max-w-[200px] text-ellipsis overflow-hidden"
@@ -146,7 +146,10 @@
           <div class="w-full flex justify-between px-2 -mt-4">
             {#if ranking.length > 1}
               <li class="flex flex-col items-center">
-                <div class="relative mb-4">
+                <a
+                  href="/shitstars/{ranking[1].token_id}"
+                  class="relative mb-4"
+                >
                   <Squircle
                     class="size-28 text-coolgray"
                     src="{BASE_URL}/{ranking[1].token_id}.png"
@@ -156,7 +159,7 @@
                   >
                     2
                   </div>
-                </div>
+                </a>
 
                 <div
                   class="font-bold text-lg leading-snug text-black max-w-[200px] text-ellipsis overflow-hidden"
@@ -175,7 +178,10 @@
             {#if ranking.length > 2}
               <!-- Third Place -->
               <li class="flex flex-col items-center">
-                <div class="relative mb-4">
+                <a
+                  href="/shitstars/{ranking[2].token_id}"
+                  class="relative mb-4"
+                >
                   <Squircle
                     class="size-28 text-red"
                     src="{BASE_URL}/{ranking[2].token_id}.png"
@@ -185,7 +191,7 @@
                   >
                     3
                   </div>
-                </div>
+                </a>
 
                 <div
                   class="font-bold text-lg leading-snug text-black max-w-[200px] text-ellipsis overflow-hidden"
@@ -214,12 +220,12 @@
                   ? 'bg-lime/50'
                   : ''}"
               >
-                <div class="mr-3">
+                <a href="/shitstars/{token_id}" class="mr-3">
                   <Squircle
                     class="size-18 text-lime"
                     src="{BASE_URL}/{token_id}.png"
                   />
-                </div>
+                </a>
 
                 <div class="max-w-[200px]">
                   <div class="font-light text-lg text-ellipsis overflow-hidden">
