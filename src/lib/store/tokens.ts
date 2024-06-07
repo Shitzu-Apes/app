@@ -5,6 +5,7 @@ import BlackDragonLogo from "$lib/assets/logo/blackdragon.png";
 import IntelNearLogo from "$lib/assets/logo/intelnear.jpeg";
 import LonkLogo from "$lib/assets/logo/lonk.png";
 import NDCLogo from "$lib/assets/logo/ndc.jpeg";
+import PussyLogo from "$lib/assets/logo/pussy.webp";
 import ShitzuLogo from "$lib/assets/logo/shitzu.webp";
 import { Ft, Ref, type PoolInfo } from "$lib/near";
 
@@ -118,6 +119,8 @@ const refPrices$ = readable<
           const token_id = token_ids[i] as keyof PoolIdsType;
           if (token_id === "blackdragon.tkn.near") {
             meta.icon = BlackDragonLogo;
+          } else if (token_id === "pussy.laboratory.jumpfinance.near") {
+            meta.icon = PussyLogo;
           }
           acc[token_id] = meta;
         }
