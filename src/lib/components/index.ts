@@ -10,7 +10,7 @@ import DogshitUndistributedReward from "./DogshitUndistributedReward.svelte";
 import Donation from "./Donation.svelte";
 import Faq from "./Faq.svelte";
 import MessageBox from "./MessageBox.svelte";
-import PrimaryNft from "./PrimaryNft.svelte";
+import PrimaryNft from "./PrimaryNft";
 import ShitzuSwap from "./ShitzuSwap.svelte";
 import Squircle from "./Squircle.svelte";
 import Stake from "./Stake.svelte";

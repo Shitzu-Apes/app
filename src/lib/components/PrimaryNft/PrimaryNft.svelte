@@ -2,7 +2,9 @@
   import type { HereCall } from "@here-wallet/core";
   import { slide } from "svelte/transition";
 
-  import Squircle from "./Squircle.svelte";
+  import Squircle from "../Squircle.svelte";
+
+  import NftListItem from "./NftListItem.svelte";
 
   import { BuyNftBanner, Button } from "$lib/components";
   import { Nft, wallet, type Token } from "$lib/near";
@@ -117,12 +119,15 @@
       </div>
     {:then token}
       {#if token}
-        <div class="flex flex-col justify-center items-start">
+        <a
+          href="/shitstars/{token.token_id}"
+          class="flex flex-col justify-center items-start"
+        >
           <Squircle
             class="size-24 text-lime flex-1"
             src="{import.meta.env.VITE_NFT_BASE_URL}/{token.token_id}.png"
           />
-        </div>
+        </a>
         <div
           class="flex flex-col justify-center items-start text-sm md:text-lg flex-1"
         >
@@ -165,34 +170,11 @@
             <li
               class="flex items-center w-[30%] py-4 place-content-center cursor-pointer"
             >
-              <button
-                class="relative"
-                class:border-transparent={selectedNftTokenId !== nft.token_id}
-                class:border-lime={selectedNftTokenId === nft.token_id}
+              <NftListItem
                 on:click={() => (selectedNftTokenId = nft.token_id)}
-              >
-                <Squircle
-                  class="size-24 text-transparent hover:text-lime"
-                  src="{import.meta.env.VITE_NFT_BASE_URL}/{nft.token_id}.png"
-                />
-
-                <!-- banner bottom center of the image to show token id -->
-                <div
-                  class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 translate-y-0 bg-lime text-black text-center px-2 rounded-full font-bold flex justify-center items-center"
-                >
-                  <div class="relative size-5">
-                    <div
-                      class="absolute inset-0 i-mdi:check-box-outline size-5 text-current"
-                      class:opacity-0={selectedNftTokenId !== nft.token_id}
-                    />
-                    <div
-                      class="absolute inset-0 i-mdi:check-box-outline-blank size-5 opacity-0 text-black"
-                      class:opacity-100={selectedNftTokenId !== nft.token_id}
-                    />
-                  </div>
-                  {nft.token_id}
-                </div>
-              </button>
+                isSelectedToken={nft.token_id === selectedNftTokenId}
+                tokenId={nft.token_id}
+              />
             </li>
           {/each}
         </ul>
