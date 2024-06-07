@@ -1,16 +1,33 @@
-import { writable } from "svelte/store";
+import { type Writable, derived, writable } from "svelte/store";
 
 import { Nft, type Token } from "$lib/near";
 import { Rewarder } from "$lib/near/rewarder";
 import { FixedNumber } from "$lib/util";
 
-export const primaryNftTokenId = writable<
-  Promise<{
-    token_id: string;
-    score: FixedNumber;
-    token: Token;
-  } | null>
->(new Promise((resolve) => resolve(null)));
+export type PrimaryNft = {
+  token_id: string;
+  score: FixedNumber;
+  token: Token;
+};
+
+export const primaryNftTokenId = writable<Promise<PrimaryNft | null>>(
+  new Promise((resolve) => resolve(null)),
+);
+
+export const resolvedPrimaryNftTokenId = derived<
+  Writable<Promise<PrimaryNft | null>>,
+  PrimaryNft | null
+>(
+  primaryNftTokenId,
+  ($primaryNftTokenId, set) => {
+    $primaryNftTokenId.then((primaryNftTokenId) => {
+      if (primaryNftTokenId) {
+        set(primaryNftTokenId);
+      }
+    });
+  },
+  null,
+);
 
 export function refreshPrimaryNftOf(accountId: string) {
   primaryNftTokenId.set(

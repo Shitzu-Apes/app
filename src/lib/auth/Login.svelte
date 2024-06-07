@@ -4,10 +4,10 @@
   import { showWalletSelector } from ".";
 
   import { page } from "$app/stores";
-  import { Button } from "$lib/components";
+  import { Button, Squircle } from "$lib/components";
   import { wallet } from "$lib/near";
+  import { resolvedPrimaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
 
-  const iconUrl$ = wallet.iconUrl$;
   const accountId$ = wallet.accountId$;
 
   const {
@@ -15,45 +15,44 @@
   } = createDropdownMenu();
 
   $: isActive = $page.url.pathname === "/account";
+
+  $: if ($accountId$) {
+    refreshPrimaryNftOf($accountId$);
+  }
 </script>
 
 <div class="login">
-  {#await $iconUrl$ then iconUrl}
-    {#if wallet.isTG}
-      <a
-        href="/account"
-        class="border-2 border-lime hover:bg-lime/15 flex justify-center items-center decoration-none px-3 py-1 rounded-xl"
-        class:bg-lime={isActive}
-        class:bg-opacity-15={isActive}
-      >
-        <img src={iconUrl} alt="wallet icon" class="w-4 h-4 mr-2" />
-        {$accountId$}
+  {#if $accountId$}
+    <div class="flex items-center gap-1">
+      <a href="/account" class="size-8 text-lime flex items-center gap-2">
+        <Squircle
+          src={$resolvedPrimaryNftTokenId
+            ? `${import.meta.env.VITE_NFT_BASE_URL}/${$resolvedPrimaryNftTokenId.token_id}.png`
+            : undefined}
+          class={isActive ? "text-emerald" : "text-lime"}
+        />
       </a>
-    {:else if $accountId$ && iconUrl}
-      <button
-        use:melt={$trigger}
-        class="border-2 border-lime hover:bg-lime/15 flex justify-center items-center decoration-none px-3 py-1 rounded-xl"
-        class:bg-lime={isActive}
-        class:bg-opacity-15={isActive}
-      >
-        <img src={iconUrl} alt="wallet icon" class="w-4 h-4 mr-2" />
-        {$accountId$}
-      </button>
-    {:else}
-      <Button
-        onClick={() => {
-          if (wallet.isTG) {
-            wallet.loginViaHere();
-          } else {
-            showWalletSelector();
-          }
-        }}
-        type="secondary"
-      >
-        Connect Wallet
-      </Button>
-    {/if}
-  {/await}
+      {#if !wallet.isTG}
+        <button
+          use:melt={$trigger}
+          class="bg-lime hover:bg-lime/15 flex justify-center items-center decoration-none i-mdi:menu size-6"
+        />
+      {/if}
+    </div>
+  {:else}
+    <Button
+      onClick={() => {
+        if (wallet.isTG) {
+          wallet.loginViaHere();
+        } else {
+          showWalletSelector();
+        }
+      }}
+      type="secondary"
+    >
+      Connect
+    </Button>
+  {/if}
 
   <div
     use:melt={$menu}

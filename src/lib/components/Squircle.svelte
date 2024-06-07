@@ -1,6 +1,8 @@
 <script lang="ts">
   import { getSvgPath } from "figma-squircle";
 
+  import SHITZU_FACE from "$lib/assets/logo/shitzu_face.svg";
+
   export let src: string | undefined = undefined;
   let className: string | undefined = undefined;
   export { className as class };
@@ -46,5 +48,16 @@
     stroke-width="10"
     fill={src && ready ? "transparent" : "currentColor"}
     class="transition duration-200 ease-in-out"
+  />
+  <image
+    x={10}
+    y={10}
+    href={SHITZU_FACE}
+    clip-path="path('{svgPath}')"
+    width="180"
+    height="180"
+    class="fill-lime {!(src && ready)
+      ? 'opacity-100'
+      : 'opacity-0'} transition duration-200 ease-in-out"
   />
 </svg>
