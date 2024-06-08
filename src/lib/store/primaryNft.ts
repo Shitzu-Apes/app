@@ -19,10 +19,19 @@ export const resolvedPrimaryNftTokenId = derived<
   PrimaryNft | null
 >(
   primaryNftTokenId,
-  ($primaryNftTokenId, set) => {
-    $primaryNftTokenId.then((primaryNftTokenId) => {
-      if (primaryNftTokenId) {
-        set(primaryNftTokenId);
+  ($primaryNftTokenId, _set, update) => {
+    $primaryNftTokenId.then((newPrimaryNft) => {
+      if (newPrimaryNft) {
+        update((currentPrimaryNft) => {
+          if (
+            currentPrimaryNft &&
+            currentPrimaryNft.token_id === newPrimaryNft.token_id
+          ) {
+            return currentPrimaryNft;
+          } else {
+            return newPrimaryNft;
+          }
+        });
       }
     });
   },
