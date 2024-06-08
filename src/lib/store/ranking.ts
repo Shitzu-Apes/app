@@ -1,27 +1,20 @@
 import { writable } from "svelte/store";
 
-import { Nft, Rewarder, type Token } from "$lib/near";
+import { Nft, Rewarder } from "$lib/near";
 import { FixedNumber } from "$lib/util";
 
 export const ranking = writable<
   Promise<
-    | {
-        token_id: string;
-        account_id: string;
-        score: FixedNumber;
-      }[]
-    | null
+    {
+      token_id: string;
+      account_id: string;
+      score: FixedNumber;
+    }[]
   >
->(new Promise((resolve) => resolve(null)));
+>(getLeaderboardWithNonStakedOwner(10));
 
-export async function refreshRanking(
-  primaryNft: {
-    token_id: string;
-    score: FixedNumber;
-    token: Token;
-  } | null,
-) {
-  const newRanking = Rewarder.getLeaderboard(10).then(async (ranking) => {
+async function getLeaderboardWithNonStakedOwner(limit: number = 10) {
+  return Rewarder.getLeaderboard(limit).then(async (ranking) => {
     const nonStakedNfts: string[] = ranking
       .flatMap(([, account]) => {
         const nonStaked = account.filter(([, accountId]) => accountId === null);
@@ -49,7 +42,6 @@ export async function refreshRanking(
 
     // the ranking is already sorted
     // we just need to flatten the array
-    let isInRanking = false;
     const result = ranking
       .flatMap(([score, accounts]) =>
         accounts.map((account) => {
@@ -64,11 +56,6 @@ export async function refreshRanking(
             }
           }
 
-          if (token_id === primaryNft?.token_id) {
-            account_id = "You";
-            isInRanking = true;
-          }
-
           return {
             token_id: account[0],
             account_id,
@@ -76,18 +63,85 @@ export async function refreshRanking(
           };
         }),
       )
-      .slice(0, 10);
-
-    if (!isInRanking && primaryNft) {
-      result.push({
-        token_id: primaryNft.token_id,
-        account_id: "You",
-        score: primaryNft.score,
-      });
-    }
+      .slice(0, limit);
 
     return result;
   });
+}
 
-  ranking.set(newRanking);
+export async function refreshRanking() {
+  // primaryNft: {
+  //   token_id: string;
+  //   score: FixedNumber;
+  //   token: Token;
+  // } | null,
+  // const newRanking = Rewarder.getLeaderboard(10).then(async (ranking) => {
+  //   const nonStakedNfts: string[] = ranking
+  //     .flatMap(([, account]) => {
+  //       const nonStaked = account.filter(([, accountId]) => accountId === null);
+  //       return nonStaked.map(([tokenId]) => tokenId);
+  //     })
+  //     .filter((tokenId) => tokenId !== null)
+  //     .flat() as string[];
+
+  //   const nonStakedTokens = await Promise.all(
+  //     nonStakedNfts.map(async (tokenId) => {
+  //       const owner = await Nft.nftToken(tokenId);
+  //       return [tokenId, owner.owner_id];
+  //     }),
+  //   ).then((tokens) => {
+  //     const tokenMap = tokens.reduce(
+  //       (acc, [tokenId, accountId]) => {
+  //         acc[tokenId] = accountId;
+  //         return acc;
+  //       },
+  //       {} as Record<string, string>,
+  //     );
+
+  //     return tokenMap;
+  //   });
+
+  //   // the ranking is already sorted
+  //   // we just need to flatten the array
+  //   let isInRanking = false;
+  //   const result = ranking
+  //     .flatMap(([score, accounts]) =>
+  //       accounts.map((account) => {
+  //         const token_id = account[0];
+  //         let account_id = account[1];
+
+  //         if (account_id === null) {
+  //           if (token_id in nonStakedTokens) {
+  //             account_id = nonStakedTokens[token_id];
+  //           } else {
+  //             account_id = "Anonymous";
+  //           }
+  //         }
+
+  //         if (token_id === primaryNft?.token_id) {
+  //           account_id = "You";
+  //           isInRanking = true;
+  //         }
+
+  //         return {
+  //           token_id: account[0],
+  //           account_id,
+  //           score: new FixedNumber(score.toString(), 18),
+  //         };
+  //       }),
+  //     )
+  //     .slice(0, 10);
+
+  //   if (!isInRanking && primaryNft) {
+  //     result.push({
+  //       token_id: primaryNft.token_id,
+  //       account_id: "You",
+  //       score: primaryNft.score,
+  //     });
+  //   }
+
+  //   return result;
+  // });
+
+  ranking.set(getLeaderboardWithNonStakedOwner(10));
 }

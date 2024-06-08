@@ -8,6 +8,7 @@ import { DayPriceChart } from "./DayPriceChart";
 import DogshitUndistributedReward from "./DogshitUndistributedReward.svelte";
 import Donation from "./Donation.svelte";
 import Faq from "./Faq.svelte";
+import Leaderboard from "./Leaderboard.svelte";
 import MessageBox from "./MessageBox.svelte";
 import PrimaryNft from "./PrimaryNft";
 import ShitzuSwap from "./ShitzuSwap.svelte";
@@ -30,6 +31,7 @@ export {
   DogshitUndistributedReward,
   Donation,
   Faq,
+  Leaderboard,
   MessageBox,
   PrimaryNft,
   ShitzuSwap,
