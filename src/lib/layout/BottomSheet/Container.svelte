@@ -24,10 +24,6 @@
 
 <script lang="ts">
   import { SvelteComponent } from "svelte";
-  import { slide } from "svelte/transition";
-
-  // let open = false;
-  let height: number = 0;
 </script>
 
 <div
@@ -38,18 +34,18 @@
   <div
     class="absolute max-w-[min(28rem,95%)] bg-gray-9 border-3 border-lime border-b-transparent rounded-t-xl w-full mx-auto bottom-[-60px] pb-[120px] left-1/2 {$open
       ? 'translate-y-0'
-      : 'translate-y-full'} -translate-x-1/2 pointer-events-auto transition duration-500 ease-in-out overscroll-contain"
-    style="min-height: {Math.max(400, height)}px;"
-    bind:clientHeight={height}
+      : 'translate-y-full'} -translate-x-1/2 pointer-events-auto transition duration-500 ease-in-out h-[100vh]"
   >
-    <div class="w-full">
-      <button
-        class="block i-mdi:close size-5 ml-auto bg-lime mr-3 mt-3"
-        on:click={close}
-      />
+    <button
+      class="absolute top-3 right-3 bg-lime rounded-full flex justify-center items-center px-1 py-1"
+      on:click={close}
+    >
+      <div class=" block i-mdi:close size-6 ml-auto bg-black" />
+    </button>
+    <div class="h-full w-full mt-14 pb-[60px]">
+      {#if $component}
+        <svelte:component this={$component.component} {...$component.props} />
+      {/if}
     </div>
-    {#if $component}
-      <svelte:component this={$component.component} {...$component.props} />
-    {/if}
   </div>
 </div>
