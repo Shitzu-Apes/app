@@ -100,7 +100,7 @@
   }
 </script>
 
-<div id="donation" class="mt-10">
+<div id="donation" class="mt-10 prose-lime prose prose-invert">
   <div class="flex justify-between items-center">
     <h2 class="mt-0">Donation</h2>
     {#await $shitzuBalance}
@@ -138,7 +138,7 @@
     {/each}
   </ol>
   <TokenInput
-    class="w-full mt-3 p-3 border border-black rounded-lg text-black appearance-none focus:outline-none focus:border-lime focus:ring-1 focus:ring-lime focus:ring-opacity-50 bg-white"
+    class="w-full mt-3 p-3 border border-lime rounded-lg text-lime appearance-none focus:outline-none focus:border-lime focus:ring-1 focus:ring-lime focus:ring-opacity-50 bg-transparent text-center text-xl"
     bind:this={input}
     bind:value={$inputValue$}
     decimals={18}
