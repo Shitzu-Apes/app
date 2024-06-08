@@ -32,7 +32,7 @@
     : 'pointer-events-none'}"
 >
   <div
-    class="absolute max-w-[min(28rem,95%)] bg-gray-9 border-3 border-lime border-b-transparent rounded-t-xl w-full mx-auto bottom-[-60px] pb-[120px] left-1/2 {$open
+    class="absolute max-w-[min(30rem,100%)] bg-dark border-3 border-lime border-b-transparent rounded-t-xl w-full mx-auto bottom-[-60px] pb-[120px] left-1/2 {$open
       ? 'translate-y-0'
       : 'translate-y-full'} -translate-x-1/2 pointer-events-auto transition duration-500 ease-in-out h-[100vh]"
   >
