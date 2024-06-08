@@ -2,6 +2,7 @@
   import { slide } from "svelte/transition";
 
   import { Button, Faq, Donation, Squircle } from "$lib/components";
+  import RetroGrid from "$lib/components/RetroGrid.svelte";
   import { wallet } from "$lib/near";
   import { refreshPrimaryNftOf } from "$lib/store";
   import { ranking } from "$lib/store/ranking";
@@ -30,9 +31,10 @@
       {:then ranking}
         <ol
           transition:slide
-          class="w-full bg-gradient-to-b bg-gradient-from-lime bg-gradient-to-emerald rounded-b-2xl py-3"
+          class="w-full bg-gradient-to-b bg-gradient-from-lime bg-gradient-to-emerald rounded-b-2xl py-3 overflow-hidden relative"
         >
-          <div class="w-full flex justify-end">
+          <RetroGrid />
+          <div class="w-full flex justify-end z-1">
             <a
               href="/account"
               class="text-black flex text-sm items-center mb-3 mr-3"
@@ -69,7 +71,7 @@
           </li>
 
           <!-- Second place -->
-          <div class="w-full flex justify-between px-2 -mt-4">
+          <div class="w-full flex justify-between px-2 -mt-4 z-1 relative">
             {#if ranking.length > 1}
               <li class="flex flex-col items-center">
                 <a
