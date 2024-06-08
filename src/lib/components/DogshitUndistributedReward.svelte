@@ -2,6 +2,7 @@
   import BurnTheShit from "./BurnTheShit.svelte";
   import TokenBalance from "./TokenBalance.svelte";
 
+  import { BottomSheetContent } from "$lib/layout/BottomSheet";
   import { Dogshit, Pool, wallet } from "$lib/near";
   import { getTokenSortIndex } from "$lib/store";
 
@@ -25,12 +26,17 @@
   });
 </script>
 
-<div class="flex flex-col w-full h-full mx-auto justify-start items-center">
-  <h1 class="text-xl text-lime mr-auto mx-3">Track $DOGSHIT</h1>
+<BottomSheetContent>
+  <slot slot="header">
+    <h1 class="text-xl text-lime mr-auto mx-3">Track $DOGSHIT</h1>
+  </slot>
+
   {#await rewardsPromise}
-    <div class="i-svg-spinners:pulse-3 size-6" />
+    <div class="w-full h-full flex items-center justify-center">
+      <div class="i-svg-spinners:pulse-3 size-20 text-lime" />
+    </div>
   {:then rewards}
-    <ul class="overflow-y-scroll block w-full">
+    <ul class="w-full overflow-y-auto h-full">
       {#each rewards as [reward, share]}
         <TokenBalance {reward} {share} />
       {/each}
@@ -41,4 +47,4 @@
       </li>
     </ul>
   {/await}
-</div>
+</BottomSheetContent>

@@ -18,7 +18,10 @@
 >
   <div>
     {#await $tokenInfo$}
-      <div class="i-svg-spinners:pulse-3 size-6 text-lime" />
+      <div class="flex justify-center items-center gap-2">
+        <div class="i-svg-spinners:wind-toy size-6 text-white" />
+        <div class="i-svg-spinners:bars-fade size-11 text-white" />
+      </div>
     {:then token}
       <div class="flex items-center gap-1">
         <img
@@ -39,7 +42,7 @@
   </div>
   <div>
     {#await $tokenInfo$}
-      <div class="i-svg-spinners:pulse-3 size-6" />
+      <div class="i-svg-spinners:bars-fade size-11 text-white" />
     {:then token}
       <div class="text-right font-bold text-white">
         {new FixedNumber(share, token.decimal).format()}
