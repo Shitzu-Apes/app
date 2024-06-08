@@ -18,13 +18,13 @@
     on:click
   >
     <Squircle
-      class="size-24 text-transparent hover:text-lime"
+      class="size-24 text-lime-2"
       src="{import.meta.env.VITE_NFT_BASE_URL}/{tokenId}.png"
     />
 
     <!-- banner bottom center of the image to show token id -->
     <div
-      class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 translate-y-0 bg-lime text-black text-center px-2 rounded-full font-bold flex justify-center items-center"
+      class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 translate-y-0 bg-lime-2 text-black text-center px-2 rounded-full font-bold flex justify-center items-center"
     >
       <div class="relative size-5">
         <div
@@ -44,7 +44,7 @@
       <div class="i-svg-spinners:bouncing-ball size-10" />
     {:then score}
       <div class="flex items-center gap-1">
-        <div class="i-mdi:stars size-4 text-lime" />
+        <div class="i-mdi:stars size-4 text-lime-2" />
         {new FixedNumber(score, 18).format()}
       </div>
     {/await}
