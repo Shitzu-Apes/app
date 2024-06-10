@@ -7,6 +7,8 @@
   import dayjs from "dayjs";
   import localizedFormat from "dayjs/plugin/localizedFormat";
   import { onMount, onDestroy } from "svelte";
+  import { cubicIn, cubicOut } from "svelte/easing";
+  import { blur } from "svelte/transition";
 
   import { Footer, Header, Body } from "$lib/layout";
   import { BottomSheet } from "$lib/layout/BottomSheet";
@@ -86,14 +88,20 @@
   </Snackbar>
 </div>
 
-<div class="bg-[#222] min-h-screen w-screen max-w-full">
+{#key "shitzu"}
   <div
-    class="flex flex-col min-h-screen prose prose-invert prose-lime mx-auto max-w-none"
+    out:blur={{ duration: 500, easing: cubicOut }}
+    in:blur={{ duration: 500, delay: 500, easing: cubicIn }}
+    class="bg-[#222] min-h-screen w-screen max-w-full"
   >
-    <Header />
-    <Body>
-      <slot />
-    </Body>
-    <Footer />
+    <div
+      class="flex flex-col min-h-screen prose prose-invert prose-lime mx-auto max-w-none"
+    >
+      <Header />
+      <Body>
+        <slot />
+      </Body>
+      <Footer />
+    </div>
   </div>
-</div>
+{/key}

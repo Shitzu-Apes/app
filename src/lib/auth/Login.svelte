@@ -5,8 +5,6 @@
 
   import { page } from "$app/stores";
   import { Button, Squircle } from "$lib/components";
-  import DonationSheet from "$lib/components/DonationSheet.svelte";
-  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import { wallet } from "$lib/near";
   import { resolvedPrimaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
 
@@ -27,12 +25,12 @@
   {#if $accountId$}
     <!-- Donation Button -->
     <div class="flex items-center gap-1">
-      <button
-        class="bg-lime mr-2 px-3 py-0.5 rounded text-black"
-        on:click={() => openBottomSheet(DonationSheet)}
+      <a
+        href="/funmeme"
+        class="bg-lime mr-2 px-3 py-0.5 rounded text-black decoration-none"
       >
-        Donate
-      </button>
+        fun.meme
+      </a>
       <a href="/account" class="size-8 text-lime flex items-center gap-2">
         <Squircle
           src={$resolvedPrimaryNftTokenId
