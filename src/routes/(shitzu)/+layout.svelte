@@ -1,7 +1,7 @@
 <script lang="ts">
   import "@unocss/reset/tailwind.css";
   import "virtual:uno.css";
-  import "../app.scss";
+  import "../../app.scss";
 
   import Snackbar, { Actions, Label } from "@smui/snackbar";
   import dayjs from "dayjs";
