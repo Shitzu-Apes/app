@@ -36,7 +36,7 @@
       <div class="i-svg-spinners:pulse-3 size-20 text-lime" />
     </div>
   {:then rewards}
-    <ul class="w-full overflow-y-auto h-full">
+    <ul class="w-full">
       {#each rewards as [reward, share]}
         <TokenBalance {reward} {share} />
       {/each}

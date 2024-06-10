@@ -27,25 +27,19 @@
 </script>
 
 <div
-  class="min-h-screen fixed inset-0 w-full h-full z-1000 {$open
-    ? 'pointer-events-auto'
-    : 'pointer-events-none'}"
+  class="fixed bg-black bottom-0 left-0 right-0 w-full max-w-[min(30rem,100%)] mx-auto h-[90svh] z-1000 transform {$open
+    ? 'translate-y-0'
+    : 'translate-y-full'} duration-500 rounded-t-xl border-3 border-b-0 border-lime"
 >
-  <div
-    class="absolute max-w-[min(30rem,100%)] bg-dark border-3 border-lime border-b-transparent rounded-t-xl w-full mx-auto bottom-[-60px] pb-[120px] left-1/2 {$open
-      ? 'translate-y-0'
-      : 'translate-y-full'} -translate-x-1/2 pointer-events-auto transition duration-500 ease-in-out h-[100vh]"
-  >
+  <div class="h-full">
     <button
       class="absolute top-3 right-3 bg-lime rounded-full flex justify-center items-center px-1 py-1"
       on:click={close}
     >
       <div class=" block i-mdi:close size-6 ml-auto bg-black" />
     </button>
-    <div class="h-full w-full mt-14 pb-[60px]">
-      {#if $component}
-        <svelte:component this={$component.component} {...$component.props} />
-      {/if}
-    </div>
+    {#if $component}
+      <svelte:component this={$component.component} {...$component.props} />
+    {/if}
   </div>
 </div>
