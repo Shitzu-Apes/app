@@ -6,12 +6,7 @@
 
 <BottomSheetContent>
   <slot slot="header">
-    <div>
-      <p class="text-lime-3 text-base mx-3">
-        Staked NFT of the donor will receive shitstars equal to 4x donation
-        amount and donated amount will help fund shitzu boost activity
-      </p>
-    </div>
+    <h1 class="text-xl text-lime mr-auto mx-3">Support SHITZU</h1>
   </slot>
 
   <slot>
