@@ -32,7 +32,7 @@
 
 <BottomSheetContent>
   <slot slot="header">
-    <h1 class="text-2xl text-lime mb-6 mr-auto mx-3">Buy SHITZU Revival</h1>
+    <h1 class="text-2xl text-lime mr-auto mx-3">Buy SHITZU Revival</h1>
   </slot>
   <slot>
     <ul
