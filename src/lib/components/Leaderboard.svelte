@@ -16,23 +16,25 @@
 
   export let primaryNft: PrimaryNft | null = null;
 
-  ranking = ranking?.map(({ token_id, account_id, score }) => {
-    return {
-      token_id,
-      account_id: token_id === primaryNft?.token_id ? "You" : account_id,
-      score,
-    };
-  });
-
-  if (
-    ranking.find(({ account_id }) => account_id === "You") === undefined &&
-    primaryNft
-  ) {
-    ranking.push({
-      token_id: primaryNft.token_id,
-      account_id: "You",
-      score: primaryNft?.score,
+  $: {
+    ranking = ranking?.map(({ token_id, account_id, score }) => {
+      return {
+        token_id,
+        account_id: token_id === primaryNft?.token_id ? "You" : account_id,
+        score,
+      };
     });
+
+    if (
+      ranking.find(({ account_id }) => account_id === "You") === undefined &&
+      primaryNft
+    ) {
+      ranking.push({
+        token_id: primaryNft.token_id,
+        account_id: "You",
+        score: primaryNft?.score,
+      });
+    }
   }
 
   const BASE_URL = import.meta.env.VITE_NFT_BASE_URL;
@@ -142,7 +144,7 @@
     <ol
       class="mt-5 flex flex-col border-2 border-lime rounded-xl bg-black overflow-hidden"
     >
-      {#each ranking.slice(3) as { token_id, account_id, score }, i (account_id)}
+      {#each ranking.slice(3) as { token_id, account_id, score }, i (token_id)}
         <li
           class="flex justify-center items-center text-white py-3 px-3 border-b border-lime last:border-none {account_id ===
           'You'
