@@ -258,7 +258,7 @@
         {/each}
       </ul>
       <div class="text-sm flex justify-evenly mt-6 gap-2">
-        <BurnTheShit class="text-sm rounded-lg">
+        <BurnTheShit class="text-sm rounded-lg" on:claimSuccess>
           Claim & burn the 💩
         </BurnTheShit>
         <button

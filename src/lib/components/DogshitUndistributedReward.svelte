@@ -8,22 +8,28 @@
 
   const { accountId$ } = wallet;
 
-  $: rewardsPromise = new Promise<
-    Awaited<ReturnType<typeof Dogshit.simulateBurn>>
-  >((resolve, reject) => {
-    if (!$accountId$) {
-      return reject("No account");
-    }
-    Pool.getUnclaimedReward($accountId$, 0)
-      .then((balance) => Dogshit.simulateBurn(balance.toString()))
-      .then((shares) => {
-        shares.sort(
-          (a, b) => getTokenSortIndex(b[0]) - getTokenSortIndex(a[0]),
-        );
-        resolve(shares);
-      })
-      .catch(reject);
-  });
+  let rewardsPromise: Promise<Awaited<ReturnType<typeof Dogshit.simulateBurn>>>;
+
+  refreshRewards();
+
+  function refreshRewards() {
+    rewardsPromise = new Promise<
+      Awaited<ReturnType<typeof Dogshit.simulateBurn>>
+    >((resolve, reject) => {
+      if (!$accountId$) {
+        return reject("No account");
+      }
+      Pool.getUnclaimedReward($accountId$, 0)
+        .then((balance) => Dogshit.simulateBurn(balance.toString()))
+        .then((shares) => {
+          shares.sort(
+            (a, b) => getTokenSortIndex(b[0]) - getTokenSortIndex(a[0]),
+          );
+          resolve(shares);
+        })
+        .catch(reject);
+    });
+  }
 </script>
 
 <BottomSheetContent>
@@ -41,7 +47,10 @@
         <TokenBalance {reward} {share} />
       {/each}
       <li>
-        <BurnTheShit class="w-full py-3 rounded-none">
+        <BurnTheShit
+          class="w-full py-3 rounded-none"
+          on:claimSuccess={refreshRewards}
+        >
           Claim & burn the 💩
         </BurnTheShit>
       </li>

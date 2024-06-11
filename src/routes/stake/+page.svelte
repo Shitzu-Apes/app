@@ -170,6 +170,7 @@
           fetchTotalStake();
           close();
         }}
+        on:claimSuccess={fetchFarm}
       ></Stake>
     {:else}
       <div class="w-full" transition:slide>
