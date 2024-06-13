@@ -10,7 +10,7 @@
   <div
     in:blur={{ duration: 500, delay: 500, easing: cubicIn }}
     out:blur={{ duration: 500, easing: cubicOut }}
-    class="w-full h-screen bg-gradient-to-t bg-gradient-from-cyan bg-gradient-to-blue"
+    class="w-full h-screen bg-dark"
   >
     <slot />
   </div>
