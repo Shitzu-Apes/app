@@ -14,7 +14,14 @@
     }
   }
 
-  refreshRanking();
+  if (typeof window !== "undefined") {
+    const url = new URL(window.location.href);
+    const primaryNftTokenId =
+      parseInt(url.searchParams.get("limit") || "10") || 10;
+    refreshRanking(primaryNftTokenId);
+  } else {
+    refreshRanking(10);
+  }
 </script>
 
 <div>
