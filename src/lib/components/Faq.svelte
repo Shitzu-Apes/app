@@ -24,7 +24,8 @@
         </div>
       </summary>
       <p class="px-2 py-3 text-sm text-gray-300 cursor-auto">
-        {qna.answer}
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        {@html qna.answer}
       </p>
     </details>
   {/each}
