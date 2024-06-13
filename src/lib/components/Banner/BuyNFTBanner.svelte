@@ -4,22 +4,28 @@
   import { NFT_LINKS } from "$lib/components/BuyNft.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
 
+  export let variant: "large" | "small" = "large";
+
   function handleOpenNftBuyDialog() {
     openBottomSheet(BuyNft);
   }
 </script>
 
-<div class="flex flex-col not-prose text-black">
-  <h2 class="text-base font-bold">SHITZU Revival NFT</h2>
-  <div class="text-sm">
-    Stake SHITZU Revival NFT as your primary NFT and start accumulating
-    <div class="inline-flex font-bold items-center align-bottom">
-      <div class="i-mdi:stars size-4 mr-1" />
-      Shitstars
+<div class="flex flex-col not-prose text-black w-full">
+  {#if variant === "large"}
+    <h2 class="text-base font-bold">SHITZU Revival NFT</h2>
+    <div class="text-sm">
+      Stake SHITZU Revival NFT as your primary NFT and start accumulating
+      <div class="inline-flex font-bold items-center align-bottom">
+        <div class="i-mdi:stars size-4 mr-1" />
+        Shitstars
+      </div>
     </div>
-  </div>
+  {/if}
 
-  <div class="flex justify-between items-center mt-5">
+  <div
+    class="flex justify-between items-center {variant === 'large' && 'mt-5'}"
+  >
     <ul class="flex">
       {#each NFT_LINKS as { platform, logo }}
         <li class="first:pl-2 -ml-2">

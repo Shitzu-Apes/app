@@ -1,6 +1,7 @@
 <script lang="ts">
   import { slide } from "svelte/transition";
 
+  import BuyNftBanner from "./Banner/BuyNFTBanner.svelte";
   import Button from "./Button.svelte";
   import RetroGrid from "./RetroGrid.svelte";
   import Squircle from "./Squircle.svelte";
@@ -47,9 +48,12 @@
   >
     <RetroGrid />
     <div class="w-full flex justify-end z-1">
-      <a href="/account" class="text-black flex text-sm items-center mb-3 mr-3">
-        Participate{" "}
-        <div class="i-mdi:arrow-right size-3" />
+      <a
+        href="#FAQ"
+        class="text-black flex text-sm items-center mb-3 mr-3 gap-0.5"
+      >
+        FAQ
+        <div class="i-mdi:help-circle-outline size-5" />
       </a>
     </div>
     <!-- First place -->
@@ -144,9 +148,14 @@
     <ol
       class="mt-5 flex flex-col border-2 border-lime rounded-xl bg-black overflow-hidden"
     >
+      <div
+        class="relative w-full flex items-center bg-gradient-to-r bg-gradient-from-lime bg-gradient-to-emerald border-b-2 border-lime w-full py-3 px-2 gap-6"
+      >
+        <BuyNftBanner variant="small" />
+      </div>
       {#each ranking.slice(3) as { token_id, account_id, score }, i (token_id)}
         <li
-          class="flex justify-center items-center text-white py-3 px-3 border-b border-lime last:border-none {account_id ===
+          class="flex justify-center items-center text-white py-3 px-3 border-b first:border-t border-lime last:border-none {account_id ===
           'You'
             ? 'bg-lime/50'
             : ''}"
