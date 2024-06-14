@@ -18,7 +18,6 @@ import TokenInput from "./TokenInput.svelte";
 import TokenStatistics from "./TokenStatistics.svelte";
 import TxSnackbar from "./TxSnackbar.svelte";
 import ValidatorStatistics from "./ValidatorStatistics.svelte";
-import Wallet from "./Wallet.svelte";
 
 export {
   BuyNftBanner,
@@ -41,5 +40,4 @@ export {
   TokenStatistics,
   TxSnackbar,
   ValidatorStatistics,
-  Wallet,
 };
