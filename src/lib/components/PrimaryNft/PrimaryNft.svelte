@@ -137,7 +137,8 @@
           <div class="font-light text-black leading-tight">
             {$accountId$}
           </div>
-          <div class="font-bold text-black">
+          <div class="font-bold text-black flex items-center">
+            <div class="i-mdi:stars size-5 mr-1" />
             {token.score.format()}
           </div>
         </div>
