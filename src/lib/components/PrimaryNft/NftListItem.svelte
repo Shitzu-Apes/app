@@ -43,7 +43,7 @@
     {#await score}
       <div class="i-svg-spinners:bouncing-ball size-10" />
     {:then score}
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-1 text-lime-2">
         <div class="i-mdi:stars size-4 text-lime-2" />
         {new FixedNumber(score, 18).format()}
       </div>
