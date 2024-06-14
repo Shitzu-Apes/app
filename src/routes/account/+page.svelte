@@ -102,9 +102,11 @@
         <li
           class="flex flex-col justify-center items-center min-w-[33%] border-r border-lime last:border-transparent"
         >
-          <div class="flex items-center justify-center gap-1 font-bold">
+          <div
+            class="flex items-center justify-center gap-1 font-bold f-text-8-16"
+          >
             {#if data.icon}
-              <div class="flex items-center size-5">
+              <div class="flex items-center f-w-10-20 f-h-10-20">
                 {#if data.icon.type === "near"}
                   <Near className="w-full h-full" />
                 {:else if data.icon.type === "icon"}
@@ -122,7 +124,7 @@
               {/await}
             {/if}
           </div>
-          <div class="text-sm flex items-center gap-2">
+          <div class="text-sm flex items-center gap-2 f-text-10-16">
             <div>{data.title}</div>
           </div>
         </li>

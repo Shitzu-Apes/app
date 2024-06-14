@@ -5,6 +5,7 @@ import {
   presetTypography,
   presetIcons,
 } from "unocss";
+import { presetFluid } from "unocss-preset-fluid";
 
 export default defineConfig({
   presets: [
@@ -12,5 +13,9 @@ export default defineConfig({
     presetAttributify(),
     presetTypography(),
     presetIcons(),
+    presetFluid({
+      minWidth: 200,
+      maxWidth: 448,
+    }),
   ],
 });
