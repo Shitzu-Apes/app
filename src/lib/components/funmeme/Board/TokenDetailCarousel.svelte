@@ -8,6 +8,7 @@
   import FunMemeStake from "./FunMemeStake.svelte";
   import TokenChart from "./TokenChart.svelte";
   import TokenDetail from "./TokenDetail.svelte";
+  import TokenHolder from "./TokenHolder.svelte";
   let emblaApi: EmblaCarouselType | undefined = undefined;
   let options: EmblaOptionsType = {
     axis: "x",
@@ -39,7 +40,9 @@
     <div class="flex-[0_0_100%] min-w-0">
       <TokenChart />
     </div>
-    <div class="flex-[0_0_100%] min-w-0">Detail 3</div>
+    <div class="flex-[0_0_100%] min-w-0">
+      <TokenHolder />
+    </div>
   </div>
   <button class="absolute left-0 top-1/2 -translate-y-1/2" on:click={prev}>
     <div class="i-mdi:chevron-left size-12 text-shitzu-4/75" />
