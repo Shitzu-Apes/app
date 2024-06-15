@@ -1,3 +1,7 @@
+<script lang="ts">
+  import TokenList from "$lib/components/funmeme/Board/TokenList.svelte";
+</script>
+
 <div class="flex flex-col justify-center items-center gap-4 my-2">
   <a href="/create">
     <h1 class="text-2xl font-500">[start a new coin]</h1>
@@ -27,5 +31,7 @@
     <button class="bg-shitzu-5 px-4 py-2 rounded-lg">Search</button>
   </div>
 
-  <section class="px-2 md:px-12 w-full"></section>
+  <section class="px-2 md:px-12 w-full">
+    <TokenList />
+  </section>
 </div>
