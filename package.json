@@ -48,6 +48,8 @@
     "@unocss/extractor-svelte": "^0.60.2",
     "@unocss/preset-icons": "^0.60.2",
     "d3": "^7.9.0",
+    "embla-carousel": "^8.1.5",
+    "embla-carousel-svelte": "^8.1.5",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-typescript": "^3",

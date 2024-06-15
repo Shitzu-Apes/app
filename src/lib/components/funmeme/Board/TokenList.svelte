@@ -1,6 +1,8 @@
 <script lang="ts">
   import { createTabs, melt } from "@melt-ui/svelte";
 
+  import TokenCarousel from "./TokenCarousel.svelte";
+
   const tabs = [
     { id: "following", label: "Following" },
     { id: "terminal", label: "Terminal" },
@@ -27,6 +29,8 @@
       </button>
     {/each}
   </div>
-  <section use:melt={$content("terminal")}>Terminal</section>
+  <section use:melt={$content("terminal")}>
+    <TokenCarousel />
+  </section>
   <section use:melt={$content("following")}>Following</section>
 </div>
