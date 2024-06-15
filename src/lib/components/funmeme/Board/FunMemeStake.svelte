@@ -1,0 +1,40 @@
+<script lang="ts">
+  import { createTabs, melt } from "@melt-ui/svelte";
+
+  import TokenInput from "$lib/components/TokenInput.svelte";
+
+  const tabs = [
+    { id: "stake", label: "stake" },
+    { id: "unstake", label: "unstake" },
+  ];
+
+  const {
+    elements: { root, list, trigger },
+    states: { value },
+  } = createTabs({
+    defaultValue: "stake",
+  });
+</script>
+
+<div
+  use:melt={$root}
+  class="w-full h-full flex flex-col justify-between items-center"
+>
+  <div use:melt={$list} class="flex gap-6 w-full">
+    {#each tabs as tab}
+      <button
+        use:melt={$trigger(tab.id)}
+        class="{tab.id === $value
+          ? 'text-shitzu-4 border-current'
+          : 'text-gray-4 border-transparent'} border-b-4 font-600"
+      >
+        {tab.label}
+      </button>
+    {/each}
+  </div>
+  <TokenInput
+    class="bg-transparent border border-shitzu-4 rounded w-full py-2 px-2"
+    decimals={24}
+  />
+  <button class="bg-shitzu-6 w-full py-2 rounded text-black">{$value}</button>
+</div>
