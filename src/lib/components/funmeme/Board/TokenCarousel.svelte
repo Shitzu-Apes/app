@@ -11,6 +11,8 @@
     axis: "y",
   };
 
+  const tokens = [...new Array(20).keys()];
+
   function prev() {
     emblaApi?.scrollPrev();
   }
@@ -29,15 +31,11 @@
   }}
 >
   <div class="flex flex-col h-screen">
-    <div class="flex-[0_0_100%] min-h-0">
-      <TokenDetailCarousel />
-    </div>
-    <div class="flex-[0_0_100%] min-h-0">
-      <TokenDetailCarousel />
-    </div>
-    <div class="flex-[0_0_100%] min-h-0">
-      <TokenDetailCarousel />
-    </div>
+    {#each tokens as token (token)}
+      <div class="flex-[0_0_100%] min-h-0">
+        <TokenDetailCarousel />
+      </div>
+    {/each}
   </div>
   <button on:click={prev} class="absolute left-1/2 top-0 -translate-x-1/2">
     <div class="i-mdi:chevron-up size-12 text-shitzu-4/75" />
