@@ -44,4 +44,8 @@ export default defineConfig({
       },
     },
   },
+  shortcuts: {
+    loader: "animate-pulse bg-shitzu-9 rounded",
+    "loader-round": "animate-pulse bg-shitzu-9 rounded-full",
+  },
 });
