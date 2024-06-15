@@ -92,7 +92,7 @@
       </button>
       <h2 class="not-prose text-2xl font-bold">
         <div class="max-w-60 overflow-hidden text-ellipsis">
-          268e7f4d3209e7adfb7dc51ba5b7c81c2e887add2e8144388460174c31e2f3ff
+          {$accountId$}
         </div>
       </h2>
     </div>
