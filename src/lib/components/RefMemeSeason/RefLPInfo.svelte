@@ -18,7 +18,7 @@
 
 <div class="w-full">
   <div class="w-full flex justify-between">
-    <h2>LP Farm</h2>
+    <h2>LP</h2>
     <div class="font-600">
       <div class="">
         {share.format()}
