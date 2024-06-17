@@ -14,11 +14,12 @@
       reject();
       return;
     }
-    MemeFarmXRefShitzu.listFarmerSeeds($accountId$).then((seed) => {
-      if ("xtoken.ref-finance.near" in seed) {
-        resolve(
-          new FixedNumber(seed["xtoken.ref-finance.near"].free_amount, 18),
-        );
+    MemeFarmXRefShitzu.getFarmerSeed(
+      $accountId$,
+      "xtoken.ref-finance.near",
+    ).then((seed) => {
+      if (seed) {
+        resolve(new FixedNumber(seed.free_amount, 18));
       }
     });
   }) as Promise<FixedNumber>;
@@ -28,11 +29,13 @@
       reject();
       return;
     }
-    MemeFarmShitzu.listFarmerSeeds($accountId$).then((seed) => {
-      if ("token.0xshitzu.near" in seed) {
-        resolve(new FixedNumber(seed["token.0xshitzu.near"].free_amount, 18));
-      }
-    });
+    MemeFarmShitzu.getFarmerSeed($accountId$, "token.0xshitzu.near").then(
+      (seed) => {
+        if (seed) {
+          resolve(new FixedNumber(seed.free_amount, 18));
+        }
+      },
+    );
   }) as Promise<FixedNumber>;
 
   $: RefShitzuNearPool = Ref.getPool(4369);
@@ -42,13 +45,14 @@
       reject();
       return;
     }
-    LPFarm.listFarmerSeeds($accountId$).then((seed) => {
-      if ("v2.ref-finance.near@4369" in seed) {
-        resolve(
-          new FixedNumber(seed["v2.ref-finance.near@4369"].free_amount, 24),
-        );
-      }
-    });
+    LPFarm.getFarmerSeed($accountId$, "v2.ref-finance.near@4369").then(
+      (seed) => {
+        console.log({ seed });
+        if (seed) {
+          resolve(new FixedNumber(seed.free_amount, 24));
+        }
+      },
+    );
   }) as Promise<FixedNumber>;
 </script>
 

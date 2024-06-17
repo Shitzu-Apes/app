@@ -69,36 +69,39 @@ export type FarmerSeed = {
 };
 
 export abstract class MemeFarmXRefShitzu {
-  public static listFarmerSeeds(farmerId: string) {
-    return view<Record<string, FarmerSeed>>(
+  public static getFarmerSeed(farmerId: string, seedId: string) {
+    return view<FarmerSeed | null>(
       "memefarm-xref-shitzu.ref-labs.near",
-      "list_farmer_seeds",
+      "get_farmer_seed",
       {
         farmer_id: farmerId,
+        seed_id: seedId,
       },
     );
   }
 }
 
 export abstract class MemeFarmShitzu {
-  public static listFarmerSeeds(farmerId: string) {
-    return view<Record<string, FarmerSeed>>(
+  public static getFarmerSeed(farmerId: string, seedId: string) {
+    return view<FarmerSeed | null>(
       "meme-farming_011.ref-labs.near",
-      "list_farmer_seeds",
+      "get_farmer_seed",
       {
         farmer_id: farmerId,
+        seed_id: seedId,
       },
     );
   }
 }
 
 export abstract class LPFarm {
-  public static listFarmerSeeds(farmerId: string) {
-    return view<Record<string, FarmerSeed>>(
+  public static getFarmerSeed(farmerId: string, seedId: string) {
+    return view<FarmerSeed | null>(
       "boostfarm.ref-labs.near",
-      "list_farmer_seeds",
+      "get_farmer_seed",
       {
         farmer_id: farmerId,
+        seed_id: seedId,
       },
     );
   }
