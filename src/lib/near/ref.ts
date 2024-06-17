@@ -49,4 +49,57 @@ export abstract class Ref {
 
     return new FixedNumber(shitzuOut, 18);
   }
+
+  public static async getPool(poolId: number): Promise<PoolInfo> {
+    return view<PoolInfo>("v2.ref-finance.near", "get_pool", {
+      pool_id: poolId,
+    });
+  }
+
+  public static async getPoolShares(poolId: number, accountId: string) {
+    return view<string>("v2.ref-finance.near", "get_pool_shares", {
+      pool_id: poolId,
+      account_id: accountId,
+    });
+  }
+}
+
+export type FarmerSeed = {
+  free_amount: string;
+};
+
+export abstract class MemeFarmXRefShitzu {
+  public static listFarmerSeeds(farmerId: string) {
+    return view<Record<string, FarmerSeed>>(
+      "memefarm-xref-shitzu.ref-labs.near",
+      "list_farmer_seeds",
+      {
+        farmer_id: farmerId,
+      },
+    );
+  }
+}
+
+export abstract class MemeFarmShitzu {
+  public static listFarmerSeeds(farmerId: string) {
+    return view<Record<string, FarmerSeed>>(
+      "meme-farming_011.ref-labs.near",
+      "list_farmer_seeds",
+      {
+        farmer_id: farmerId,
+      },
+    );
+  }
+}
+
+export abstract class LPFarm {
+  public static listFarmerSeeds(farmerId: string) {
+    return view<Record<string, FarmerSeed>>(
+      "boostfarm.ref-labs.near",
+      "list_farmer_seeds",
+      {
+        farmer_id: farmerId,
+      },
+    );
+  }
 }

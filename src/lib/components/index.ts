@@ -11,6 +11,7 @@ import Faq from "./Faq.svelte";
 import Leaderboard from "./Leaderboard.svelte";
 import MessageBox from "./MessageBox.svelte";
 import PrimaryNft from "./PrimaryNft";
+import { RefMemeSeason } from "./RefMemeSeason";
 import ShitzuSwap from "./ShitzuSwap.svelte";
 import Squircle from "./Squircle.svelte";
 import Stake from "./Stake.svelte";
@@ -33,6 +34,7 @@ export {
   Leaderboard,
   MessageBox,
   PrimaryNft,
+  RefMemeSeason,
   ShitzuSwap,
   Stake,
   Squircle,

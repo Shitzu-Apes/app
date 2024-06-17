@@ -5,6 +5,7 @@
   import Near from "$lib/assets/Near.svelte";
   import ConnectWallet from "$lib/auth/ConnectWallet.svelte";
   import { BuyNftBanner, PrimaryNft } from "$lib/components";
+  import RefMemeSeason from "$lib/components/RefMemeSeason/RefMemeSeason.svelte";
   import Squircle from "$lib/components/Squircle.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import { Pool, wallet } from "$lib/near";
@@ -130,6 +131,8 @@
         </li>
       {/each}
     </ul>
+
+    <RefMemeSeason />
   </div>
 {:else}
   <div
