@@ -11,8 +11,11 @@
   <div class="mt-6 w-full px-2 py-3 text-white">
     <div class="flex justify-center items-center max-w-lg">
       <div class="flex items-center gap-4">
-        <a href="https://twitter.com/" target="_blank" rel="noopener">
-          [ Twitter ]
+        <a href="https://twitter.com/_funmeme" target="_blank" rel="noopener">
+          [ twitter ]
+        </a>
+        <a href="https://t.me/+wIFBaPQJmAcwYTc0" target="_blank" rel="noopener">
+          [ telegram ]
         </a>
       </div>
     </div>
