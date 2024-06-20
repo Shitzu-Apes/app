@@ -42,7 +42,7 @@
               methodName: "claim_ref_memeseason",
               args: {},
               gas: 50_000_000_000_000n.toString(),
-              deposit: "1",
+              deposit: "0",
             },
           },
         ],
@@ -62,7 +62,7 @@
 <button
   class="w-full py-3 bg-dark text-lime rounded-lg mt-6 flex items-center justify-center disabled:bg-dark disabled:text-lime disabled:cursor-not-allowed disabled:opacity-50"
   on:click={timeLeft ? undefined : claim}
-  disabled
+  disabled={!!timeLeft}
 >
   {#if timeLeft}
     Shitstars available in {timeLeft[0]}h {timeLeft[1]}m {timeLeft[2]}s
