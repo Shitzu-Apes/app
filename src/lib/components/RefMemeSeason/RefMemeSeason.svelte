@@ -20,6 +20,8 @@
     ).then((seed) => {
       if (seed) {
         resolve(new FixedNumber(seed.free_amount, 18));
+      } else {
+        resolve(new FixedNumber("0", 18));
       }
     });
   }) as Promise<FixedNumber>;
@@ -33,6 +35,8 @@
       (seed) => {
         if (seed) {
           resolve(new FixedNumber(seed.free_amount, 18));
+        } else {
+          resolve(new FixedNumber("0", 18));
         }
       },
     );
@@ -47,9 +51,10 @@
     }
     LPFarm.getFarmerSeed($accountId$, "v2.ref-finance.near@4369").then(
       (seed) => {
-        console.log({ seed });
         if (seed) {
           resolve(new FixedNumber(seed.free_amount, 24));
+        } else {
+          resolve(new FixedNumber("0", 24));
         }
       },
     );
