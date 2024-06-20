@@ -1,6 +1,13 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
+
+  import { wallet } from "$lib/near";
+  import { showSnackbar } from "$lib/snackbar";
+
   export let checkpoint: number | null;
   export let claimable: number;
+
+  const dispatch = createEventDispatcher();
 
   const DAY = 24 * 60 * 60 * 1_000;
   $: claimableDate = new Date(checkpoint || 0 + DAY);
@@ -23,10 +30,38 @@
       timeLeft = [h, m, s];
     }, 1000);
   }
+
+  async function claim() {
+    return wallet.signAndSendTransaction(
+      {
+        receiverId: "memeseason.0xshitzu.near",
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "claim_ref_memeseason",
+              args: {},
+              gas: 50_000_000_000_000n.toString(),
+              deposit: "1",
+            },
+          },
+        ],
+      },
+      {
+        onSuccess: () => {
+          dispatch("claimed", {});
+          showSnackbar(
+            `You successfully claimed and received ${claimable.toFixed(2)} Shitstars! - Participate in Ref Memeseason and come back tomorrow to claim more!`,
+          );
+        },
+      },
+    );
+  }
 </script>
 
 <button
   class="w-full py-3 bg-dark text-lime rounded-lg mt-6 flex items-center justify-center"
+  on:click={timeLeft ? undefined : claim}
 >
   {#if timeLeft}
     Shitstars available in {timeLeft[0]}h {timeLeft[1]}m {timeLeft[2]}s

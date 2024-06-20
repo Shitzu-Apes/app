@@ -167,7 +167,15 @@
           class="w-full h-12 py-3 bg-coolgray text-lime rounded-lg mt-6 animate-pulse"
         />
       {:then [checkpoint, claimable]}
-        <Claim {checkpoint} {claimable} />
+        <Claim
+          on:claimed={() => {
+            checkpointMilliSec = new Promise((resolve) => {
+              resolve(Date.now() + 24 * 60 * 60 * 1_000);
+            });
+          }}
+          {checkpoint}
+          {claimable}
+        />
       {/await}
     </div>
   </div>
