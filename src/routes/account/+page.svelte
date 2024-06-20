@@ -101,6 +101,18 @@
           {$accountId$}
         </div>
       </h2>
+      {#if $resolvedPrimaryNftTokenId === null}
+        <button class="relative" on:click={() => openBottomSheet(PrimaryNft)}>
+          <div class="flex justify-center">
+            <div class="bg-lime text-black text-sm px-2 py-1 rounded">
+              <div class="flex items-center gap-1">
+                <div class="i-mdi:pencil size-4" />
+                Set Primary NFT
+              </div>
+            </div>
+          </div>
+        </button>
+      {/if}
     </div>
 
     <ul class="w-full flex flex-wrap justify-between not-prose">
