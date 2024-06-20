@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Faq from "../Faq.svelte";
+
   import Claim from "./Claim.svelte";
   import RefLpInfo from "./RefLPInfo.svelte";
 
@@ -103,40 +105,90 @@
     class="bg-gradient-to-t bg-gradient-from-[#0f687f] bg-gradient-to-[#18546d] text-light rounded-xl py-4 px-3 not-prose"
   >
     <div class="w-full flex justify-between">
-      <h3>Staked</h3>
-      {#await xRefStaked}
-        <div class="i-svg-spinners:pulse" />
-      {:then value}
-        <div class="font-600 flex items-center gap-1">
-          <img src={XREF_ICON} alt="XREF" class="size-5" />
-          {value.format()}
+      <div>
+        <h3 class="flex items-center text-lg">Staked</h3>
+        <a
+          href="https://app.ref.finance/meme"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center text-sm text-gray-300"
+        >
+          Participate
+          <div class="i-mdi:arrow-top-right size-4" /></a
+        >
+      </div>
+
+      <div class="min-h-16 text-right">
+        <div class="flex justify-end">
+          {#await xRefStaked}
+            <div class="i-svg-spinners:pulse" />
+          {:then value}
+            <div class="font-600 flex items-center gap-1">
+              <img src={XREF_ICON} alt="XREF" class="size-5" />
+              {value.format()}
+            </div>
+          {/await}
         </div>
-      {/await}
-    </div>
-    <div class="w-full flex justify-between mb-4">
-      <div />
-      {#await shitzuStaked}
-        <div class="i-svg-spinners:pulse" />
-      {:then value}
-        <div class="font-600 flex items-center gap-1">
-          <img src={SHITZU_ICON} alt="SHITZU" class="size-5" />
-          {value.format()}
+        <div class="w-full flex justify-end">
+          {#await shitzuStaked}
+            <div class="i-svg-spinners:pulse" />
+          {:then value}
+            <div class="font-600 flex items-center gap-1">
+              <img src={SHITZU_ICON} alt="SHITZU" class="size-5" />
+              {value.format()}
+            </div>
+          {/await}
         </div>
-      {/await}
+      </div>
     </div>
+
     <div class="w-full min-h-16">
-      {#await Promise.all([lpFarm, RefShitzuNearPool])}
-        <div class="i-svg-spinners:pulse" />
-      {:then [lpShare, poolInfo]}
-        <RefLpInfo {poolInfo} share={lpShare} />
+      <div class="w-full flex justify-between">
+        <div>
+          <h3 class="flex items-center text-lg">LP</h3>
+          <a
+            href="https://app.ref.finance/v2farms/4369-r"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center text-sm text-gray-300"
+          >
+            Participate
+            <div class="i-mdi:arrow-top-right size-4" /></a
+          >
+        </div>
+        {#await Promise.all([lpFarm, RefShitzuNearPool])}
+          <div class="i-svg-spinners:pulse" />
+        {:then [lpShare, poolInfo]}
+          <RefLpInfo {poolInfo} share={lpShare} />
+        {/await}
+      </div>
+      {#await Promise.all([checkpointMilliSec, claimable])}
+        <div
+          class="w-full h-12 py-3 bg-coolgray text-lime rounded-lg mt-6 animate-pulse"
+        />
+      {:then [checkpoint, claimable]}
+        <Claim {checkpoint} {claimable} />
       {/await}
     </div>
-    {#await Promise.all([checkpointMilliSec, claimable])}
-      <div
-        class="w-full h-12 py-3 bg-coolgray text-lime rounded-lg mt-6 animate-pulse"
-      />
-    {:then [checkpoint, claimable]}
-      <Claim {checkpoint} {claimable} />
-    {/await}
   </div>
+
+  <Faq
+    qnas={[
+      {
+        question: "How are Shitstars calculated for XREF staking?",
+        answer:
+          "For XREF staking, everyone starts with a base of 100 Shitstars. You can earn up to 100 additional Shitstars, calculated as the minimum between 100 and the square root of your XREF stake.",
+      },
+      {
+        question: "How are Shitstars calculated for Shitzu staking?",
+        answer:
+          "For Shitzu staking, everyone starts with a base of 50 Shitstars. You can earn up to 50 additional Shitstars, calculated as the minimum between 50 and the square root of your Shitzu stake divided by 5.",
+      },
+      {
+        question: "How are Shitstars calculated for LP staking?",
+        answer:
+          "For LP staking, everyone starts with a base of 50 Shitstars. You can earn up to 50 additional Shitstars, calculated as the minimum between 50 and the square root of your LP stake divided by 0.01.",
+      },
+    ]}
+  />
 </section>

@@ -17,23 +17,20 @@
 </script>
 
 <div class="w-full">
-  <div class="w-full flex justify-between">
-    <h2>LP</h2>
-    <div class="font-600">
-      <div class="">
-        {share.format()}
-        ({format(".2%")(sharePerc.toNumber())})
-      </div>
+  <div class="font-600">
+    <div class="text-end">
+      {share.format()}
+      ({format(".2%")(sharePerc.toNumber())})
+    </div>
 
-      <div class="flex flex-col gap-1 text-sm items-end">
-        <div class="flex gap-1 items-center">
-          <img src={SHITZU_ICON} alt="SHITZU" class="size-4" />
-          {shitzuAmount.format()}
-        </div>
-        <div class="flex gap-1 items-center">
-          <Near className="size-4 text-black bg-white rounded-full" />
-          {nearAmount.format()}
-        </div>
+    <div class="flex flex-col gap-1 text-sm items-end">
+      <div class="flex gap-1 items-center">
+        <img src={SHITZU_ICON} alt="SHITZU" class="size-4" />
+        {shitzuAmount.format()}
+      </div>
+      <div class="flex gap-1 items-center">
+        <Near className="size-4 text-black bg-white rounded-full" />
+        {nearAmount.format()}
       </div>
     </div>
   </div>
