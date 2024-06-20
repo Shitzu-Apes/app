@@ -65,7 +65,7 @@
   <h2>Ref Finance</h2>
 
   <div
-    class="bg-gradient-to-r bg-gradient-from-lime bg-gradient-to-emerald text-black rounded-xl py-4 px-3 not-prose"
+    class="bg-gradient-to-t bg-gradient-from-[#0f687f] bg-gradient-to-[#18546d] text-light rounded-xl py-4 px-3 not-prose"
   >
     <div class="w-full flex justify-between">
       <h3>Staked</h3>
