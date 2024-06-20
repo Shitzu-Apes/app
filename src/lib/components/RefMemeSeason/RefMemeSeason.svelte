@@ -1,9 +1,16 @@
 <script lang="ts">
+  import Claim from "./Claim.svelte";
   import RefLpInfo from "./RefLPInfo.svelte";
 
   import SHITZU_ICON from "$lib/assets/logo/shitzu.webp";
   import XREF_ICON from "$lib/assets/logo/xref.svg";
-  import { MemeFarmXRefShitzu, MemeFarmShitzu, LPFarm, Ref } from "$lib/near";
+  import {
+    MemeFarmXRefShitzu,
+    MemeFarmShitzu,
+    LPFarm,
+    Ref,
+    MemeSeason,
+  } from "$lib/near";
   import { wallet } from "$lib/near";
   import { FixedNumber } from "$lib/util";
 
@@ -59,6 +66,34 @@
       },
     );
   }) as Promise<FixedNumber>;
+
+  $: checkpointMilliSec = new Promise((resolve) => {
+    if (!$accountId$) {
+      resolve(null);
+      return;
+    }
+
+    MemeSeason.getUserCheckpoint($accountId$).then((checkpoint) => {
+      if (checkpoint) {
+        resolve(+checkpoint / 1_000_000);
+      } else {
+        resolve(null);
+      }
+    });
+  }) as Promise<number | null>;
+
+  $: claimable = Promise.all([xRefStaked, shitzuStaked, lpFarm]).then(
+    ([xRef, shitzu, lp]) => {
+      const xref_shitstars = Math.min(200, 100 + Math.sqrt(xRef.toNumber()));
+      const shitzu_shitstars = Math.min(
+        100,
+        50 + Math.sqrt(shitzu.toNumber()) / 5,
+      );
+      const lp_shitstars = Math.min(100, 50 + Math.sqrt(lp.toNumber()) / 0.01);
+
+      return xref_shitstars + shitzu_shitstars + lp_shitstars;
+    },
+  );
 </script>
 
 <section>
@@ -96,8 +131,12 @@
         <RefLpInfo {poolInfo} share={lpShare} />
       {/await}
     </div>
-    <!-- <button class="w-full py-3 bg-dark text-lime rounded-lg mt-6">
-      Shitstars available in 6h 30m 20s
-    </button> -->
+    {#await Promise.all([checkpointMilliSec, claimable])}
+      <div
+        class="w-full h-12 py-3 bg-coolgray text-lime rounded-lg mt-6 animate-pulse"
+      />
+    {:then [checkpoint, claimable]}
+      <Claim {checkpoint} {claimable} />
+    {/await}
   </div>
 </section>
