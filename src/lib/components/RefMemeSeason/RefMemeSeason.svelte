@@ -87,12 +87,18 @@
 
   $: claimable = Promise.all([xRefStaked, shitzuStaked, lpFarm]).then(
     ([xRef, shitzu, lp]) => {
-      const xref_shitstars = Math.min(200, 100 + Math.sqrt(xRef.toNumber()));
-      const shitzu_shitstars = Math.min(
-        100,
-        50 + Math.sqrt(shitzu.toNumber()) / 5,
-      );
-      const lp_shitstars = Math.min(100, 50 + Math.sqrt(lp.toNumber()) / 0.01);
+      const xref_shitstars =
+        xRef.toNumber() === 0
+          ? 0
+          : Math.min(200, 100 + Math.sqrt(xRef.toNumber()));
+      const shitzu_shitstars =
+        shitzu.toNumber() === 0
+          ? 0
+          : Math.min(100, 50 + Math.sqrt(shitzu.toNumber()) / 5);
+      const lp_shitstars =
+        lp.toNumber() === 0
+          ? 0
+          : Math.min(100, 50 + Math.sqrt(lp.toNumber()) / 0.01);
 
       return xref_shitstars + shitzu_shitstars + lp_shitstars;
     },
