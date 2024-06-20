@@ -77,7 +77,8 @@
 
     MemeSeason.getUserCheckpoint($accountId$).then((checkpoint) => {
       if (checkpoint) {
-        resolve(+checkpoint / 1_000_000);
+        console.log("get checkpoint", checkpoint);
+        resolve(~~(+checkpoint / 1_000_000_000));
       } else {
         resolve(null);
       }
@@ -170,6 +171,7 @@
         <Claim
           on:claimed={() => {
             checkpointMilliSec = new Promise((resolve) => {
+              console.log("on claimed");
               resolve(Date.now() + 24 * 60 * 60 * 1_000);
             });
           }}

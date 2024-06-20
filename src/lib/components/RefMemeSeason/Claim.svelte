@@ -10,7 +10,7 @@
   const dispatch = createEventDispatcher();
 
   const DAY = 24 * 60 * 60 * 1_000;
-  $: claimableDate = new Date(checkpoint || 0 + DAY);
+  $: claimableDate = new Date(((checkpoint || 0) + DAY) * 1000);
 
   let timeLeft: [number, number, number] | null = null;
   $: {
