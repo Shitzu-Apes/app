@@ -60,8 +60,9 @@
 </script>
 
 <button
-  class="w-full py-3 bg-dark text-lime rounded-lg mt-6 flex items-center justify-center"
+  class="w-full py-3 bg-dark text-lime rounded-lg mt-6 flex items-center justify-center disabled:bg-dark disabled:text-lime disabled:cursor-not-allowed disabled:opacity-50"
   on:click={timeLeft ? undefined : claim}
+  disabled
 >
   {#if timeLeft}
     Shitstars available in {timeLeft[0]}h {timeLeft[1]}m {timeLeft[2]}s
