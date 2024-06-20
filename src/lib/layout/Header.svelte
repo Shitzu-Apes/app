@@ -21,7 +21,7 @@
       </a>
 
       <a
-        href="/board"
+        href="/funmeme"
         class="bg-lime mr-2 px-3 py-0.5 rounded text-black decoration-none animate-shaking"
       >
         fun.meme

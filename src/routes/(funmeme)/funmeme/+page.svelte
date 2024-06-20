@@ -6,6 +6,16 @@
   >
     Coming <br />Soon
   </h1>
+
+  <ul class="text-white">
+    {#each ["Staking Price Discovery", "No Presale", "No Dev/Team Allocation", "DEX LP Locked", "0% Loss Pre-DEX Launch"] as item}
+      <li class="flex items-center">
+        <div class="i-mdi:check-circle size-5 text-shitzu-400 mr-2" />
+        {item}
+      </li>
+    {/each}
+  </ul>
+
   <a href="/" class="text-white text-xl"> [ Back ] </a>
 
   <div class="mt-6 w-full px-2 py-3 text-white">
