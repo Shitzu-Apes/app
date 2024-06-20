@@ -60,7 +60,12 @@
     },
     {
       title: "Staked",
-      value: $stake$ ? $stake$.format() : "None",
+      value: $stake$
+        ? $stake$.format({
+            maximumFractionDigits: 4,
+            maximumSignificantDigits: undefined,
+          })
+        : "None",
       icon: {
         type: "near",
       },
