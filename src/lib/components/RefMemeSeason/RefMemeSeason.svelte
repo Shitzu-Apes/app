@@ -173,8 +173,8 @@
           <Claim
             on:claimed={() => {
               checkpointMilliSec = new Promise((resolve) => {
-                console.log("on claimed");
-                resolve(Date.now() + 24 * 60 * 60 * 1_000);
+                const newCheckpoint = ~~(new Date().getTime() / 1000);
+                resolve(newCheckpoint);
               });
             }}
             {checkpoint}
