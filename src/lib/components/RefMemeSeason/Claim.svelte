@@ -4,15 +4,28 @@
   import { wallet } from "$lib/near";
   import { showSnackbar } from "$lib/snackbar";
 
-  export let checkpoint: number | null;
+  export let checkpoint: number;
   export let claimable: number;
 
   const dispatch = createEventDispatcher();
 
   const DAY = 24 * 60 * 60 * 1_000;
-  $: claimableDate = new Date(((checkpoint || 0) + DAY) * 1000);
+  const claimableDate = new Date(((checkpoint || 0) + DAY) * 1000);
 
-  let timeLeft: [number, number, number] | null = null;
+  let timeLeft: [number, number, number] | null = (() => {
+    const now = new Date();
+    const diff = claimableDate.getTime() - now.getTime();
+    if (diff <= 0) {
+      return null;
+    }
+
+    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+    return [h, m, s];
+  })();
+
   $: {
     const interval = setInterval(() => {
       const now = new Date();

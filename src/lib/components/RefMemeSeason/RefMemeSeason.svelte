@@ -77,7 +77,6 @@
 
     MemeSeason.getUserCheckpoint($accountId$).then((checkpoint) => {
       if (checkpoint) {
-        console.log("get checkpoint", checkpoint);
         resolve(~~(+checkpoint / 1_000_000_000));
       } else {
         resolve(null);
@@ -174,16 +173,22 @@
           class="w-full h-12 py-3 bg-coolgray text-lime rounded-lg mt-6 animate-pulse"
         />
       {:then [checkpoint, claimable]}
-        <Claim
-          on:claimed={() => {
-            checkpointMilliSec = new Promise((resolve) => {
-              console.log("on claimed");
-              resolve(Date.now() + 24 * 60 * 60 * 1_000);
-            });
-          }}
-          {checkpoint}
-          {claimable}
-        />
+        {#if checkpoint !== null}
+          <Claim
+            on:claimed={() => {
+              checkpointMilliSec = new Promise((resolve) => {
+                console.log("on claimed");
+                resolve(Date.now() + 24 * 60 * 60 * 1_000);
+              });
+            }}
+            {checkpoint}
+            {claimable}
+          />
+        {:else}
+          <div
+            class="w-full h-12 py-3 bg-coolgray text-lime rounded-lg mt-6 animate-pulse"
+          />
+        {/if}
       {/await}
     </div>
   </div>
