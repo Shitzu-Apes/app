@@ -15,7 +15,7 @@
     score: FixedNumber;
   }[];
 
-  export let primaryNft: PrimaryNft | null = null;
+  export let primaryNft: PrimaryNft | null;
   export let displayPerPage = 7;
 
   let currentPages = 0;
@@ -44,14 +44,14 @@
         ({ token_id }) => token_id === primaryNft.token_id,
       );
 
-      if (myRank) {
+      if (myRank && myRank.rank > 3) {
         displayRanking.push({
           token_id: primaryNft.token_id,
           account_id: "You",
           score: myRank.score,
           rank: myRank.rank,
         });
-      } else {
+      } else if (!myRank) {
         displayRanking.push({
           token_id: primaryNft.token_id,
           account_id: "You",
@@ -67,7 +67,7 @@
   const BASE_URL = import.meta.env.VITE_NFT_BASE_URL;
 </script>
 
-{#if ranking}
+{#if withRanking}
   <ol
     transition:slide
     class="w-full bg-gradient-to-b bg-gradient-from-lime bg-gradient-to-emerald rounded-b-2xl py-3 overflow-hidden relative"
@@ -84,9 +84,9 @@
     </div>
     <!-- First place -->
     <li class="flex flex-col items-center">
-      <a href="/shitstars/{ranking[0].token_id}" class="relative mb-4">
+      <a href="/shitstars/{withRanking[0].token_id}" class="relative mb-4">
         <Squircle
-          src="{BASE_URL}/{ranking[0].token_id}.png"
+          src="{BASE_URL}/{withRanking[0].token_id}.png"
           class="text-amber size-34"
         />
         <div
@@ -99,24 +99,24 @@
       <div
         class="font-bold text-lg leading-snug text-black max-w-[200px] text-ellipsis overflow-hidden"
       >
-        {ranking[0].account_id}
+        {withRanking[0].account_id}
       </div>
       <div
         class="font-bold text-lg bg-amber rounded-full px-2 mt-2 text-black flex items-center gap-1"
       >
         <div class="i-mdi:stars size-6" />
-        {ranking[0].score.format()}
+        {withRanking[0].score.format()}
       </div>
     </li>
 
     <!-- Second place -->
     <div class="w-full flex justify-between px-2 -mt-4 z-1 relative">
-      {#if ranking.length > 1}
+      {#if withRanking.length > 1}
         <li class="flex flex-col items-center">
-          <a href="/shitstars/{ranking[1].token_id}" class="relative mb-4">
+          <a href="/shitstars/{withRanking[1].token_id}" class="relative mb-4">
             <Squircle
               class="size-28 text-coolgray"
-              src="{BASE_URL}/{ranking[1].token_id}.png"
+              src="{BASE_URL}/{withRanking[1].token_id}.png"
             />
             <div
               class="absolute bottom-1 left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-coolgray text-black text-center rounded-full size-6 font-bold flex justify-center items-center text-sm"
@@ -128,24 +128,24 @@
           <div
             class="font-bold text-lg leading-snug text-black max-w-[200px] text-ellipsis overflow-hidden"
           >
-            {ranking[1].account_id}
+            {withRanking[1].account_id}
           </div>
           <div
             class="font-bold text-lg bg-coolgray rounded-full px-2 mt-2 text-black flex items-center gap-1"
           >
             <div class="i-mdi:stars size-6" />
-            {ranking[1].score.format()}
+            {withRanking[1].score.format()}
           </div>
         </li>
       {/if}
 
-      {#if ranking.length > 2}
+      {#if withRanking.length > 2}
         <!-- Third Place -->
         <li class="flex flex-col items-center">
-          <a href="/shitstars/{ranking[2].token_id}" class="relative mb-4">
+          <a href="/shitstars/{withRanking[2].token_id}" class="relative mb-4">
             <Squircle
               class="size-28 text-red"
-              src="{BASE_URL}/{ranking[2].token_id}.png"
+              src="{BASE_URL}/{withRanking[2].token_id}.png"
             />
             <div
               class="absolute bottom-1 left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-red text-black text-center rounded-full size-6 font-bold flex justify-center items-center text-sm"
@@ -157,20 +157,20 @@
           <div
             class="font-bold text-lg leading-snug text-black max-w-[200px] text-ellipsis overflow-hidden"
           >
-            {ranking[2].account_id}
+            {withRanking[2].account_id}
           </div>
           <div
             class="font-bold text-lg bg-red rounded-full px-2 mt-2 text-black flex items-center gap-1"
           >
             <div class="i-mdi:stars size-6" />
-            {ranking[2].score.format()}
+            {withRanking[2].score.format()}
           </div>
         </li>
       {/if}
     </div>
   </ol>
 
-  {#if ranking.length > 3}
+  {#if withRanking.length > 3}
     <ol
       class="mt-5 flex flex-col border-2 border-lime rounded-xl bg-black overflow-hidden"
     >
