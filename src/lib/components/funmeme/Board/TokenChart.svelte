@@ -1,75 +1,56 @@
 <script lang="ts">
-  import {
-    createChart,
-    type CandlestickData,
-    type LineData,
-    type Time,
-  } from "lightweight-charts";
   import { onMount } from "svelte";
+
+  import {
+    widget,
+    type ChartingLibraryWidgetOptions,
+    type LanguageCode,
+    type ResolutionString,
+  } from "$lib/charting_library";
+  import { UDFCompatibleDatafeed } from "$lib/datafeeds/udf";
 
   let width: number, height: number;
   let ref: HTMLDivElement;
-
-  let randomFactor = 25 + Math.random() * 25;
-  const samplePoint = (i: number) =>
-    i *
-      (0.5 +
-        Math.sin(i / 10) * 0.2 +
-        Math.sin(i / 20) * 0.4 +
-        Math.sin(i / randomFactor) * 0.8 +
-        Math.sin(i / 500) * 0.5) +
-    200;
-
-  function generateLineData(numberOfPoints: number = 500): LineData[] {
-    randomFactor = 25 + Math.random() * 25;
-    const res = [];
-    const date = new Date(Date.UTC(2018, 0, 1, 12, 0, 0, 0));
-    for (let i = 0; i < numberOfPoints; ++i) {
-      const time = (date.getTime() / 1000) as Time;
-      const value = samplePoint(i);
-      res.push({
-        time,
-        value,
-      });
-
-      date.setUTCDate(date.getUTCDate() + 1);
-    }
-
-    return res;
-  }
-
-  function generateCandleData(numberOfPoints: number = 250): CandlestickData[] {
-    const lineData = generateLineData(numberOfPoints);
-    return lineData.map((d, i) => {
-      const randomRanges = [
-        -1 * Math.random(),
-        Math.random(),
-        Math.random(),
-      ].map((j) => j * 10);
-      const sign = Math.sin(Math.random() - 0.5);
-      return {
-        time: d.time,
-        low: d.value + randomRanges[0],
-        high: d.value + randomRanges[1],
-        open: d.value + sign * randomRanges[2],
-        close: samplePoint(i + 1),
-      };
-    });
+  function getLanguageFromURL(): LanguageCode | null {
+    const regex = new RegExp("[\\?&]lang=([^&#]*)");
+    const results = regex.exec(window.location.search);
+    return results === null
+      ? null
+      : (decodeURIComponent(results[1].replace(/\+/g, " ")) as LanguageCode);
   }
 
   onMount(() => {
-    const chart = createChart(ref, {
+    const widgetOptions: ChartingLibraryWidgetOptions = {
+      theme: "dark",
+      symbol: "AAPL",
+      // BEWARE: no trailing slash is expected in feed URL
+      datafeed: new UDFCompatibleDatafeed(
+        "https://demo_feed.tradingview.com",
+        undefined,
+        {
+          maxResponseLength: 1000,
+          expectedOrder: "latestFirst",
+        },
+      ),
+      interval: "1H" as ResolutionString,
+      container: ref,
+      library_path: "/charting_library/",
+
+      locale: getLanguageFromURL() || "en",
+      disabled_features: ["use_localstorage_for_settings"],
+      enabled_features: ["study_templates"],
+      charts_storage_url: "https://saveload.tradingview.com",
+      charts_storage_api_version: "1.1",
+      client_id: "tradingview.com",
+      user_id: "public_user_id",
+      fullscreen: false,
+      autosize: true,
+
       width,
       height,
-      layout: {
-        background: {
-          color: "#222",
-        },
-        textColor: "#fff",
-      },
-    });
-    const lineSeries = chart.addCandlestickSeries();
-    lineSeries.setData(generateCandleData());
+    };
+
+    new widget(widgetOptions);
   });
 </script>
 
