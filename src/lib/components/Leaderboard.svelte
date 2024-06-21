@@ -232,7 +232,7 @@
       </button>
     </div>
     <div>
-      {currentPages + 1} / {Math.ceil(ranking.length / displayPerPage)}
+      {currentPages + 1} / {Math.ceil(ranking.length / displayPerPage) - 1}
     </div>
     <div>
       <button
