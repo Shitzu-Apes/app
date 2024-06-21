@@ -1,10 +1,18 @@
 <script lang="ts">
-  import { RefBanner, ShitzuSwap } from "$lib/components";
+  import { RefBanner, ShitzuSwap, RefMemeSeason } from "$lib/components";
+  import { wallet } from "$lib/near";
   import { memes } from "$lib/store";
+
+  const { accountId$ } = wallet;
 </script>
 
 <div class="flex flex-col gap-[1.2rem]">
   <ShitzuSwap />
+  {#if $accountId$}
+    <RefMemeSeason />
+  {:else}
+    <RefBanner />
+  {/if}
   <div
     class="mt-2 bg-gradient-to-r bg-gradient-from-lime bg-gradient-to-emerald py-4 px-4 rounded-xl text-black flex flex-col not-prose"
   >
@@ -32,6 +40,4 @@
       </a>
     </div>
   </div>
-
-  <RefBanner />
 </div>

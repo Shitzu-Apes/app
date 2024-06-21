@@ -5,6 +5,7 @@
   import Near from "$lib/assets/Near.svelte";
   import ConnectWallet from "$lib/auth/ConnectWallet.svelte";
   import { BuyNftBanner, PrimaryNft } from "$lib/components";
+  import Faq from "$lib/components/Faq.svelte";
   import RefMemeSeason from "$lib/components/RefMemeSeason/RefMemeSeason.svelte";
   import Squircle from "$lib/components/Squircle.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
@@ -148,8 +149,30 @@
         </li>
       {/each}
     </ul>
+    <section>
+      <h2>Ref Finance</h2>
+      <RefMemeSeason />
 
-    <RefMemeSeason />
+      <Faq
+        qnas={[
+          {
+            question: "How are Shitstars calculated for XREF staking?",
+            answer:
+              "For XREF staking, everyone starts with a base of 100 Shitstars. You can earn up to 100 additional Shitstars, calculated as the minimum between 100 and the square root of your XREF stake.",
+          },
+          {
+            question: "How are Shitstars calculated for Shitzu staking?",
+            answer:
+              "For Shitzu staking, everyone starts with a base of 50 Shitstars. You can earn up to 50 additional Shitstars, calculated as the minimum between 50 and the square root of your Shitzu stake divided by 5.",
+          },
+          {
+            question: "How are Shitstars calculated for LP staking?",
+            answer:
+              "For LP staking, everyone starts with a base of 50 Shitstars. You can earn up to 50 additional Shitstars, calculated as the minimum between 50 and the square root of your LP stake divided by 0.01.",
+          },
+        ]}
+      />
+    </section>
   </div>
 {:else}
   <div

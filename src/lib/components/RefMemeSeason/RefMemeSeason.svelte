@@ -1,6 +1,4 @@
 <script lang="ts">
-  import Faq from "../Faq.svelte";
-
   import Claim from "./Claim.svelte";
   import RefLpInfo from "./RefLPInfo.svelte";
 
@@ -105,8 +103,6 @@
 </script>
 
 <section>
-  <h2>Ref Finance</h2>
-
   <div
     class="bg-gradient-to-t bg-gradient-from-[#0f687f] bg-gradient-to-[#18546d] text-light rounded-xl py-4 px-3 not-prose"
   >
@@ -192,24 +188,4 @@
       {/await}
     </div>
   </div>
-
-  <Faq
-    qnas={[
-      {
-        question: "How are Shitstars calculated for XREF staking?",
-        answer:
-          "For XREF staking, everyone starts with a base of 100 Shitstars. You can earn up to 100 additional Shitstars, calculated as the minimum between 100 and the square root of your XREF stake.",
-      },
-      {
-        question: "How are Shitstars calculated for Shitzu staking?",
-        answer:
-          "For Shitzu staking, everyone starts with a base of 50 Shitstars. You can earn up to 50 additional Shitstars, calculated as the minimum between 50 and the square root of your Shitzu stake divided by 5.",
-      },
-      {
-        question: "How are Shitstars calculated for LP staking?",
-        answer:
-          "For LP staking, everyone starts with a base of 50 Shitstars. You can earn up to 50 additional Shitstars, calculated as the minimum between 50 and the square root of your LP stake divided by 0.01.",
-      },
-    ]}
-  />
 </section>
