@@ -10,12 +10,13 @@
 
   const dispatch = createEventDispatcher();
 
-  const DAY = 24 * 60 * 60 * 1_000;
-  const claimableDate = new Date(((checkpoint || 0) + DAY) * 1000);
+  const INTERVAL = 18 * 60 * 60;
+  const claimableDate = new Date(((checkpoint || 0) + INTERVAL) * 1000);
 
   let timeLeft: [number, number, number] | null = (() => {
     const now = new Date();
     const diff = claimableDate.getTime() - now.getTime();
+
     if (diff <= 0) {
       return null;
     }
