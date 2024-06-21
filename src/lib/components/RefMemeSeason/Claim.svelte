@@ -1,10 +1,11 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
 
+  import { Button } from "$lib/components";
   import { wallet } from "$lib/near";
   import { showSnackbar } from "$lib/snackbar";
 
-  export let checkpoint: number;
+  export let checkpoint: number | null;
   export let claimable: number;
 
   const dispatch = createEventDispatcher();
@@ -72,9 +73,10 @@
   }
 </script>
 
-<button
-  class="w-full py-3 bg-dark text-lime rounded-lg mt-6 flex items-center justify-center disabled:bg-dark disabled:text-lime disabled:cursor-not-allowed disabled:opacity-50"
-  on:click={timeLeft ? undefined : claim}
+<Button
+  type="custom"
+  class="relative w-full py-3 bg-dark text-lime rounded-lg mt-6 flex items-center justify-center disabled:bg-dark disabled:text-lime disabled:cursor-not-allowed disabled:opacity-50"
+  onClick={timeLeft ? undefined : claim}
   disabled={!!timeLeft}
 >
   <div class="flex items-center gap-1">
@@ -87,4 +89,4 @@
       {claimable.toFixed(2)}
     {/if}
   </div>
-</button>
+</Button>
