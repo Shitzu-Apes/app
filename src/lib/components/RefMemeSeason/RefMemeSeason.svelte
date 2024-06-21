@@ -69,7 +69,7 @@
 
   $: checkpointMilliSec = new Promise((resolve) => {
     if (!$accountId$) {
-      resolve(null);
+      resolve(undefined);
       return;
     }
 
@@ -80,7 +80,7 @@
         resolve(null);
       }
     });
-  }) as Promise<number | null>;
+  }) as Promise<number | null | undefined>;
 
   $: claimable = Promise.all([xRefStaked, shitzuStaked, lpFarm]).then(
     ([xRef, shitzu, lp]) => {
@@ -169,7 +169,7 @@
           class="w-full h-12 py-3 bg-coolgray text-lime rounded-lg mt-6 animate-pulse"
         />
       {:then [checkpoint, claimable]}
-        {#if checkpoint !== null}
+        {#if checkpoint !== undefined}
           <Claim
             on:claimed={() => {
               checkpointMilliSec = new Promise((resolve) => {
