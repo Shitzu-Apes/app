@@ -8,6 +8,9 @@
 
   const { accountId$ } = wallet;
 
+  const limit = 500;
+  const displayPerPage = 7;
+
   $: {
     if ($accountId$) {
       refreshPrimaryNftOf($accountId$);
@@ -17,10 +20,10 @@
   if (typeof window !== "undefined") {
     const url = new URL(window.location.href);
     const primaryNftTokenId =
-      parseInt(url.searchParams.get("limit") || "10") || 10;
+      parseInt(url.searchParams.get("limit") || limit.toString()) || limit;
     refreshRanking(primaryNftTokenId);
   } else {
-    refreshRanking(10);
+    refreshRanking(limit);
   }
 </script>
 
@@ -35,7 +38,11 @@
           <div class="i-svg-spinners:blocks-wave text-size-20 text-lime" />
         </div>
       {:then ranking}
-        <Leaderboard {ranking} primaryNft={$resolvedPrimaryNftTokenId} />
+        <Leaderboard
+          {ranking}
+          primaryNft={$resolvedPrimaryNftTokenId}
+          {displayPerPage}
+        />
       {:catch error}
         <p>{error.message}</p>
       {/await}

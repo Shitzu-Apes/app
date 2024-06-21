@@ -16,27 +16,53 @@
   }[];
 
   export let primaryNft: PrimaryNft | null = null;
+  export let displayPerPage = 7;
 
-  $: {
-    ranking = ranking?.map(({ token_id, account_id, score }) => {
-      return {
-        token_id,
-        account_id: token_id === primaryNft?.token_id ? "You" : account_id,
-        score,
-      };
-    });
+  let currentPages = 0;
+
+  $: withRanking = ranking?.map(({ token_id, account_id, score }, i) => {
+    return {
+      token_id,
+      account_id: token_id === primaryNft?.token_id ? "You" : account_id,
+      score,
+      rank: i + 1,
+    };
+  });
+
+  $: displayRanking = (() => {
+    const displayRanking = withRanking?.slice(
+      3 + displayPerPage * currentPages,
+      3 + displayPerPage * (currentPages + 1),
+    );
 
     if (
-      ranking.find(({ account_id }) => account_id === "You") === undefined &&
+      displayRanking.find(({ account_id }) => account_id === "You") ===
+        undefined &&
       primaryNft
     ) {
-      ranking.push({
-        token_id: primaryNft.token_id,
-        account_id: "You",
-        score: primaryNft?.score,
-      });
+      const myRank = withRanking.find(
+        ({ token_id }) => token_id === primaryNft.token_id,
+      );
+
+      if (myRank) {
+        displayRanking.push({
+          token_id: primaryNft.token_id,
+          account_id: "You",
+          score: myRank.score,
+          rank: myRank.rank,
+        });
+      } else {
+        displayRanking.push({
+          token_id: primaryNft.token_id,
+          account_id: "You",
+          score: primaryNft.score,
+          rank: ranking.length + 1,
+        });
+      }
     }
-  }
+
+    return displayRanking;
+  })();
 
   const BASE_URL = import.meta.env.VITE_NFT_BASE_URL;
 </script>
@@ -153,7 +179,7 @@
       >
         <BuyNftBanner variant="small" />
       </div>
-      {#each ranking.slice(3) as { token_id, account_id, score }, i (token_id)}
+      {#each displayRanking as { token_id, account_id, score, rank } (token_id)}
         <li
           class="flex justify-center items-center text-white py-3 px-3 border-b first:border-t border-lime last:border-none {account_id ===
           'You'
@@ -178,16 +204,58 @@
           </div>
 
           <div
-            class="ml-auto text-2xl flex justify-center items-center bg-lime size-5 text-black rounded-full text-sm font-bold"
+            class="ml-auto text-2xl flex justify-center items-center bg-lime size-6 text-black rounded-full text-xs font-bold"
           >
-            {i + 4 <= 10 ? i + 4 : "-"}
+            {rank}
           </div>
         </li>
       {/each}
     </ol>
   {/if}
+  <div class="flex justify-between px-1 py-4">
+    <div>
+      <button
+        on:click={() => {
+          currentPages = 0;
+        }}
+      >
+        <div class="i-mdi:chevron-double-left size-6" />
+      </button>
+      <button
+        on:click={() => {
+          if (currentPages > 0) {
+            currentPages -= 1;
+          }
+        }}
+      >
+        <div class="i-mdi:chevron-left size-6" />
+      </button>
+    </div>
+    <div>
+      {currentPages + 1} / {Math.ceil(ranking.length / displayPerPage)}
+    </div>
+    <div>
+      <button
+        on:click={() => {
+          if (ranking.length > 3 + displayPerPage * (currentPages + 1)) {
+            currentPages += 1;
+          }
+        }}
+      >
+        <div class="i-mdi:chevron-right size-6" />
+      </button>
+      <button
+        class="ml-3"
+        on:click={() => {
+          currentPages = Math.floor(ranking.length / displayPerPage) - 1;
+        }}
+      >
+        <div class="i-mdi:chevron-double-right size-6" />
+      </button>
+    </div>
+  </div>
 
-  <Button href="/account" class="mt-3">
+  <Button href="/account" class="">
     Stake & earn Shitstars now
     <div class="i-mdi:arrow-right size-6 ml-2" />
   </Button>
