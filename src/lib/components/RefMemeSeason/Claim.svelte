@@ -77,13 +77,14 @@
   on:click={timeLeft ? undefined : claim}
   disabled={!!timeLeft}
 >
-  {#if timeLeft}
-    Shitstars available in {timeLeft[0]}h {timeLeft[1]}m {timeLeft[2]}s
-  {:else}
-    <div class="flex items-center gap-1">
+  <div class="flex items-center gap-1">
+    {#if timeLeft}
+      <div class="i-mdi:clock-outline size-5 ml-1" />
+      {timeLeft[0]}h {timeLeft[1]}m {timeLeft[2]}s
+    {:else}
       Claim
       <div class="i-mdi:stars size-5 ml-1" />
       {claimable.toFixed(2)}
-    </div>
-  {/if}
+    {/if}
+  </div>
 </button>
