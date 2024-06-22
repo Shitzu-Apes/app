@@ -21,6 +21,18 @@
   function next() {
     emblaApi?.scrollNext();
   }
+
+  export let focused = false;
+
+  let renderChart = false;
+
+  $: {
+    setTimeout(() => {
+      if (focused && !renderChart) {
+        renderChart = true;
+      }
+    }, 1000);
+  }
 </script>
 
 <div
@@ -38,7 +50,9 @@
       <TokenDetail />
     </div>
     <div class="flex-[0_0_100%] min-w-0">
-      <TokenChart />
+      {#if focused && renderChart}
+        <TokenChart />
+      {/if}
     </div>
     <div class="flex-[0_0_100%] min-w-0">
       <TokenHolder />

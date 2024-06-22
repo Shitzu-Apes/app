@@ -20,6 +20,8 @@
   function next() {
     emblaApi?.scrollNext();
   }
+
+  let selected = 0;
 </script>
 
 <div
@@ -28,12 +30,18 @@
   on:emblaInit={(event) => {
     emblaApi = event.detail;
     emblaApi.slideNodes();
+
+    emblaApi.on("select", () => {
+      if (emblaApi) {
+        selected = emblaApi.selectedScrollSnap();
+      }
+    });
   }}
 >
   <div class="flex flex-col h-screen">
-    {#each tokens as token (token)}
+    {#each tokens as token, i (token)}
       <div class="flex-[0_0_100%] min-h-0">
-        <TokenDetailCarousel />
+        <TokenDetailCarousel focused={selected === i} />
       </div>
     {/each}
   </div>
