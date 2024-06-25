@@ -49,7 +49,9 @@
         alt="shitzu pocket"
         class="size-6 mr-1 text-shitzu-4"
       />
-      {$accountId$}]
+      <span class="max-w-20 overflow-hidden text-ellipsis">
+        {$accountId$}
+      </span>]
     </a>
   {:else}
     <button
