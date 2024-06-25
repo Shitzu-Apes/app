@@ -1,9 +1,14 @@
+<script lang="ts">
+  import FUNMEME_LOGO from "$lib/assets/logo/funmeme.svg";
+</script>
+
 <div
   class="mx-auto w-fit h-screen flex flex-col justify-center items-center gap-10 overflow-hidden"
 >
   <h1
-    class="text-6xl md:text-8xl text-center tracking-widest font-semibold text-white animate-shake-x animate-count-infinite px-3"
+    class="text-6xl md:text-8xl text-center tracking-widest font-semibold text-white animate-shake-x animate-count-infinite px-3 flex flex-col items-center motion-reduce:animate-none"
   >
+    <img src={FUNMEME_LOGO} alt="funmeme logo" class="size-40 md:size-60" />
     Coming <br />Soon
   </h1>
 
@@ -16,15 +21,33 @@
     {/each}
   </ul>
 
-  <a href="/" class="text-white text-xl"> [ Back ] </a>
+  <div class="flex flex-col items-center justify-center gap-3">
+    <a
+      href="https://shard.dog/fundotmeme/"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-white text-xl"
+    >
+      [ Join waitlist ]
+    </a>
+    <a href="/" class="text-white text-base"> [ Back ] </a>
+  </div>
 
-  <div class="mt-6 w-full px-2 py-3 text-white">
+  <div class="w-full px-2 py-3 text-white">
     <div class="flex justify-center items-center max-w-lg">
       <div class="flex items-center gap-4">
-        <a href="https://twitter.com/_funmeme" target="_blank" rel="noopener">
+        <a
+          href="https://twitter.com/fundotmeme"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           [ twitter ]
         </a>
-        <a href="https://t.me/+wIFBaPQJmAcwYTc0" target="_blank" rel="noopener">
+        <a
+          href="https://t.me/+wIFBaPQJmAcwYTc0"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           [ telegram ]
         </a>
       </div>
