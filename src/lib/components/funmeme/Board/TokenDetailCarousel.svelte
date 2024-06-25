@@ -39,11 +39,13 @@
 </script>
 
 <svelte:window
-  on:keydown|preventDefault={(event) => {
+  on:keydown={(event) => {
     if (focused) {
       if (event.key === "ArrowRight") {
+        event.preventDefault();
         next();
       } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
         prev();
       }
     }

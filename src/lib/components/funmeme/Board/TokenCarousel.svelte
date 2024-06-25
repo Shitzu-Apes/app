@@ -25,8 +25,9 @@
 </script>
 
 <svelte:window
-  on:keydown|preventDefault={(event) => {
+  on:keydown={(event) => {
     if (event.key === "ArrowDown") {
+      event.preventDefault();
       const focus = document.querySelector(".focus-element");
 
       const focusTop = focus?.getBoundingClientRect().top;
@@ -39,6 +40,7 @@
         next();
       }
     } else if (event.key === "ArrowUp") {
+      event.preventDefault();
       if (emblaApi?.canScrollPrev()) {
         prev();
       } else {
