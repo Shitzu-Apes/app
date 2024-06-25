@@ -2,7 +2,12 @@
   import { openBottomSheet } from "../BottomSheet/Container.svelte";
 
   import FUNMEME_LOGO from "$lib/assets/logo/funmeme.svg";
+  import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
+  import { showWalletSelector } from "$lib/auth";
   import HowItWorkSheet from "$lib/components/funmeme/BottomSheet/HowItWorkSheet.svelte";
+  import { wallet } from "$lib/near";
+
+  const { accountId$ } = wallet;
 </script>
 
 <nav class="py-2 px-2 w-full flex justify-between">
@@ -36,5 +41,24 @@
     </ul>
   </div>
 
-  <button class="text-sm"> [connect wallet] </button>
+  {#if $accountId$}
+    <a href="/account" class="text-sm inline-flex items-center h-fit">
+      [
+      <img
+        src={SHITZU_POCKET}
+        alt="shitzu pocket"
+        class="size-6 mr-1 text-shitzu-4"
+      />
+      {$accountId$}]
+    </a>
+  {:else}
+    <button
+      class="text-sm"
+      on:click={wallet.isTG
+        ? wallet.loginViaHere
+        : () => showWalletSelector("funmeme")}
+    >
+      [connect]
+    </button>
+  {/if}
 </nav>
