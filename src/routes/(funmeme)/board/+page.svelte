@@ -1,4 +1,5 @@
 <script lang="ts">
+  import SHITZU_KING from "$lib/assets/shitzu_saiya.webp";
   import TokenList from "$lib/components/funmeme/Board/TokenList.svelte";
 </script>
 
@@ -7,6 +8,13 @@
     <h1 class="text-2xl font-500">[start a new coin]</h1>
   </a>
 
+  <div class="flex items-center">
+    <h2 class="text-funmeme-4 text-center font-bold">
+      <div class="text-xl">It's OVER</div>
+      <div class="text-3xl">9000!</div>
+    </h2>
+    <img src={SHITZU_KING} alt="shitzu king" class="size-24" />
+  </div>
   <div class="flex gap-4 items-center">
     <div class="loader size-24" />
     <div class="flex flex-col gap-2">
