@@ -15,6 +15,8 @@
     loop: true,
   };
 
+  let selected = 0;
+
   function prev() {
     emblaApi?.scrollPrev();
   }
@@ -49,11 +51,17 @@
 />
 
 <div
-  class="overflow-hidden h-[70%] relative border-b border-shitzu-4"
+  class="overflow-hidden h-[70%] relative"
   use:embalaCarousel={{ options, plugins: [] }}
   on:emblaInit={(event) => {
     emblaApi = event.detail;
     emblaApi.slideNodes();
+
+    emblaApi.on("select", () => {
+      if (emblaApi) {
+        selected = emblaApi.selectedScrollSnap();
+      }
+    });
   }}
 >
   <div class="flex w-full h-full">
@@ -71,13 +79,25 @@
       <TokenHolder />
     </div>
   </div>
-  <button class="absolute left-0 top-1/2 -translate-y-1/2" on:click={prev}>
-    <div class="i-mdi:chevron-left size-12 text-shitzu-4/75" />
-  </button>
-  <button class="absolute right-0 top-1/2 -translate-y-1/2" on:click={next}>
-    <div class="i-mdi:chevron-right size-12 text-shitzu-4/75" />
-  </button>
 </div>
-<div class="h-[30%] w-full flex justify-center items-center pb-10 px-6">
+<div
+  class="w-full h-8 flex justify-evenly border-b bg-shitzu-4 text-black items-center"
+>
+  {#each ["[detail]", "[chart]", "[holder]"] as tab, i (tab)}
+    <button
+      class="cursor-pointer border-r border-dark w-[33%] last:border-transparent"
+      class:font-bold={selected === i}
+      on:click={() => {
+        emblaApi?.scrollTo(i);
+      }}
+    >
+      {tab}
+    </button>
+  {/each}
+</div>
+
+<div
+  class="h-[calc(30%-32px)] w-full flex justify-center items-center pb-4 px-6"
+>
   <FunMemeStake />
 </div>
