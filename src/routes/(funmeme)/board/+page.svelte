@@ -31,7 +31,10 @@
     <button class="bg-shitzu-5 px-4 py-2 rounded-lg">Search</button>
   </div>
 
-  <section class="w-full">
+  <div class="flex items-center justify-center text-base text-shitzu-4">
+    &leftarrow;&uparrow;&downarrow;&rightarrow; Use arrow keys to navigate
+  </div>
+  <section class="w-full max-w-lg">
     <TokenList />
   </section>
 </div>

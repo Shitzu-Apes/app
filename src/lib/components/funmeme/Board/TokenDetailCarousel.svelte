@@ -12,6 +12,7 @@
   let emblaApi: EmblaCarouselType | undefined = undefined;
   let options: EmblaOptionsType = {
     axis: "x",
+    loop: true,
   };
 
   function prev() {
@@ -35,6 +36,18 @@
   }
 </script>
 
+<svelte:window
+  on:keydown|preventDefault={(event) => {
+    if (focused) {
+      if (event.key === "ArrowRight") {
+        next();
+      } else if (event.key === "ArrowLeft") {
+        prev();
+      }
+    }
+  }}
+/>
+
 <div
   class="overflow-hidden h-[70%] relative border-b border-shitzu-4"
   use:embalaCarousel={{ options, plugins: [] }}
@@ -43,7 +56,7 @@
     emblaApi.slideNodes();
   }}
 >
-  <div class="flex w-screen h-full">
+  <div class="flex w-full h-full">
     <div
       class="flex-[0_0_100%] min-w-0 flex flex-col justify-center items-center h-full text-shitzu-4 gap-4"
     >
