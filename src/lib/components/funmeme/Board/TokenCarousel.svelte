@@ -71,10 +71,10 @@
       </div>
     {/each}
   </div>
-  <button on:click={prev} class="absolute left-1/2 top-0 -translate-x-1/2">
+  <!-- <button on:click={prev} class="absolute left-1/2 top-0 -translate-x-1/2">
     <div class="i-mdi:chevron-up size-12 text-shitzu-4/75" />
   </button>
   <button on:click={next} class="absolute left-1/2 bottom-0 -translate-x-1/2">
     <div class="i-mdi:chevron-down size-12 text-shitzu-4/75" />
-  </button>
+  </button> -->
 </div>
