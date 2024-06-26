@@ -40,6 +40,6 @@ jobs:
       - name: Upload to Deno Deploy
         uses: denoland/deployctl@v1
         with:
-          project: "shitzu-app"
+          project: "funmeme-app"
           entrypoint: "mod.ts"
           root: "build"
