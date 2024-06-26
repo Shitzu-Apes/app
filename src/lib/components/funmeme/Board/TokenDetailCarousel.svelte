@@ -7,6 +7,7 @@
 
   import FunMemeStake from "./FunMemeStake.svelte";
   import TokenChart from "./TokenChart.svelte";
+  import TokenComment from "./TokenComment.svelte";
   import TokenDetail from "./TokenDetail.svelte";
   import TokenHolder from "./TokenHolder.svelte";
   let emblaApi: EmblaCarouselType | undefined = undefined;
@@ -15,6 +16,8 @@
     loop: true,
   };
 
+  // just a placeholder for testing comment widget
+  export let id: number;
   let selected = 0;
 
   function prev() {
@@ -80,12 +83,15 @@
     <div class="flex-[0_0_100%] min-w-0">
       <TokenHolder />
     </div>
+    <div class="flex-[0_0_100%] min-w-0">
+      <TokenComment {id} />
+    </div>
   </div>
 </div>
 <div
   class="w-full h-8 flex justify-evenly border-b bg-shitzu-4 text-black items-center"
 >
-  {#each ["[detail]", "[chart]", "[holder]"] as tab, i (tab)}
+  {#each ["[detail]", "[chart]", "[holder]", "[discuss]"] as tab, i (tab)}
     <button
       class="cursor-pointer border-r border-dark w-[33%] last:border-transparent"
       class:font-bold={selected === i}

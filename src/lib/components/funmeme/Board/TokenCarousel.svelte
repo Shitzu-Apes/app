@@ -67,9 +67,9 @@
   }}
 >
   <div class="flex flex-col h-screen">
-    {#each tokens as token, I (token)}
+    {#each tokens as token, i (token)}
       <div class="flex-[0_0_100%] min-h-0">
-        <TokenDetailCarousel focused={selected === I} />
+        <TokenDetailCarousel focused={selected === i} id={i} />
       </div>
     {/each}
   </div>
