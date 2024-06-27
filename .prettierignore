@@ -4,3 +4,9 @@ package-lock.json
 yarn.lock
 /abi
 /src/smui.css
+
+
+charting_library/
+src/lib/charting_library
+src/lib/datafeeds
+static/charting_library

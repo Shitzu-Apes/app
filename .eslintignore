@@ -7,4 +7,7 @@ yarn.lock
 
 # need to support all Svelte Component
 src/lib/layout/BottomSheet
-charting_library
+charting_library/
+src/lib/charting_library
+src/lib/datafeeds
+static/charting_library
