@@ -39,7 +39,9 @@ jobs:
 
       - name: Run script
         env:
-          CHARTING_LIBRARY_REPOSITORY: "https://${{ secrets.GH_PAT }}@github.com/tradingview/charting_library/"
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          CHARTING_LIBRARY_REPOSITORY: "https://$GH_TOKEN@github.com/tradingview/charting_library"
+
         run: "./copy_charting_library_files.sh"
 
       - name: Build step
