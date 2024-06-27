@@ -17,6 +17,9 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+          submodules: recursive
 
       - name: Install Deno
         uses: denoland/setup-deno@v1
@@ -33,16 +36,6 @@ jobs:
 
       - name: Lint
         run: "yarn lint"
-
-      - name: Make script executable
-        run: "chmod +x ./copy_charting_library_files.sh"
-
-      - name: Run script
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-          CHARTING_LIBRARY_REPOSITORY: "https://$GH_TOKEN@github.com/tradingview/charting_library"
-
-        run: "./copy_charting_library_files.sh"
 
       - name: Build step
         run: "yarn build"
