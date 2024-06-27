@@ -34,6 +34,15 @@ jobs:
       - name: Lint
         run: "yarn lint"
 
+      - name: Make script executable
+        run: "chmod +x ./copy_charting_library_files.sh"
+
+      - name: Run script
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+          CHARTING_LIBRARY_REPOSITORY: "${{ secrets.GH_PAT }}@github.com/tradingview/charting_library.git"
+        run: "./copy_charting_library_files.sh"
+
       - name: Build step
         run: "yarn build"
 
