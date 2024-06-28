@@ -4,11 +4,12 @@
     type EmblaOptionsType,
   } from "embla-carousel";
   import embalaCarousel from "embla-carousel-svelte";
+  import { createEventDispatcher, onMount } from "svelte";
 
   import TokenDetailCarousel from "./TokenDetailCarousel.svelte";
 
-  import { replaceState } from "$app/navigation";
   import { page } from "$app/stores";
+
   let emblaApi: EmblaCarouselType | undefined = undefined;
   let options: EmblaOptionsType = {
     axis: "y",
@@ -16,32 +17,28 @@
 
   export let memebids;
 
-  export let currentMemebidsIdx = 0;
-  export let next: () => void;
-  export let prev: () => void;
-  export let isFunmemeHome: boolean;
+  export let currentMemebidsIdx: number;
 
-  $: {
-    const focus = document.querySelector(".focus-element");
+  const dispatch = createEventDispatcher();
 
-    const focusTop = focus?.getBoundingClientRect().top;
-
-    if (focusTop !== 0 && !isFunmemeHome) {
-      document.querySelector(".focus-element")?.scrollIntoView({
-        behavior: "smooth",
-      });
+  onMount(() => {
+    if ($page.params.page !== "board") {
+      setTimeout(() => {
+        document.querySelector(".focus-element")?.scrollIntoView({
+          behavior: "smooth",
+        });
+        emblaApi?.scrollTo(currentMemebidsIdx, true);
+      }, 0);
     }
-    emblaApi?.scrollTo(currentMemebidsIdx);
+  });
+
+  function prev() {
+    emblaApi?.scrollPrev();
   }
-  // function prev() {
-  //   emblaApi?.scrollPrev();
 
-  //   // update the url
-  // }
-
-  // function next() {
-  //   emblaApi?.scrollNext();
-  // }
+  function next() {
+    emblaApi?.scrollNext();
+  }
 </script>
 
 <svelte:window
@@ -56,9 +53,7 @@
         document.querySelector(".focus-element")?.scrollIntoView({
           behavior: "smooth",
         });
-        if ($page.params.page === "board") {
-          next();
-        }
+        dispatch("select", 0);
       } else {
         next();
       }
@@ -71,9 +66,7 @@
           top: 0,
           behavior: "smooth",
         });
-        if ($page.params.page !== "board") {
-          replaceState("/board", $page.state);
-        }
+        dispatch("select", -1);
       }
     }
   }}
@@ -87,7 +80,7 @@
 
     emblaApi.on("select", () => {
       if (emblaApi) {
-        currentMemebidsIdx = emblaApi.selectedScrollSnap();
+        dispatch("select", emblaApi.selectedScrollSnap());
       }
     });
   }}

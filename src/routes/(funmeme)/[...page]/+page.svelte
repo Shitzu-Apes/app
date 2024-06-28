@@ -13,24 +13,21 @@
     };
   };
 
-  let { memebids, currentMemebidsIdx, isFunmemeHome } = data.props;
+  let { memebids, currentMemebidsIdx } = data.props;
 
-  const next = () => {
-    // push to the next page
-    if (currentMemebidsIdx === memebids.length - 1) return;
-    const id = memebids[currentMemebidsIdx + 1].id;
+  function onSelect(event: CustomEvent<number>) {
+    const idx = event.detail;
+    if (idx === -1) {
+      replaceState("/board", $page.state);
+      return;
+    }
+
+    const id = memebids[idx].id;
+
+    if (!id) return;
+
     replaceState(`/${id}`, $page.state);
-    currentMemebidsIdx += 1;
-  };
-
-  const prev = () => {
-    // push to the previous page
-    if (currentMemebidsIdx === 0) return;
-    const id = memebids[currentMemebidsIdx - 1].id;
-    replaceState(`/${id}`, $page.state);
-
-    currentMemebidsIdx -= 1;
-  };
+  }
 </script>
 
 <div class="flex flex-col justify-center items-center gap-4 mt-2 min-h-screen">
@@ -76,13 +73,7 @@
     {#await memebids}
       Loading
     {:then memebids}
-      <TokenList
-        {memebids}
-        {currentMemebidsIdx}
-        {next}
-        {prev}
-        {isFunmemeHome}
-      />
+      <TokenList {memebids} {currentMemebidsIdx} on:select={onSelect} />
     {/await}
   </section>
 </div>

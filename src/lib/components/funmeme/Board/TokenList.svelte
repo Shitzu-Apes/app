@@ -7,9 +7,6 @@
 
   export let memebids: MemeBid[] = [];
   export let currentMemebidsIdx: number;
-  export let next: () => void;
-  export let prev: () => void;
-  export let isFunmemeHome: boolean;
 
   const tabs = [
     { id: "following", label: "Following" },
@@ -38,13 +35,7 @@
     {/each}
   </div>
   <section use:melt={$content("terminal")}>
-    <TokenCarousel
-      {memebids}
-      {currentMemebidsIdx}
-      {next}
-      {prev}
-      {isFunmemeHome}
-    />
+    <TokenCarousel {memebids} {currentMemebidsIdx} on:select />
   </section>
   <section use:melt={$content("following")}>Following</section>
 </div>
