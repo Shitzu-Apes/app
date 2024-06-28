@@ -24,21 +24,22 @@
 
 <script lang="ts">
   import { SvelteComponent } from "svelte";
+  import type { colorVariant } from "$lib/models/variant";
 
-  export let variant: "shitzu" | "funmeme" = "shitzu";
+  export let variant: colorVariant = "lime";
 </script>
 
 <div
   class="fixed bg-black bottom-0 left-0 right-0 w-full max-w-[min(30rem,100%)] mx-auto h-[90svh] z-1000 transform {$open
     ? 'translate-y-0'
     : 'translate-y-full'} duration-500 rounded-t-xl border-3 border-b-0 {variant ===
-  'shitzu'
+  'lime'
     ? 'border-lime'
     : 'border-shitzu-4'}"
 >
   <div class="h-full">
     <button
-      class="absolute top-3 right-3 {variant === 'shitzu'
+      class="absolute top-3 right-3 {variant === 'lime'
         ? 'bg-lime'
         : 'bg-shitzu-4'} rounded-full flex justify-center items-center px-1 py-1"
       on:click={close}

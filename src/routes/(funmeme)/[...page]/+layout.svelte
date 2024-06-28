@@ -3,7 +3,7 @@
   import FunmemeHeader from "$lib/layout/funmeme/FunmemeHeader.svelte";
 </script>
 
-<BottomSheet variant="funmeme" />
+<BottomSheet variant="shitzu" />
 <div class="text-white min-h-screen">
   <FunmemeHeader />
   <main>

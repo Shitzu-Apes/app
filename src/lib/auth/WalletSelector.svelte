@@ -2,10 +2,11 @@
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
   import { close } from "$lib/layout/BottomSheet/Container.svelte";
   import type { UnionModuleState } from "$lib/models";
+  import type { colorVariant } from "$lib/models/variant";
   import { NEAR_WALLETS, wallet } from "$lib/near";
   import { isMobile } from "$lib/util";
 
-  export let variant: "shitzu" | "funmeme" = "shitzu";
+  export let variant: colorVariant = "lime";
 
   const modules$ = wallet.modules$;
 
@@ -18,9 +19,7 @@
 <BottomSheetContent {variant}>
   <slot slot="header">
     <h1
-      class="ml-3 {variant === 'shitzu'
-        ? 'text-lime'
-        : 'text-shitzu-4'} text-2xl"
+      class="ml-3 {variant === 'lime' ? 'text-lime' : 'text-shitzu-4'} text-2xl"
     >
       Select Wallet
     </h1>
@@ -28,7 +27,7 @@
   <slot>
     <div
       class="mx-auto flex flex-col gap-4 w-full max-w-xs mt-3 {variant ===
-      'shitzu'
+      'lime'
         ? 'text-lime'
         : 'text-shitzu-4'}"
     >

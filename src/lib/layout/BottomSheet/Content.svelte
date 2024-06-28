@@ -1,7 +1,7 @@
 <script lang="ts">
-  export let variant: "shitzu" | "funmeme" = "shitzu";
+  import type { colorVariant } from "$lib/models/variant";
 
-  console.log({ variant });
+  export let variant: colorVariant = "lime";
 </script>
 
 <div class="flex flex-col w-full h-full mx-auto justify-start items-center">
@@ -13,7 +13,7 @@
     </div>
     <!-- Horizontal Line -->
     <hr
-      class="w-full {variant === 'shitzu' ? 'border-lime' : 'border-shitzu-4'}"
+      class="w-full {variant === 'lime' ? 'border-lime' : 'border-shitzu-4'}"
     />
   </div>
   <div

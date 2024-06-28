@@ -56,7 +56,6 @@
         document.querySelector(".focus-element")?.scrollIntoView({
           behavior: "smooth",
         });
-        console.log("pagge", $page);
         if ($page.params.page === "board") {
           next();
         }
