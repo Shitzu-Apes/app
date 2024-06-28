@@ -17,7 +17,7 @@
   <script
     async
     src="https://comments.app/js/widget.js?3"
-    data-comments-app-website="v7gGUBF7"
+    data-comments-app-website={import.meta.env.VITE_TELEGRAM_COMMENT_APP}
     data-limit="10"
     data-height={height}
     data-page-id="/{id}"
