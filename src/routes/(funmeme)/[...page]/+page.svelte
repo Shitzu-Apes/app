@@ -1,9 +1,39 @@
 <script lang="ts">
+  import { replaceState } from "$app/navigation";
+  import { page } from "$app/stores";
   import SHITZU_KING from "$lib/assets/shitzu_saiya.webp";
   import TokenList from "$lib/components/funmeme/Board/TokenList.svelte";
+  import type { MemeBid } from "$lib/models/funmeme";
+
+  export let data: {
+    props: {
+      memebids: MemeBid[];
+      currentMemebidsIdx: number;
+      isFunmemeHome: boolean;
+    };
+  };
+
+  let { memebids, currentMemebidsIdx, isFunmemeHome } = data.props;
+
+  const next = () => {
+    // push to the next page
+    if (currentMemebidsIdx === memebids.length - 1) return;
+    const id = memebids[currentMemebidsIdx + 1].id;
+    replaceState(`/${id}`, $page.state);
+    currentMemebidsIdx += 1;
+  };
+
+  const prev = () => {
+    // push to the previous page
+    if (currentMemebidsIdx === 0) return;
+    const id = memebids[currentMemebidsIdx - 1].id;
+    replaceState(`/${id}`, $page.state);
+
+    currentMemebidsIdx -= 1;
+  };
 </script>
 
-<div class="flex flex-col justify-center items-center gap-4 mt-2">
+<div class="flex flex-col justify-center items-center gap-4 mt-2 min-h-screen">
   <a href="/create">
     <h1 class="text-2xl font-500">[start a new coin]</h1>
   </a>
@@ -43,6 +73,16 @@
     &leftarrow;&uparrow;&downarrow;&rightarrow; Use arrow keys to navigate
   </div>
   <section class="w-full max-w-lg">
-    <TokenList />
+    {#await memebids}
+      Loading
+    {:then memebids}
+      <TokenList
+        {memebids}
+        {currentMemebidsIdx}
+        {next}
+        {prev}
+        {isFunmemeHome}
+      />
+    {/await}
   </section>
 </div>

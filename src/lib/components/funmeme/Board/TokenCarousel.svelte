@@ -6,22 +6,42 @@
   import embalaCarousel from "embla-carousel-svelte";
 
   import TokenDetailCarousel from "./TokenDetailCarousel.svelte";
+
+  import { replaceState } from "$app/navigation";
+  import { page } from "$app/stores";
   let emblaApi: EmblaCarouselType | undefined = undefined;
   let options: EmblaOptionsType = {
     axis: "y",
   };
 
-  const tokens = [...new Array(20).keys()];
+  export let memebids;
 
-  function prev() {
-    emblaApi?.scrollPrev();
+  export let currentMemebidsIdx = 0;
+  export let next: () => void;
+  export let prev: () => void;
+  export let isFunmemeHome: boolean;
+
+  $: {
+    const focus = document.querySelector(".focus-element");
+
+    const focusTop = focus?.getBoundingClientRect().top;
+
+    if (focusTop !== 0 && !isFunmemeHome) {
+      document.querySelector(".focus-element")?.scrollIntoView({
+        behavior: "smooth",
+      });
+    }
+    emblaApi?.scrollTo(currentMemebidsIdx);
   }
+  // function prev() {
+  //   emblaApi?.scrollPrev();
 
-  function next() {
-    emblaApi?.scrollNext();
-  }
+  //   // update the url
+  // }
 
-  let selected = 0;
+  // function next() {
+  //   emblaApi?.scrollNext();
+  // }
 </script>
 
 <svelte:window
@@ -36,6 +56,10 @@
         document.querySelector(".focus-element")?.scrollIntoView({
           behavior: "smooth",
         });
+        console.log("pagge", $page);
+        if ($page.params.page === "board") {
+          next();
+        }
       } else {
         next();
       }
@@ -48,6 +72,9 @@
           top: 0,
           behavior: "smooth",
         });
+        if ($page.params.page !== "board") {
+          replaceState("/board", $page.state);
+        }
       }
     }
   }}
@@ -61,15 +88,15 @@
 
     emblaApi.on("select", () => {
       if (emblaApi) {
-        selected = emblaApi.selectedScrollSnap();
+        currentMemebidsIdx = emblaApi.selectedScrollSnap();
       }
     });
   }}
 >
   <div class="flex flex-col h-screen">
-    {#each tokens as token, i (token)}
+    {#each memebids as token, i (token)}
       <div class="flex-[0_0_100%] min-h-0">
-        <TokenDetailCarousel focused={selected === i} id={i} />
+        <TokenDetailCarousel focused={currentMemebidsIdx === i} id={i} />
       </div>
     {/each}
   </div>

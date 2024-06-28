@@ -3,6 +3,14 @@
 
   import TokenCarousel from "./TokenCarousel.svelte";
 
+  import type { MemeBid } from "$lib/models/funmeme";
+
+  export let memebids: MemeBid[] = [];
+  export let currentMemebidsIdx: number;
+  export let next: () => void;
+  export let prev: () => void;
+  export let isFunmemeHome: boolean;
+
   const tabs = [
     { id: "following", label: "Following" },
     { id: "terminal", label: "Terminal" },
@@ -30,7 +38,13 @@
     {/each}
   </div>
   <section use:melt={$content("terminal")}>
-    <TokenCarousel />
+    <TokenCarousel
+      {memebids}
+      {currentMemebidsIdx}
+      {next}
+      {prev}
+      {isFunmemeHome}
+    />
   </section>
   <section use:melt={$content("following")}>Following</section>
 </div>
