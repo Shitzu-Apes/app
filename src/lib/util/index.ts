@@ -1,6 +1,7 @@
 import type { HtmlInputEvent } from "../models";
 
 export * from "./FixedNumber";
+export * from "./imageFIleToBase64";
 
 export function filterAllowedCharacters(value: string): string {
   const commaPos = value.indexOf(".");
