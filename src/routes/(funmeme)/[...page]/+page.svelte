@@ -17,6 +17,7 @@
 
   function onSelect(event: CustomEvent<number>) {
     const idx = event.detail;
+    currentMemebidsIdx = idx;
     if (idx === -1) {
       replaceState("/board", $page.state);
       return;
