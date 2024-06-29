@@ -9,7 +9,6 @@
     props: {
       memebids: MemeBid[];
       currentMemebidsIdx: number;
-      isFunmemeHome: boolean;
     };
   };
 

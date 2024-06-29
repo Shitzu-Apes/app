@@ -58,13 +58,11 @@ export async function load({ params }) {
   });
 
   const currentMemebidsIdx = memebids.findIndex((item) => item.id === id) || 0;
-  const isFunmemeHome = id === "board";
 
   return {
     props: {
       currentMemebidsIdx,
       memebids,
-      isFunmemeHome,
     },
   };
 }
