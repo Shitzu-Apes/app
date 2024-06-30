@@ -68,10 +68,6 @@
     &leftarrow;&uparrow;&downarrow;&rightarrow; Use arrow keys to navigate
   </div>
   <section class="w-full max-w-lg">
-    {#await memebids}
-      Loading
-    {:then memebids}
-      <TokenList {memebids} {currentMemebidsIdx} on:select={onSelect} />
-    {/await}
+    <TokenList {memebids} {currentMemebidsIdx} on:select={onSelect} />
   </section>
 </div>
