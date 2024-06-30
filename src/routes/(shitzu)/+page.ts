@@ -4,7 +4,7 @@ import type { PageLoad } from "./$types";
 
 const load: PageLoad = async (props) => {
   if (props.url.hostname === import.meta.env.VITE_FUNMEME_HOSTNAME) {
-    redirect(303, "/board");
+    redirect(303, "/appetizer");
   }
 };
 
