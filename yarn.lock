@@ -4926,6 +4926,13 @@ file-entry-cache@^6.0.1:
   dependencies:
     flat-cache "^3.0.4"
 
+file-selector@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/file-selector/-/file-selector-0.6.0.tgz#fa0a8d9007b829504db4d07dd4de0310b65287dc"
+  integrity sha512-QlZ5yJC0VxHxQQsQhXvBaC7VRJ2uaxTf+Tfpu4Z/OcVQJVpZO+DGU0rkoVW5ce2SccxugvpBJoMvUs59iILYdw==
+  dependencies:
+    tslib "^2.4.0"
+
 filename-reserved-regex@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/filename-reserved-regex/-/filename-reserved-regex-2.0.0.tgz#abf73dfab735d045440abfea2d91f389ebbfa229"
@@ -7404,6 +7411,13 @@ svelte-eslint-parser@^0.37.0:
     espree "^9.6.1"
     postcss "^8.4.38"
     postcss-scss "^4.0.9"
+
+svelte-file-dropzone@^2.0.7:
+  version "2.0.7"
+  resolved "https://registry.yarnpkg.com/svelte-file-dropzone/-/svelte-file-dropzone-2.0.7.tgz#eff5d9c020e9c7e4aeb51a05a48a7920ed6a05a7"
+  integrity sha512-sykRq+Q8rXM9yqsD3T9yzb3syLe21Go01cxb5NTfKA9RgMWHT/gnjS8g36YFWw3jIdC7vbbmuwwgYdA0mlcMqw==
+  dependencies:
+    file-selector "^0.6.0"
 
 svelte-hmr@^0.16.0:
   version "0.16.0"
