@@ -60,7 +60,6 @@
   use:embalaCarousel={{ options, plugins: [] }}
   on:emblaInit={(event) => {
     emblaApi = event.detail;
-    emblaApi.slideNodes();
 
     emblaApi.on("select", () => {
       if (emblaApi) {
