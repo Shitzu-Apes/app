@@ -4347,6 +4347,13 @@ embla-carousel-svelte@^8.1.5:
     embla-carousel "8.1.5"
     embla-carousel-reactive-utils "8.1.5"
 
+embla-carousel-wheel-gestures@^8.0.1:
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/embla-carousel-wheel-gestures/-/embla-carousel-wheel-gestures-8.0.1.tgz#d62ac5d74f3bc5da4923b0a6e20e01bbb8bd2a17"
+  integrity sha512-LMAnruDqDmsjL6UoQD65aLotpmfO49Fsr3H0bMi7I+BH6jbv9OJiE61kN56daKsVtCQEt0SU1MrJslbhtgF3yQ==
+  dependencies:
+    wheel-gestures "^2.2.5"
+
 embla-carousel@8.1.5, embla-carousel@^8.1.5:
   version "8.1.5"
   resolved "https://registry.yarnpkg.com/embla-carousel/-/embla-carousel-8.1.5.tgz#d958083cb16f19e7412bf8f93fa125b21311ac93"
@@ -7929,6 +7936,11 @@ whatwg-url@^7.0.0:
     lodash.sortby "^4.7.0"
     tr46 "^1.0.1"
     webidl-conversions "^4.0.2"
+
+wheel-gestures@^2.2.5:
+  version "2.2.5"
+  resolved "https://registry.yarnpkg.com/wheel-gestures/-/wheel-gestures-2.2.5.tgz#d4a7cdcd402500de26f65aabc8553b657515fb7d"
+  integrity sha512-01BlXRjBVt5Gy0VH2rRqMeccHruTGq2Gd1fx0UqCPN8KDeDCmlTXsRGc/hXJk6W+wnO9CNJp2xfntMNRArBxKQ==
 
 which-boxed-primitive@^1.0.2:
   version "1.0.2"

@@ -4,6 +4,7 @@
     type EmblaOptionsType,
   } from "embla-carousel";
   import embalaCarousel from "embla-carousel-svelte";
+  import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures";
   import { createEventDispatcher, onMount } from "svelte";
 
   import TokenDetailCarousel from "./TokenDetailCarousel.svelte";
@@ -24,9 +25,7 @@
   onMount(() => {
     if ($page.params.page !== "board") {
       setTimeout(() => {
-        document.querySelector(".focus-element")?.scrollIntoView({
-          behavior: "smooth",
-        });
+        document.querySelector(".focus-element")?.scrollIntoView({});
         emblaApi?.scrollTo(currentMemebidsIdx, true);
       }, 0);
     }
@@ -39,6 +38,8 @@
   function next() {
     emblaApi?.scrollNext();
   }
+
+  let startScrollBackToTop = false;
 </script>
 
 <svelte:window
@@ -73,10 +74,26 @@
 />
 <div
   class="overflow-hidden relative focus-element"
-  use:embalaCarousel={{ options, plugins: [] }}
+  use:embalaCarousel={{ options, plugins: [WheelGesturesPlugin()] }}
   on:emblaInit={(event) => {
     emblaApi = event.detail;
-    emblaApi.slideNodes();
+
+    emblaApi.on("pointerDown", (e) => {
+      if (e.selectedScrollSnap() === 0) {
+        startScrollBackToTop = true;
+      }
+    });
+
+    emblaApi.on("pointerUp", (e) => {
+      if (startScrollBackToTop && e.selectedScrollSnap() === 0) {
+        scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+        dispatch("select", -1);
+      }
+      startScrollBackToTop = false;
+    });
 
     emblaApi.on("select", () => {
       if (emblaApi) {
