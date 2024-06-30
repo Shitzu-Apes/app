@@ -2,7 +2,7 @@ import { derived, readable, type Readable } from "svelte/store";
 
 import type { FungibleTokenMetadata } from "$lib/abi";
 import BlackDragonLogo from "$lib/assets/logo/blackdragon.png";
-import IntelNearLogo from "$lib/assets/logo/intelnear.jpeg";
+import IntearLogo from "$lib/assets/logo/intear.jpeg";
 import LonkLogo from "$lib/assets/logo/lonk.png";
 import NDCLogo from "$lib/assets/logo/ndc.jpeg";
 import PussyLogo from "$lib/assets/logo/pussy.webp";
@@ -121,6 +121,8 @@ const refPrices$ = readable<
             meta.icon = BlackDragonLogo;
           } else if (token_id === "pussy.laboratory.jumpfinance.near") {
             meta.icon = PussyLogo;
+          } else if (token_id === "intel.tkn.near") {
+            meta.icon = IntearLogo;
           }
           acc[token_id] = meta;
         }
@@ -302,6 +304,6 @@ export const memes = [
   { name: "Shitzu", src: ShitzuLogo },
   { name: "BlackDragon", src: BlackDragonLogo },
   { name: "Lonk", src: LonkLogo },
-  { name: "IntelNear", src: IntelNearLogo },
+  { name: "Intear", src: IntearLogo },
   { name: "NDC", src: NDCLogo },
 ];
