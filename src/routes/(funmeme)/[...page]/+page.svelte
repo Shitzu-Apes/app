@@ -4,17 +4,15 @@
   import SHITZU_KING from "$lib/assets/shitzu_saiya.webp";
   import TokenList from "$lib/components/funmeme/Board/TokenList.svelte";
   import type { MemeBid } from "$lib/models/funmeme";
+  import { MemeCooking } from "$lib/near";
 
-  export let data: {
-    props: {
-      memebids: MemeBid[];
-      currentMemebidsIdx: number;
-    };
-  };
+  let memebids: Promise<MemeBid[]> = MemeCooking.getLatestMeme(
+    $page.params.page,
+  );
 
-  let { memebids, currentMemebidsIdx } = data.props;
+  let currentMemebidsIdx = 0;
 
-  function onSelect(event: CustomEvent<number>) {
+  async function onSelect(event: CustomEvent<number>) {
     const idx = event.detail;
     currentMemebidsIdx = idx;
     if (idx === -1) {
@@ -22,7 +20,7 @@
       return;
     }
 
-    const id = memebids[idx].id;
+    const id = (await memebids)[idx].id;
 
     if (!id) return;
 
