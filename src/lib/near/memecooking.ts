@@ -1,4 +1,4 @@
-import type { MemeBid } from "$lib/models/funmeme";
+import type { MemeBid, MemeBidAccountInfo } from "$lib/models/funmeme";
 
 export abstract class MemeCooking {
   public static getLatestMeme(firstMemeId?: string): Promise<MemeBid[]> {
@@ -66,6 +66,24 @@ export abstract class MemeCooking {
             ...mockedData,
           ];
         }
+
+        resolve(mockedData);
+      }, 1000);
+    });
+  }
+
+  public static getAccount(
+    accountId: string,
+  ): Promise<MemeBidAccountInfo | null> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const deposits: MemeBidAccountInfo["deposits"] =
+          Math.random() > 0.5 ? [[0, "100000000000000000000000"]] : [];
+
+        const mockedData = {
+          account_id: accountId,
+          deposits,
+        };
 
         resolve(mockedData);
       }, 1000);

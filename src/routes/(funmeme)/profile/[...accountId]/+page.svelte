@@ -3,8 +3,12 @@
 
   import { page } from "$app/stores";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
+  import AccountInfo from "$lib/components/funmeme/Profile/AccountInfo.svelte";
+  import { MemeCooking } from "$lib/near";
 
   const { accountId } = $page.params;
+
+  $: accountInfo = MemeCooking.getAccount(accountId);
 
   const tabs = [
     { id: "staked", label: "coins held" },
@@ -55,7 +59,9 @@
     </div>
   </div>
 
-  <section use:melt={$content(tabs[0].id)}>tabs 0</section>
+  <section use:melt={$content(tabs[0].id)}>
+    <AccountInfo {accountInfo} />
+  </section>
   <section use:melt={$content(tabs[1].id)}>tabs 1</section>
   <section use:melt={$content(tabs[2].id)}>tabs 2</section>
 </section>
