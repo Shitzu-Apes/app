@@ -21,10 +21,10 @@
       </a>
 
       <a
-        href="/funmeme"
+        href="/appetizer"
         class="bg-lime mr-2 px-3 py-0.5 rounded text-black decoration-none animate-shaking"
       >
-        fun.meme
+        meme.cooking
       </a>
       {#await import("$lib/auth") then { Login }}
         <Login />

@@ -35,7 +35,7 @@
 
       <div class="flex flex-col items-center justify-center gap-3">
         <a
-          href="https://shard.dog/fundotmeme/"
+          href="http://shard.dog/memecooking"
           target="_blank"
           rel="noopener noreferrer"
           class="text-white text-xl"
@@ -49,14 +49,14 @@
         <div class="flex justify-center items-center max-w-lg">
           <div class="flex items-center gap-4">
             <a
-              href="https://twitter.com/fundotmeme"
+              href="https://twitter.com/memedotcooking"
               target="_blank"
               rel="noopener noreferrer"
             >
               [ twitter ]
             </a>
             <a
-              href="https://t.me/+wIFBaPQJmAcwYTc0"
+              href="https://t.me/memedotcooking"
               target="_blank"
               rel="noopener noreferrer"
             >

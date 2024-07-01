@@ -21,7 +21,7 @@
           <a href="https://twitter.com/fundotmeme"> [twitter]</a>
         </li>
         <li>
-          <a href="https://github.com/"> [support]</a>
+          <a href="https://t.me/memedotcookinsupports"> [support]</a>
         </li>
       </div>
       <div class="flex gap-2">
