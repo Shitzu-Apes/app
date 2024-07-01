@@ -15,7 +15,7 @@
     class="w-full h-[100dvh] bg-dark"
   >
     <div
-      class="mx-auto w-fit h-screen flex flex-col justify-center items-center gap-10 overflow-hidden"
+      class="mx-auto w-fit h-full flex flex-col justify-center items-center gap-10 overflow-hidden"
     >
       <h1
         class="text-5xl md:text-7xl text-center tracking-widest font-semibold text-white animate-shake-x animate-count-infinite px-3 flex flex-col items-center motion-reduce:animate-none"
