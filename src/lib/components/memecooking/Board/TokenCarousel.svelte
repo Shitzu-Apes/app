@@ -10,13 +10,14 @@
   import TokenDetailCarousel from "./TokenDetailCarousel.svelte";
 
   import { page } from "$app/stores";
+  import type { MCMemeInfo } from "$lib/models/memecooking";
 
   let emblaApi: EmblaCarouselType | undefined = undefined;
   let options: EmblaOptionsType = {
     axis: "y",
   };
 
-  export let memebids;
+  export let memebids: MCMemeInfo[];
 
   export let currentMemebidsIdx: number;
 
@@ -100,10 +101,16 @@
         dispatch("select", emblaApi.selectedScrollSnap());
       }
     });
+
+    emblaApi.on("slidesChanged", () => {
+      if (emblaApi) {
+        dispatch("select", emblaApi.selectedScrollSnap());
+      }
+    });
   }}
 >
   <div class="flex flex-col h-screen">
-    {#each memebids as token, i (token)}
+    {#each memebids as token, i (token.id)}
       <div class="flex-[0_0_100%] min-h-0">
         <TokenDetailCarousel focused={currentMemebidsIdx === i} id={i} />
       </div>

@@ -6,7 +6,7 @@ export abstract class MemeCooking {
       setTimeout(() => {
         let mockedData: MCMemeInfo[] = [
           {
-            id: "1",
+            id: "150",
             owner: "shitzu.near",
             end_timestamp_ms: Date.now() + 1000,
             name: "shhh",
@@ -86,5 +86,15 @@ export abstract class MemeCooking {
         resolve(mockedData);
       }, 1000);
     });
+  }
+
+  public static subscribeToMemeUpdates(onNewMeme: (meme: MCMemeInfo) => void) {
+    const ws = new WebSocket(import.meta.env.VITE_MEME_COOKING_WS_URL);
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      onNewMeme(data);
+    };
   }
 }

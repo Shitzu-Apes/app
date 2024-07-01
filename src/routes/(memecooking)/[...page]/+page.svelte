@@ -1,8 +1,7 @@
 <script lang="ts">
-  import { replaceState } from "$app/navigation";
   import { page } from "$app/stores";
   import SHITZU_KING from "$lib/assets/shitzu_saiya.webp";
-  import TokenList from "$lib/components/memecooking/Board/TokenList.svelte";
+  import Board from "$lib/components/memecooking/Board/Board.svelte";
   import type { MCMemeInfo } from "$lib/models/memecooking";
   import { MemeCooking } from "$lib/near";
 
@@ -11,21 +10,6 @@
   );
 
   let currentMemebidsIdx = 0;
-
-  async function onSelect(event: CustomEvent<number>) {
-    const idx = event.detail;
-    currentMemebidsIdx = idx;
-    if (idx === -1) {
-      replaceState("/board", $page.state);
-      return;
-    }
-
-    const id = (await memebids)[idx].id;
-
-    if (!id) return;
-
-    replaceState(`/${id}`, $page.state);
-  }
 </script>
 
 <div class="flex flex-col items-center gap-4 mt-2 min-h-screen">
@@ -68,6 +52,6 @@
     &leftarrow;&uparrow;&downarrow;&rightarrow; Use arrow keys to navigate
   </div>
   <section class="w-full max-w-lg">
-    <TokenList {memebids} {currentMemebidsIdx} on:select={onSelect} />
+    <Board {memebids} {currentMemebidsIdx} />
   </section>
 </div>
