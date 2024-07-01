@@ -42,7 +42,10 @@
   </div>
 
   {#if $accountId$}
-    <a href="/account" class="text-sm inline-flex items-center h-fit">
+    <a
+      href="/profile/{$accountId$}"
+      class="text-sm inline-flex items-center h-fit"
+    >
       [
       <img
         src={SHITZU_POCKET}
@@ -58,7 +61,7 @@
       class="text-sm"
       on:click={wallet.isTG
         ? wallet.loginViaHere
-        : () => showWalletSelector("funmeme")}
+        : () => showWalletSelector("shitzu")}
     >
       [connect]
     </button>
