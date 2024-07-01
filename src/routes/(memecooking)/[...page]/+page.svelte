@@ -28,7 +28,7 @@
   }
 </script>
 
-<div class="flex flex-col justify-center items-center gap-4 mt-2 min-h-screen">
+<div class="flex flex-col items-center gap-4 mt-2 min-h-screen">
   <a href="/create">
     <h1 class="text-2xl font-500">[start a new coin]</h1>
   </a>
