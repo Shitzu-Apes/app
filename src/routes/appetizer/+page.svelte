@@ -12,18 +12,18 @@
   <div
     in:blur={{ duration: 500, delay: 500, easing: cubicIn }}
     out:blur={{ duration: 500, easing: cubicOut }}
-    class="w-full h-screen bg-dark"
+    class="w-full h-[100dvh] bg-dark"
   >
     <div
       class="mx-auto w-fit h-screen flex flex-col justify-center items-center gap-10 overflow-hidden"
     >
       <h1
-        class="text-6xl md:text-8xl text-center tracking-widest font-semibold text-white animate-shake-x animate-count-infinite px-3 flex flex-col items-center motion-reduce:animate-none"
+        class="text-5xl md:text-7xl text-center tracking-widest font-semibold text-white animate-shake-x animate-count-infinite px-3 flex flex-col items-center motion-reduce:animate-none"
       >
         <img
           src={MEMECOOKING_LOGO}
           alt="memecooking logo"
-          class="size-40 md:size-60"
+          class="size-34 md:size-50"
         />
         Coming <br />Soon
       </h1>
@@ -46,7 +46,6 @@
         >
           [ Join waitlist ]
         </a>
-        <a href="/" class="text-white text-base"> [ Back ] </a>
       </div>
 
       <div class="w-full px-2 py-3 text-white">
