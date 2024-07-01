@@ -2,12 +2,14 @@
   import { page } from "$app/stores";
   import SHITZU_KING from "$lib/assets/shitzu_saiya.webp";
   import Board from "$lib/components/memecooking/Board/Board.svelte";
-  import type { MCMemeInfo } from "$lib/models/memecooking";
   import { MemeCooking } from "$lib/near";
+  import { memebids } from "$lib/store/memebids";
 
-  let memebids: Promise<MCMemeInfo[]> = MemeCooking.getLatestMeme(
+  let inititalMembidsPromise: Promise<void> = MemeCooking.getLatestMeme(
     $page.params.page,
-  );
+  ).then((newMemebids) => {
+    $memebids = newMemebids;
+  });
 
   let currentMemebidsIdx = 0;
 </script>
@@ -52,6 +54,6 @@
     &leftarrow;&uparrow;&downarrow;&rightarrow; Use arrow keys to navigate
   </div>
   <section class="w-full max-w-lg">
-    <Board {memebids} {currentMemebidsIdx} />
+    <Board {inititalMembidsPromise} {currentMemebidsIdx} />
   </section>
 </div>

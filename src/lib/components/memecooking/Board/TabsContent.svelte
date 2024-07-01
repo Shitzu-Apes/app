@@ -5,10 +5,9 @@
 
   import { replaceState } from "$app/navigation";
   import { page } from "$app/stores";
-  import type { MCMemeInfo } from "$lib/models/memecooking";
   import { MemeCooking } from "$lib/near";
+  import { memebids } from "$lib/store/memebids";
 
-  export let memebids: MCMemeInfo[];
   export let currentMemebidsIdx: number;
 
   const tabs = [
@@ -24,14 +23,14 @@
   });
 
   MemeCooking.subscribeToMemeUpdates((newMemeInfo) => {
-    const idx = memebids.findIndex((b) => b.id === newMemeInfo.id);
+    const idx = $memebids.findIndex((b) => b.id === newMemeInfo.id);
 
     if (idx === currentMemebidsIdx) {
       return;
     }
 
     if (idx === -1) {
-      memebids = [...memebids, newMemeInfo];
+      $memebids = [...$memebids, newMemeInfo];
     }
   });
 
@@ -43,7 +42,7 @@
       return;
     }
 
-    const id = memebids[idx].id;
+    const id = $memebids[idx].id;
 
     if (!id) return;
 
@@ -65,7 +64,11 @@
     {/each}
   </div>
   <section use:melt={$content("terminal")}>
-    <TokenCarousel {memebids} {currentMemebidsIdx} on:select={onSelect} />
+    <TokenCarousel
+      memebids={$memebids}
+      {currentMemebidsIdx}
+      on:select={onSelect}
+    />
   </section>
   <section use:melt={$content("following")}>Following</section>
 </div>

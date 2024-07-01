@@ -1,13 +1,11 @@
 <script lang="ts">
   import TabsContent from "./TabsContent.svelte";
 
-  import type { MCMemeInfo } from "$lib/models/memecooking";
-
-  export let memebids: Promise<MCMemeInfo[]>;
+  export let inititalMembidsPromise: Promise<void>;
   export let currentMemebidsIdx: number;
 </script>
 
-{#await memebids}
+{#await inititalMembidsPromise}
   <section>
     <div class="flex flex-col h-screen">
       <div class="flex-[0_0_100%] min-h-0">
@@ -55,6 +53,6 @@
       </div>
     </div>
   </section>
-{:then memebids}
-  <TabsContent {memebids} {currentMemebidsIdx} />
+{:then}
+  <TabsContent {currentMemebidsIdx} />
 {/await}
