@@ -1,20 +1,21 @@
 <script lang="ts">
-  import type { MCAccountInfo } from "$lib/models/memecooking";
-  import { FixedNumber } from "$lib/util";
+  import Deposit from "./Deposit.svelte";
 
-  export let accountInfo: Promise<MCAccountInfo>;
+  import type { MCAccountInfo } from "$lib/models/memecooking";
+
+  export let accountInfo: Promise<MCAccountInfo | null>;
 </script>
 
 {#await accountInfo}
   <div>Loading...</div>
 {:then accountInfo}
-  <ul>
-    {#each accountInfo.deposits as [id, deposit] (id)}
-      <li>
-        {id}: {new FixedNumber(deposit, 24).format()}
-
-        <button>[withdraw]</button>
-      </li>
-    {/each}
-  </ul>
+  {#if accountInfo !== null}
+    <ul>
+      {#each accountInfo.deposits as deposit (deposit[0])}
+        <li>
+          <Deposit {deposit} />
+        </li>
+      {/each}
+    </ul>
+  {/if}
 {/await}

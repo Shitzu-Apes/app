@@ -1,0 +1,34 @@
+<script lang="ts">
+  import type { MCAccountInfo } from "$lib/models/memecooking";
+  import { MemeCooking } from "$lib/near";
+
+  export let deposit: MCAccountInfo["deposits"][number];
+
+  let memeInfo = MemeCooking.getMeme(deposit[0].toString());
+</script>
+
+{#await memeInfo}
+  <div class="flex gap-4 items-center">
+    <div class="loader size-24" />
+    <div class="flex flex-col gap-2">
+      <div class="loader w-40 h-4" />
+      <div class="loader w-50 h-4" />
+      <div class="loader w-20 h-2" />
+      <div class="loader w-50 h-5" />
+    </div>
+  </div>
+{:then memeInfo}
+  {#if memeInfo}
+    <div class="flex gap-4 items-center">
+      <img src={memeInfo?.icon} alt="{memeInfo.name} icon" class=" size-24" />
+      <div class="flex flex-col gap-2">
+        <div class="w-40 h-4">
+          <h3 class="text-lg font-bold">{memeInfo.name}</h3>
+        </div>
+        <div class="w-50 h-4" />
+        <div class="w-20 h-2" />
+        <div class="w-50 h-5">[withdraw]</div>
+      </div>
+    </div>
+  {/if}
+{/await}
