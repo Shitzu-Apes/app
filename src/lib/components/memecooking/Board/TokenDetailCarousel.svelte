@@ -5,7 +5,7 @@
   } from "embla-carousel";
   import embalaCarousel from "embla-carousel-svelte";
 
-  import FunMemeStake from "./FunMemeStake.svelte";
+  import MCStake from "./MCStake.svelte";
   import TokenChart from "./TokenChart.svelte";
   import TokenComment from "./TokenComment.svelte";
   import TokenDetail from "./TokenDetail.svelte";
@@ -106,5 +106,5 @@
 <div
   class="h-[calc(30%-32px)] w-full flex justify-center items-center pb-4 px-6"
 >
-  <FunMemeStake />
+  <MCStake />
 </div>

@@ -2,11 +2,11 @@
   import { replaceState } from "$app/navigation";
   import { page } from "$app/stores";
   import SHITZU_KING from "$lib/assets/shitzu_saiya.webp";
-  import TokenList from "$lib/components/funmeme/Board/TokenList.svelte";
-  import type { MemeBid } from "$lib/models/funmeme";
+  import TokenList from "$lib/components/memecooking/Board/TokenList.svelte";
+  import type { MCMemeInfo } from "$lib/models/memecooking";
   import { MemeCooking } from "$lib/near";
 
-  let memebids: Promise<MemeBid[]> = MemeCooking.getLatestMeme(
+  let memebids: Promise<MCMemeInfo[]> = MemeCooking.getLatestMeme(
     $page.params.page,
   );
 
@@ -34,7 +34,7 @@
   </a>
 
   <div class="flex items-center">
-    <h2 class="text-funmeme-4 text-center font-bold">
+    <h2 class="text-memecooking-4 text-center font-bold">
       <div class="text-xl">It's OVER</div>
       <div class="text-3xl">9000!</div>
     </h2>

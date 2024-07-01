@@ -1,54 +1,24 @@
-import type { MemeBid, MemeBidAccountInfo } from "$lib/models/funmeme";
+import type { MCMemeInfo, MCAccountInfo } from "$lib/models/memecooking";
 
 export abstract class MemeCooking {
-  public static getLatestMeme(firstMemeId?: string): Promise<MemeBid[]> {
+  public static getLatestMeme(firstMemeId?: string): Promise<MCMemeInfo[]> {
     return new Promise((resolve) => {
       setTimeout(() => {
-        let mockedData = [
+        let mockedData: MCMemeInfo[] = [
           {
-            id: "x1Jkan",
-            name: "Shitzu",
-            ticker: "SHITZU",
-            icon: "https://shitzu.io/shitzu.png",
-            created_by: "Shitzu King",
-            created_at: Date.now() - 1000,
-            duration: 250,
-          },
-          {
-            id: "p3fkqn",
-            name: "Shitzu",
-            ticker: "SHITZU",
-            icon: "https://shitzu.io/shitzu.png",
-            created_by: "Shitzu King",
-            created_at: Date.now() - 1000,
-            duration: 250,
-          },
-          {
-            id: "t3fjkU5",
-            name: "Shitzu",
-            ticker: "SHITZU",
-            icon: "https://shitzu.io/shitzu.png",
-            created_by: "Shitzu King",
-            created_at: Date.now() - 1000,
-            duration: 250,
-          },
-          {
-            id: "l3fjkn",
-            name: "Shitzu",
-            ticker: "SHITZU",
-            icon: "https://shitzu.io/shitzu.png",
-            created_by: "Shitzu King",
-            created_at: Date.now() - 1000,
-            duration: 250,
-          },
-          {
-            id: "In6mmAnr",
-            name: "Shitzu",
-            ticker: "SHITZU",
-            icon: "https://shitzu.io/shitzu.png",
-            created_by: "Shitzu King",
-            created_at: Date.now() - 1000,
-            duration: 250,
+            id: "1",
+            owner: "shitzu.near",
+            end_timestamp_ms: Date.now() + 1000,
+            name: "shhh",
+            symbol: "SHHH",
+            icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABKklEQVR42mNk",
+            decimals: 18,
+            total_supply: "100000000000000000000000000",
+            banner:
+              "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABKklEQVR42mNk",
+            deposit_token_id: "wrap.near",
+            description: "Shitzu is a meme token.",
+            links: [["https://twitter.com/shitzuonnear", ""]],
           },
         ];
 
@@ -56,12 +26,18 @@ export abstract class MemeCooking {
           mockedData = [
             {
               id: firstMemeId,
-              name: "Shitzu",
-              ticker: "SHITZU",
-              icon: "https://shitzu.io/shitzu.png",
-              created_by: "Shitzu King",
-              created_at: Date.now() - 1000,
-              duration: 250,
+              owner: "root.near",
+              end_timestamp_ms: Date.now() + 1000,
+              name: "drrragon",
+              symbol: "ddr",
+              icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABKklEQVR42mNk",
+              decimals: 18,
+              total_supply: "100000000000000000000000000",
+              banner:
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABKklEQVR42mNk",
+              deposit_token_id: "wrap.near",
+              description: "Illia resurected the dragon.",
+              links: [["https://twitter.com/drrragon", ""]],
             },
             ...mockedData,
           ];
@@ -72,12 +48,10 @@ export abstract class MemeCooking {
     });
   }
 
-  public static getAccount(
-    accountId: string,
-  ): Promise<MemeBidAccountInfo | null> {
+  public static getAccount(accountId: string): Promise<MCAccountInfo | null> {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const deposits: MemeBidAccountInfo["deposits"] =
+        const deposits: MCAccountInfo["deposits"] =
           Math.random() > 0.5 ? [[0, "100000000000000000000000"]] : [];
 
         const mockedData = {

@@ -42,7 +42,7 @@ export default defineConfig({
         "8": "#095c45",
         "9": "#084c3a",
       },
-      funmeme: {
+      memecooking: {
         "50": "#fcffe7",
         "100": "#f6ffc1",
         "200": "#f1ff86",

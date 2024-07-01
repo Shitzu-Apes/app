@@ -1,10 +1,10 @@
 <script lang="ts">
   import { openBottomSheet } from "../BottomSheet/Container.svelte";
 
-  import FUNMEME_LOGO from "$lib/assets/logo/funmeme.svg";
+  import MEMECOOKING_LOGO from "$lib/assets/logo/memecooking.svg";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import { showWalletSelector } from "$lib/auth";
-  import HowItWorkSheet from "$lib/components/funmeme/BottomSheet/HowItWorkSheet.svelte";
+  import HowItWorkSheet from "$lib/components/memecooking/BottomSheet/HowItWorkSheet.svelte";
   import { wallet } from "$lib/near";
 
   const { accountId$ } = wallet;
@@ -13,7 +13,7 @@
 <nav class="py-2 px-2 w-full flex justify-between">
   <div class="flex gap-4 items-center">
     <a href="/board">
-      <img src={FUNMEME_LOGO} class="size-8" alt="Shitzu face" />
+      <img src={MEMECOOKING_LOGO} class="size-8" alt="Shitzu face" />
     </a>
     <ul class="text-sm">
       <div class="flex gap-2">

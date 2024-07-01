@@ -5,10 +5,10 @@
   import { cubicIn, cubicOut } from "svelte/easing";
   import { blur } from "svelte/transition";
 
-  import FUNMEME_LOGO from "$lib/assets/logo/funmeme.svg";
+  import MEMECOOKING_LOGO from "$lib/assets/logo/memecooking.svg";
 </script>
 
-{#key "funmeme"}
+{#key "memecooking"}
   <div
     in:blur={{ duration: 500, delay: 500, easing: cubicIn }}
     out:blur={{ duration: 500, easing: cubicOut }}
@@ -20,7 +20,11 @@
       <h1
         class="text-6xl md:text-8xl text-center tracking-widest font-semibold text-white animate-shake-x animate-count-infinite px-3 flex flex-col items-center motion-reduce:animate-none"
       >
-        <img src={FUNMEME_LOGO} alt="funmeme logo" class="size-40 md:size-60" />
+        <img
+          src={MEMECOOKING_LOGO}
+          alt="memecooking logo"
+          class="size-40 md:size-60"
+        />
         Coming <br />Soon
       </h1>
 

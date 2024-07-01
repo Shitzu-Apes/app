@@ -3,9 +3,9 @@
 
   import TokenCarousel from "./TokenCarousel.svelte";
 
-  import type { MemeBid } from "$lib/models/funmeme";
+  import type { MCMemeInfo } from "$lib/models/memecooking";
 
-  export let memebids: Promise<MemeBid[]>;
+  export let memebids: Promise<MCMemeInfo[]>;
   export let currentMemebidsIdx: number;
 
   const tabs = [

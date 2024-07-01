@@ -3,7 +3,7 @@
 
   import { page } from "$app/stores";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
-  import AccountInfo from "$lib/components/funmeme/Profile/AccountInfo.svelte";
+  import AccountInfo from "$lib/components/memecooking/Profile/AccountInfo.svelte";
   import { MemeCooking } from "$lib/near";
 
   const { accountId } = $page.params;
