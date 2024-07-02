@@ -5,6 +5,7 @@
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import { showWalletSelector } from "$lib/auth";
   import HowItWorkSheet from "$lib/components/memecooking/BottomSheet/HowItWorkSheet.svelte";
+  import Notification from "$lib/components/memecooking/Notification/Notification.svelte";
   import { wallet } from "$lib/near";
 
   const { accountId$ } = wallet;
@@ -40,6 +41,8 @@
       </div>
     </ul>
   </div>
+
+  <Notification />
 
   {#if $accountId$}
     <a
