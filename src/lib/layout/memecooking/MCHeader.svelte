@@ -11,7 +11,7 @@
   const { accountId$ } = wallet;
 </script>
 
-<nav class="py-2 px-2 w-full flex justify-between">
+<nav class="py-2 px-2 w-full flex flex-wrap justify-between">
   <div class="flex gap-4 items-center">
     <a href="/board">
       <img src={MEMECOOKING_LOGO} class="size-8" alt="Shitzu face" />
@@ -42,7 +42,9 @@
     </ul>
   </div>
 
-  <Notification />
+  <div class="order-last sm:order-none mx-auto mt-3 sm:mt-0">
+    <Notification />
+  </div>
 
   {#if $accountId$}
     <a
