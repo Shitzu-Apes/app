@@ -5,8 +5,7 @@
 
   import { replaceState } from "$app/navigation";
   import { page } from "$app/stores";
-  import { MemeCooking } from "$lib/near";
-  import { memebids } from "$lib/store/memebids";
+  import { MCsubscribe, memebids } from "$lib/store/memebids";
 
   export let currentMemebidsIdx: number;
 
@@ -22,7 +21,7 @@
     defaultValue: "terminal",
   });
 
-  MemeCooking.subscribeToMemeUpdates((newMemeInfo) => {
+  MCsubscribe((newMemeInfo) => {
     const idx = $memebids.findIndex((b) => b.id === newMemeInfo.id);
 
     if (idx === currentMemebidsIdx) {

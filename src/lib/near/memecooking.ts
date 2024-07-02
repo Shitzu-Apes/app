@@ -87,14 +87,4 @@ export abstract class MemeCooking {
       }, 1000);
     });
   }
-
-  public static subscribeToMemeUpdates(onNewMeme: (meme: MCMemeInfo) => void) {
-    const ws = new WebSocket(import.meta.env.VITE_MEME_COOKING_WS_URL);
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-
-      onNewMeme(data);
-    };
-  }
 }
