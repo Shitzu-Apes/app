@@ -7,6 +7,9 @@
 
   import { BottomSheet } from "$lib/layout/BottomSheet";
   import MCHeader from "$lib/layout/memecooking/MCHeader.svelte";
+  import { initializeWebsocket, ws } from "$lib/store/memebids";
+
+  $: initializeWebsocket($ws);
 </script>
 
 {#key "memecooking"}

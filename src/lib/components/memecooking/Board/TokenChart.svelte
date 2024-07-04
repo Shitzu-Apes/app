@@ -7,7 +7,8 @@
     type LanguageCode,
     type ResolutionString,
   } from "$lib/charting_library";
-  import { UDFCompatibleDatafeed } from "$lib/datafeeds/udf";
+  import createDataFeed from "$lib/models/memecooking/datafeed";
+  import { ws } from "$lib/store/memebids";
 
   let width: number, height: number;
   let ref: HTMLDivElement;
@@ -22,17 +23,10 @@
   onMount(() => {
     const widgetOptions: ChartingLibraryWidgetOptions = {
       theme: "dark",
-      symbol: "AAPL",
+      symbol: "moon",
       // BEWARE: no trailing slash is expected in feed URL
-      datafeed: new UDFCompatibleDatafeed(
-        "https://demo_feed.tradingview.com",
-        undefined,
-        {
-          maxResponseLength: 1000,
-          expectedOrder: "latestFirst",
-        },
-      ),
-      interval: "1H" as ResolutionString,
+      datafeed: createDataFeed($ws),
+      interval: "1" as ResolutionString,
       container: ref,
       library_path: "/charting_library/",
 

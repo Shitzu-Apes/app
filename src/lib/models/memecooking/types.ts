@@ -4,6 +4,7 @@ export type MCMemeInfo = {
   end_timestamp_ms: number;
   name: string;
   symbol: string;
+  ticker: string;
   icon: string | null;
   decimals: number;
   total_supply: string;
@@ -11,6 +12,8 @@ export type MCMemeInfo = {
   deposit_token_id: string;
   description: string | null;
   links: Array<[string, string]>;
+  price: string;
+  timestamp_ms: number;
 };
 
 export type MCAccountInfo = {

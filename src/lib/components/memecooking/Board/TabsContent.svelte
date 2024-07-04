@@ -21,7 +21,7 @@
     defaultValue: "terminal",
   });
 
-  MCsubscribe((newMemeInfo) => {
+  MCsubscribe(Symbol("main_feed"), (newMemeInfo) => {
     const idx = $memebids.findIndex((b) => b.id === newMemeInfo.id);
 
     if (idx === currentMemebidsIdx) {

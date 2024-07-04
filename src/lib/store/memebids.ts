@@ -4,18 +4,41 @@ import { type MCMemeInfo } from "$lib/models/memecooking";
 
 export const memebids = writable<MCMemeInfo[]>([]);
 
-const ws = new WebSocket(import.meta.env.VITE_MEME_COOKING_WS_URL);
+export const ws = writable(
+  (() => {
+    const ws = new WebSocket(import.meta.env.VITE_MEME_COOKING_WS_URL);
 
-const callbacks: ((data: MCMemeInfo) => void)[] = [];
+    ws.onopen = () => {
+      console.log("[ws.onopen]: Connection opened");
+      ws.send(JSON.stringify({ action: "subscribe" }));
+    };
 
-ws.onmessage = (event) => {
-  const data = JSON.parse(event.data);
+    return ws;
+  })(),
+);
 
-  for (const callback of callbacks) {
-    callback(data);
-  }
-};
+const callbacks: Map<string | symbol, (data: MCMemeInfo) => void> = new Map();
+export function initializeWebsocket(ws: WebSocket) {
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
 
-export function MCsubscribe(callback: (data: MCMemeInfo) => void) {
-  callbacks.push(callback);
+    callbacks.forEach((callback) => {
+      callback(data);
+    });
+  };
+
+  ws.onclose = (...args) => {
+    console.log("[ws.onclose]: Connection closed", args);
+  };
+}
+
+export function MCsubscribe(
+  id: string | symbol,
+  callback: (data: MCMemeInfo) => void,
+) {
+  callbacks.set(id, callback);
+}
+
+export function MCunsubscribe(id: string | symbol) {
+  callbacks.delete(id);
 }
