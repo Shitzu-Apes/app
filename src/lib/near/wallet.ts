@@ -16,6 +16,12 @@ import { browser } from "$app/environment";
 import type { UnionModuleState, WalletAccount } from "$lib/models";
 import { showSnackbar, showTxSnackbar } from "$lib/snackbar";
 
+export type TransactionCallbacks = {
+  onSuccess?: () => Promise<void> | void;
+  onError?: () => Promise<void> | void;
+  onFinally?: () => Promise<void> | void;
+};
+
 export class Wallet {
   private hereWallet?: HereWallet;
 
@@ -243,15 +249,7 @@ export class Wallet {
 
   public async signAndSendTransactions(
     params: SignAndSendTransactionsOptions,
-    {
-      onSuccess,
-      onError,
-      onFinally,
-    }: {
-      onSuccess?: () => Promise<void> | void;
-      onError?: () => Promise<void> | void;
-      onFinally?: () => Promise<void> | void;
-    },
+    { onSuccess, onError, onFinally }: TransactionCallbacks,
   ) {
     const txPromise = match(get(this._account$))
       .with(undefined, () => undefined)

@@ -1,46 +1,15 @@
+import { Wallet, type TransactionCallbacks } from "./wallet";
+
 import type { MCMemeInfo, MCAccountInfo } from "$lib/models/memecooking";
 
 export abstract class MemeCooking {
   public static getLatestMeme(firstMemeId?: string): Promise<MCMemeInfo[]> {
     return new Promise((resolve) => {
       setTimeout(() => {
-        let mockedData: MCMemeInfo[] = [
-          {
-            id: "150",
-            owner: "shitzu.near",
-            end_timestamp_ms: Date.now() + 1000,
-            name: "shhh",
-            symbol: "SHHH",
-            icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABKklEQVR42mNk",
-            decimals: 18,
-            total_supply: "100000000000000000000000000",
-            banner:
-              "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABKklEQVR42mNk",
-            deposit_token_id: "wrap.near",
-            description: "Shitzu is a meme token.",
-            links: [["https://twitter.com/shitzuonnear", ""]],
-          },
-        ];
+        let mockedData: MCMemeInfo[] = [];
 
         if (firstMemeId) {
-          mockedData = [
-            {
-              id: firstMemeId,
-              owner: "root.near",
-              end_timestamp_ms: Date.now() + 1000,
-              name: "drrragon",
-              symbol: "ddr",
-              icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABKklEQVR42mNk",
-              decimals: 18,
-              total_supply: "100000000000000000000000000",
-              banner:
-                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABKklEQVR42mNk",
-              deposit_token_id: "wrap.near",
-              description: "Illia resurected the dragon.",
-              links: [["https://twitter.com/drrragon", ""]],
-            },
-            ...mockedData,
-          ];
+          mockedData = [...mockedData];
         }
 
         resolve(mockedData);
@@ -86,5 +55,49 @@ export abstract class MemeCooking {
         resolve(mockedData);
       }, 1000);
     });
+  }
+
+  public static createMeme(
+    wallet: Wallet,
+    args: {
+      durationMs: number;
+      name: string;
+      symbol: string;
+      icon: string;
+      decimals: number;
+      totalSupply: string;
+      reference: string;
+      referenceHash: string;
+      depositTokenId: string;
+    },
+    callback: TransactionCallbacks = {},
+  ) {
+    return wallet.signAndSendTransaction(
+      {
+        receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "create_meme",
+              args: {
+                duration_ms: args.durationMs,
+                name: args.name,
+                symbol: args.symbol,
+                icon: args.icon,
+                decimals: args.decimals,
+                total_supply: args.totalSupply,
+                reference: args.reference,
+                reference_hash: args.referenceHash,
+                deposit_token_id: args.depositTokenId,
+              },
+              gas: "1200000000000000",
+              deposit: "0",
+            },
+          },
+        ],
+      },
+      callback,
+    );
   }
 }

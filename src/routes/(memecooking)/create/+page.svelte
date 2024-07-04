@@ -1,6 +1,7 @@
 <script lang="ts">
   import DropZone from "svelte-file-dropzone";
 
+  import { MemeCooking, wallet } from "$lib/near";
   import { imageFileToBase64 } from "$lib/util";
 
   let name: string = "";
@@ -10,6 +11,7 @@
   let twitterLink: string = "";
   let telegramLink: string = "";
   let website: string = "";
+  let durationMs: number = 1000 * 60 * 60 * 24 * 7;
 
   // async function handleFileChange(
   //   event: Event & {
@@ -47,6 +49,26 @@
       twitterLink,
       telegramLink,
       website,
+    });
+    if (!name || !ticker || !description || !image) {
+      console.error("Please fill in all fields");
+      return;
+    }
+    MemeCooking.createMeme(wallet, {
+      name,
+      symbol: ticker,
+      decimals: 24,
+      depositTokenId: "wrap.near",
+      durationMs,
+      totalSupply: "1000000000000000000000000000000000",
+      icon: image,
+      reference: JSON.stringify({
+        description,
+        twitterLink,
+        telegramLink,
+        website,
+      }),
+      referenceHash: "",
     });
   }
 </script>
