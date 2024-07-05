@@ -18,6 +18,8 @@
   let website: string = "";
   let durationMs: string = (1000 * 60 * 60 * 24 * 7).toString();
 
+  let status: "idle" | "ipfs-uploading" | "creating" = "idle";
+
   const { accountId$ } = wallet;
 
   $: storageCost = MemeCooking.createMemeStorageCost(
@@ -62,6 +64,7 @@
 
     console.log("[createCoin] executing...");
 
+    status = "ipfs-uploading";
     const referenceContent = JSON.stringify({
       description,
       twitterLink,
@@ -81,6 +84,8 @@
       ...JSON.parse(referenceContent),
       image: imageCID,
     });
+
+    status = "creating";
     MemeCooking.createMeme(
       wallet,
       {
@@ -95,6 +100,20 @@
         referenceHash,
       },
       await storageCost,
+      {
+        onSuccess: () => {
+          status = "idle";
+          name = "";
+          ticker = "";
+          description = "";
+          image = null;
+          icon = null;
+          imageFile = null;
+          twitterLink = "";
+          telegramLink = "";
+          website = "";
+        },
+      },
     );
 
     console.log({ body, imageFile });
@@ -230,9 +249,22 @@
     </details>
     <button
       on:click={createCoin}
-      class="w-full p-2 bg-shitzu-4 text-white rounded"
+      class="w-full p-2 bg-shitzu-4 text-white rounded flex justify-center items-center"
+      disabled={status !== "idle"}
     >
-      Create coin
+      {#if status === "ipfs-uploading"}
+        <div class="flex justify-center items-center">
+          <div class="i-svg-spinners:pulse size-4 mr-1" />
+          <span>Making sure your meme won't be lost</span>
+        </div>
+      {:else if status === "creating"}
+        <div class="flex justify-center items-center">
+          <div class="i-svg-spinners:pulse size-4 mr-1" />
+          <span>Creating your meme</span>
+        </div>
+      {:else}
+        Create coin
+      {/if}
     </button>
     {#await storageCost}
       <div class="flex justify-center items-center">
