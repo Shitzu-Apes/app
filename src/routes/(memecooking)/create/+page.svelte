@@ -3,7 +3,7 @@
 
   import { MemeCooking, wallet } from "$lib/near";
   import { imageFileToIcon, imageFileToBase64, FixedNumber } from "$lib/util";
-  import { getReferenceCid } from "$lib/util/cid";
+  import { calculateReferenceHash } from "$lib/util/cid";
 
   const totalSupply = "1000000000000000000000000000000000";
 
@@ -54,31 +54,34 @@
 
   async function createCoin() {
     // Add your logic to handle form submission here
-    console.log({
-      name,
-      ticker,
-      description,
-      icon,
-      twitterLink,
-      telegramLink,
-      website,
-    });
+
     if (!name || !ticker || !description || !image || !imageFile || !icon) {
       console.error("Please fill in all fields");
       return;
     }
 
-    const [referenceHash, reference] = await getReferenceCid({
-      imageFile,
+    console.log("[createCoin] executing...");
+
+    const referenceContent = JSON.stringify({
       description,
       twitterLink,
       telegramLink,
       website,
     });
+    const body = new FormData();
+    body.append("imageFile", imageFile);
+    body.append("reference", referenceContent);
+    const res = await fetch("/api/create", {
+      method: "POST",
+      body,
+    });
 
-    console.log("[createCoin] executing...");
-    // MemeCooking.createMeme
-    console.log(
+    const { imageCID, referenceCID } = await res.json();
+    const referenceHash = await calculateReferenceHash({
+      ...JSON.parse(referenceContent),
+      image: imageCID,
+    });
+    MemeCooking.createMeme(
       wallet,
       {
         name,
@@ -88,22 +91,13 @@
         durationMs,
         totalSupply,
         icon,
-        reference: `ipfs://${reference}`,
+        reference: referenceCID,
         referenceHash,
       },
       await storageCost,
     );
 
-    const body = new FormData();
-    body.append("imageFile", imageFile);
-    body.append("fileType", imageFile.type);
-
     console.log({ body, imageFile });
-
-    await fetch("/api/create", {
-      method: "POST",
-      body,
-    });
   }
 </script>
 

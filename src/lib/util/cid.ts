@@ -11,6 +11,17 @@ async function calculateFileCID(file: File): Promise<string> {
   return cid.toString();
 }
 
+//reference_hash: the base64-encoded sha256 hash of the JSON file contained in the reference field. This is to guard against off-chain tampering.
+export async function calculateReferenceHash(
+  reference: string,
+): Promise<string> {
+  const bytes = new TextEncoder().encode(reference);
+  const hash = await sha256.digest(bytes);
+
+  const hashBase64 = btoa(String.fromCharCode(...new Uint8Array(hash.bytes)));
+  return hashBase64;
+}
+
 async function calculateJsonCID(jsonData: object): Promise<[string, string]> {
   const bytes = json.encode(jsonData);
   const hash = await sha256.digest(bytes);
@@ -35,7 +46,7 @@ export async function getReferenceCid({
   telegramLink: string;
   website: string;
 }): Promise<[string, string]> {
-  const image = calculateFileCID(imageFile);
+  const image = await calculateFileCID(imageFile);
 
   const data = {
     image,
@@ -44,6 +55,8 @@ export async function getReferenceCid({
     telegramLink,
     website,
   };
+
+  console.log("[getReferenceCid]: data", data);
 
   return await calculateJsonCID(data);
 }

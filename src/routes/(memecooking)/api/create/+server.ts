@@ -1,27 +1,11 @@
 export async function POST(e) {
-  // get the transaction hash and image file from the request body
-
-  // convert from ReadableStream to Blob
-  // const blob = await e.request.blob();
-
-  // console.log("[/api/create/+server.ts] blob:", blob);
-
-  // const file = new File([blob], "image.png");
-  // const data = new FormData();
-  // data.append("file", file);
-
   const form = await e.request.formData();
-
-  // const buffer = await blob.arrayBuffer();
-
-  console.log("[/api/create/+server.ts] form:", form);
 
   const imageFile = form.get("imageFile") as File;
 
-  console.log("[/api/create/+server.ts] imageFile:", imageFile, imageFile.type);
-
   const pinataForm = new FormData();
   pinataForm.append("file", imageFile);
+  form.append("pinataOptions", '{\n  "cidVersion": 1\n}');
   const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
     method: "POST",
     headers: {
@@ -31,11 +15,35 @@ export async function POST(e) {
   });
 
   const json = await res.json();
-  console.log("[/api/create/+server.ts] json:", json);
+  const { IpfsHash: imageCID } = json;
 
-  return new Response(JSON.stringify({}), {
-    headers: {
-      "Content-Type": "application/json",
+  const referenceContent = form.get("reference") as string;
+
+  const reference = { ...JSON.parse(referenceContent), image: imageCID };
+
+  const uploadReference = await fetch(
+    "https://api.pinata.cloud/pinning/pinJSONToIPFS",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`,
+      },
+      body: JSON.stringify(reference),
     },
-  });
+  );
+
+  const { IpfsHash: referenceCID } = await uploadReference.json();
+
+  return new Response(
+    JSON.stringify({
+      imageCID,
+      referenceCID,
+    }),
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
+  );
 }
