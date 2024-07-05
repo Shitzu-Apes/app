@@ -2,28 +2,36 @@
   import DropZone from "svelte-file-dropzone";
 
   import { MemeCooking, wallet } from "$lib/near";
-  import { imageFileToBase64 } from "$lib/util";
+  import { imageFileToIcon, imageFileToBase64, FixedNumber } from "$lib/util";
+  import { getReferenceCid } from "$lib/util/cid";
+
+  const totalSupply = "1000000000000000000000000000000000";
 
   let name: string = "";
   let ticker: string = "";
   let description: string = "";
-  let image: string | null = null;
+  let image: string | null = null; // for preview
+  let icon: string | null = null; // 96x96 version of image
+  let imageFile: File | null = null;
   let twitterLink: string = "";
   let telegramLink: string = "";
   let website: string = "";
-  let durationMs: number = 1000 * 60 * 60 * 24 * 7;
+  let durationMs: string = (1000 * 60 * 60 * 24 * 7).toString();
 
-  // async function handleFileChange(
-  //   event: Event & {
-  //     currentTarget: EventTarget & HTMLInputElement;
-  //   },
-  // ) {
-  //   if (!event.currentTarget.files) return;
-  //   const file = event.currentTarget.files[0];
-  //   if (file) {
-  //     image = await imageFileToBase64(file);
-  //   }
-  // }
+  const { accountId$ } = wallet;
+
+  $: storageCost = MemeCooking.createMemeStorageCost(
+    $accountId$ || "",
+    durationMs,
+    name,
+    ticker,
+    icon || "",
+    24,
+    totalSupply,
+    "ipfs://bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",
+    "EiC+qKUoJBa3iRpHrsBFrbUqe6rLgGfpRm7L6tfCz5sSjA==",
+    "wrap.near",
+  );
 
   async function handleFilesSelect(
     e: CustomEvent<{
@@ -35,40 +43,48 @@
     console.log({ acceptedFiles, fileRejections });
     const file = acceptedFiles[0];
     if (file) {
+      imageFile = file;
       image = await imageFileToBase64(file);
+      icon = await imageFileToIcon(file);
     }
   }
 
-  function createCoin() {
+  async function createCoin() {
     // Add your logic to handle form submission here
     console.log({
       name,
       ticker,
       description,
-      image,
+      icon,
       twitterLink,
       telegramLink,
       website,
     });
-    if (!name || !ticker || !description || !image) {
+    if (!name || !ticker || !description || !image || !imageFile || !icon) {
       console.error("Please fill in all fields");
       return;
     }
-    MemeCooking.createMeme(wallet, {
+    //reference_hash: the base64-encoded sha256 hash of the JSON file contained in the reference field. This is to guard against off-chain tampering.
+    const [referenceHash, reference] = await getReferenceCid({
+      imageFile,
+      description,
+      twitterLink,
+      telegramLink,
+      website,
+    });
+
+    console.log("[createCoin] executing...");
+    // MemeCooking.createMeme
+    console.log(wallet, {
       name,
       symbol: ticker,
       decimals: 24,
       depositTokenId: "wrap.near",
       durationMs,
-      totalSupply: "1000000000000000000000000000000000",
-      icon: image,
-      reference: JSON.stringify({
-        description,
-        twitterLink,
-        telegramLink,
-        website,
-      }),
-      referenceHash: "",
+      totalSupply,
+      icon,
+      reference: `ipfs://${reference}`,
+      referenceHash,
     });
   }
 </script>
@@ -204,6 +220,17 @@
     >
       Create coin
     </button>
-    <div class="text-sm text-center">Cost to deploy: ~0.02 NEAR</div>
+    {#await storageCost}
+      <div class="flex justify-center items-center">
+        <div class="i-svg-spinners:6-dots-rotate w-12 h-12 bg-gray-7 m-a" />
+      </div>
+    {:then storageCost}
+      <div class="text-sm text-center">
+        Storage cost: ~{new FixedNumber(storageCost, 24).format({
+          maximumFractionDigits: 2,
+          maximumSignificantDigits: 2,
+        })} NEAR
+      </div>
+    {/await}
   </div>
 </div>
