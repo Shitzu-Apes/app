@@ -31,7 +31,10 @@
     "ipfs://bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",
     "EiC+qKUoJBa3iRpHrsBFrbUqe6rLgGfpRm7L6tfCz5sSjA==",
     "wrap.near",
-  );
+  ).then((cost) => {
+    // Add dust to the cost
+    return ((BigInt(cost) * BigInt(105)) / BigInt(100)).toString();
+  });
 
   async function handleFilesSelect(
     e: CustomEvent<{
@@ -64,7 +67,7 @@
       console.error("Please fill in all fields");
       return;
     }
-    //reference_hash: the base64-encoded sha256 hash of the JSON file contained in the reference field. This is to guard against off-chain tampering.
+
     const [referenceHash, reference] = await getReferenceCid({
       imageFile,
       description,
@@ -75,16 +78,31 @@
 
     console.log("[createCoin] executing...");
     // MemeCooking.createMeme
-    console.log(wallet, {
-      name,
-      symbol: ticker,
-      decimals: 24,
-      depositTokenId: "wrap.near",
-      durationMs,
-      totalSupply,
-      icon,
-      reference: `ipfs://${reference}`,
-      referenceHash,
+    console.log(
+      wallet,
+      {
+        name,
+        symbol: ticker,
+        decimals: 24,
+        depositTokenId: "wrap.testnet",
+        durationMs,
+        totalSupply,
+        icon,
+        reference: `ipfs://${reference}`,
+        referenceHash,
+      },
+      await storageCost,
+    );
+
+    const body = new FormData();
+    body.append("imageFile", imageFile);
+    body.append("fileType", imageFile.type);
+
+    console.log({ body, imageFile });
+
+    await fetch("/api/create", {
+      method: "POST",
+      body,
     });
   }
 </script>
