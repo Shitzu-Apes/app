@@ -103,6 +103,7 @@
         id="name"
         type="text"
         bind:value={name}
+        autocomplete="off"
         class="w-full p-2 bg-gray-700 rounded text-white border border-white"
       />
     </div>
@@ -114,6 +115,7 @@
         id="ticker"
         type="text"
         bind:value={ticker}
+        autocomplete="off"
         class="w-full p-2 bg-gray-700 rounded text-white border border-white"
       />
     </div>
