@@ -61,7 +61,7 @@ export abstract class MemeCooking {
   public static createMeme(
     wallet: Wallet,
     args: {
-      durationMs: number;
+      durationMs: string;
       name: string;
       symbol: string;
       icon: string;
@@ -71,6 +71,7 @@ export abstract class MemeCooking {
       referenceHash: string;
       depositTokenId: string;
     },
+    deposit: string,
     callback: TransactionCallbacks = {},
   ) {
     return wallet.signAndSendTransaction(
@@ -92,8 +93,8 @@ export abstract class MemeCooking {
                 reference_hash: args.referenceHash,
                 deposit_token_id: args.depositTokenId,
               },
-              gas: "1200000000000000",
-              deposit: "0",
+              gas: "300000000000000",
+              deposit,
             },
           },
         ],
