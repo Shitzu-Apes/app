@@ -13,8 +13,8 @@ export function imageFileToBase64(imageFile: File): Promise<string> {
   });
 }
 
-const UploadResizeWidth = 96;
-const UploadResizeHeight = 96;
+const UploadResizeWidth = 64;
+const UploadResizeHeight = 64;
 
 export function imageFileToIcon(imageFile: File): Promise<string> {
   return new Promise((resolve, reject) => {
