@@ -28,8 +28,6 @@
   let website: string = "";
   let durationMs: string = (1000 * 60 * 60 * 24 * 7).toString();
 
-  let status: "idle" | "ipfs-uploading" | "creating" = "idle";
-
   const { accountId$ } = wallet;
 
   $: storageCost = MemeCooking.createMemeStorageCost(
@@ -112,7 +110,6 @@
       referenceCID: string;
       referenceHash: string;
     }) => {
-      status = "creating";
       return await MemeCooking.createMeme(
         wallet,
         {
@@ -129,7 +126,6 @@
         await storageCost,
         {
           onSuccess: (outcome) => {
-            status = "idle";
             name = "";
             ticker = "";
             description = "";
@@ -305,22 +301,15 @@
     </details>
     <button
       on:click={createCoin}
-      class="w-full p-2 bg-shitzu-4 text-white rounded flex justify-center items-center"
-      disabled={status !== "idle"}
+      class="w-full p-2 bg-shitzu-4 text-white rounded flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
+      disabled={!name ||
+        !ticker ||
+        !description ||
+        !image ||
+        !imageFile ||
+        !icon}
     >
-      {#if status === "ipfs-uploading"}
-        <div class="flex justify-center items-center">
-          <div class="i-svg-spinners:pulse size-4 mr-1" />
-          <span>Making sure your meme won't be lost</span>
-        </div>
-      {:else if status === "creating"}
-        <div class="flex justify-center items-center">
-          <div class="i-svg-spinners:pulse size-4 mr-1" />
-          <span>Creating your meme</span>
-        </div>
-      {:else}
-        Create coin
-      {/if}
+      Create coin
     </button>
     {#await storageCost}
       <div class="flex justify-center items-center">
