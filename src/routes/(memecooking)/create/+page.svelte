@@ -1,6 +1,8 @@
 <script lang="ts">
   import DropZone from "svelte-file-dropzone";
 
+  import CreateCoinSheet from "$lib/components/memecooking/BottomSheet/CreateCoinSheet.svelte";
+  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import { MemeCooking, wallet } from "$lib/near";
   import { imageFileToIcon, imageFileToBase64, FixedNumber } from "$lib/util";
   import { calculateReferenceHash } from "$lib/util/cid";
@@ -64,7 +66,6 @@
 
     console.log("[createCoin] executing...");
 
-    status = "ipfs-uploading";
     const referenceContent = JSON.stringify({
       description,
       twitterLink,
@@ -74,49 +75,71 @@
     const body = new FormData();
     body.append("imageFile", imageFile);
     body.append("reference", referenceContent);
-    const res = await fetch("/api/create", {
+    const uploadPromise = fetch("/api/create", {
       method: "POST",
       body,
-    });
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to upload image");
+        }
+        return res.json();
+      })
+      .then(async ({ imageCID, referenceCID }) => {
+        const referenceHash = await calculateReferenceHash({
+          ...JSON.parse(referenceContent),
+          image: imageCID,
+        });
+        return { imageCID, referenceCID, referenceHash };
+      })
+      .catch((e) => {
+        console.error(e);
+        throw e;
+      });
 
-    const { imageCID, referenceCID } = await res.json();
-    const referenceHash = await calculateReferenceHash({
-      ...JSON.parse(referenceContent),
-      image: imageCID,
-    });
-
-    status = "creating";
-    MemeCooking.createMeme(
-      wallet,
-      {
-        name,
-        symbol: ticker,
-        decimals: 24,
-        depositTokenId: "wrap.testnet",
-        durationMs,
-        totalSupply,
-        icon,
-        reference: referenceCID,
-        referenceHash,
-      },
-      await storageCost,
-      {
-        onSuccess: () => {
-          status = "idle";
-          name = "";
-          ticker = "";
-          description = "";
-          image = null;
-          icon = null;
-          imageFile = null;
-          twitterLink = "";
-          telegramLink = "";
-          website = "";
+    const createTransactionPromise = async ({
+      referenceCID,
+      referenceHash,
+    }: {
+      referenceCID: string;
+      referenceHash: string;
+    }) => {
+      status = "creating";
+      return await MemeCooking.createMeme(
+        wallet,
+        {
+          name,
+          symbol: ticker,
+          decimals: 24,
+          depositTokenId: "wrap.testnet",
+          durationMs,
+          totalSupply,
+          icon: icon!,
+          reference: referenceCID,
+          referenceHash,
         },
-      },
-    );
+        await storageCost,
+        {
+          onSuccess: () => {
+            status = "idle";
+            name = "";
+            ticker = "";
+            description = "";
+            image = null;
+            icon = null;
+            imageFile = null;
+            twitterLink = "";
+            telegramLink = "";
+            website = "";
+          },
+        },
+      );
+    };
 
-    console.log({ body, imageFile });
+    openBottomSheet(CreateCoinSheet, {
+      uploadPromise,
+      createTransactionPromise,
+    });
   }
 </script>
 
