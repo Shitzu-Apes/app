@@ -1,4 +1,4 @@
-import Pinata from "$lib/server/pinata.js";
+import Pinata from "$lib/server/pinata";
 
 export async function POST(e) {
   const form = await e.request.formData();

@@ -104,9 +104,11 @@
       });
 
     const createTransactionPromise = async ({
+      imageCID,
       referenceCID,
       referenceHash,
     }: {
+      imageCID: string;
       referenceCID: string;
       referenceHash: string;
     }) => {
@@ -125,16 +127,25 @@
         },
         await storageCost,
         {
-          onSuccess: (outcome) => {
-            name = "";
-            ticker = "";
-            description = "";
-            image = null;
-            icon = null;
-            imageFile = null;
-            twitterLink = "";
-            telegramLink = "";
-            website = "";
+          onSuccess: async (outcome) => {
+            const broadcastForm = new FormData();
+            broadcastForm.append("name", name);
+            broadcastForm.append("ticker", ticker);
+            broadcastForm.append("description", description);
+            broadcastForm.append("twitterLink", twitterLink);
+            broadcastForm.append("telegramLink", telegramLink);
+            broadcastForm.append("website", website);
+            broadcastForm.append("durationMs", durationMs);
+            broadcastForm.append("imageCID", imageCID);
+
+            const res = await fetch("/api/broadcast", {
+              method: "POST",
+              body: broadcastForm,
+            });
+
+            if (!res.ok) {
+              throw new Error("Failed to broadcast");
+            }
 
             function isFinalExecutionStatus(
               status: FinalExecutionStatus | FinalExecutionStatusBasic,
@@ -147,19 +158,17 @@
             }
 
             // replace with logic to make sure that all the data is ready to be displayed
-            setTimeout(() => {
-              if (outcome) {
-                if (
-                  isFinalExecutionStatus(outcome.status) &&
-                  typeof outcome.status.SuccessValue === "string"
-                ) {
-                  const decodedOutcome = atob(outcome.status.SuccessValue);
+            if (outcome) {
+              if (
+                isFinalExecutionStatus(outcome.status) &&
+                typeof outcome.status.SuccessValue === "string"
+              ) {
+                const decodedOutcome = atob(outcome.status.SuccessValue);
 
-                  goto(`/${decodedOutcome}`);
-                  close();
-                }
+                goto(`/${decodedOutcome}`);
+                close();
               }
-            }, 2000);
+            }
           },
         },
       );

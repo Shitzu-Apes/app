@@ -26,18 +26,19 @@
   }>;
 
   export let createTransactionPromise: (args: {
+    imageCID: string;
     referenceCID: string;
     referenceHash: string;
   }) => Promise<void>;
 
   onMount(async () => {
-    const { referenceCID, referenceHash } = await uploadPromise;
+    const { imageCID, referenceCID, referenceHash } = await uploadPromise;
 
     console.log("[CreateCoinSheet] referenceCID", referenceCID);
 
     status = "Preparing the Ingredient";
 
-    await createTransactionPromise({ referenceCID, referenceHash });
+    await createTransactionPromise({ referenceCID, referenceHash, imageCID });
 
     status = "Cooking";
   });
