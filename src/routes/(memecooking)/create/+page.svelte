@@ -1,8 +1,16 @@
 <script lang="ts">
+  import type {
+    FinalExecutionStatus,
+    FinalExecutionStatusBasic,
+  } from "near-api-js/lib/providers";
   import DropZone from "svelte-file-dropzone";
 
+  import { goto } from "$app/navigation";
   import CreateCoinSheet from "$lib/components/memecooking/BottomSheet/CreateCoinSheet.svelte";
-  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
+  import {
+    close,
+    openBottomSheet,
+  } from "$lib/layout/BottomSheet/Container.svelte";
   import { MemeCooking, wallet } from "$lib/near";
   import { imageFileToIcon, imageFileToBase64, FixedNumber } from "$lib/util";
   import { calculateReferenceHash } from "$lib/util/cid";
@@ -120,7 +128,7 @@
         },
         await storageCost,
         {
-          onSuccess: () => {
+          onSuccess: (outcome) => {
             status = "idle";
             name = "";
             ticker = "";
@@ -131,6 +139,31 @@
             twitterLink = "";
             telegramLink = "";
             website = "";
+
+            function isFinalExecutionStatus(
+              status: FinalExecutionStatus | FinalExecutionStatusBasic,
+            ): status is FinalExecutionStatus {
+              return (
+                typeof status === "object" &&
+                (status.SuccessValue !== undefined ||
+                  status.Failure !== undefined)
+              );
+            }
+
+            // replace with logic to make sure that all the data is ready to be displayed
+            setTimeout(() => {
+              if (outcome) {
+                if (
+                  isFinalExecutionStatus(outcome.status) &&
+                  typeof outcome.status.SuccessValue === "string"
+                ) {
+                  const decodedOutcome = atob(outcome.status.SuccessValue);
+
+                  goto(`/${decodedOutcome}`);
+                  close();
+                }
+              }
+            }, 2000);
           },
         },
       );

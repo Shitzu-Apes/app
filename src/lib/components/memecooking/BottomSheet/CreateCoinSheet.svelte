@@ -12,10 +12,12 @@
   //   storageCost;
 
   import { onMount } from "svelte";
+  import { slide } from "svelte/transition";
 
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
 
-  let status: "ipfs-uploading" | "creating" | "success" = "ipfs-uploading";
+  let status: "Uploading Meme" | "Preparing the Ingredient" | "Cooking" =
+    "Uploading Meme";
 
   export let uploadPromise: Promise<{
     imageCID: string;
@@ -33,30 +35,48 @@
 
     console.log("[CreateCoinSheet] referenceCID", referenceCID);
 
-    status = "creating";
+    status = "Preparing the Ingredient";
 
     await createTransactionPromise({ referenceCID, referenceHash });
 
-    status = "success";
+    status = "Cooking";
   });
 </script>
 
 <BottomSheetContent variant="shitzu">
-  <slot name="header">
-    <div class="flex items-center justify-between w-full">
-      <h2 class="text-lg font-bold">{status}</h2>
+  <slot slot="header">
+    <div class="flex items-center justify-between w-full px-2">
+      <h2 class="text-lg font-bold text-white">{status}</h2>
     </div>
   </slot>
 
-  <div class="text-white">
-    {#if status === "ipfs-uploading"}
-      <div class="flex flex-col items-center h-full w-full justify-center">
-        <p>Uploading image to IPFS...</p>
+  <div
+    class="flex flex-col items-center h-full w-full justify-center text-white"
+  >
+    {#if status === "Uploading Meme"}
+      <div
+        transition:slide
+        class="w-full h-full flex flex-col justify-center items-center gap-10"
+      >
+        <div class="i-svg-spinners:180-ring size-20" />
+        <h1 class="text-xl">Uploading Meme...</h1>
       </div>
-    {:else if status === "creating"}
-      <p>Creating coin...</p>
-    {:else if status === "success"}
-      <p>Coin created!</p>
+    {:else if status === "Preparing the Ingredient"}
+      <div
+        transition:slide
+        class="w-full h-full flex flex-col justify-center items-center gap-10"
+      >
+        <div class="i-svg-spinners:180-ring size-20" />
+        <h1 class="text-xl">Is it ready, Chef?</h1>
+      </div>
+    {:else if status === "Cooking"}
+      <div
+        transition:slide
+        class="w-full h-full flex flex-col justify-center items-center gap-10 text-shitzu-4"
+      >
+        <div class="i-line-md:confirm-circle size-20 bg-shitzu-4" />
+        <h1 class="text-xl">Cooking</h1>
+      </div>
     {/if}
   </div>
 </BottomSheetContent>

@@ -1,3 +1,5 @@
+import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
+
 import { view } from "./utils";
 import { Wallet, type TransactionCallbacks } from "./wallet";
 
@@ -72,7 +74,7 @@ export abstract class MemeCooking {
       depositTokenId: string;
     },
     deposit: string,
-    callback: TransactionCallbacks = {},
+    callback: TransactionCallbacks<FinalExecutionOutcome> = {},
   ) {
     return wallet.signAndSendTransaction(
       {

@@ -5,6 +5,7 @@ import {
 } from "@here-wallet/core";
 import type {
   BrowserWalletMetadata,
+  FinalExecutionOutcome,
   InjectedWalletMetadata,
   ModuleState,
   Wallet as NearWallet,
@@ -16,8 +17,8 @@ import { browser } from "$app/environment";
 import type { UnionModuleState, WalletAccount } from "$lib/models";
 import { showSnackbar, showTxSnackbar } from "$lib/snackbar";
 
-export type TransactionCallbacks = {
-  onSuccess?: () => Promise<void> | void;
+export type TransactionCallbacks<T> = {
+  onSuccess?: (outcome: T | undefined) => Promise<void> | void;
   onError?: () => Promise<void> | void;
   onFinally?: () => Promise<void> | void;
 };
@@ -249,7 +250,11 @@ export class Wallet {
 
   public async signAndSendTransactions(
     params: SignAndSendTransactionsOptions,
-    { onSuccess, onError, onFinally }: TransactionCallbacks,
+    {
+      onSuccess,
+      onError,
+      onFinally,
+    }: TransactionCallbacks<FinalExecutionOutcome[]>,
   ) {
     const txPromise = match(get(this._account$))
       .with(undefined, () => undefined)
@@ -282,7 +287,14 @@ export class Wallet {
     // FIXME type
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     showTxSnackbar(txPromise as any);
-    return txPromise.then(onSuccess).catch(onError).finally(onFinally);
+    return txPromise
+      .then((outcome) => {
+        if (onSuccess) {
+          onSuccess(outcome || undefined);
+        }
+      })
+      .catch(onError)
+      .finally(onFinally);
   }
 
   public async signAndSendTransaction(
@@ -291,11 +303,7 @@ export class Wallet {
       onSuccess,
       onError,
       onFinally,
-    }: {
-      onSuccess?: () => Promise<void> | void;
-      onError?: () => Promise<void> | void;
-      onFinally?: () => Promise<void> | void;
-    },
+    }: TransactionCallbacks<FinalExecutionOutcome>,
   ) {
     const txPromise = match(get(this._account$))
       .with(undefined, () => undefined)
@@ -328,7 +336,14 @@ export class Wallet {
     // FIXME type
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     showTxSnackbar(txPromise as any);
-    return txPromise.then(onSuccess).catch(onError).finally(onFinally);
+    return txPromise
+      .then((outcome) => {
+        if (onSuccess) {
+          onSuccess(outcome || undefined);
+        }
+      })
+      .catch(onError)
+      .finally(onFinally);
   }
 }
 
