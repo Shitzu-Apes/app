@@ -46,6 +46,8 @@ ${escapeMarkdown(description)}
 
 Cooking time: *${durationMsToHumanReadable(durationMs)}*
 
+${escapeMarkdown("[Let's cook!](https://memecooking.com/" + ticker + ")")}
+
 ${telegramLink ? `[${escapeMarkdown("[telegram]")}](${telegramLink})` : ""} ${twitterLink ? `[${escapeMarkdown("[twitter]")}](${twitterLink})` : ""} ${websiteLink ? `[${escapeMarkdown("[website]")}](${websiteLink})` : ""}
     `;
 
@@ -65,16 +67,6 @@ ${telegramLink ? `[${escapeMarkdown("[telegram]")}](${telegramLink})` : ""} ${tw
               url: `https://cf-ipfs.com/ipfs/${imageCID}`,
               show_above_text: true,
             },
-            reply_markup: JSON.stringify({
-              inline_keyboard: [
-                [
-                  {
-                    text: "Let's cook!",
-                    url: `https://memecooking.com/${ticker}`,
-                  },
-                ],
-              ],
-            }),
             parse_mode: "MarkdownV2",
           }),
         },
