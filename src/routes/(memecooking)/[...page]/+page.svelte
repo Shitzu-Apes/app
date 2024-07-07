@@ -53,7 +53,7 @@
   <div class="flex items-center justify-center text-base text-shitzu-4">
     &leftarrow;&uparrow;&downarrow;&rightarrow; Use arrow keys to navigate
   </div>
-  <section class="w-full max-w-lg">
+  <section class="w-full">
     <Board {inititalMembidsPromise} {currentMemebidsIdx} />
   </section>
 </div>

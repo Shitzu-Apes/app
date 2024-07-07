@@ -10,15 +10,15 @@
 
   let selectedSort = sortOptions[0];
 
-  let directionOptions = [
-    { label: "direction: asc", value: "asc" },
-    { label: "direction: desc", value: "desc" },
+  let orderOptions = [
+    { label: "order: asc", value: "asc" },
+    { label: "order: desc", value: "desc" },
   ];
 
-  let selectedDirection = directionOptions[0];
+  let selectedDirection = orderOptions[0];
 </script>
 
-<div class="flex gap-3 mt-6">
+<div class="flex gap-3 mt-6 px-4">
   <SelectBox options={sortOptions} bind:selected={selectedSort} />
-  <SelectBox options={directionOptions} bind:selected={selectedDirection} />
+  <SelectBox options={orderOptions} bind:selected={selectedDirection} />
 </div>

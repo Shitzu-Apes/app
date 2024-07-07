@@ -73,47 +73,49 @@
     }
   }}
 />
-<div
-  class="overflow-hidden relative focus-element"
-  use:embalaCarousel={{ options, plugins: [WheelGesturesPlugin()] }}
-  on:emblaInit={(event) => {
-    emblaApi = event.detail;
+<div class="w-full max-w-lg mx-auto">
+  <div
+    class="overflow-hidden relative focus-element"
+    use:embalaCarousel={{ options, plugins: [WheelGesturesPlugin()] }}
+    on:emblaInit={(event) => {
+      emblaApi = event.detail;
 
-    emblaApi.on("pointerDown", (e) => {
-      if (e.selectedScrollSnap() === 0) {
-        startScrollBackToTop = true;
-      }
-    });
+      emblaApi.on("pointerDown", (e) => {
+        if (e.selectedScrollSnap() === 0) {
+          startScrollBackToTop = true;
+        }
+      });
 
-    emblaApi.on("pointerUp", (e) => {
-      if (startScrollBackToTop && e.selectedScrollSnap() === 0) {
-        scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
-        dispatch("select", -1);
-      }
-      startScrollBackToTop = false;
-    });
+      emblaApi.on("pointerUp", (e) => {
+        if (startScrollBackToTop && e.selectedScrollSnap() === 0) {
+          scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+          dispatch("select", -1);
+        }
+        startScrollBackToTop = false;
+      });
 
-    emblaApi.on("select", () => {
-      if (emblaApi) {
-        dispatch("select", emblaApi.selectedScrollSnap());
-      }
-    });
+      emblaApi.on("select", () => {
+        if (emblaApi) {
+          dispatch("select", emblaApi.selectedScrollSnap());
+        }
+      });
 
-    emblaApi.on("slidesChanged", () => {
-      if (emblaApi) {
-        dispatch("select", emblaApi.selectedScrollSnap());
-      }
-    });
-  }}
->
-  <div class="flex flex-col h-screen">
-    {#each memebids as token, i (token.id)}
-      <div class="flex-[0_0_100%] min-h-0">
-        <TokenDetailCarousel focused={currentMemebidsIdx === i} id={i} />
-      </div>
-    {/each}
+      emblaApi.on("slidesChanged", () => {
+        if (emblaApi) {
+          dispatch("select", emblaApi.selectedScrollSnap());
+        }
+      });
+    }}
+  >
+    <div class="flex flex-col h-screen">
+      {#each memebids as token, i (token.id)}
+        <div class="flex-[0_0_100%] min-h-0">
+          <TokenDetailCarousel focused={currentMemebidsIdx === i} id={i} />
+        </div>
+      {/each}
+    </div>
   </div>
 </div>
