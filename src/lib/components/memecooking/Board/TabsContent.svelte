@@ -1,11 +1,13 @@
 <script lang="ts">
   import { createTabs, melt } from "@melt-ui/svelte";
 
+  import Terminal from "./Desktop/Terminal.svelte";
   import TokenCarousel from "./TokenCarousel.svelte";
 
   import { replaceState } from "$app/navigation";
   import { page } from "$app/stores";
   import { MCsubscribe, memebids } from "$lib/store/memebids";
+  import { isMobile } from "$lib/util";
 
   export let currentMemebidsIdx: number;
 
@@ -63,11 +65,15 @@
     {/each}
   </div>
   <section use:melt={$content("terminal")}>
-    <TokenCarousel
-      memebids={$memebids}
-      {currentMemebidsIdx}
-      on:select={onSelect}
-    />
+    {#if isMobile()}
+      <TokenCarousel
+        memebids={$memebids}
+        {currentMemebidsIdx}
+        on:select={onSelect}
+      />
+    {:else}
+      <Terminal />
+    {/if}
   </section>
   <section use:melt={$content("following")}>Following</section>
 </div>
