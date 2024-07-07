@@ -6,6 +6,7 @@
   import DropZone from "svelte-file-dropzone";
 
   import { goto } from "$app/navigation";
+  import SelectBox from "$lib/components/SelectBox.svelte";
   import CreateCoinSheet from "$lib/components/memecooking/BottomSheet/CreateCoinSheet.svelte";
   import {
     close,
@@ -26,13 +27,18 @@
   let twitterLink: string = "";
   let telegramLink: string = "";
   let website: string = "";
-  let durationMs: string = (1000 * 60 * 60 * 24 * 7).toString();
+  let durationOptions = [
+    { label: "5 minutes", value: (1000 * 60 * 5).toString() },
+    { label: "1 hour", value: (1000 * 60 * 60).toString() },
+    { label: "1 day", value: (1000 * 60 * 60 * 24).toString() },
+  ];
+  let durationMs = durationOptions[0];
 
   const { accountId$ } = wallet;
 
   $: storageCost = MemeCooking.createMemeStorageCost(
     $accountId$ || "",
-    durationMs,
+    durationMs.value,
     name,
     ticker,
     icon || "",
@@ -119,7 +125,7 @@
           symbol: ticker,
           decimals: 24,
           depositTokenId: "wrap.testnet",
-          durationMs,
+          durationMs: durationMs.value,
           totalSupply,
           icon: icon!,
           reference: referenceCID,
@@ -135,7 +141,7 @@
             broadcastForm.append("twitterLink", twitterLink);
             broadcastForm.append("telegramLink", telegramLink);
             broadcastForm.append("website", website);
-            broadcastForm.append("durationMs", durationMs);
+            broadcastForm.append("durationMs", durationMs.value);
             broadcastForm.append("imageCID", imageCID);
 
             const res = await fetch("/api/broadcast", {
@@ -260,12 +266,16 @@
           </div>
         </div>
       {/if}
-      <!-- <input
-        id="image"
-        type="file"
-        on:change={handleFileChange}
-        class="w-full p-2 bg-gray-700 rounded text-white border border-white"
-      /> -->
+    </div>
+    <div class="space-y-2">
+      <label for="name" class="block text-sm text-shitzu-4 font-600">
+        duration
+      </label>
+      <SelectBox
+        options={durationOptions}
+        bind:selected={durationMs}
+        sameWidth
+      />
     </div>
     <details class="space-y-2">
       <summary class="text-sm text-shitzu-4 cursor-pointer">

@@ -7,6 +7,8 @@
 
   let selectedOption: ListboxOption<string>;
 
+  export let sameWidth = false;
+
   export { selectedOption as selected };
 
   const {
@@ -18,7 +20,7 @@
     positioning: {
       placement: "bottom",
       fitViewport: true,
-      sameWidth: false,
+      sameWidth,
     },
     defaultSelected: selectedOption,
   });
