@@ -63,10 +63,13 @@
     near: Promise<TokenInfo>,
   ) {
     const nearPrice = Number((await near).price);
+    const now = Date.now() * 1_000_000;
     const yearlyMultiplier =
       Number(365n * 24n * 60n * 60n) /
       Number(
-        (BigInt(farm.end_date) - BigInt(farm.start_date)) / 1_000_000_000n,
+        (BigInt(farm.end_date) -
+          BigInt(Math.max(now, Number(farm.start_date)))) /
+          1_000_000_000n,
       );
 
     $tokenAPRs$ = await Promise.all(
