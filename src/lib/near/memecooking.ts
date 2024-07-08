@@ -122,22 +122,34 @@ export abstract class MemeCooking {
       });
     }
 
+    const actions: HereCall["actions"] = [];
+
     if (wrapNearDeposit) {
-      transactions.push({
-        receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
-        actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "storage_deposit",
-              args: {},
-              gas: "300000000000000",
-              deposit: wrapNearDeposit.depositAmount,
-            },
-          },
-        ],
+      actions.push({
+        type: "FunctionCall",
+        params: {
+          methodName: "storage_deposit",
+          args: {},
+          gas: "300000000000000",
+          deposit: wrapNearDeposit.depositAmount,
+        },
       });
     }
+
+    actions.push({
+      type: "FunctionCall",
+      params: {
+        methodName: "near_deposit",
+        args: {},
+        gas: 30_000_000_000_000n.toString(),
+        deposit: args.amount,
+      },
+    });
+
+    transactions.push({
+      receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
+      actions,
+    });
 
     transactions.push({
       receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
