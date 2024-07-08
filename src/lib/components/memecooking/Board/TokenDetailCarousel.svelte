@@ -104,7 +104,7 @@
 </div>
 
 <div
-  class="h-[calc(30%-32px)] w-full flex justify-center items-center pb-4 px-6"
+  class="h-[calc(30%-32px)] w-full flex justify-center items-center pb-2 px-2"
 >
   <MCStake />
 </div>
