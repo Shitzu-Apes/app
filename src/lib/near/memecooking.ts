@@ -6,18 +6,16 @@ import { Wallet, type TransactionCallbacks } from "./wallet";
 import type { MCMemeInfo, MCAccountInfo } from "$lib/models/memecooking";
 
 export abstract class MemeCooking {
-  public static getLatestMeme(firstMemeId?: string): Promise<MCMemeInfo[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        let mockedData: MCMemeInfo[] = [];
-
-        if (firstMemeId) {
-          mockedData = [...mockedData];
-        }
-
-        resolve(mockedData);
-      }, 1000);
+  public static getLatestMeme(_firstMemeId?: string): Promise<MCMemeInfo[]> {
+    const promises = [...Array(10).keys()].map((id) => {
+      return view<MCMemeInfo>(
+        import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+        "get_meme",
+        { id },
+      );
     });
+
+    return Promise.all(promises);
   }
 
   public static getMeme(id: string): Promise<MCMemeInfo | null> {
@@ -45,19 +43,11 @@ export abstract class MemeCooking {
   }
 
   public static getAccount(accountId: string): Promise<MCAccountInfo | null> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const deposits: MCAccountInfo["deposits"] =
-          Math.random() > 0.5 ? [[0, "100000000000000000000000"]] : [];
-
-        const mockedData = {
-          account_id: accountId,
-          deposits,
-        };
-
-        resolve(mockedData);
-      }, 1000);
-    });
+    return view<MCAccountInfo>(
+      import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+      "get_account",
+      { account_id: accountId },
+    );
   }
 
   public static createMeme(

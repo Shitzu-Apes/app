@@ -19,4 +19,5 @@ export type MCMemeInfo = {
 export type MCAccountInfo = {
   account_id: string;
   deposits: Array<[number, string]>;
+  claims: Array<[string, string]>;
 };
