@@ -2,7 +2,7 @@
   import { createTabs, melt } from "@melt-ui/svelte";
 
   import TokenInput from "$lib/components/TokenInput.svelte";
-  import { MemeCooking, wallet } from "$lib/near";
+  import { Ft, MemeCooking, wallet } from "$lib/near";
   import { FixedNumber } from "$lib/util";
 
   const tabs = [
@@ -26,9 +26,19 @@
     if (!$input$ || !$accountId$) return;
     if ($value === "stake") {
       // Check storage balance before staking
-      const [storageBalance, { min: minStorageBalance }] = await Promise.all([
+      const [
+        storageBalance,
+        { min: minStorageBalance },
+        wrapNearRegistered,
+        wrapNearMinDeposit,
+      ] = await Promise.all([
         MemeCooking.storageBalanceOf($accountId$),
         MemeCooking.storageBalanceBounds(),
+        Ft.isUserRegistered(
+          import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
+          $accountId$,
+        ),
+        Ft.storageRequirement(import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!),
       ]);
 
       let needStorageDeposit = null;
@@ -42,11 +52,19 @@
         };
       }
 
+      let wrapNearDeposit = null;
+      if (!wrapNearRegistered) {
+        wrapNearDeposit = {
+          depositAmount: wrapNearMinDeposit,
+        };
+      }
+
       MemeCooking.deposit(
         wallet,
         { amount: $input$.toU128(), memeId: 1 },
         {},
         needStorageDeposit,
+        wrapNearDeposit,
       );
     } else {
       console.log("unstake");

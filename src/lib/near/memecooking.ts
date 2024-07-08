@@ -101,6 +101,7 @@ export abstract class MemeCooking {
     args: { memeId: number; amount: string },
     callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
     needStorageDeposit: { depositAmount: string } | null = null,
+    wrapNearDeposit: { depositAmount: string } | null = null,
   ) {
     const transactions: HereCall[] = [];
 
@@ -121,8 +122,25 @@ export abstract class MemeCooking {
       });
     }
 
+    if (wrapNearDeposit) {
+      transactions.push({
+        receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "storage_deposit",
+              args: {},
+              gas: "300000000000000",
+              deposit: wrapNearDeposit.depositAmount,
+            },
+          },
+        ],
+      });
+    }
+
     transactions.push({
-      receiverId: "wrap.testnet",
+      receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
       actions: [
         {
           type: "FunctionCall",
