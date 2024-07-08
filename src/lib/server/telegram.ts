@@ -46,7 +46,7 @@ ${escapeMarkdown(description)}
 
 Cooking time: *${durationMsToHumanReadable(durationMs)}*
 
-${escapeMarkdown("[Let's cook!](https://memecooking.com/" + ticker + ")")}
+[${escapeMarkdown("[Let's cook!]")}](${`https://memecooking.com/${ticker}`})
 
 ${telegramLink ? `[${escapeMarkdown("[telegram]")}](${telegramLink})` : ""} ${twitterLink ? `[${escapeMarkdown("[twitter]")}](${twitterLink})` : ""} ${websiteLink ? `[${escapeMarkdown("[website]")}](${websiteLink})` : ""}
     `;
