@@ -1,3 +1,4 @@
+import type { HereCall } from "@here-wallet/core";
 import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
 
 import { view } from "./utils";
@@ -98,33 +99,52 @@ export abstract class MemeCooking {
   public static deposit(
     wallet: Wallet,
     args: { memeId: number; amount: string },
-    callback: TransactionCallbacks<FinalExecutionOutcome> = {},
+    callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
+    needStorageDeposit: { depositAmount: string } | null = null,
   ) {
-    return wallet.signAndSendTransaction(
-      {
-        receiverId: "wrap.testnet",
+    const transactions: HereCall[] = [];
+
+    if (needStorageDeposit) {
+      transactions.push({
+        receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
         actions: [
           {
             type: "FunctionCall",
             params: {
-              methodName: "ft_transfer_call",
-              args: {
-                receiver_id: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
-                amount: args.amount,
-                msg: JSON.stringify({
-                  Deposit: {
-                    meme_id: args.memeId,
-                  },
-                }),
-              },
+              methodName: "storage_deposit",
+              args: {},
               gas: "300000000000000",
-              deposit: "1",
+              deposit: needStorageDeposit.depositAmount,
             },
           },
         ],
-      },
-      callback,
-    );
+      });
+    }
+
+    transactions.push({
+      receiverId: "wrap.testnet",
+      actions: [
+        {
+          type: "FunctionCall",
+          params: {
+            methodName: "ft_transfer_call",
+            args: {
+              receiver_id: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+              amount: args.amount,
+              msg: JSON.stringify({
+                Deposit: {
+                  meme_id: args.memeId,
+                },
+              }),
+            },
+            gas: "300000000000000",
+            deposit: "1",
+          },
+        },
+      ],
+    });
+
+    return wallet.signAndSendTransactions({ transactions }, callback);
   }
 
   public static storageCosts() {
@@ -162,6 +182,22 @@ export abstract class MemeCooking {
         reference_hash,
         deposit_token_id,
       },
+    );
+  }
+
+  public static storageBalanceBounds() {
+    return view<{ min: string; max: string }>(
+      import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+      "storage_balance_bounds",
+      {},
+    );
+  }
+
+  public static storageBalanceOf(account_id: string) {
+    return view<string | null>(
+      import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+      "storage_balance_of",
+      { account_id },
     );
   }
 }

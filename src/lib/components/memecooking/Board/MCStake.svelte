@@ -3,11 +3,14 @@
 
   import TokenInput from "$lib/components/TokenInput.svelte";
   import { MemeCooking, wallet } from "$lib/near";
+  import { FixedNumber } from "$lib/util";
 
   const tabs = [
     { id: "stake", label: "stake" },
     { id: "unstake", label: "unstake" },
   ];
+
+  const { accountId$ } = wallet;
 
   let input: TokenInput;
   $: input$ = input?.u128$;
@@ -19,10 +22,32 @@
     defaultValue: "stake",
   });
 
-  function action() {
-    if (!$input$) return;
+  async function action() {
+    if (!$input$ || !$accountId$) return;
     if ($value === "stake") {
-      MemeCooking.deposit(wallet, { amount: $input$.toU128(), memeId: 1 }, {});
+      // Check storage balance before staking
+      const [storageBalance, { min: minStorageBalance }] = await Promise.all([
+        MemeCooking.storageBalanceOf($accountId$),
+        MemeCooking.storageBalanceBounds(),
+      ]);
+
+      let needStorageDeposit = null;
+      if (
+        !storageBalance ||
+        new FixedNumber(storageBalance, 24).toBigInt() <
+          new FixedNumber(minStorageBalance, 24).toBigInt()
+      ) {
+        needStorageDeposit = {
+          depositAmount: minStorageBalance,
+        };
+      }
+
+      MemeCooking.deposit(
+        wallet,
+        { amount: $input$.toU128(), memeId: 1 },
+        {},
+        needStorageDeposit,
+      );
     } else {
       console.log("unstake");
     }
