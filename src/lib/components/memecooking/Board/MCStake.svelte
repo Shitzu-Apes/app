@@ -2,11 +2,15 @@
   import { createTabs, melt } from "@melt-ui/svelte";
 
   import TokenInput from "$lib/components/TokenInput.svelte";
+  import { MemeCooking, wallet } from "$lib/near";
 
   const tabs = [
     { id: "stake", label: "stake" },
     { id: "unstake", label: "unstake" },
   ];
+
+  let input: TokenInput;
+  $: input$ = input?.u128$;
 
   const {
     elements: { root, list, trigger },
@@ -16,8 +20,9 @@
   });
 
   function action() {
+    if (!$input$) return;
     if ($value === "stake") {
-      console.log("stake");
+      MemeCooking.deposit(wallet, { amount: $input$.toU128(), memeId: 1 }, {});
     } else {
       console.log("unstake");
     }
@@ -43,6 +48,7 @@
   <TokenInput
     class="bg-transparent border border-shitzu-4 rounded w-full py-2 px-2"
     decimals={24}
+    bind:this={input}
   />
   <button on:click={action} class="bg-shitzu-6 w-full py-2 rounded text-black"
     >{$value}</button

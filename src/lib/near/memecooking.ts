@@ -95,6 +95,38 @@ export abstract class MemeCooking {
     );
   }
 
+  public static deposit(
+    wallet: Wallet,
+    args: { memeId: number; amount: string },
+    callback: TransactionCallbacks<FinalExecutionOutcome> = {},
+  ) {
+    return wallet.signAndSendTransaction(
+      {
+        receiverId: "wrap.testnet",
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "ft_transfer_call",
+              args: {
+                receiver_id: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+                amount: args.amount,
+                msg: JSON.stringify({
+                  Deposit: {
+                    meme_id: args.memeId,
+                  },
+                }),
+              },
+              gas: "300000000000000",
+              deposit: "1",
+            },
+          },
+        ],
+      },
+      callback,
+    );
+  }
+
   public static storageCosts() {
     return view<{ account: string; perMemeDeposit: string }>(
       import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
