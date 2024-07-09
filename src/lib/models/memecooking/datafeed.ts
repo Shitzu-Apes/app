@@ -135,46 +135,46 @@ const createDataFeed: (ws: WebSocket) => IBasicDataFeed = (ws) => ({
       return;
     }
 
-    let lastBar = lastBarsCache.get(symbolInfo.ticker)!;
+    const lastBar = lastBarsCache.get(symbolInfo.ticker)!;
 
-    MCsubscribe(subscriberUID, (data) => {
-      if (data.ticker !== symbolInfo.ticker) {
-        return;
-      }
+    // MCsubscribe(subscriberUID, (data) => {
+    //   if (data.ticker !== symbolInfo.ticker) {
+    //     return;
+    //   }
 
-      console.log("[subscribeBar::MCsubscribe]]");
-      const nextBarTime = lastBar.time + Number(resolution) * 60 * 1000;
+    //   console.log("[subscribeBar::MCsubscribe]]");
+    //   const nextBarTime = lastBar.time + Number(resolution) * 60 * 1000;
 
-      let bar: {
-        time: number;
-        low: number;
-        high: number;
-        open: number;
-        close: number;
-      };
-      const price = parseFloat(data.price);
-      if (data.timestamp_ms >= nextBarTime) {
-        console.log("[subscribeBars]: Create new bar");
-        bar = {
-          time: nextBarTime,
-          low: price,
-          high: price,
-          open: price,
-          close: price,
-        };
-      } else {
-        console.log("[subscribeBars]: Update lastBar");
-        bar = {
-          ...lastBar,
-          high: Math.max(lastBar.high, price),
-          low: Math.min(lastBar.low, price),
-          close: price,
-        };
-      }
-      lastBar = bar;
+    //   let bar: {
+    //     time: number;
+    //     low: number;
+    //     high: number;
+    //     open: number;
+    //     close: number;
+    //   };
+    //   const price = parseFloat(data.price);
+    //   if (data.timestamp_ms >= nextBarTime) {
+    //     console.log("[subscribeBars]: Create new bar");
+    //     bar = {
+    //       time: nextBarTime,
+    //       low: price,
+    //       high: price,
+    //       open: price,
+    //       close: price,
+    //     };
+    //   } else {
+    //     console.log("[subscribeBars]: Update lastBar");
+    //     bar = {
+    //       ...lastBar,
+    //       high: Math.max(lastBar.high, price),
+    //       low: Math.min(lastBar.low, price),
+    //       close: price,
+    //     };
+    //   }
+    //   lastBar = bar;
 
-      onRealtimeCallback(bar);
-    });
+    //   onRealtimeCallback(bar);
+    // });
   },
 
   unsubscribeBars: (subscriberUID) => {

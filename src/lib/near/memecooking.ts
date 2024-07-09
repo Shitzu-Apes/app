@@ -4,19 +4,42 @@ import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
 import { view } from "./utils";
 import { Wallet, type TransactionCallbacks } from "./wallet";
 
-import type { MCMemeInfo, MCAccountInfo } from "$lib/models/memecooking";
+import type {
+  MCMemeInfo,
+  MCAccountInfo,
+  MCMemeInfoWithReference,
+  MCReference,
+} from "$lib/models/memecooking";
 
 export abstract class MemeCooking {
-  public static getLatestMeme(_firstMemeId?: string): Promise<MCMemeInfo[]> {
+  public static getLatestMeme(
+    _firstMemeId?: string,
+  ): Promise<Array<MCMemeInfoWithReference | null>> {
     const promises = [...Array(10).keys()].map((id) => {
-      return view<MCMemeInfo>(
-        import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
-        "get_meme",
-        { id },
-      );
+      return this.getMemeWithReference(id);
     });
 
     return Promise.all(promises);
+  }
+
+  public static async getMemeWithReference(
+    id: number,
+  ): Promise<MCMemeInfoWithReference | null> {
+    const meme = await this.getMeme(id);
+    if (!meme) {
+      return null;
+    }
+
+    const reference = (await fetch(
+      `${import.meta.env.VITE_IPFS_GATEWAY}/${meme.reference}`,
+    ).then((res) => res.json())) as MCReference;
+
+    console.log("reference", reference);
+
+    return {
+      ...meme,
+      ...reference,
+    };
   }
 
   public static getMeme(id: number): Promise<MCMemeInfo | null> {

@@ -10,14 +10,14 @@
   import TokenDetailCarousel from "./TokenDetailCarousel.svelte";
 
   import { page } from "$app/stores";
-  import type { MCMemeInfo } from "$lib/models/memecooking";
+  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
 
   let emblaApi: EmblaCarouselType | undefined = undefined;
   let options: EmblaOptionsType = {
     axis: "y",
   };
 
-  export let memebids: MCMemeInfo[];
+  export let memebids: MCMemeInfoWithReference[];
 
   export let currentMemebidsIdx: number;
 

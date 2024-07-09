@@ -1,21 +1,28 @@
 export type MCMemeInfo = {
-  id: string;
+  id: number;
   owner: string;
   end_timestamp_ms: number;
   name: string;
   symbol: string;
-  ticker: string;
-  icon: string | null;
+  icon: string;
   decimals: number;
   total_supply: string;
-  banner: string | null;
+  reference: string;
+  reference_hash: string;
   deposit_token_id: string;
-  description: string | null;
-  links: Array<[string, string]>;
-  price: string;
-  timestamp_ms: number;
   total_staked: string;
+  total_withdrawal_fees: string;
 };
+
+export type MCReference = {
+  description: string;
+  twitterLink: string;
+  telegramLink: string;
+  website: string;
+  image: string;
+};
+
+export type MCMemeInfoWithReference = MCMemeInfo & MCReference;
 
 export type MCAccountInfo = {
   account_id: string;

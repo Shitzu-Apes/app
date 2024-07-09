@@ -11,9 +11,9 @@
   import TokenDetail from "./TokenDetail.svelte";
   import TokenHolder from "./TokenHolder.svelte";
 
-  import type { MCMemeInfo } from "$lib/models/memecooking";
+  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
 
-  export let memebid: MCMemeInfo;
+  export let memebid: MCMemeInfoWithReference;
 
   let emblaApi: EmblaCarouselType | undefined = undefined;
   let options: EmblaOptionsType = {

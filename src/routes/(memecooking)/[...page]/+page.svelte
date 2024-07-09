@@ -8,7 +8,9 @@
   let inititalMembidsPromise: Promise<void> = MemeCooking.getLatestMeme(
     $page.params.page,
   ).then((newMemebids) => {
-    $memebids = newMemebids;
+    if (newMemebids) {
+      $memebids = newMemebids.filter((m) => m !== null);
+    }
   });
 
   let currentMemebidsIdx = 0;

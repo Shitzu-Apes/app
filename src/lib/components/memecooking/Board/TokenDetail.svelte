@@ -2,10 +2,10 @@
   import { onMount } from "svelte";
 
   import Near from "$lib/assets/Near.svelte";
-  import type { MCMemeInfo } from "$lib/models/memecooking";
+  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
   import { FixedNumber } from "$lib/util";
 
-  export let memebid: MCMemeInfo;
+  export let memebid: MCMemeInfoWithReference;
 
   let end = memebid.end_timestamp_ms;
 
@@ -29,7 +29,7 @@
   });
 </script>
 
-<h2 class="flex text-2xl">
+<h2 class="flex text-2xl mt-9">
   <span class="text-shitzu-4">
     {#if days > 0}
       {days}d
@@ -54,9 +54,9 @@
   </h2>
   <div class="flex gap-4 items-center">
     <img
-      src={memebid.icon}
+      src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
       alt="{memebid.name} icon"
-      class="rounded-lg size-24"
+      class="rounded-lg size-24 object-contain"
     />
     <div class="flex flex-col">
       <div class="text-lg font-bold uppercase">${memebid.symbol}</div>
@@ -65,6 +65,10 @@
       </div>
       <div class="w-40 overflow-hidden text-ellipsis">{memebid.owner}</div>
     </div>
+  </div>
+
+  <div class="w-3/4 flex-1 overflow-hidden line-clamp-3">
+    {memebid.description}
   </div>
 {:else}
   <div class="flex gap-4 items-center">
