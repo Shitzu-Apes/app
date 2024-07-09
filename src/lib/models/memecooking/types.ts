@@ -14,6 +14,7 @@ export type MCMemeInfo = {
   links: Array<[string, string]>;
   price: string;
   timestamp_ms: number;
+  total_staked: string;
 };
 
 export type MCAccountInfo = {

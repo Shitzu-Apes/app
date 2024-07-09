@@ -10,6 +10,11 @@
   import TokenComment from "./TokenComment.svelte";
   import TokenDetail from "./TokenDetail.svelte";
   import TokenHolder from "./TokenHolder.svelte";
+
+  import type { MCMemeInfo } from "$lib/models/memecooking";
+
+  export let memebid: MCMemeInfo;
+
   let emblaApi: EmblaCarouselType | undefined = undefined;
   let options: EmblaOptionsType = {
     axis: "x",
@@ -72,7 +77,7 @@
     <div
       class="flex-[0_0_100%] min-w-0 flex flex-col justify-center items-center h-full text-shitzu-4 gap-4"
     >
-      <TokenDetail />
+      <TokenDetail {memebid} />
     </div>
     <div class="flex-[0_0_100%] min-w-0">
       {#if focused && renderChart}

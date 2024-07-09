@@ -1,8 +1,13 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
-  // Random within 24 hours
-  export let end = Date.now() + 1000 * 60 * 60 * 24 * Math.random();
+  import Near from "$lib/assets/Near.svelte";
+  import type { MCMemeInfo } from "$lib/models/memecooking";
+  import { FixedNumber } from "$lib/util";
+
+  export let memebid: MCMemeInfo;
+
+  let end = memebid.end_timestamp_ms;
 
   let [days, hours, minutes, seconds] = [0, 0, 0, 0];
   onMount(() => {
@@ -40,20 +45,43 @@
     {/if}
   </span>
 </h2>
-<div class="flex gap-4 items-center">
-  <div class="loader size-24" />
-  <div class="flex flex-col gap-2">
-    <!-- Created by -->
-    <div class="loader w-40 h-4" />
-    <!-- MCap -->
-    <div class="loader w-50 h-4" />
-    <!-- replies -->
-    <div class="loader w-20 h-2" />
-    <!-- Ticker -->
-    <div class="loader w-50 h-5" />
+{#if memebid}
+  <h2 class="flex items-center bg-amber text-white px-2 text-2xl rounded">
+    <Near className="size-6 -ml-1" />{new FixedNumber(
+      memebid.total_staked,
+      24,
+    ).format()}
+  </h2>
+  <div class="flex gap-4 items-center">
+    <img
+      src={memebid.icon}
+      alt="{memebid.name} icon"
+      class="rounded-lg size-24"
+    />
+    <div class="flex flex-col">
+      <div class="text-lg font-bold uppercase">${memebid.symbol}</div>
+      <div class="">
+        <h4 class="text-md font-normal">{memebid.name}</h4>
+      </div>
+      <div class="w-40 overflow-hidden text-ellipsis">{memebid.owner}</div>
+    </div>
   </div>
-</div>
-<div class="flex flex-col w-full px-4">
-  <h3 class="flex">Bonding Curve</h3>
-  <div class="loader w-full h-6"></div>
-</div>
+{:else}
+  <div class="flex gap-4 items-center">
+    <div class="loader size-24" />
+    <div class="flex flex-col gap-2">
+      <!-- Created by -->
+      <div class="loader w-40 h-4" />
+      <!-- MCap -->
+      <div class="loader w-50 h-4" />
+      <!-- replies -->
+      <div class="loader w-20 h-2" />
+      <!-- Ticker -->
+      <div class="loader w-50 h-5" />
+    </div>
+  </div>
+  <div class="flex flex-col w-full px-4">
+    <h3 class="flex">Bonding Curve</h3>
+    <div class="loader w-full h-6"></div>
+  </div>
+{/if}
