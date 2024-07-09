@@ -19,28 +19,12 @@ export abstract class MemeCooking {
     return Promise.all(promises);
   }
 
-  public static getMeme(id: string): Promise<MCMemeInfo | null> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const mockedData: MCMemeInfo = {
-          id,
-          owner: "shitzu.near",
-          end_timestamp_ms: Date.now() + 1000,
-          name: "shhh",
-          symbol: "SHHH",
-          icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABKklEQVR42mNk",
-          decimals: 18,
-          total_supply: "100000000000000000000000000",
-          banner:
-            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABKklEQVR42mNk",
-          deposit_token_id: "wrap.near",
-          description: "Shitzu is a meme token.",
-          links: [["https://twitter.com/shitzuonnear", ""]],
-        };
-
-        resolve(mockedData);
-      }, 1000);
-    });
+  public static getMeme(id: number): Promise<MCMemeInfo | null> {
+    return view<MCMemeInfo>(
+      import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+      "get_meme",
+      { id },
+    );
   }
 
   public static getAccount(accountId: string): Promise<MCAccountInfo | null> {
@@ -163,7 +147,7 @@ export abstract class MemeCooking {
               amount: args.amount,
               msg: JSON.stringify({
                 Deposit: {
-                  meme_id: args.memeId,
+                  id: args.memeId,
                 },
               }),
             },

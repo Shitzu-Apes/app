@@ -43,9 +43,13 @@
 
       let needStorageDeposit = null;
       if (
-        !storageBalance ||
-        new FixedNumber(storageBalance, 24).toBigInt() <
-          new FixedNumber(minStorageBalance, 24).toBigInt()
+        // no storage balance or
+        // storage balance is less than min storage balance
+
+        storageBalance === null ||
+        (storageBalance !== null &&
+          new FixedNumber(storageBalance).toBigInt() <
+            new FixedNumber(minStorageBalance).toBigInt())
       ) {
         needStorageDeposit = {
           depositAmount: minStorageBalance,
