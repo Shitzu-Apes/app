@@ -19,26 +19,41 @@ export abstract class MemeCooking {
       return this.getMemeWithReference(id);
     });
 
-    return Promise.all(promises);
+    return Promise.all(promises).then((res) => {
+      console.log("[getLatestMeme]", res);
+
+      return res;
+    });
   }
 
   public static async getMemeWithReference(
     id: number,
   ): Promise<MCMemeInfoWithReference | null> {
     const meme = await this.getMeme(id);
+    console.log("[getMemeWithReference]", meme, id);
     if (!meme) {
       return null;
+    }
+
+    if (!meme.reference) {
+      return {
+        ...meme,
+        description: "",
+        twitterLink: "",
+        telegramLink: "",
+        website: "",
+        image: meme.icon,
+      };
     }
 
     const reference = (await fetch(
       `${import.meta.env.VITE_IPFS_GATEWAY}/${meme.reference}`,
     ).then((res) => res.json())) as MCReference;
 
-    console.log("reference", reference);
-
     return {
       ...meme,
       ...reference,
+      image: `${import.meta.env.VITE_IPFS_GATEWAY}/${reference.image}`,
     };
   }
 
@@ -178,7 +193,7 @@ export abstract class MemeCooking {
               amount: args.amount,
               msg: JSON.stringify({
                 Deposit: {
-                  id: args.memeId,
+                  meme_id: args.memeId,
                 },
               }),
             },
@@ -190,6 +205,33 @@ export abstract class MemeCooking {
     });
 
     return wallet.signAndSendTransactions({ transactions }, callback);
+  }
+
+  public static async withdraw(
+    wallet: Wallet,
+    args: { memeId: number; amount: string },
+    callback: TransactionCallbacks<FinalExecutionOutcome> = {},
+  ) {
+    return wallet.signAndSendTransaction(
+      {
+        receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "withdraw",
+              args: {
+                meme_id: args.memeId,
+                amount: args.amount,
+              },
+              gas: "300000000000000",
+              deposit: "1",
+            },
+          },
+        ],
+      },
+      callback,
+    );
   }
 
   public static storageCosts() {

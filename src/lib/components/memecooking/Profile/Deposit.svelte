@@ -1,11 +1,20 @@
 <script lang="ts">
   import type { MCAccountInfo } from "$lib/models/memecooking";
-  import { MemeCooking } from "$lib/near";
+  import { MemeCooking, wallet } from "$lib/near";
   import { FixedNumber } from "$lib/util";
 
   export let deposit: MCAccountInfo["deposits"][number];
 
   let memeInfo = MemeCooking.getMeme(deposit[0]);
+
+  async function withdraw() {
+    const meme = await memeInfo;
+    if (!meme) return;
+    await MemeCooking.withdraw(wallet, {
+      memeId: meme.id,
+      amount: deposit[1],
+    });
+  }
 </script>
 
 {#await memeInfo}
@@ -34,7 +43,7 @@
           <h4 class="text-md font-normal">{memeInfo.name}</h4>
         </div>
         <div class="">{new FixedNumber(deposit[1], 24).format()}</div>
-        <div class="">[withdraw]</div>
+        <button class="" on:click={withdraw}>[withdraw]</button>
       </div>
     </div>
   {/if}

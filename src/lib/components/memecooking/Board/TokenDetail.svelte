@@ -54,7 +54,7 @@
   </h2>
   <div class="flex gap-4 items-center">
     <img
-      src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
+      src={memebid.image}
       alt="{memebid.name} icon"
       class="rounded-lg size-24 object-contain"
     />
