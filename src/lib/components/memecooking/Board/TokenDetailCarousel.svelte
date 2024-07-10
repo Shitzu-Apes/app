@@ -85,7 +85,7 @@
       {/if}
     </div>
     <div class="flex-[0_0_100%] min-w-0">
-      <TokenHolder />
+      <TokenHolder memeId={memebid.id} />
     </div>
     <div class="flex-[0_0_100%] min-w-0">
       <TokenComment {id} />

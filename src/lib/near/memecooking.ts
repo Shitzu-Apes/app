@@ -50,6 +50,14 @@ export abstract class MemeCooking {
     );
   }
 
+  public static getMemeStakes(id: number, skip?: number, limit?: number) {
+    return view<Array<[string, string]> | null>(
+      import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+      "get_meme_stakes",
+      { id, skip, limit },
+    );
+  }
+
   public static getAccount(accountId: string): Promise<MCAccountInfo | null> {
     return view<MCAccountInfo>(
       import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
