@@ -6,9 +6,11 @@
 
   export { className as class };
 
+  let started = false;
   let [days, hours, minutes, seconds] = [0, 0, 0, 0];
   onMount(() => {
     const interval = setInterval(() => {
+      started = true;
       const now = Date.now();
       const diff = to - now;
       if (diff <= 0) {
@@ -27,20 +29,24 @@
 </script>
 
 <span class={className}>
-  {#if days === 0 && hours === 0 && minutes === 0 && seconds === 0}
-    Ended
+  {#if started}
+    {#if days === 0 && hours === 0 && minutes === 0 && seconds === 0}
+      Ended
+    {:else}
+      {#if days > 0}
+        {days}d
+      {/if}
+      {#if hours > 0 || days > 0}
+        {hours}h
+      {/if}
+      {#if minutes > 0 || hours > 0 || days > 0}
+        {minutes}m
+      {/if}
+      {#if seconds > 0 || minutes > 0 || hours > 0 || days > 0}
+        {seconds}s
+      {/if}
+    {/if}
   {:else}
-    {#if days > 0}
-      {days}d
-    {/if}
-    {#if hours > 0 || days > 0}
-      {hours}h
-    {/if}
-    {#if minutes > 0 || hours > 0 || days > 0}
-      {minutes}m
-    {/if}
-    {#if seconds > 0 || minutes > 0 || hours > 0 || days > 0}
-      {seconds}s
-    {/if}
+    Loading...
   {/if}
 </span>

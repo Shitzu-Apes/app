@@ -1,6 +1,7 @@
 <script lang="ts">
   import Countdown from "../../Countdown.svelte";
 
+  import Near from "$lib/assets/Near.svelte";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
   import { FixedNumber } from "$lib/util";
@@ -31,7 +32,10 @@
           to={memebid.end_timestamp_ms}
         />
       </span>
-      <span class="text-xs bg-amber text-white px-2 rounded">
+      <span
+        class="text-xs bg-amber text-black px-2 rounded self-start flex items-center"
+      >
+        <Near className="size-4 -ml-1" />
         {new FixedNumber(memebid.total_staked, 24).format()}
       </span>
     </div>

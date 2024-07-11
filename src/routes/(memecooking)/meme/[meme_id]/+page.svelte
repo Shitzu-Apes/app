@@ -4,6 +4,7 @@
   import TokenChart from "$lib/components/memecooking/Board/TokenChart.svelte";
   import TokenComment from "$lib/components/memecooking/Board/TokenComment.svelte";
   import TokenHolder from "$lib/components/memecooking/Board/TokenHolder.svelte";
+  import Countdown from "$lib/components/memecooking/Countdown.svelte";
   import { MemeCooking } from "$lib/near";
 
   // page data
@@ -20,12 +21,18 @@
     <div>Loading...</div>
   {:then meme}
     {#if meme}
+      <div class="w-full flex">
+        <Countdown
+          class="mx-auto text-4xl text-shitzu-4 mb-10"
+          to={meme.end_timestamp_ms}
+        />
+      </div>
       <div class="flex px-2 gap-2">
         <div class="flex-grow">
           <div class="w-full aspect-ratio-16/10">
             <TokenChart memebid={meme} />
           </div>
-          <div class="w-full h-100">
+          <div class="w-full h-screen">
             <TokenComment id={+meme_id} />
           </div>
         </div>
@@ -36,14 +43,12 @@
           </div>
 
           <!-- Token Detail -->
-          <div class="w-full">
+          <div class="w-full text-gray-4">
             <div class="flex gap-2">
-              <div>
-                <img src={meme.image} alt={meme.name} class="size-30" />
-              </div>
+              <img src={meme.image} alt={meme.name} class="size-30" />
               <div>
                 <h2>{meme.name} <b>${meme.symbol}</b></h2>
-                <div>{meme.description}</div>
+                <div class="text-sm">{meme.description}</div>
               </div>
             </div>
           </div>

@@ -29,7 +29,7 @@
 </div>
 
 <div
-  class="w-full flex items-center justify-between flex-wrap mt-10 gap-6 px-4 mb-10"
+  class="w-full flex items-center justify-start flex-wrap mt-10 gap-6 px-4 mb-10"
 >
   {#each memebids as memebid (memebid.id)}
     <MemePreview {memebid} />
