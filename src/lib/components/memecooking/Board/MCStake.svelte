@@ -115,6 +115,7 @@
       </button>
     {/each}
   </div>
+  <div class="h-5"></div>
   <div class="relative">
     <div class="absolute inset-y-0 left-0 flex items-center pl-2">
       <Near className="w-6 h-6" />
@@ -134,6 +135,23 @@
       </button>
     </div>
   </div>
+  <ul class="flex items-center w-full gap-2">
+    {#each [{ value: "0", label: "reset" }, { value: "1", label: "1" }, { value: "5", label: "5" }, { value: "10", label: "10" }] as value}
+      <li class="text-sm bg-shitzu-8 px-1 rounded">
+        <button
+          class="hover:text-shitzu-4 flex items-center gap-1"
+          on:click={() => {
+            $inputValue$ = new FixedNumber(value.value, 24).toU128();
+          }}
+        >
+          {#if value.value !== "0"}
+            <Near className="size-4" />
+          {/if}
+          {value.label}
+        </button>
+      </li>
+    {/each}
+  </ul>
   <button
     on:click={action}
     class="bg-shitzu-3 w-full py-2 rounded-full text-xl tracking-wider text-black border-b-4 border-shitzu-4 active:translate-y-1"
