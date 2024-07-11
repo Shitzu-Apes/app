@@ -1,6 +1,9 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import MCStake from "$lib/components/memecooking/Board/MCStake.svelte";
+  import TokenChart from "$lib/components/memecooking/Board/TokenChart.svelte";
+  import TokenComment from "$lib/components/memecooking/Board/TokenComment.svelte";
+  import TokenHolder from "$lib/components/memecooking/Board/TokenHolder.svelte";
   import { MemeCooking } from "$lib/near";
 
   // page data
@@ -9,20 +12,53 @@
   let meme = MemeCooking.getMemeWithReference(+meme_id);
 </script>
 
-{#await meme}
-  <div>Loading...</div>
-{:then meme}
-  {#if meme}
-    <div>
-      <h1>{meme.name}</h1>
-      <img src={meme.image} alt={meme.name} />
-      <p>{meme.description}</p>
+<div class="mt-10 w-full">
+  <div class="mx-auto flex">
+    <a href="/board" class="text-white text-2xl mx-auto mb-10">[go back]</a>
+  </div>
+  {#await meme}
+    <div>Loading...</div>
+  {:then meme}
+    {#if meme}
+      <div class="flex px-2 gap-2">
+        <div class="flex-grow">
+          <div class="w-full aspect-ratio-16/10">
+            <TokenChart />
+          </div>
+          <div class="w-full h-100">
+            <TokenComment id={+meme_id} />
+          </div>
+        </div>
 
-      <MCStake meme_id={meme.id} />
-    </div>
-  {:else}
-    <div>Meme not found</div>
-  {/if}
-{:catch error}
-  <div>Error: {error.message}</div>
-{/await}
+        <div class="w-90 p-2 flex flex-col gap-5">
+          <div class="w-full h-74 border-2 border-shitzu-4 rounded-xl p-2">
+            <MCStake meme_id={meme.id} />
+          </div>
+
+          <!-- Token Detail -->
+          <div class="w-full">
+            <div class="flex gap-2">
+              <div>
+                <img src={meme.image} alt={meme.name} class="size-30" />
+              </div>
+              <div>
+                <h2>{meme.name} <b>${meme.symbol}</b></h2>
+                <div>{meme.description}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Holder -->
+          <div class="w-full">
+            <TokenHolder memeId={meme.id} />
+          </div>
+          <!-- End Right Nav -->
+        </div>
+      </div>
+    {:else}
+      <div>Meme not found</div>
+    {/if}
+  {:catch error}
+    <div>Error: {error.message}</div>
+  {/await}
+</div>
