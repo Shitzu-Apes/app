@@ -81,7 +81,7 @@
     </div>
     <div class="flex-[0_0_100%] min-w-0">
       {#if focused && renderChart}
-        <TokenChart />
+        <TokenChart {memebid} />
       {/if}
     </div>
     <div class="flex-[0_0_100%] min-w-0">
@@ -111,5 +111,5 @@
 <div
   class="h-[calc(30%-32px)] w-full flex justify-center items-center pb-2 px-2"
 >
-  <MCStake />
+  <MCStake meme_id={memebid.id} />
 </div>

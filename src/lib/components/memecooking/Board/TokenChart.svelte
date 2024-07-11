@@ -7,6 +7,7 @@
     type LanguageCode,
     type ResolutionString,
   } from "$lib/charting_library";
+  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
   import createDataFeed from "$lib/models/memecooking/datafeed";
   import { ws } from "$lib/store/memebids";
 
@@ -19,11 +20,20 @@
       ? null
       : (decodeURIComponent(results[1].replace(/\+/g, " ")) as LanguageCode);
   }
+  export let memebid: MCMemeInfoWithReference;
 
   onMount(() => {
     const widgetOptions: ChartingLibraryWidgetOptions = {
       theme: "dark",
-      symbol: "moon",
+      symbol: memebid.symbol,
+      time_frames: [
+        { text: "1m", resolution: "1" },
+        { text: "5m", resolution: "5" },
+        { text: "15m", resolution: "15" },
+        { text: "30m", resolution: "30" },
+        { text: "1h", resolution: "60" },
+        { text: "1d", resolution: "1D" },
+      ] as { text: string; resolution: ResolutionString }[],
       // BEWARE: no trailing slash is expected in feed URL
       datafeed: createDataFeed($ws),
       interval: "1" as ResolutionString,
@@ -31,8 +41,15 @@
       library_path: "/charting_library/",
 
       locale: getLanguageFromURL() || "en",
-      disabled_features: ["use_localstorage_for_settings"],
-      enabled_features: ["study_templates"],
+      disabled_features: [
+        "symbol_search_hot_key",
+        "header_quick_search",
+        "header_symbol_search",
+        "header_screenshot",
+        "header_saveload",
+        "header_indicators",
+      ],
+      enabled_features: [],
       charts_storage_url: "https://saveload.tradingview.com",
       charts_storage_api_version: "1.1",
       client_id: "tradingview.com",

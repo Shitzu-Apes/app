@@ -23,7 +23,7 @@
       <div class="flex px-2 gap-2">
         <div class="flex-grow">
           <div class="w-full aspect-ratio-16/10">
-            <TokenChart />
+            <TokenChart memebid={meme} />
           </div>
           <div class="w-full h-100">
             <TokenComment id={+meme_id} />
