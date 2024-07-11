@@ -5,7 +5,10 @@ import type {
   LibrarySymbolInfo,
   ResolutionString,
 } from "$lib/charting_library/charting_library";
-import { MCsubscribe, MCunsubscribe } from "$lib/store/memebids";
+import {
+  // MCsubscribe
+  MCunsubscribe,
+} from "$lib/store/memebids";
 
 const lastBarsCache: Map<
   string,
@@ -122,9 +125,9 @@ const createDataFeed: (ws: WebSocket) => IBasicDataFeed = (ws) => ({
 
   subscribeBars: (
     symbolInfo,
-    resolution,
-    onRealtimeCallback,
-    subscriberUID,
+    // _resolution,
+    // _onRealtimeCallback,
+    // _subscriberUID,
   ) => {
     console.log(
       "[subscribeBars]: Method call with subscriberUID:",
@@ -135,7 +138,7 @@ const createDataFeed: (ws: WebSocket) => IBasicDataFeed = (ws) => ({
       return;
     }
 
-    const lastBar = lastBarsCache.get(symbolInfo.ticker)!;
+    // const lastBar = lastBarsCache.get(symbolInfo.ticker)!;
 
     // MCsubscribe(subscriberUID, (data) => {
     //   if (data.ticker !== symbolInfo.ticker) {
