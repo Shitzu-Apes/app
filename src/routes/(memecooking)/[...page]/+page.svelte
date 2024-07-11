@@ -1,17 +1,19 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  // import { page } from "$app/stores";
   import SHITZU_KING from "$lib/assets/shitzu_saiya.webp";
   import Board from "$lib/components/memecooking/Board/Board.svelte";
   import { MemeCooking } from "$lib/near";
   import { memebids } from "$lib/store/memebids";
 
-  let inititalMembidsPromise: Promise<void> = MemeCooking.getLatestMeme(
-    $page.params.page,
-  ).then((newMemebids) => {
-    if (newMemebids) {
-      $memebids = newMemebids.filter((m) => m !== null);
-    }
-  });
+  let inititalMembidsPromise: Promise<void> = MemeCooking
+    .getLatestMeme
+    // $page.params.page,
+    ()
+    .then((newMemebids) => {
+      if (newMemebids) {
+        $memebids = newMemebids.filter((m) => m !== null);
+      }
+    });
 
   let currentMemebidsIdx = 0;
 </script>
