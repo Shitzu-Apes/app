@@ -31,7 +31,8 @@
   class="w-full flex items-center justify-between flex-wrap mt-10 gap-6 px-4 mb-10"
 >
   {#each memebids as memebid}
-    <div
+    <a
+      href="/meme/{memebid.id}"
       class="flex items-start justify-start w-full max-w-sm gap-3 p-2 border border-transparent hover:border-white cursor-pointer"
     >
       <img src={memebid.image} alt={memebid.name} class="w-24 h-24" />
@@ -50,6 +51,6 @@
         </div>
         <div class="text-xs">{memebid.description}</div>
       </div>
-    </div>
+    </a>
   {/each}
 </div>

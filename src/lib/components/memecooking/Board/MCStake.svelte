@@ -24,6 +24,8 @@
   $: input$ = input?.u128$;
   let inputValue$ = writable<string | undefined>();
 
+  export let meme_id: number;
+
   const {
     elements: { root, list, trigger },
     states: { value },
@@ -74,7 +76,7 @@
 
       MemeCooking.deposit(
         wallet,
-        { amount: $input$.toU128(), memeId: 1 },
+        { amount: $input$.toU128(), memeId: meme_id },
         {},
         needStorageDeposit,
         wrapNearDeposit,
