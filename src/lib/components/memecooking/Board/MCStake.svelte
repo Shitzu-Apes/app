@@ -1,9 +1,16 @@
 <script lang="ts">
   import { createTabs, melt } from "@melt-ui/svelte";
+  import { writable } from "svelte/store";
 
   import Near from "$lib/assets/Near.svelte";
   import TokenInput from "$lib/components/TokenInput.svelte";
-  import { Ft, MemeCooking, wallet } from "$lib/near";
+  import {
+    Ft,
+    MemeCooking,
+    nearBalance,
+    refreshNearBalance,
+    wallet,
+  } from "$lib/near";
   import { FixedNumber } from "$lib/util";
 
   const tabs = [
@@ -15,6 +22,7 @@
 
   let input: TokenInput;
   $: input$ = input?.u128$;
+  let inputValue$ = writable<string | undefined>();
 
   const {
     elements: { root, list, trigger },
@@ -75,6 +83,18 @@
       console.log("unstake");
     }
   }
+
+  $: refreshNearBalance();
+
+  function setMax() {
+    if ($nearBalance) {
+      let input = $nearBalance.sub(new FixedNumber(5n, 1));
+
+      input = input.toNumber() < 0 ? new FixedNumber(0n, 24) : input;
+
+      $inputValue$ = input.toNumber().toFixed(4);
+    }
+  }
 </script>
 
 <div
@@ -101,12 +121,15 @@
       class="bg-transparent rounded-xl w-full py-2  text-center text-2xl px-14 appearance-none outline-none"
       decimals={24}
       bind:this={input}
+      bind:value={$inputValue$}
     />
     <div class="absolute inset-y-0 right-0 flex items-center pr-2">
-      <span
+      <button
+        on:click={setMax}
         class="text-sm cursor-pointer bg-shitzu-4 px-2 rounded-full border border-shitzu-6"
-        >Max</span
       >
+        Max
+      </button>
     </div>
   </div>
   <button
