@@ -1,13 +1,3 @@
-<!-- 
-
-<script
-  async
-  src="https://comments.app/js/widget.js?3"
-  data-comments-app-website="v7gGUBF7"
-  data-limit="5"
-  data-page-id="/1"
-></script> -->
-
 <script lang="ts">
   let height: number = 0;
   export let id: number;
@@ -16,12 +6,13 @@
 <div class="h-full" bind:clientHeight={height}>
   <script
     async
-    src="https://comments.app/js/widget.js?3"
-    data-comments-app-website={import.meta.env.VITE_TELEGRAM_COMMENT_APP}
-    data-limit="10"
+    src="https://telegram.org/js/telegram-widget.js?22"
+    data-telegram-discussion="memecookingkitchen/{30 + id}"
     data-height={height}
-    data-page-id="/{id}"
-    data-color="31C891"
+    data-comments-limit="5"
+    data-colorful="1"
+    data-color="31c891"
     data-dark="1"
+    data-dark-color="31c891"
   ></script>
 </div>

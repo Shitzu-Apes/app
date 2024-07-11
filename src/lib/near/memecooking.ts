@@ -27,10 +27,10 @@ export abstract class MemeCooking {
   }
 
   public static async getMemeWithReference(
-    id: number,
+    meme_id: number,
   ): Promise<MCMemeInfoWithReference | null> {
-    const meme = await this.getMeme(id);
-    console.log("[getMemeWithReference]", meme, id);
+    const meme = await this.getMeme(meme_id);
+    console.log("[getMemeWithReference]", meme, meme_id);
     if (!meme) {
       return null;
     }
@@ -57,19 +57,19 @@ export abstract class MemeCooking {
     };
   }
 
-  public static getMeme(id: number): Promise<MCMemeInfo | null> {
+  public static getMeme(meme_id: number): Promise<MCMemeInfo | null> {
     return view<MCMemeInfo>(
       import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
       "get_meme",
-      { id },
+      { meme_id },
     );
   }
 
-  public static getMemeStakes(id: number, skip?: number, limit?: number) {
+  public static getMemeStakes(meme_id: number, skip?: number, limit?: number) {
     return view<Array<[string, string]> | null>(
       import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
       "get_meme_stakes",
-      { id, skip, limit },
+      { meme_id, skip, limit },
     );
   }
 
