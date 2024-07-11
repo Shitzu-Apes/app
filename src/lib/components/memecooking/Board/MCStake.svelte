@@ -82,7 +82,10 @@
         wrapNearDeposit,
       );
     } else {
-      console.log("unstake");
+      MemeCooking.withdraw(wallet, {
+        amount: $input$.toU128(),
+        memeId: meme_id,
+      });
     }
   }
 

@@ -234,6 +234,30 @@ export abstract class MemeCooking {
     );
   }
 
+  public static async claim(
+    wallet: Wallet,
+    args: { token_ids: string[] },
+    callback: TransactionCallbacks<FinalExecutionOutcome> = {},
+  ) {
+    return wallet.signAndSendTransaction(
+      {
+        receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "claim",
+              args,
+              gas: "300000000000000",
+              deposit: "1",
+            },
+          },
+        ],
+      },
+      callback,
+    );
+  }
+
   public static storageCosts() {
     return view<{ account: string; perMemeDeposit: string }>(
       import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
