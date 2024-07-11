@@ -1,49 +1,15 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import Countdown from "../Countdown.svelte";
 
   import Near from "$lib/assets/Near.svelte";
   import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
   import { FixedNumber } from "$lib/util";
 
   export let memebid: MCMemeInfoWithReference;
-
-  let end = memebid.end_timestamp_ms;
-
-  let [days, hours, minutes, seconds] = [0, 0, 0, 0];
-  onMount(() => {
-    const interval = setInterval(() => {
-      const now = Date.now();
-      const diff = end - now;
-      if (diff <= 0) {
-        clearInterval(interval);
-        return;
-      }
-
-      days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      seconds = Math.floor((diff % (1000 * 60)) / 1000);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  });
 </script>
 
 <h2 class="flex text-2xl mt-9">
-  <span class="text-shitzu-4">
-    {#if days > 0}
-      {days}d
-    {/if}
-    {#if hours > 0}
-      {hours}h
-    {/if}
-    {#if minutes > 0}
-      {minutes}m
-    {/if}
-    {#if seconds > 0}
-      {seconds}s
-    {/if}
-  </span>
+  <Countdown to={memebid.end_timestamp_ms} class="text-shitzu-4" />
 </h2>
 {#if memebid}
   <h2 class="flex items-center bg-amber text-white px-2 text-2xl rounded">
