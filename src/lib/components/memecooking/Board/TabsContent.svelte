@@ -72,7 +72,7 @@
         on:select={onSelect}
       />
     {:else}
-      <Terminal />
+      <Terminal memebids={$memebids} />
     {/if}
   </section>
   <section use:melt={$content("following")}>Following</section>
