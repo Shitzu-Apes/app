@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createTabs, melt } from "@melt-ui/svelte";
 
+  import Near from "$lib/assets/Near.svelte";
   import TokenInput from "$lib/components/TokenInput.svelte";
   import { Ft, MemeCooking, wallet } from "$lib/near";
   import { FixedNumber } from "$lib/util";
@@ -92,12 +93,25 @@
       </button>
     {/each}
   </div>
-  <TokenInput
-    class="bg-transparent border border-shitzu-4 rounded w-full py-2 px-2"
-    decimals={24}
-    bind:this={input}
-  />
-  <button on:click={action} class="bg-shitzu-6 w-full py-2 rounded text-black"
-    >{$value}</button
+  <div class="relative">
+    <div class="absolute inset-y-0 left-0 flex items-center pl-2">
+      <Near className="w-6 h-6" />
+    </div>
+    <TokenInput
+      class="bg-transparent rounded-xl w-full py-2  text-center text-2xl px-14 appearance-none outline-none"
+      decimals={24}
+      bind:this={input}
+    />
+    <div class="absolute inset-y-0 right-0 flex items-center pr-2">
+      <span
+        class="text-sm cursor-pointer bg-shitzu-4 px-2 rounded-full border border-shitzu-6"
+        >Max</span
+      >
+    </div>
+  </div>
+  <button
+    on:click={action}
+    class="bg-shitzu-3 w-full py-2 rounded-full text-xl tracking-wider text-black border-b-4 border-shitzu-4 active:translate-y-1"
+    >[{$value}]</button
   >
 </div>
