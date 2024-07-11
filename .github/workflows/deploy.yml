@@ -37,12 +37,6 @@ jobs:
       - name: Lint
         run: "yarn lint"
 
-      - name: Grant permission to execute
-        run: "chmod +x ./copy_charting_library_files.sh"
-
-      - name: Copy Charting Library files
-        run: "./copy_charting_library_files.sh"
-
       - name: Build step
         run: "yarn build"
 
