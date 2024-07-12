@@ -2,39 +2,49 @@
   import Countdown from "../Countdown.svelte";
 
   import Near from "$lib/assets/Near.svelte";
+  import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
   import { FixedNumber } from "$lib/util";
 
   export let memebid: MCMemeInfoWithReference;
 </script>
 
-<h2 class="flex text-2xl mt-9">
-  <Countdown to={memebid.end_timestamp_ms} class="text-shitzu-4" />
-</h2>
 {#if memebid}
-  <h2 class="flex items-center bg-amber text-white px-2 text-2xl rounded">
-    <Near className="size-6 -ml-1" />{new FixedNumber(
-      memebid.total_staked,
-      24,
-    ).format()}
-  </h2>
-  <div class="flex gap-4 items-center">
-    <img
-      src={memebid.image}
-      alt="{memebid.name} icon"
-      class="rounded-lg size-24 object-contain"
-    />
-    <div class="flex flex-col">
-      <div class="text-lg font-bold uppercase">${memebid.symbol}</div>
-      <div class="">
-        <h4 class="text-md font-normal">{memebid.name}</h4>
+  <div class="flex flex-col w-full h-full items-center">
+    <h2 class="flex text-2xl my-4 justify-between items-center w-full px-2">
+      <div>
+        <Countdown to={memebid.end_timestamp_ms} class="text-shitzu-4" />
+        <div
+          class="flex items-center bg-amber text-white px-2 text-2xl rounded mb-4"
+        >
+          <Near className="size-6 -ml-1" />{new FixedNumber(
+            memebid.total_staked,
+            24,
+          ).format()}
+        </div>
       </div>
-      <div class="w-40 overflow-hidden text-ellipsis">{memebid.owner}</div>
+      <div>
+        <div class="flex flex-col items-end">
+          <h4 class="text-base font-medium">
+            {memebid.name} (${memebid.symbol})
+          </h4>
+          <div class="flex items-center text-xs">
+            created by
+            <img src={SHITZU_POCKET} alt="Shitzu Pocket" class="size-6" />
+            <div class="text-sm overflow-hidden text-ellipsis">
+              {memebid.owner}
+            </div>
+          </div>
+        </div>
+      </div>
+    </h2>
+    <div class="w-full h-[calc(100%-100px)]">
+      <img
+        src={memebid.image}
+        alt="{memebid.name} icon"
+        class="w-full h-full object-contain"
+      />
     </div>
-  </div>
-
-  <div class="w-3/4 flex-1 overflow-hidden line-clamp-3">
-    {memebid.description}
   </div>
 {:else}
   <div class="flex gap-4 items-center">

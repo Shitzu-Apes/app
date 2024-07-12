@@ -5,12 +5,14 @@
   } from "embla-carousel";
   import embalaCarousel from "embla-carousel-svelte";
 
+  import TokenCommentSheet from "../BottomSheet/TokenCommentSheet.svelte";
+
   import MCStake from "./MCStake.svelte";
   import TokenChart from "./TokenChart.svelte";
-  import TokenComment from "./TokenComment.svelte";
   import TokenDetail from "./TokenDetail.svelte";
   import TokenHolder from "./TokenHolder.svelte";
 
+  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
 
   export let memebid: MCMemeInfoWithReference;
@@ -88,14 +90,19 @@
       <div class="flex-[0_0_100%] min-w-0">
         <TokenHolder memeId={memebid.id} />
       </div>
-      <div class="flex-[0_0_100%] min-w-0">
-        <TokenComment {id} />
-      </div>
     </div>
   </div>
-  <div class="absolute right-0 bottom-0 p-2 mb-6 flex">
+  <div class="absolute right-0 bottom-0 p-2 flex bg-black/25 rounded-t">
     <ul class="flex flex-col items-end gap-3">
-      <li>[discuss]</li>
+      <li>
+        <button
+          on:click={() => {
+            openBottomSheet(TokenCommentSheet, { id });
+          }}
+        >
+          [discuss]
+        </button>
+      </li>
       <li>[share]</li>
     </ul>
   </div>
@@ -103,7 +110,7 @@
 <div
   class="w-full h-8 flex justify-evenly border-b bg-shitzu-4 text-black items-center"
 >
-  {#each ["[detail]", "[chart]", "[holder]", "[discuss]"] as tab, i (tab)}
+  {#each ["[detail]", "[chart]", "[holder]"] as tab, i (tab)}
     <button
       class="cursor-pointer border-r border-dark w-[33%] last:border-transparent"
       class:font-bold={selected === i}
