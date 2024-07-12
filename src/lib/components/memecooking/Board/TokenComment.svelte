@@ -7,7 +7,7 @@
   <script
     async
     src="https://telegram.org/js/telegram-widget.js?22"
-    data-telegram-discussion="memecookingkitchen/{34 + id}"
+    data-telegram-discussion="memecookingkitchen/{29 + id}"
     data-height={height}
     data-comments-limit="10"
     data-colorful="1"

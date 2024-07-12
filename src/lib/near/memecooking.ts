@@ -14,7 +14,7 @@ import type {
 export abstract class MemeCooking {
   public static getLatestMeme() // _firstMemeId?: string,
   : Promise<Array<MCMemeInfoWithReference | null>> {
-    const promises = [...Array(10).keys()].map((id) => {
+    const promises = [...Array(50).keys()].map((id) => {
       return this.getMemeWithReference(id);
     });
 
