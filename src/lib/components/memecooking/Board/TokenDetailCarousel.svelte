@@ -5,6 +5,7 @@
   } from "embla-carousel";
   import embalaCarousel from "embla-carousel-svelte";
 
+  import StakeSheet from "../BottomSheet/StakeSheet.svelte";
   import TokenCommentSheet from "../BottomSheet/TokenCommentSheet.svelte";
 
   import MCStake from "./MCStake.svelte";
@@ -62,7 +63,7 @@
   }}
 />
 
-<div class="relative h-[70%]">
+<div class="relative h-[100%-100px]">
   <div
     class="overflow-hidden h-full relative"
     use:embalaCarousel={{ options, plugins: [] }}
@@ -92,7 +93,7 @@
       </div>
     </div>
   </div>
-  <div class="absolute right-0 bottom-0 p-2 flex bg-black/25 rounded-t">
+  <div class="absolute right-0 bottom-0 p-2 mb-5 flex bg-black/25 rounded-t">
     <ul class="flex flex-col items-end gap-3">
       <li>
         <button
@@ -123,8 +124,12 @@
   {/each}
 </div>
 
-<div
-  class="h-[calc(30%-32px)] w-full flex justify-center items-center pb-2 px-2"
->
-  <MCStake meme_id={memebid.id} />
+<div class="h-[100px] w-full flex justify-center items-center pb-2 px-2">
+  <button
+    on:click={() => {
+      openBottomSheet(StakeSheet, { meme_id: memebid.id });
+    }}
+    class="bg-shitzu-3 w-full py-2 rounded-full text-xl tracking-wider text-black border-b-4 border-shitzu-4 active:translate-y-1"
+    >[stake]</button
+  >
 </div>
