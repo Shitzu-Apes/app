@@ -121,7 +121,7 @@
   <div class="px-3">
     <div class="relative my-6">
       <div class="absolute inset-y-0 left-0 flex items-center pl-2">
-        <Near className="w-6 h-6" />
+        <Near className="w-6 h-6 bg-white rounded-full" />
       </div>
       <TokenInput
         class="bg-transparent rounded-xl w-full py-6 text-center text-2xl px-14 appearance-none outline-none text-shitzu-4"
