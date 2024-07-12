@@ -104,7 +104,7 @@
 
 <div
   use:melt={$root}
-  class="w-full h-full flex flex-col justify-between items-center"
+  class="w-full h-full flex flex-col justify-start items-center"
 >
   <div use:melt={$list} class="flex justify-between items-stretch gap-6 w-full">
     {#each tabs as tab}
@@ -118,46 +118,47 @@
       </button>
     {/each}
   </div>
-  <div class="h-5"></div>
-  <div class="relative">
-    <div class="absolute inset-y-0 left-0 flex items-center pl-2">
-      <Near className="w-6 h-6" />
-    </div>
-    <TokenInput
-      class="bg-transparent rounded-xl w-full py-2  text-center text-2xl px-14 appearance-none outline-none"
-      decimals={24}
-      bind:this={input}
-      bind:value={$inputValue$}
-    />
-    <div class="absolute inset-y-0 right-0 flex items-center pr-2">
-      <button
-        on:click={setMax}
-        class="text-sm cursor-pointer bg-shitzu-4 px-2 rounded-full border border-shitzu-6"
-      >
-        Max
-      </button>
-    </div>
-  </div>
-  <ul class="flex items-center w-full gap-2">
-    {#each [{ value: "0", label: "reset" }, { value: "1", label: "1" }, { value: "5", label: "5" }, { value: "10", label: "10" }] as value}
-      <li class="text-sm bg-shitzu-8 px-1 rounded">
+  <div class="px-3">
+    <div class="relative my-6">
+      <div class="absolute inset-y-0 left-0 flex items-center pl-2">
+        <Near className="w-6 h-6" />
+      </div>
+      <TokenInput
+        class="bg-transparent rounded-xl w-full py-6 text-center text-2xl px-14 appearance-none outline-none text-shitzu-4"
+        decimals={24}
+        bind:this={input}
+        bind:value={$inputValue$}
+      />
+      <div class="absolute inset-y-0 right-0 flex items-center pr-2">
         <button
-          class="hover:text-shitzu-4 flex items-center gap-1"
-          on:click={() => {
-            $inputValue$ = new FixedNumber(value.value, 24).toU128();
-          }}
+          on:click={setMax}
+          class="text-sm cursor-pointer bg-shitzu-4 px-2 rounded-full border border-shitzu-6"
         >
-          {#if value.value !== "0"}
-            <Near className="size-4" />
-          {/if}
-          {value.label}
+          Max
         </button>
-      </li>
-    {/each}
-  </ul>
-  <button
-    on:click={action}
-    class="bg-shitzu-3 w-full py-2 rounded-full text-xl tracking-wider text-black border-b-4 border-shitzu-4 active:translate-y-1"
-    >[{$value}]</button
-  >
+      </div>
+    </div>
+    <ul class="flex items-center w-full gap-2">
+      {#each [{ value: "0", label: "reset" }, { value: "1", label: "1" }, { value: "5", label: "5" }, { value: "10", label: "10" }] as value}
+        <li class="text-sm bg-shitzu-8 px-1 rounded">
+          <button
+            class="hover:text-shitzu-4 flex items-center gap-1"
+            on:click={() => {
+              $inputValue$ = new FixedNumber(value.value, 24).toU128();
+            }}
+          >
+            {#if value.value !== "0"}
+              <Near className="size-4" />
+            {/if}
+            {value.label}
+          </button>
+        </li>
+      {/each}
+    </ul>
+    <button
+      on:click={action}
+      class="bg-shitzu-3 w-full py-2 rounded-full text-xl tracking-wider text-black border-b-4 border-shitzu-4 active:translate-y-1 my-12"
+      >[{$value}]</button
+    >
+  </div>
 </div>
