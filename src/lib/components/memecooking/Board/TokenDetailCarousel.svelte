@@ -60,36 +60,44 @@
   }}
 />
 
-<div
-  class="overflow-hidden h-[70%] relative"
-  use:embalaCarousel={{ options, plugins: [] }}
-  on:emblaInit={(event) => {
-    emblaApi = event.detail;
+<div class="relative h-[70%]">
+  <div
+    class="overflow-hidden h-full relative"
+    use:embalaCarousel={{ options, plugins: [] }}
+    on:emblaInit={(event) => {
+      emblaApi = event.detail;
 
-    emblaApi.on("select", () => {
-      if (emblaApi) {
-        selected = emblaApi.selectedScrollSnap();
-      }
-    });
-  }}
->
-  <div class="flex w-full h-full">
-    <div
-      class="flex-[0_0_100%] min-w-0 flex flex-col justify-center items-center h-full text-shitzu-4 gap-4"
-    >
-      <TokenDetail {memebid} />
+      emblaApi.on("select", () => {
+        if (emblaApi) {
+          selected = emblaApi.selectedScrollSnap();
+        }
+      });
+    }}
+  >
+    <div class="flex w-full h-full">
+      <div
+        class="flex-[0_0_100%] min-w-0 flex flex-col justify-center items-center h-full text-shitzu-4 gap-4"
+      >
+        <TokenDetail {memebid} />
+      </div>
+      <div class="flex-[0_0_100%] min-w-0">
+        {#if focused && renderChart}
+          <TokenChart {memebid} />
+        {/if}
+      </div>
+      <div class="flex-[0_0_100%] min-w-0">
+        <TokenHolder memeId={memebid.id} />
+      </div>
+      <div class="flex-[0_0_100%] min-w-0">
+        <TokenComment {id} />
+      </div>
     </div>
-    <div class="flex-[0_0_100%] min-w-0">
-      {#if focused && renderChart}
-        <TokenChart {memebid} />
-      {/if}
-    </div>
-    <div class="flex-[0_0_100%] min-w-0">
-      <TokenHolder memeId={memebid.id} />
-    </div>
-    <div class="flex-[0_0_100%] min-w-0">
-      <TokenComment {id} />
-    </div>
+  </div>
+  <div class="absolute right-0 bottom-0 p-2 mb-6 flex">
+    <ul class="flex flex-col items-end gap-3">
+      <li>[discuss]</li>
+      <li>[share]</li>
+    </ul>
   </div>
 </div>
 <div

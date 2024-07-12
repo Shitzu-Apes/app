@@ -40,10 +40,18 @@
     emblaApi?.scrollNext();
   }
 
-  let startScrollBackToTop = false;
+  let startScrollBackToTop = {
+    value: false,
+    mouseY: 0,
+  };
+
+  let mouseY = 0;
 </script>
 
 <svelte:window
+  on:mousemove={(event) => {
+    mouseY = event.clientY;
+  }}
   on:keydown={(event) => {
     if (event.key === "ArrowDown") {
       event.preventDefault();
@@ -81,20 +89,30 @@
       emblaApi = event.detail;
 
       emblaApi.on("pointerDown", (e) => {
-        if (e.selectedScrollSnap() === 0) {
-          startScrollBackToTop = true;
+        if (e.selectedScrollSnap() === 0 && !startScrollBackToTop.value) {
+          startScrollBackToTop = {
+            value: true,
+            mouseY,
+          };
         }
       });
 
       emblaApi.on("pointerUp", (e) => {
-        if (startScrollBackToTop && e.selectedScrollSnap() === 0) {
+        if (
+          startScrollBackToTop.mouseY > mouseY &&
+          e.selectedScrollSnap() === 0
+        ) {
           scrollTo({
             top: 0,
             behavior: "smooth",
           });
           dispatch("select", -1);
         }
-        startScrollBackToTop = false;
+
+        startScrollBackToTop = {
+          value: false,
+          mouseY: 0,
+        };
       });
 
       emblaApi.on("select", () => {
