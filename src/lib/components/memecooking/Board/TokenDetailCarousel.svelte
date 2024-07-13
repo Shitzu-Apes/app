@@ -62,7 +62,7 @@
   }}
 />
 
-<div class="relative h-[100%-100px]">
+<div class="relative h-[calc(100dvh-200px)]">
   <div
     class="overflow-hidden h-full relative"
     use:embalaCarousel={{ options, plugins: [] }}
@@ -123,7 +123,7 @@
   {/each}
 </div>
 
-<div class="h-[100px] w-full flex justify-center items-center pb-2 px-2">
+<div class="h-[168px] w-full flex justify-center items-center pb-2 px-2">
   <button
     on:click={() => {
       openBottomSheet(StakeSheet, { meme_id: memebid.id });
