@@ -63,11 +63,30 @@
 
     new widget(widgetOptions);
   });
+
+  let isInteracted = false;
 </script>
 
-<div
-  class="h-full w-full"
-  bind:this={ref}
-  bind:clientHeight={height}
-  bind:clientWidth={width}
-></div>
+<div class="w-full h-full relative">
+  <div
+    class="h-full w-full"
+    bind:this={ref}
+    bind:clientHeight={height}
+    bind:clientWidth={width}
+  ></div>
+
+  <!-- Tap to remove overlay to start interact with the chart -->
+  {#if !isInteracted}
+    <button
+      class="absolute inset-0 flex items-center justify-center bg-shitzu-4/25"
+      on:click={() => {
+        isInteracted = true;
+      }}
+    >
+      <div class="text-white text-2xl flex flex-col items-center gap-4">
+        <div class="i-mdi:fingerprint size-24" />
+        Tap to start interact with the chart
+      </div>
+    </button>
+  {/if}
+</div>
