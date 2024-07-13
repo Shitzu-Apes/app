@@ -45,7 +45,7 @@
           <!-- Token Detail -->
           <div class="w-full text-gray-4">
             <div class="flex gap-2">
-              <img src={meme.image} alt={meme.name} class="size-30" />
+              <img src={meme.image} alt={meme.name} class="w-30" />
               <div>
                 <h2>{meme.name} <b>${meme.symbol}</b></h2>
                 <div class="text-sm">{meme.description}</div>
