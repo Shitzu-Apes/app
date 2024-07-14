@@ -2,8 +2,12 @@
   // import { page } from "$app/stores";
   import SHITZU_KING from "$lib/assets/shitzu_saiya.webp";
   import Board from "$lib/components/memecooking/Board/Board.svelte";
+  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
   import { MemeCooking } from "$lib/near";
   import { memebids } from "$lib/store/memebids";
+  import { search } from "$lib/util/search";
+
+  let cacheMemebids: MCMemeInfoWithReference[];
 
   let inititalMembidsPromise: Promise<void> = MemeCooking
     .getLatestMeme
@@ -12,8 +16,20 @@
     .then((newMemebids) => {
       if (newMemebids) {
         $memebids = newMemebids.filter((m) => m !== null);
+        cacheMemebids = $memebids;
       }
     });
+
+  let query = "";
+
+  $: {
+    if (query.length > 0) {
+      // page.set(`/memecooking/${query}`);
+      $memebids = search($memebids, query);
+    } else {
+      $memebids = cacheMemebids;
+    }
+  }
 
   let currentMemebidsIdx = 0;
 </script>
@@ -50,6 +66,7 @@
       type="text"
       class="w-full max-w-sm h-10 border bg-shitzu-2 border-shitzu-4 rounded-lg px-4"
       placeholder="search for token"
+      bind:value={query}
     />
     <button class="bg-shitzu-5 px-4 py-2 rounded-lg">Search</button>
   </div>
