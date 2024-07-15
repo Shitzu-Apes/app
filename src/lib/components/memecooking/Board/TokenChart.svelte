@@ -11,6 +11,9 @@
   import createDataFeed from "$lib/models/memecooking/datafeed";
   import { ws } from "$lib/store/memebids";
 
+  export let memebid: MCMemeInfoWithReference;
+  export let touchToStart: boolean = false;
+
   let width: number, height: number;
   let ref: HTMLDivElement;
   function getLanguageFromURL(): LanguageCode | null {
@@ -20,7 +23,6 @@
       ? null
       : (decodeURIComponent(results[1].replace(/\+/g, " ")) as LanguageCode);
   }
-  export let memebid: MCMemeInfoWithReference;
 
   onMount(() => {
     const widgetOptions: ChartingLibraryWidgetOptions = {
@@ -64,7 +66,7 @@
     new widget(widgetOptions);
   });
 
-  let isInteracted = false;
+  let isInteracted = false || !touchToStart;
 </script>
 
 <div class="w-full h-full relative">
