@@ -31,7 +31,7 @@
 <span class={className}>
   {#if started}
     {#if days === 0 && hours === 0 && minutes === 0 && seconds === 0}
-      Ended
+      0h 0m 0s
     {:else}
       {#if days > 0}
         {days}d
@@ -47,6 +47,6 @@
       {/if}
     {/if}
   {:else}
-    Loading...
+    <slot name="loading">Loading...</slot>
   {/if}
 </span>
