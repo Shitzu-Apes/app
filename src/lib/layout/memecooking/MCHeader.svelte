@@ -19,7 +19,7 @@
     <ul class="text-sm">
       <div class="flex gap-2">
         <li class="mr-2">
-          <a href="https://twitter.com/fundotmeme"> [twitter]</a>
+          <a href="https://twitter.com/memedotcooking"> [twitter]</a>
         </li>
         <li>
           <a href="https://t.me/memedotcookinsupports"> [support]</a>
