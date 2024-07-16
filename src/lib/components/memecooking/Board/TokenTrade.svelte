@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
+  import Chef from "../Chef.svelte";
 
   export let symbol: string;
   export let trades: {
@@ -35,8 +35,10 @@
       class="flex justify-between items-center p-2 bg-gray-600 rounded-lg text-white"
     >
       <span class="w-1/5 text-start flex items-center gap-1">
-        <img src={SHITZU_POCKET} alt="Shitzu Pocket" class="size-4" />
-        <span class="bg-shitzu-4 px-1 rounded text-black">{trade.account}</span>
+        <Chef
+          account={trade.account}
+          class="bg-shitzu-4 px-1 rounded text-black"
+        />
       </span>
       <span class="w-1/5 text-start">
         <span class={trade.type === "buy" ? "text-green-500" : "text-red-500"}>

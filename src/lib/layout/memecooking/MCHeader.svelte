@@ -2,9 +2,9 @@
   import { openBottomSheet } from "../BottomSheet/Container.svelte";
 
   import MEMECOOKING_LOGO from "$lib/assets/logo/memecooking.svg";
-  import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import { showWalletSelector } from "$lib/auth";
   import HowItWorkSheet from "$lib/components/memecooking/BottomSheet/HowItWorkSheet.svelte";
+  import Chef from "$lib/components/memecooking/Chef.svelte";
   import Notification from "$lib/components/memecooking/Notification/Notification.svelte";
   import { wallet } from "$lib/near";
 
@@ -52,14 +52,8 @@
       class="text-sm inline-flex items-center h-fit"
     >
       [
-      <img
-        src={SHITZU_POCKET}
-        alt="shitzu pocket"
-        class="size-6 mr-1 text-shitzu-4"
-      />
-      <span class="max-w-20 overflow-hidden text-ellipsis">
-        {$accountId$}
-      </span>]
+      <Chef account={$accountId$} class="size-6 mr-1 text-shitzu-4 w-fit" />
+      ]
     </a>
   {:else}
     <button

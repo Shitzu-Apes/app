@@ -1,8 +1,8 @@
 <script lang="ts">
+  import Chef from "../Chef.svelte";
   import Countdown from "../Countdown.svelte";
 
   import Near from "$lib/assets/Near.svelte";
-  import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
   import { FixedNumber } from "$lib/util";
 
@@ -30,10 +30,10 @@
           </h4>
           <div class="flex items-center text-xs">
             created by
-            <img src={SHITZU_POCKET} alt="Shitzu Pocket" class="size-6" />
-            <div class="text-sm overflow-hidden text-ellipsis">
-              {memebid.owner}
-            </div>
+            <Chef
+              account={memebid.owner}
+              class="text-sm overflow-hidden text-ellipsis"
+            />
           </div>
         </div>
       </div>
