@@ -1,9 +1,9 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import Near from "$lib/assets/Near.svelte";
+  import TradeTabs from "$lib/components/memecooking/Board/Desktop/TradeTabs.svelte";
   import MCStake from "$lib/components/memecooking/Board/MCStake.svelte";
   import TokenChart from "$lib/components/memecooking/Board/TokenChart.svelte";
-  import TokenComment from "$lib/components/memecooking/Board/TokenComment.svelte";
   import TokenHolder from "$lib/components/memecooking/Board/TokenHolder.svelte";
   import Countdown from "$lib/components/memecooking/Countdown.svelte";
   import { MemeCooking } from "$lib/near";
@@ -55,7 +55,7 @@
             <TokenChart memebid={meme} />
           </div>
           <div class="w-full h-screen">
-            <TokenComment id={+meme_id} />
+            <TradeTabs {meme} />
           </div>
         </div>
 
