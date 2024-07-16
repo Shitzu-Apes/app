@@ -19,7 +19,7 @@
   };
 </script>
 
-<ul class="w-full flex flex-col gap-1 text-sm">
+<ul class="w-full flex flex-col gap-1 text-xs">
   <li
     class="flex justify-between items-center p-2 bg-gray-600 rounded-lg text-white"
   >
@@ -34,7 +34,9 @@
     <li
       class="flex justify-between items-center p-2 bg-gray-600 rounded-lg text-white"
     >
-      <span class="w-1/5 text-start flex items-center gap-1">
+      <span
+        class="w-1/5 text-start flex items-center gap-1 overflow-hidden text-ellipsis"
+      >
         <Chef
           account={trade.account}
           class="bg-shitzu-4 px-1 rounded text-black"
@@ -52,7 +54,7 @@
         href={`https://nearblocks.io/tx/${trade.transaction}`}
         target="_blank"
         rel="noopener noreferrer"
-        class="w-1/5 text-start hover:text-shitzu-4 hover:underline"
+        class="w-1/5 text-start hover:text-shitzu-4 hover:underline overflow-hidden text-ellipsis"
         >{trade.transaction}</a
       >
     </li>

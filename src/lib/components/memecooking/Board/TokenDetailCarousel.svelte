@@ -11,6 +11,7 @@
   import TokenChart from "./TokenChart.svelte";
   import TokenDetail from "./TokenDetail.svelte";
   import TokenHolder from "./TokenHolder.svelte";
+  import TokenTrade from "./TokenTrade.svelte";
 
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
@@ -88,6 +89,21 @@
         {/if}
       </div>
       <div class="flex-[0_0_100%] min-w-0">
+        <TokenTrade
+          symbol={memebid.symbol}
+          trades={[
+            {
+              account: "7MuhcFh2py64H3UeP9nZzXRNdcnnGLRdbmbfTq7EYdAq",
+              type: "sell",
+              near: 100,
+              amount: 100,
+              date: new Date().toISOString(),
+              transaction: "7MuhcFh2py64H3UeP9nZzXRNdcnnGLRdbmbfTq7EYdAq",
+            },
+          ]}
+        />
+      </div>
+      <div class="flex-[0_0_100%] min-w-0">
         <TokenHolder memeId={memebid.id} />
       </div>
     </div>
@@ -110,7 +126,7 @@
 <div
   class="w-full h-8 flex justify-evenly border-b bg-shitzu-4 text-black items-center"
 >
-  {#each ["[detail]", "[chart]", "[holder]"] as tab, i (tab)}
+  {#each ["[detail]", "[chart]", "[trade]", "[holder]"] as tab, i (tab)}
     <button
       class="cursor-pointer border-r border-dark w-[33%] last:border-transparent"
       class:font-bold={selected === i}
