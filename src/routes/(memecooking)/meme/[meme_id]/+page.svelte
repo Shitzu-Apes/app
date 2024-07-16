@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
+  import Near from "$lib/assets/Near.svelte";
   import MCStake from "$lib/components/memecooking/Board/MCStake.svelte";
   import TokenChart from "$lib/components/memecooking/Board/TokenChart.svelte";
   import TokenComment from "$lib/components/memecooking/Board/TokenComment.svelte";
@@ -13,7 +14,7 @@
   let meme = MemeCooking.getMemeWithReference(+meme_id);
 </script>
 
-<div class="mt-10 w-full">
+<div class="mt-10 w-full p-2">
   <div class="mx-auto flex">
     <a href="/board" class="text-white text-2xl mx-auto mb-10">[go back]</a>
   </div>
@@ -29,6 +30,27 @@
       </div>
       <div class="flex px-2 gap-2">
         <div class="flex-grow">
+          <div class="w-full flex items-center gap-3 my-2 text-sm">
+            <span>
+              {meme.name}
+            </span>
+            <span class="uppercase">
+              {meme.symbol}
+            </span>
+            <span class="text-green-400 flex items-center">
+              Total staked:{" "}
+              <Near className="size-4" />
+              {meme.total_staked}
+            </span>
+            <span class="ml-auto flex items-center gap-1">
+              created by
+              <span
+                class="text-shitzu-4 w-40 overflow-hidden text-ellipsis flex"
+              >
+                {meme.owner}
+              </span>
+            </span>
+          </div>
           <div class="w-full aspect-ratio-16/10">
             <TokenChart memebid={meme} />
           </div>
