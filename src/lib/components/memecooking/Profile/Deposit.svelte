@@ -10,10 +10,14 @@
   async function withdraw() {
     const meme = await memeInfo;
     if (!meme) return;
-    await MemeCooking.withdraw(wallet, {
-      memeId: meme.id,
-      amount: deposit[1],
-    });
+    try {
+      await MemeCooking.withdraw(wallet, {
+        memeId: meme.id,
+        amount: deposit[1],
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }
 </script>
 
