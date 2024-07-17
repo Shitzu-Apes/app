@@ -19,7 +19,7 @@
 </script>
 
 <div class="w-full px-4">
-  <h2 class="text-xl my-3">Holder</h2>
+  <h2 class="text-xl my-3">Holders</h2>
   {#await holders}
     <div class="loader w-40 h-4" />
   {:then holders}
