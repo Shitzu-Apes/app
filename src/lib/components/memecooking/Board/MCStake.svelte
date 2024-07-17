@@ -4,6 +4,7 @@
 
   import Near from "$lib/assets/Near.svelte";
   import TokenInput from "$lib/components/TokenInput.svelte";
+  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
   import {
     Ft,
     MemeCooking,
@@ -24,7 +25,7 @@
   $: input$ = input?.u128$;
   let inputValue$ = writable<string | undefined>();
 
-  export let meme_id: number;
+  export let meme: MCMemeInfoWithReference;
 
   const {
     elements: { root, list, trigger },
@@ -76,7 +77,7 @@
 
       MemeCooking.deposit(
         wallet,
-        { amount: $input$.toU128(), memeId: meme_id },
+        { amount: $input$.toU128(), memeId: meme.id },
         {},
         needStorageDeposit,
         wrapNearDeposit,
@@ -84,7 +85,7 @@
     } else {
       MemeCooking.withdraw(wallet, {
         amount: $input$.toU128(),
-        memeId: meme_id,
+        memeId: meme.id,
       });
     }
   }
@@ -101,6 +102,27 @@
       $inputValue$ = input.toNumber().toFixed(4);
     }
   }
+
+  const defaultValues: {
+    [key: string]: { value: string; label: string };
+  }[] = [
+    {
+      stake: { value: "0", label: "reset" },
+      unstake: { value: "0", label: "reset" },
+    },
+    {
+      stake: { value: "10", label: "10" },
+      unstake: { value: "0.25", label: "25%" },
+    },
+    {
+      stake: { value: "50", label: "50" },
+      unstake: { value: "0.5", label: "50%" },
+    },
+    {
+      stake: { value: "100", label: "100" },
+      unstake: { value: "1", label: "100%" },
+    },
+  ];
 </script>
 
 <div
@@ -122,7 +144,11 @@
   <div class="px-3">
     <div class="relative my-6">
       <div class="absolute inset-y-0 left-0 flex items-center pl-2">
-        <Near className="w-6 h-6 bg-white text-black rounded-full" />
+        {#if $value === "stake"}
+          <Near className="w-6 h-6 bg-white text-black rounded-full" />
+        {:else}
+          <img src={meme.image} alt={meme.name} class="w-6 h-6 rounded-full" />
+        {/if}
       </div>
       <TokenInput
         class="bg-transparent rounded-xl w-full py-6 text-center text-2xl px-14 appearance-none outline-none text-shitzu-4"
@@ -133,33 +159,44 @@
       <div class="absolute inset-y-0 right-0 flex items-center pr-2">
         <button
           on:click={setMax}
-          class="text-sm cursor-pointer bg-shitzu-4 px-2 rounded-full border border-shitzu-6"
+          class="text-sm cursor-pointer bg-gray-3 px-2 rounded-full border border-gray-6 text-shitzu-6"
         >
           Max
         </button>
       </div>
     </div>
     <ul class="flex items-center w-full gap-2">
-      {#each [{ value: "0", label: "reset" }, { value: "10", label: "10" }, { value: "50", label: "50" }, { value: "100", label: "100" }] as value}
-        <li class="text-sm bg-shitzu-8 px-1 rounded">
+      {#each defaultValues as defaultValue}
+        <li
+          class="text-sm {$value === 'stake'
+            ? 'bg-shitzu-8'
+            : 'bg-rose-5'} px-1 rounded"
+        >
           <button
             class="hover:text-shitzu-4 flex items-center gap-1"
             on:click={() => {
-              $inputValue$ = new FixedNumber(value.value, 24).toU128();
+              $inputValue$ = new FixedNumber(
+                defaultValue[$value].value,
+                24,
+              ).toU128();
             }}
           >
-            {#if value.value !== "0"}
+            {#if defaultValue[$value].value !== "0" && $value === "stake"}
               <Near className="size-4" />
             {/if}
-            {value.label}
+            {defaultValue[$value].label}
           </button>
         </li>
       {/each}
     </ul>
     <button
       on:click={action}
-      class="bg-shitzu-3 w-full py-2 rounded-full text-xl tracking-wider text-black border-b-4 border-shitzu-4 active:translate-y-1 my-12"
-      >[{$value}]</button
+      class="{$value === 'stake'
+        ? 'bg-shitzu-3'
+        : 'bg-rose-4'} w-full py-2 rounded-full text-xl tracking-wider text-black border-b-4 {$value ===
+      'stake'
+        ? 'border-shitzu-4'
+        : 'border-rose-5'} active:translate-y-1 my-12">[{$value}]</button
     >
   </div>
 </div>
