@@ -7,6 +7,7 @@
   import TokenHolder from "$lib/components/memecooking/Board/TokenHolder.svelte";
   import Chef from "$lib/components/memecooking/Chef.svelte";
   import Countdown from "$lib/components/memecooking/Countdown.svelte";
+  import ProgressBar from "$lib/components/memecooking/ProgressBar.svelte";
   import { MemeCooking } from "$lib/near";
   import { FixedNumber } from "$lib/util";
 
@@ -14,20 +15,31 @@
   let { meme_id } = $page.params;
 
   let meme = MemeCooking.getMemeWithReference(+meme_id);
+
+  let required_stake = MemeCooking.requiredStake(
+    import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
+  );
 </script>
 
 <div class="mt-10 w-full p-2">
   <div class="mx-auto flex">
     <a href="/board" class="text-white text-2xl mx-auto mb-10">[go back]</a>
   </div>
-  {#await meme}
+  {#await Promise.all([meme, required_stake])}
     <div>Loading...</div>
-  {:then meme}
+  {:then [meme, required_stake]}
     {#if meme}
       <div class="w-full flex">
         <Countdown
           class="mx-auto text-4xl text-shitzu-4 mb-10"
           to={meme.end_timestamp_ms}
+        />
+      </div>
+      <div class="w-120 mx-auto mb-10">
+        <ProgressBar
+          progress={new FixedNumber(meme.total_staked, 24)
+            .div(new FixedNumber(required_stake, 24))
+            .toNumber()}
         />
       </div>
       <div class="flex px-2 gap-2">

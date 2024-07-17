@@ -295,6 +295,14 @@ export abstract class MemeCooking {
     );
   }
 
+  public static requiredStake(token_id: string) {
+    return view<string>(
+      import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+      "required_stake",
+      { token_id },
+    );
+  }
+
   public static storageBalanceBounds() {
     return view<{ min: string; max: string }>(
       import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
