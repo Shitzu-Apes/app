@@ -4,7 +4,6 @@ export const sortOptions = [
   { label: "sort: bump order", value: "bump order" },
   { label: "sort: market cap", value: "market cap" },
   { label: "sort: creation time", value: "creation time" },
-  { label: "sort: live", value: "live" },
 ];
 
 export const orderOptions = [
@@ -12,13 +11,18 @@ export const orderOptions = [
   { label: "order: asc", value: "asc" },
 ];
 
-export function sortMeme<T extends MCMemeInfo>(
+export function filterAndSortMeme<T extends MCMemeInfo>(
   memes: T[],
   sort: {
     sort: string;
     order: string;
   },
+  liveOnly: boolean,
 ): T[] {
+  if (liveOnly) {
+    memes = memes.filter((meme) => meme.end_timestamp_ms > Date.now());
+  }
+
   switch (sort.sort) {
     case "bump order":
       return memes;
@@ -43,14 +47,6 @@ export function sortMeme<T extends MCMemeInfo>(
           return a.id - b.id;
         } else {
           return b.id - a.id;
-        }
-      });
-    case "live":
-      return memes.sort((a, b) => {
-        if (sort.order === "asc") {
-          return a.end_timestamp_ms - b.end_timestamp_ms;
-        } else {
-          return b.end_timestamp_ms - a.end_timestamp_ms;
         }
       });
   }

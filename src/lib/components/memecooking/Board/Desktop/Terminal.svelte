@@ -2,8 +2,13 @@
   import MemePreview from "./MemePreview.svelte";
 
   import SelectBox from "$lib/components/SelectBox.svelte";
+  import Toggle from "$lib/components/Toggle.svelte";
   import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
-  import { orderOptions, sortMeme, sortOptions } from "$lib/util/sortMeme";
+  import {
+    orderOptions,
+    filterAndSortMeme,
+    sortOptions,
+  } from "$lib/util/sortMeme";
 
   let selectedSort = sortOptions[0];
 
@@ -13,15 +18,22 @@
 
   export let initialMemebidsPromise: Promise<void>;
 
-  $: memebids = sortMeme(memebids, {
-    sort: selectedSort.value,
-    order: selectedDirection.value,
-  });
+  let liveOnly = false;
+
+  $: displayedMemebids = filterAndSortMeme(
+    memebids,
+    {
+      sort: selectedSort.value,
+      order: selectedDirection.value,
+    },
+    liveOnly,
+  );
 </script>
 
 <div class="flex gap-3 mt-6 px-4">
   <SelectBox options={sortOptions} bind:selected={selectedSort} />
   <SelectBox options={orderOptions} bind:selected={selectedDirection} />
+  <Toggle bind:isOn={liveOnly}>live only:{" "}</Toggle>
 </div>
 
 {#await initialMemebidsPromise}
@@ -53,7 +65,7 @@
   <div
     class="w-full flex items-center justify-start flex-wrap mt-10 gap-6 px-4 mb-10"
   >
-    {#each memebids as memebid (memebid.id)}
+    {#each displayedMemebids as memebid (memebid.id)}
       <MemePreview {memebid} />
     {/each}
   </div>
