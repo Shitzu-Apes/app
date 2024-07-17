@@ -5,6 +5,7 @@
   import MCStake from "$lib/components/memecooking/Board/MCStake.svelte";
   import TokenChart from "$lib/components/memecooking/Board/TokenChart.svelte";
   import TokenHolder from "$lib/components/memecooking/Board/TokenHolder.svelte";
+  import Chef from "$lib/components/memecooking/Chef.svelte";
   import Countdown from "$lib/components/memecooking/Countdown.svelte";
   import { MemeCooking } from "$lib/near";
 
@@ -42,13 +43,21 @@
               <Near className="size-4" />
               {meme.total_staked}
             </span>
-            <span class="ml-auto flex items-center gap-1">
+            <span
+              class="ml-auto flex items-center justify-end text-right gap-1"
+            >
               created by
-              <span
-                class="text-shitzu-4 w-40 overflow-hidden text-ellipsis flex"
+              <a
+                href={`https://pikespeak.ai/wallet-explorer/${meme.owner}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-shitzu-4"
               >
-                {meme.owner}
-              </span>
+                <Chef
+                  account={meme.owner}
+                  class="bg-shitzu-3 text-black px-1 rounded"
+                />
+              </a>
             </span>
           </div>
           <div class="w-full aspect-ratio-16/10">
