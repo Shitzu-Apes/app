@@ -89,9 +89,10 @@
     }
   }
 
-  $: refreshNearBalance();
+  $: refreshNearBalance($accountId$);
 
   function setMax() {
+    console.log($nearBalance);
     if ($nearBalance) {
       let input = $nearBalance.sub(new FixedNumber(5n, 1));
 
