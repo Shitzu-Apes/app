@@ -14,9 +14,9 @@
   class="flex items-start justify-start w-full max-w-sm gap-3 p-2 border border-transparent hover:border-white cursor-pointer"
 >
   <img src={memebid.image} alt={memebid.name} class="w-24" />
-  <div class="flex flex-col items-start justify-start h-full gap-1">
+  <div class="flex flex-col items-start justify-start h-full gap-1 flex-1">
     <div class="text-xs flex items-center gap-1">
-      created by <Chef account={memebid.owner} class="size-4" />
+      created by <Chef account={memebid.owner} />
     </div>
     <div class="text-sm">
       {memebid.name}

@@ -52,7 +52,7 @@
       class="text-sm inline-flex items-center h-fit"
     >
       [
-      <Chef account={$accountId$} class="size-6 mr-1 text-shitzu-4 w-fit" />
+      <Chef account={$accountId$} class="mr-1 text-shitzu-4 w-fit" />
       ]
     </a>
   {:else}
