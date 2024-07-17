@@ -140,7 +140,7 @@
       </div>
     </div>
     <ul class="flex items-center w-full gap-2">
-      {#each [{ value: "0", label: "reset" }, { value: "1", label: "1" }, { value: "5", label: "5" }, { value: "10", label: "10" }] as value}
+      {#each [{ value: "0", label: "reset" }, { value: "10", label: "10" }, { value: "50", label: "50" }, { value: "100", label: "100" }] as value}
         <li class="text-sm bg-shitzu-8 px-1 rounded">
           <button
             class="hover:text-shitzu-4 flex items-center gap-1"
