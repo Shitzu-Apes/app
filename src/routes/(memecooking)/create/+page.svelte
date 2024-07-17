@@ -192,6 +192,28 @@
   }
 </script>
 
+<!-- listen for ctrl + v the image -->
+<svelte:window
+  on:paste={async (event) => {
+    // @ts-expect-error originalEvent
+    const items = (event.clipboardData || event.originalEvent.clipboardData)
+      .items;
+    for (const item of items) {
+      if (item.kind === "file") {
+        const blob = item.getAsFile();
+        var reader = new FileReader();
+        reader.onload = async function (event) {
+          if (event.target && typeof event.target.result === "string") {
+            image = event.target.result;
+            icon = await imageFileToIcon(blob);
+          }
+        }; // data url!
+        reader.readAsDataURL(blob);
+      }
+    }
+  }}
+/>
+
 <div class="flex flex-col items-center min-h-screen text-white">
   <div class="w-full max-w-md p-4 space-y-4 rounded-lg">
     <div class="flex justify-center items-center">
@@ -267,7 +289,7 @@
               class="i-mdi:download size-16 py-5 text-white/25 pointer-events-none cursor-pointer"
             />
             <div class="text-white/75">
-              <b>Choose a file</b> or drag it here
+              <b>Choose a file</b>, <b>paste</b> or <b>drag it here</b>
             </div>
           </div>
         </div>
