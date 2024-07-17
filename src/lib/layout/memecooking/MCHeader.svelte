@@ -19,25 +19,34 @@
     <ul class="text-sm">
       <div class="flex gap-2">
         <li class="mr-2">
-          <a href="https://twitter.com/memedotcooking"> [twitter]</a>
-        </li>
-        <li>
-          <a href="https://t.me/memedotcookinsupports"> [support]</a>
-        </li>
-      </div>
-      <div class="flex gap-2">
-        <li>
-          <a href="https://t.me/+wIFBaPQJmAcwYTc0"> [telegram]</a>
-        </li>
-        <li>
-          <button
-            on:click={() => {
-              openBottomSheet(HowItWorkSheet);
-            }}
+          <a
+            href="https://twitter.com/memedotcooking"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            [how it works]</button
-          >
+            [twitter]
+          </a>
         </li>
+        <div class="flex gap-2">
+          <li>
+            <a
+              href="https://t.me/+wIFBaPQJmAcwYTc0"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              [telegram]
+            </a>
+          </li>
+          <li>
+            <button
+              on:click={() => {
+                openBottomSheet(HowItWorkSheet);
+              }}
+            >
+              [how it works]</button
+            >
+          </li>
+        </div>
       </div>
     </ul>
   </div>
