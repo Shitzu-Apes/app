@@ -8,6 +8,7 @@
   import Chef from "$lib/components/memecooking/Chef.svelte";
   import Countdown from "$lib/components/memecooking/Countdown.svelte";
   import { MemeCooking } from "$lib/near";
+  import { FixedNumber } from "$lib/util";
 
   // page data
   let { meme_id } = $page.params;
@@ -41,7 +42,7 @@
             <span class="text-green-400 flex items-center">
               Total staked:{" "}
               <Near className="size-4" />
-              {meme.total_staked}
+              {new FixedNumber(meme.total_staked, 24).format()}
             </span>
             <span
               class="ml-auto flex items-center justify-end text-right gap-1"
