@@ -9,7 +9,7 @@
 
   let cacheMemebids: MCMemeInfoWithReference[];
 
-  let inititalMembidsPromise: Promise<void> = MemeCooking
+  let initialMemebidsPromise: Promise<void> = MemeCooking
     .getLatestMeme
     // $page.params.page,
     ()
@@ -75,6 +75,6 @@
     &leftarrow;&uparrow;&downarrow;&rightarrow; Use arrow keys to navigate
   </div>
   <section class="w-full">
-    <Board {inititalMembidsPromise} {currentMemebidsIdx} />
+    <Board {initialMemebidsPromise} {currentMemebidsIdx} />
   </section>
 </div>

@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { createTabs, melt } from "@melt-ui/svelte";
-
   import Terminal from "./Desktop/Terminal.svelte";
   import TokenCarousel from "./TokenCarousel.svelte";
 
@@ -10,18 +8,7 @@
   import { isMobile } from "$lib/util";
 
   export let currentMemebidsIdx: number;
-
-  const tabs = [
-    { id: "following", label: "Following" },
-    { id: "terminal", label: "Terminal" },
-  ];
-
-  const {
-    elements: { root, list, content, trigger },
-    states: { value },
-  } = createTabs({
-    defaultValue: "terminal",
-  });
+  export let initialMemebidsPromise: Promise<void>;
 
   MCsubscribe(Symbol("main_feed"), (newMemeInfo) => {
     const idx = $memebids.findIndex((b) => b.id === newMemeInfo.id);
@@ -51,29 +38,13 @@
   }
 </script>
 
-<div use:melt={$root}>
-  <div use:melt={$list} class="flex gap-6">
-    {#each tabs as tab}
-      <button
-        use:melt={$trigger(tab.id)}
-        class="{tab.id === $value
-          ? 'text-shitzu-4 border-current'
-          : 'text-gray-4 border-transparent'} border-b-4 font-600"
-      >
-        {tab.label}
-      </button>
-    {/each}
-  </div>
-  <section use:melt={$content("terminal")}>
-    {#if isMobile()}
-      <TokenCarousel
-        memebids={$memebids}
-        {currentMemebidsIdx}
-        on:select={onSelect}
-      />
-    {:else}
-      <Terminal memebids={$memebids} />
-    {/if}
-  </section>
-  <section use:melt={$content("following")}>Following</section>
-</div>
+{#if isMobile()}
+  <TokenCarousel
+    {initialMemebidsPromise}
+    memebids={$memebids}
+    {currentMemebidsIdx}
+    on:select={onSelect}
+  />
+{:else}
+  <Terminal {initialMemebidsPromise} memebids={$memebids} />
+{/if}
