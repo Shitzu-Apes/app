@@ -75,6 +75,33 @@
             </div>
           </div>
 
+          <!-- Link -->
+          <div class="w-full flex items-center gap-2 text-gray-4">
+            {#if meme.twitterLink}
+              <a
+                href={meme.twitterLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                [twitter]
+              </a>
+            {/if}
+            {#if meme.telegramLink}
+              <a
+                href={meme.telegramLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                [telegram]
+              </a>
+            {/if}
+            {#if meme.website}
+              <a href={meme.website} target="_blank" rel="noopener noreferrer">
+                [website]
+              </a>
+            {/if}
+          </div>
+
           <!-- Holder -->
           <div class="w-full">
             <TokenHolder memeId={meme.id} />
