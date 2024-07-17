@@ -8,6 +8,7 @@
   import { goto } from "$app/navigation";
   import SelectBox from "$lib/components/SelectBox.svelte";
   import CreateCoinSheet from "$lib/components/memecooking/BottomSheet/CreateCoinSheet.svelte";
+  import InputField from "$lib/components/memecooking/InputField.svelte";
   import {
     close,
     openBottomSheet,
@@ -67,6 +68,10 @@
       icon = await imageFileToIcon(file);
     }
   }
+
+  let isTwitterValid = true;
+  let isTelegramValid = true;
+  let isWebsiteValid = true;
 
   async function createCoin() {
     // Add your logic to handle form submission here
@@ -283,46 +288,70 @@
         Show more options
       </summary>
       <div class="space-y-2">
-        <label for="name" class="block text-sm text-shitzu-4 font-600">
-          twitter link (optional)
-        </label>
-        <input
-          id="twitterLink"
-          type="text"
+        <InputField
+          label="twitter link"
           bind:value={twitterLink}
           placeholder="(optional)"
-          class="w-full p-2 bg-gray-700 rounded text-white border border-white"
+          validate={(value) => {
+            if (!value) {
+              isTwitterValid = true;
+              return "";
+            }
+
+            const error = /^(https:\/\/twitter\.com\/)/.test(value)
+              ? ""
+              : "website should start with https://twitter.com/";
+            isTwitterValid = !error;
+            return error;
+          }}
         />
       </div>
       <div class="space-y-2">
-        <label for="name" class="block text-sm text-shitzu-4 font-600">
-          telegram link
-        </label>
-        <input
-          id="telegramLink"
-          type="text"
+        <InputField
+          label="telegram link"
           bind:value={telegramLink}
           placeholder="(optional)"
-          class="w-full p-2 bg-gray-700 rounded text-white border border-white"
+          validate={(value) => {
+            if (!value) {
+              isTelegramValid = true;
+              return "";
+            }
+
+            const error = /^(https:\/\/t\.me\/)/.test(value)
+              ? ""
+              : "website should start with https://t.me/";
+            isTelegramValid = !error;
+            return error;
+          }}
         />
       </div>
       <div class="space-y-2">
-        <label for="name" class="block text-sm text-shitzu-4 font-600">
-          website
-        </label>
-        <input
-          id="website"
-          type="text"
+        <InputField
+          label="website"
           bind:value={website}
           placeholder="(optional)"
-          class="w-full p-2 bg-gray-700 rounded text-white border border-white"
+          validate={(value) => {
+            if (!value) {
+              isWebsiteValid = true;
+              return "";
+            }
+
+            const error = /^(https?:\/\/)/.test(value)
+              ? ""
+              : "website should start with http:// or https://";
+            isWebsiteValid = !error;
+            return error;
+          }}
         />
       </div>
     </details>
     <button
       on:click={createCoin}
       class="w-full p-2 bg-shitzu-4 text-white rounded flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
-      disabled={!name ||
+      disabled={!isTwitterValid ||
+        !isTelegramValid ||
+        !isWebsiteValid ||
+        !name ||
         !ticker ||
         !description ||
         !image ||
