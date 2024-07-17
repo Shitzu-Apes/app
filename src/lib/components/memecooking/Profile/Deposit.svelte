@@ -41,7 +41,7 @@
       />
       <div class="flex flex-col">
         <div class="">
-          <h3 class="text-lg font-bold uppercase">${memeInfo.symbol}</h3>
+          <h3 class="text-lg font-bold uppercase">{memeInfo.symbol}</h3>
         </div>
         <div class="">
           <h4 class="text-md font-normal">{memeInfo.name}</h4>

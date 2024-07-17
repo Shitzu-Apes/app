@@ -20,7 +20,7 @@
     </div>
     <div class="text-sm">
       {memebid.name}
-      <span class="font-bold text-shitzu-4">${memebid.symbol}</span>
+      <span class="font-bold text-shitzu-4">{memebid.symbol}</span>
     </div>
     <div class="text-xs">{memebid.description}</div>
 

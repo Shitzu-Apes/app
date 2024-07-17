@@ -26,7 +26,7 @@
       <div>
         <div class="flex flex-col items-end">
           <h4 class="text-base font-medium">
-            {memebid.name} (${memebid.symbol})
+            {memebid.name} ({memebid.symbol})
           </h4>
           <div class="flex items-center text-xs">
             created by
