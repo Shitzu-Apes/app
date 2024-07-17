@@ -237,6 +237,7 @@
           <button
             on:click={() => {
               image = null;
+              icon = null;
             }}
           >
             <div class="i-mdi:reload size-5" />
