@@ -16,7 +16,8 @@
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "lint": "eslint --max-warnings=0 src && prettier --check .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "api-gen": "openapi-typescript https://api-testnet.meme.cooking/doc -o ./src/types/openapi.d.t"
   },
   "dependencies": {
     "@aws-crypto/sha256-browser": "^5.2.0",
@@ -30,6 +31,7 @@
     "dayjs": "^1.11.11",
     "figma-squircle": "^0.3.1",
     "near-api-js": "^2",
+    "openapi-typescript": "^7.0.4",
     "ts-pattern": "^5.1.1"
   },
   "devDependencies": {
