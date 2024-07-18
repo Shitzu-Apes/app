@@ -4,6 +4,7 @@
   import TokenComment from "../TokenComment.svelte";
   import TokenTrade from "../TokenTrade.svelte";
 
+  import { client } from "$lib/api/client";
   import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
 
   export let meme: MCMemeInfoWithReference;
@@ -12,6 +13,40 @@
     { id: "thread", label: "Thread" },
     { id: "trade", label: "Trade" },
   ];
+
+  const trades = Promise.all([
+    client.GET("/deposit", {
+      params: {
+        query: {
+          meme_id: meme.id.toString(),
+        },
+      },
+    }),
+    client.GET("/withdraw", {
+      params: {
+        query: {
+          meme_id: meme.id.toString(),
+        },
+      },
+    }),
+  ]).then(([deposits, withdraws]) => {
+    console.log("[deposits, withdraws]", deposits, withdraws);
+    if (!deposits.data || !withdraws.data) return [];
+    // merge deposits.data with withdraws.data (add flag for buy or sell)
+
+    const trades = [
+      ...deposits.data.map((deposit) => ({
+        ...deposit,
+        type: "buy",
+      })),
+      ...withdraws.data.map((withdraw) => ({
+        ...withdraw,
+        type: "sell",
+      })),
+    ];
+
+    return trades;
+  });
 
   const {
     elements: { root, list, content, trigger },
@@ -40,17 +75,5 @@
   <TokenComment id={meme.id} />
 </section>
 <section use:melt={$content(tabs[1].id)}>
-  <TokenTrade
-    symbol={meme.symbol}
-    trades={[
-      {
-        account: "0x123",
-        type: "buy",
-        near: 100,
-        amount: 100,
-        date: new Date().toISOString(),
-        transaction: "0x123",
-      },
-    ]}
-  />
+  <TokenTrade symbol={meme.symbol} {trades} />
 </section>

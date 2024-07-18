@@ -11,8 +11,7 @@
     "sourceMap": true,
     "strict": true,
     "moduleResolution": "Bundler",
-    "noEmit": true,
-    "noUncheckedIndexedAccess": true
+    "noEmit": true
   },
   "include": ["src/**/*.ts"],
   "exclude": [".svelte-kit/**/*.ts"]
