@@ -17,7 +17,7 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "lint": "eslint --max-warnings=0 src && prettier --check .",
     "format": "prettier --write .",
-    "api-gen": "openapi-typescript https://api-testnet.meme.cooking/doc -o ./src/types/openapi.d.t"
+    "api-gen": "openapi-typescript https://api-testnet.meme.cooking/doc -o ./src/types/openapi.d.ts"
   },
   "dependencies": {
     "@aws-crypto/sha256-browser": "^5.2.0",
@@ -64,6 +64,7 @@
     "gh-pages": "^6.1.1",
     "json-schema-to-typescript": "^14.0.4",
     "npm-run-all": "^4.1.5",
+    "openapi-fetch": "^0.10.2",
     "prettier": "^3.2.5",
     "prettier-plugin-svelte": "^3.2.3",
     "sass": "^1.71.1",

@@ -12,7 +12,7 @@
   import { FixedNumber } from "$lib/util";
 
   // page data
-  let { meme_id } = $page.params;
+  let { meme_id } = $page.params as { meme_id: string };
 
   let meme = MemeCooking.getMemeWithReference(+meme_id);
 

@@ -38,7 +38,7 @@
     { label: "1 hour", value: (1000 * 60 * 60).toString() },
     { label: "1 day", value: (1000 * 60 * 60 * 24).toString() },
   ];
-  let durationMs = durationOptions[0];
+  let durationMs = durationOptions[0]!;
 
   const { accountId$ } = wallet;
 

@@ -10,7 +10,7 @@
   let cacheMemebids: MCMemeInfoWithReference[];
 
   let initialMemebidsPromise: Promise<void> = MemeCooking.getLatestMeme(
-    parseInt($page.params.page),
+    parseInt($page.params.page || "0"),
   ).then((newMemebids) => {
     if (newMemebids) {
       $memebids = newMemebids.filter((m) => m !== null);

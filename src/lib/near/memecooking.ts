@@ -13,7 +13,7 @@ import type {
 
 export abstract class MemeCooking {
   public static getLatestMeme(
-    firstMemeId: number,
+    firstMemeId?: number,
   ): Promise<Array<MCMemeInfoWithReference | null>> {
     const promises = [...new Set([firstMemeId || 0, ...Array(50).keys()])].map(
       (id) => {
