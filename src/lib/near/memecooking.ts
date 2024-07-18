@@ -12,11 +12,14 @@ import type {
 } from "$lib/models/memecooking";
 
 export abstract class MemeCooking {
-  public static getLatestMeme() // _firstMemeId?: string,
-  : Promise<Array<MCMemeInfoWithReference | null>> {
-    const promises = [...Array(50).keys()].map((id) => {
-      return this.getMemeWithReference(id);
-    });
+  public static getLatestMeme(
+    firstMemeId: number,
+  ): Promise<Array<MCMemeInfoWithReference | null>> {
+    const promises = [...new Set([firstMemeId || 0, ...Array(50).keys()])].map(
+      (id) => {
+        return this.getMemeWithReference(id);
+      },
+    );
 
     return Promise.all(promises).then((res) => {
       console.log("[getLatestMeme]", res);

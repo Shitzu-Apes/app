@@ -1,5 +1,5 @@
 <script lang="ts">
-  // import { page } from "$app/stores";
+  import { page } from "$app/stores";
   import SHITZU_KING from "$lib/assets/shitzu_saiya.webp";
   import Board from "$lib/components/memecooking/Board/Board.svelte";
   import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
@@ -9,16 +9,14 @@
 
   let cacheMemebids: MCMemeInfoWithReference[];
 
-  let initialMemebidsPromise: Promise<void> = MemeCooking
-    .getLatestMeme
-    // $page.params.page,
-    ()
-    .then((newMemebids) => {
-      if (newMemebids) {
-        $memebids = newMemebids.filter((m) => m !== null);
-        cacheMemebids = $memebids;
-      }
-    });
+  let initialMemebidsPromise: Promise<void> = MemeCooking.getLatestMeme(
+    parseInt($page.params.page),
+  ).then((newMemebids) => {
+    if (newMemebids) {
+      $memebids = newMemebids.filter((m) => m !== null);
+      cacheMemebids = $memebids;
+    }
+  });
 
   let query = "";
 

@@ -14,7 +14,12 @@
     openBottomSheet,
   } from "$lib/layout/BottomSheet/Container.svelte";
   import { MemeCooking, wallet } from "$lib/near";
-  import { imageFileToIcon, imageFileToBase64, FixedNumber } from "$lib/util";
+  import {
+    imageFileToIcon,
+    imageFileToBase64,
+    FixedNumber,
+    isMobile,
+  } from "$lib/util";
   import { calculateReferenceHash } from "$lib/util/cid";
 
   const totalSupply = "1000000000000000000000000000000000";
@@ -69,9 +74,9 @@
     }
   }
 
-  let isTwitterValid = true;
-  let isTelegramValid = true;
-  let isWebsiteValid = true;
+  // let isTwitterValid = true;
+  // let isTelegramValid = true;
+  // let isWebsiteValid = true;
 
   async function createCoin() {
     // Add your logic to handle form submission here
@@ -176,7 +181,11 @@
               ) {
                 const decodedOutcome = atob(outcome.status.SuccessValue);
 
-                goto(`/${decodedOutcome}`);
+                if (isMobile()) {
+                  goto(`/${decodedOutcome}`);
+                } else {
+                  goto(`/meme/${decodedOutcome}`);
+                }
                 close();
               }
             }
@@ -316,14 +325,12 @@
           placeholder="(optional)"
           validate={(value) => {
             if (!value) {
-              isTwitterValid = true;
               return "";
             }
 
             const error = /^(https:\/\/twitter\.com\/)/.test(value)
               ? ""
               : "website should start with https://twitter.com/";
-            isTwitterValid = !error;
             return error;
           }}
         />
@@ -335,14 +342,12 @@
           placeholder="(optional)"
           validate={(value) => {
             if (!value) {
-              isTelegramValid = true;
               return "";
             }
 
             const error = /^(https:\/\/t\.me\/)/.test(value)
               ? ""
               : "website should start with https://t.me/";
-            isTelegramValid = !error;
             return error;
           }}
         />
@@ -354,14 +359,12 @@
           placeholder="(optional)"
           validate={(value) => {
             if (!value) {
-              isWebsiteValid = true;
               return "";
             }
 
             const error = /^(https?:\/\/)/.test(value)
               ? ""
               : "website should start with http:// or https://";
-            isWebsiteValid = !error;
             return error;
           }}
         />
@@ -370,10 +373,7 @@
     <button
       on:click={createCoin}
       class="w-full p-2 bg-shitzu-4 text-white rounded flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
-      disabled={!isTwitterValid ||
-        !isTelegramValid ||
-        !isWebsiteValid ||
-        !name ||
+      disabled={!name ||
         !ticker ||
         !description ||
         !image ||
