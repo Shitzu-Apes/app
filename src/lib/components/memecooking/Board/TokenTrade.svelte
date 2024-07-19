@@ -2,12 +2,14 @@
   import Chef from "../Chef.svelte";
 
   import type { paths } from "$lib/api/openapi";
+  import { FixedNumber } from "$lib/util";
 
   export let symbol: string;
   export let trades: Promise<
     Array<
       paths["/deposit"]["get"]["responses"]["200"]["content"]["application/json"][number] & {
         type: string;
+        tokenAmount: number;
       }
     >
   >;
@@ -55,8 +57,16 @@
             {trade.type}
           </span>
         </span>
-        <span class="w-1/5 text-start">{trade.amount_num.toFixed(4)}</span>
-        <span class="w-1/5 text-start">{trade.fee_num.toFixed(2)}k</span>
+        <span class="w-1/5 text-start"
+          >{new FixedNumber(trade.amount, 24).format()}</span
+        >
+        <span class="w-1/5 text-start"
+          >{new Intl.NumberFormat("en-US", {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+            notation: "compact",
+          }).format(trade.tokenAmount)}</span
+        >
         <span class="w-1/5 text-start">{secondsAgo(trade.fee)}s ago</span>
         <a
           href={`https://nearblocks.io/tx/${trade.meme_id}`}

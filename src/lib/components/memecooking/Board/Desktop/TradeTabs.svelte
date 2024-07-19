@@ -6,6 +6,7 @@
 
   import { client } from "$lib/api/client";
   import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
+  import { FixedNumber } from "$lib/util";
 
   export let meme: MCMemeInfoWithReference;
 
@@ -38,10 +39,18 @@
       ...deposits.data.map((deposit) => ({
         ...deposit,
         type: "buy",
+        tokenAmount:
+          (new FixedNumber(deposit.amount, 24).toNumber() /
+            new FixedNumber(meme.total_staked, 24).toNumber()) *
+          500_000_000,
       })),
       ...withdraws.data.map((withdraw) => ({
         ...withdraw,
         type: "sell",
+        tokenAmount:
+          (new FixedNumber(withdraw.amount, 24).toNumber() /
+            new FixedNumber(meme.total_staked, 24).toNumber()) *
+          500_000_000,
       })),
     ];
 
