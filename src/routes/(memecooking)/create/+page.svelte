@@ -13,6 +13,7 @@
     close,
     openBottomSheet,
   } from "$lib/layout/BottomSheet/Container.svelte";
+  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
   import { MemeCooking, wallet } from "$lib/near";
   import {
     imageFileToIcon,
@@ -24,12 +25,15 @@
 
   const totalSupply = "1000000000000000000000000000000000";
 
+  // add default from `meme_to_cto` local storage
+
   let name: string = "";
   let ticker: string = "";
   let description: string = "";
   let image: string | null = null; // for preview
   let icon: string | null = null; // 96x96 version of image
   let imageFile: File | null = null;
+  let imageCID: string | null = null;
   let twitterLink: string = "";
   let telegramLink: string = "";
   let website: string = "";
@@ -39,6 +43,24 @@
     { label: "1 day", value: (1000 * 60 * 60 * 24).toString() },
   ];
   let durationMs = durationOptions[0]!;
+
+  $: imageReady = imageCID || imageFile;
+
+  const memeToCto = localStorage.getItem("meme_to_cto");
+  if (memeToCto) {
+    const savedMeme = JSON.parse(memeToCto) as MCMemeInfoWithReference;
+
+    name = savedMeme.name;
+    ticker = savedMeme.symbol;
+    description = savedMeme.description;
+    image = savedMeme.image;
+    icon = savedMeme.icon;
+    imageCID = image?.split("/").pop() || null;
+
+    console.log("[create] imageCID", imageCID);
+
+    localStorage.removeItem("meme_to_cto");
+  }
 
   const { accountId$ } = wallet;
 
@@ -81,7 +103,7 @@
   async function createCoin() {
     // Add your logic to handle form submission here
 
-    if (!name || !ticker || !description || !image || !imageFile || !icon) {
+    if (!name || !ticker || !description || !imageReady || !icon) {
       console.error("Please fill in all fields");
       return;
     }
@@ -94,8 +116,14 @@
       telegramLink,
       website,
     });
+
     const body = new FormData();
-    body.append("imageFile", imageFile);
+
+    if (imageCID) {
+      body.append("imageCID", imageCID);
+    } else if (imageFile) {
+      body.append("imageFile", imageFile);
+    }
     body.append("reference", referenceContent);
     const uploadPromise = fetch("/api/create", {
       method: "POST",
@@ -269,7 +297,7 @@
         class="block text-sm text-shitzu-4 font-600 inline-flex items-center gap-2"
       >
         image
-        {#if image}
+        {#if imageFile}
           <button
             on:click={() => {
               image = null;
@@ -373,12 +401,7 @@
     <button
       on:click={createCoin}
       class="w-full p-2 bg-shitzu-4 text-white rounded flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
-      disabled={!name ||
-        !ticker ||
-        !description ||
-        !image ||
-        !imageFile ||
-        !icon}
+      disabled={!name || !ticker || !description || !imageReady || !icon}
     >
       Create coin
     </button>
