@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
+
   import { page } from "$app/stores";
   import Near from "$lib/assets/Near.svelte";
   import TradeTabs from "$lib/components/memecooking/Board/Desktop/TradeTabs.svelte";
@@ -14,8 +16,28 @@
   // page data
   let { meme_id } = $page.params as { meme_id: string };
 
-  let meme = MemeCooking.getMemeWithReference(+meme_id);
+  let interval: number;
+  function retryPromise<T>(
+    fn: () => Promise<T>,
+    retry: number = 10,
+  ): Promise<T> {
+    return new Promise((resolve) => {
+      interval = setInterval(async () => {
+        const result = await fn();
+        retry--;
+        if (result || retry === 0) {
+          clearInterval(interval);
+          resolve(result);
+        }
+      }, 1000) as unknown as number;
+    });
+  }
 
+  onDestroy(() => {
+    clearInterval(interval);
+  });
+
+  let meme = retryPromise(() => MemeCooking.getMemeWithReference(+meme_id), 20);
   let required_stake = MemeCooking.requiredStake(
     import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
   );
@@ -26,7 +48,7 @@
     <a href="/board" class="text-white text-2xl mx-auto mb-10">[go back]</a>
   </div>
   {#await Promise.all([meme, required_stake])}
-    <div>Loading...</div>
+    <div class="w-full text-center text-2xl">Loading...</div>
   {:then [meme, required_stake]}
     {#if meme}
       <div class="w-full flex">
