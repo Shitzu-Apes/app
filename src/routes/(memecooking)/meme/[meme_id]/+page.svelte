@@ -152,7 +152,7 @@
 
           <!-- Holder -->
           <div class="w-full">
-            <TokenHolder memeId={meme.id} />
+            <TokenHolder {meme} />
           </div>
           <!-- End Right Nav -->
         </div>

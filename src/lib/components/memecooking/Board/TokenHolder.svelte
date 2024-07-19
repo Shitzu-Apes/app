@@ -1,21 +1,30 @@
 <script lang="ts">
-  import Near from "$lib/assets/Near.svelte";
+  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
   import { MemeCooking } from "$lib/near";
   import { FixedNumber } from "$lib/util";
 
   // let holders = [...new Array(20).keys()];
-  export let memeId: number;
-  let holders = MemeCooking.getMemeStakes(memeId, 0, 1000).then((holders) => {
+  export let meme: MCMemeInfoWithReference;
+  let holders: Promise<[string, number][] | null> = MemeCooking.getMemeStakes(
+    meme.id,
+    0,
+    1000,
+  ).then((holders) => {
     if (!holders || holders.length === 0) {
-      return holders;
+      return null;
     }
 
     // sort from highest to lowest
     holders.sort((a, b) => (BigInt(b[1]) > BigInt(a[1]) ? 1 : -1));
 
-    return holders;
+    return holders.map(([holder, amount]) => {
+      const percentage =
+        (new FixedNumber(amount, 24).toNumber() /
+          new FixedNumber(meme.total_staked, 24).toNumber()) *
+        0.5;
+      return [holder, percentage];
+    });
   });
-  $: console.log(holders);
 </script>
 
 <div class="w-full px-4">
@@ -27,14 +36,17 @@
       <p>No holders</p>
     {:else}
       <div class="w-full h-full flex flex-col gap-2 items-center">
+        <div class="w-full flex justify-between items-center">
+          <p class="w-1/2 overflow-hidden text-ellipsis">pool</p>
+          <p class="flex items-center">50%</p>
+        </div>
         {#each holders as holder (holder)}
           <div class="w-full flex justify-between items-center">
             <p class="w-1/2 overflow-hidden text-ellipsis">
               {holder[0]}
             </p>
             <p class="flex items-center">
-              {new FixedNumber(holder[1], 24).format()}
-              <Near className="size-5 ml-2" />
+              {holder[1] * 100}%
             </p>
           </div>
         {/each}

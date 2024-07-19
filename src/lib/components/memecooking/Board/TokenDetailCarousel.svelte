@@ -93,7 +93,7 @@
         <TokenTrade symbol={memebid.symbol} trades={Promise.resolve([])} />
       </div>
       <div class="flex-[0_0_100%] min-w-0">
-        <TokenHolder memeId={memebid.id} />
+        <TokenHolder meme={memebid} />
       </div>
     </div>
   </div>
