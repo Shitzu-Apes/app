@@ -43,6 +43,7 @@
     { label: "1 day", value: (1000 * 60 * 60 * 24).toString() },
   ];
   let durationMs = durationOptions[0]!;
+  let ctoFrom: number | null = null;
 
   $: imageReady = imageCID || imageFile;
 
@@ -56,8 +57,7 @@
     image = savedMeme.image;
     icon = savedMeme.icon;
     imageCID = image?.split("/").pop() || null;
-
-    console.log("[create] imageCID", imageCID);
+    ctoFrom = savedMeme.id;
 
     localStorage.removeItem("meme_to_cto");
   }
@@ -109,13 +109,22 @@
     }
 
     console.log("[createCoin] executing...");
-
-    const referenceContent = JSON.stringify({
+    const reference: {
+      description: string;
+      twitterLink: string;
+      telegramLink: string;
+      website: string;
+      ctoFrom?: number;
+    } = {
       description,
       twitterLink,
       telegramLink,
       website,
-    });
+    };
+    if (ctoFrom) {
+      reference.ctoFrom = ctoFrom;
+    }
+    const referenceContent = JSON.stringify(reference);
 
     const body = new FormData();
 
