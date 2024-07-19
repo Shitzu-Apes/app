@@ -66,7 +66,7 @@
     class="w-full flex items-center justify-start flex-wrap mt-10 gap-6 px-4 mb-10"
   >
     {#each displayedMemebids as memebid (memebid.id)}
-      <div class="flex-grow basis-[30%] min-w-[300px]">
+      <div class="flex-grow basis-[30%] min-w-[300px] max-w-[30%]">
         <MemePreview {memebid} />
       </div>
     {/each}
