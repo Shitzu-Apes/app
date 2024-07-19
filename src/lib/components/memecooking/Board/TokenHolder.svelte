@@ -3,7 +3,6 @@
   import { MemeCooking } from "$lib/near";
   import { FixedNumber } from "$lib/util";
 
-  // let holders = [...new Array(20).keys()];
   export let meme: MCMemeInfoWithReference;
   let holders: Promise<[string, number][] | null> = MemeCooking.getMemeStakes(
     meme.id,
@@ -18,10 +17,12 @@
     holders.sort((a, b) => (BigInt(b[1]) > BigInt(a[1]) ? 1 : -1));
 
     return holders.map(([holder, amount]) => {
+      const total_staked = new FixedNumber(meme.total_staked, 24).toNumber();
       const percentage =
-        (new FixedNumber(amount, 24).toNumber() /
-          new FixedNumber(meme.total_staked, 24).toNumber()) *
-        0.5;
+        total_staked == 0
+          ? 0
+          : (new FixedNumber(amount, 24).toNumber() / total_staked) * 0.5;
+
       return [holder, percentage];
     });
   });
@@ -53,14 +54,4 @@
       </div>
     {/if}
   {/await}
-  <!-- <div class="w-full h-full flex flex-col gap-2 items-center">
-    {#each holders as holder (holder)}
-      <div class="w-full flex justify-between items-center">
-        <p>
-          {holder + 1}. random
-        </p>
-        <p>5%</p>
-      </div>
-    {/each}
-  </div>-->
 </div>
