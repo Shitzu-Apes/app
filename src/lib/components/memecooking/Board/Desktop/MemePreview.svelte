@@ -44,16 +44,18 @@
       </div>
     </div>
   </a>
-  <button
-    class="text border-2 border-black font-mono bg-memecooking-5 px-2 rounded text-black hover:bg-memecooking-6 flex items-center gap-2"
-    on:click={(e) => {
-      e.preventDefault();
-      goto(`/create`);
+  {#if memebid.end_timestamp_ms < Date.now()}
+    <button
+      class="text border-2 border-black font-mono bg-memecooking-5 px-2 rounded text-black hover:bg-memecooking-6 flex items-center gap-2"
+      on:click={(e) => {
+        e.preventDefault();
+        goto(`/create`);
 
-      localStorage.setItem("meme_to_cto", JSON.stringify(memebid));
-    }}
-  >
-    <div class="i-mdi:alert" />
-    Gud meme, Let's CTO
-  </button>
+        localStorage.setItem("meme_to_cto", JSON.stringify(memebid));
+      }}
+    >
+      <div class="i-mdi:alert" />
+      Gud meme, Let's CTO
+    </button>
+  {/if}
 </div>

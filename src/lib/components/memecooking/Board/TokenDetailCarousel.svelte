@@ -13,6 +13,7 @@
   import TokenHolder from "./TokenHolder.svelte";
   import TokenTrade from "./TokenTrade.svelte";
 
+  import { goto } from "$app/navigation";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
 
@@ -89,19 +90,7 @@
         {/if}
       </div>
       <div class="flex-[0_0_100%] min-w-0">
-        <TokenTrade
-          symbol={memebid.symbol}
-          trades={[
-            {
-              account: "7MuhcFh2py64H3UeP9nZzXRNdcnnGLRdbmbfTq7EYdAq",
-              type: "sell",
-              near: 100,
-              amount: 100,
-              date: new Date().toISOString(),
-              transaction: "7MuhcFh2py64H3UeP9nZzXRNdcnnGLRdbmbfTq7EYdAq",
-            },
-          ]}
-        />
+        <TokenTrade symbol={memebid.symbol} trades={Promise.resolve([])} />
       </div>
       <div class="flex-[0_0_100%] min-w-0">
         <TokenHolder memeId={memebid.id} />
@@ -139,10 +128,26 @@
   {/each}
 </div>
 
-<div class="h-[168px] w-full flex justify-center items-center pb-2 px-2">
+<div
+  class="h-[168px] w-full flex flex-col justify-center items-center pb-2 px-2"
+>
+  {#if memebid.end_timestamp_ms < Date.now()}
+    <button
+      class="border-2 border-black font-mono bg-memecooking-5 px-2 rounded text-black hover:bg-memecooking-6 flex items-center gap-2"
+      on:click={(e) => {
+        e.preventDefault();
+        goto(`/create`);
+
+        localStorage.setItem("meme_to_cto", JSON.stringify(memebid));
+      }}
+    >
+      <div class="i-mdi:alert" />
+      Gud meme, Let's CTO
+    </button>
+  {/if}
   <button
     on:click={() => {
-      openBottomSheet(StakeSheet, { meme_id: memebid.id });
+      openBottomSheet(StakeSheet, { meme: memebid });
     }}
     class="bg-shitzu-3 w-full py-2 rounded-full text-xl tracking-wider text-black border-b-4 border-shitzu-4 active:translate-y-1"
     >[stake]</button
