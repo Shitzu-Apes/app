@@ -5,6 +5,7 @@
   import Near from "$lib/assets/Near.svelte";
   import TradeTabs from "$lib/components/memecooking/Board/Desktop/TradeTabs.svelte";
   import MCStake from "$lib/components/memecooking/Board/MCStake.svelte";
+  import SocialLink from "$lib/components/memecooking/Board/SocialLink.svelte";
   import TokenChart from "$lib/components/memecooking/Board/TokenChart.svelte";
   import TokenHolder from "$lib/components/memecooking/Board/TokenHolder.svelte";
   import Chef from "$lib/components/memecooking/Chef.svelte";
@@ -109,31 +110,11 @@
           </div>
 
           <!-- Link -->
-          <div class="w-full flex items-center gap-2 text-gray-4">
-            {#if meme.twitterLink}
-              <a
-                href={meme.twitterLink}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                [twitter]
-              </a>
-            {/if}
-            {#if meme.telegramLink}
-              <a
-                href={meme.telegramLink}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                [telegram]
-              </a>
-            {/if}
-            {#if meme.website}
-              <a href={meme.website} target="_blank" rel="noopener noreferrer">
-                [website]
-              </a>
-            {/if}
-          </div>
+          <SocialLink
+            twitterLink={meme.twitterLink}
+            telegramLink={meme.telegramLink}
+            website={meme.website}
+          />
 
           <!-- Token Detail -->
           <div class="w-full text-gray-4">
