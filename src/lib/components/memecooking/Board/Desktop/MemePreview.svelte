@@ -10,10 +10,10 @@
   export let memebid: MCMemeInfoWithReference;
 </script>
 
-<div class="flex flex-col">
+<div class="w-full">
   <a
     href="/meme/{memebid.id}"
-    class="flex items-start justify-start w-full max-w-sm gap-3 p-2 border border-transparent hover:border-white cursor-pointer relative"
+    class="w-full flex items-start justify-start gap-3 p-2 border border-transparent hover:border-white cursor-pointer relative"
   >
     <img src={memebid.image} alt={memebid.name} class="w-24" />
     <div
@@ -46,7 +46,7 @@
   </a>
   {#if memebid.end_timestamp_ms < Date.now()}
     <button
-      class="text border-2 border-black font-mono bg-memecooking-5 px-2 rounded text-black hover:bg-memecooking-6 flex items-center gap-2"
+      class="w-full border-2 border-black font-mono bg-memecooking-5 px-2 rounded text-black hover:bg-memecooking-6 flex items-center gap-2"
       on:click={(e) => {
         e.preventDefault();
         goto(`/create`);
