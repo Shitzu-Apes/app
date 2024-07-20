@@ -5,7 +5,7 @@
 <BottomSheetContent variant="shitzu">
   <slot slot="header">
     <h2 class="prose prose-invert prose-shitzu px-4 text-2xl">
-      How fun.meme Works?
+      How meme.cooking Works?
     </h2>
   </slot>
   <section class="prose prose-shitzu prose-invert px-3">
