@@ -28,7 +28,7 @@ export interface paths {
           };
           content: {
             "application/json": {
-              lastBlockHeight: number;
+              last_block_height: number;
             };
           };
         };
@@ -54,6 +54,7 @@ export interface paths {
       parameters: {
         query?: {
           order_by?:
+            | "last_change_ms"
             | "meme_id"
             | "end_timestamp_ms"
             | "created_blockheight"
@@ -86,6 +87,7 @@ export interface paths {
               reference: string;
               reference_hash: string;
               deposit_token_id: string;
+              last_change_ms: number;
               total_supply_num: number;
               created_blockheight: number;
               created_timestamp_ms: number;
@@ -111,18 +113,20 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/deposit": {
+  "/trades": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** @description Returns all deposits for given meme ID */
+    /** @description Returns all trades for given meme ID */
     get: {
       parameters: {
         query: {
           meme_id: string;
+          account_id?: string;
+          direction?: "deposits" | "withdrawals";
         };
         header?: never;
         path?: never;
@@ -130,7 +134,7 @@ export interface paths {
       };
       requestBody?: never;
       responses: {
-        /** @description deposits */
+        /** @description trades */
         200: {
           headers: {
             [name: string]: unknown;
@@ -141,53 +145,11 @@ export interface paths {
               account_id: string;
               amount: string;
               fee: string;
+              is_deposit: boolean;
               amount_num: number;
               fee_num: number;
-            }[];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/withdraw": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** @description Returns all withdrawals for given meme ID */
-    get: {
-      parameters: {
-        query: {
-          meme_id: string;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description withdrawals */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": {
-              meme_id: number;
-              account_id: string;
-              amount: string;
-              fee: string;
-              amount_num: number;
-              fee_num: number;
+              timestamp_ms: number;
+              receipt_id: string;
             }[];
           };
         };

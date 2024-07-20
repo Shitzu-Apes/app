@@ -3,23 +3,16 @@
 
   import type { paths } from "$lib/api/openapi";
   import { FixedNumber } from "$lib/util";
+  import { timesAgo } from "$lib/util/timesAgo";
 
   export let symbol: string;
   export let trades: Promise<
     Array<
-      paths["/deposit"]["get"]["responses"]["200"]["content"]["application/json"][number] & {
-        type: string;
+      paths["/trades"]["get"]["responses"]["200"]["content"]["application/json"][number] & {
         tokenAmount: number;
       }
     >
   >;
-
-  let secondsAgo = (date: string) => {
-    const now = new Date();
-    const then = new Date(date);
-    const diff = now.getTime() - then.getTime();
-    return Math.floor(diff / 1000);
-  };
 </script>
 
 <ul class="w-full flex flex-col gap-1 text-xs">
@@ -51,10 +44,8 @@
           />
         </span>
         <span class="w-1/5 text-start">
-          <span
-            class={trade.type === "buy" ? "text-green-500" : "text-red-500"}
-          >
-            {trade.type}
+          <span class={trade.is_deposit ? "text-green-500" : "text-red-500"}>
+            {trade.is_deposit ? "buy" : "sell"}
           </span>
         </span>
         <span class="w-1/5 text-start"
@@ -67,13 +58,15 @@
             notation: "compact",
           }).format(trade.tokenAmount)}</span
         >
-        <span class="w-1/5 text-start">{secondsAgo(trade.fee)}s ago</span>
+        <span class="w-1/5 text-start"
+          >{timesAgo(new Date(trade.timestamp_ms))} ago</span
+        >
         <a
           href={`https://nearblocks.io/tx/${trade.meme_id}`}
           target="_blank"
           rel="noopener noreferrer"
           class="w-1/5 text-start hover:text-shitzu-4 hover:underline overflow-hidden text-ellipsis"
-          >{trade.meme_id}</a
+          >{trade.receipt_id.slice(0, 4)}...{trade.receipt_id.slice(-4)}</a
         >
       </li>
     {/each}

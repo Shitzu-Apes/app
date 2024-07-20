@@ -15,47 +15,28 @@
     { id: "trade", label: "Trade" },
   ];
 
-  const trades = Promise.all([
-    client.GET("/deposit", {
+  const trades = client
+    .GET("/trades", {
       params: {
         query: {
           meme_id: meme.id.toString(),
         },
       },
-    }),
-    client.GET("/withdraw", {
-      params: {
-        query: {
-          meme_id: meme.id.toString(),
-        },
-      },
-    }),
-  ]).then(([deposits, withdraws]) => {
-    console.log("[deposits, withdraws]", deposits, withdraws);
-    if (!deposits.data || !withdraws.data) return [];
-    // merge deposits.data with withdraws.data (add flag for buy or sell)
+    })
+    .then((trade) => {
+      console.log("[trade]", trade);
+      if (!trade.data) return [];
 
-    const trades = [
-      ...deposits.data.map((deposit) => ({
-        ...deposit,
-        type: "buy",
+      const trades = trade.data.map((trade) => ({
+        ...trade,
         tokenAmount:
-          (new FixedNumber(deposit.amount, 24).toNumber() /
+          (new FixedNumber(trade.amount, 24).toNumber() /
             new FixedNumber(meme.total_staked, 24).toNumber()) *
           500_000_000,
-      })),
-      ...withdraws.data.map((withdraw) => ({
-        ...withdraw,
-        type: "sell",
-        tokenAmount:
-          (new FixedNumber(withdraw.amount, 24).toNumber() /
-            new FixedNumber(meme.total_staked, 24).toNumber()) *
-          500_000_000,
-      })),
-    ];
+      }));
 
-    return trades;
-  });
+      return trades;
+    });
 
   const {
     elements: { root, list, content, trigger },
