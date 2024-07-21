@@ -130,7 +130,7 @@ export abstract class MemeCooking {
 
   public static deposit(
     wallet: Wallet,
-    args: { memeId: number; amount: string },
+    args: { memeId: number; amount: string; extraNearDeposit: string },
     callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
     needStorageDeposit: { depositAmount: string } | null = null,
     wrapNearDeposit: { depositAmount: string } | null = null,
@@ -174,7 +174,7 @@ export abstract class MemeCooking {
         methodName: "near_deposit",
         args: {},
         gas: 30_000_000_000_000n.toString(),
-        deposit: args.amount,
+        deposit: args.extraNearDeposit,
       },
     });
 

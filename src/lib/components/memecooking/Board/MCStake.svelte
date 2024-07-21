@@ -34,6 +34,21 @@
     defaultValue: "stake",
   });
 
+  let totalNearBalance = $nearBalance;
+  let wrapNearBalance: FixedNumber | null = null;
+  $: {
+    if ($accountId$ && $nearBalance) {
+      Ft.balanceOf(
+        import.meta.env.VITE_WRAP_CONTRACT_ID!,
+        $accountId$,
+        24,
+      ).then((balance) => {
+        wrapNearBalance = balance;
+        totalNearBalance = $nearBalance.add(balance);
+      });
+    }
+  }
+
   async function action() {
     if (!$input$ || !$accountId$) return;
     if ($value === "stake") {
@@ -75,9 +90,23 @@
         };
       }
 
+      const extraNearDeposit =
+        $input$.toBigInt() > (wrapNearBalance?.toBigInt() ?? 0n)
+          ? $input$.toBigInt() - (wrapNearBalance?.toBigInt() ?? 0n)
+          : 0n;
+
+      if ($nearBalance && extraNearDeposit > $nearBalance.toBigInt()) {
+        console.error("Not enough NEAR balance");
+        return;
+      }
+
       MemeCooking.deposit(
         wallet,
-        { amount: $input$.toU128(), memeId: meme.id },
+        {
+          amount: $input$.toU128(),
+          extraNearDeposit: extraNearDeposit.toString(),
+          memeId: meme.id,
+        },
         {},
         needStorageDeposit,
         wrapNearDeposit,
@@ -93,9 +122,8 @@
   $: refreshNearBalance($accountId$);
 
   function setMax() {
-    console.log($nearBalance);
-    if ($nearBalance) {
-      let input = $nearBalance.sub(new FixedNumber(5n, 1));
+    if (totalNearBalance) {
+      let input = totalNearBalance.sub(new FixedNumber(5n, 1));
 
       input = input.toNumber() < 0 ? new FixedNumber(0n, 24) : input;
 
@@ -156,13 +184,21 @@
         bind:this={input}
         bind:value={$inputValue$}
       />
-      <div class="absolute inset-y-0 right-0 flex items-center pr-2">
+      <div
+        class="absolute inset-y-0 right-0 flex flex-col justify-center items-center pr-2 text-xs gap-1"
+      >
+        <div class="flex-grow basis-0" />
         <button
-          on:click={setMax}
           class="text-sm cursor-pointer bg-gray-3 px-2 rounded-full border border-gray-6 text-shitzu-6"
+          on:click={setMax}
         >
-          Max
+          <div class="text-shitzu-7">Max</div>
         </button>
+        <div class="text-shitzu-4 flex-grow basis-0">
+          {#if totalNearBalance}
+            {totalNearBalance.format()}
+          {/if}
+        </div>
       </div>
     </div>
     <ul class="flex items-center w-full gap-2">
