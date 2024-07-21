@@ -96,7 +96,7 @@
               </a>
             </span>
           </div>
-          <div class="w-full aspect-ratio-16/10">
+          <div class="w-full aspect-ratio-21/9">
             <TokenChart memebid={meme} />
           </div>
           <div class="w-full h-screen">
