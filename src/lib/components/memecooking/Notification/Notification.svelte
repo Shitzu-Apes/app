@@ -17,13 +17,14 @@
 
   // wait for actual type when integrate
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  MCsubscribe(Symbol("notification"), (newMemeInfo: any) => {
+  MCsubscribe(Symbol("notification"), (newMemeInfo) => {
+    console.log("[Notification]: New meme info", newMemeInfo);
     notification = {
-      id: newMemeInfo.id,
+      id: newMemeInfo.receipt_id,
       amount: newMemeInfo.amount,
       is_deposit: newMemeInfo.is_deposit,
-      party: newMemeInfo.party,
-      ticker: newMemeInfo.ticker,
+      party: newMemeInfo.account_id,
+      ticker: newMemeInfo.symbol,
       icon: newMemeInfo.icon,
     };
 

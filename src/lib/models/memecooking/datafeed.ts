@@ -6,6 +6,7 @@ import type {
   ResolutionString,
 } from "$lib/charting_library/charting_library";
 import {
+  MCsubscribe,
   // MCsubscribe
   MCunsubscribe,
 } from "$lib/store/memebids";
@@ -45,11 +46,11 @@ const createDataFeed: (ws: WebSocket) => IBasicDataFeed = (ws) => ({
     console.log("[resolveSymbol]: Method call", symbolName);
     try {
       const symbol = await fetch(
-        `${import.meta.env.VITE_CLOUDFLARE_WORKER_URL}/api/get_token/${symbolName}`,
+        `${import.meta.env.VITE_CLOUDFLARE_WORKER_URL}/tradingview/get_token/${symbolName}`,
       ).then((res) => res.json());
 
       const symbolInfo: LibrarySymbolInfo = {
-        ticker: symbol.ticker,
+        ticker: symbol.symbol,
         name: symbol.name,
         description: symbol.description,
         type: symbol.type,
@@ -96,8 +97,12 @@ const createDataFeed: (ws: WebSocket) => IBasicDataFeed = (ws) => ({
 
     try {
       const data = await fetch(
-        `${import.meta.env.VITE_CLOUDFLARE_WORKER_URL}/api/get/${symbolInfo.ticker}/${from}/${to}/${resolution}`,
-      ).then((res) => res.json());
+        `${import.meta.env.VITE_CLOUDFLARE_WORKER_URL}/tradingview/get/${symbolInfo.ticker}/${from}/${to}/${resolution}`,
+      )
+        .then((res) => res.json())
+        .catch((err) => {
+          console.error("[getBars]: Error fetching data", err);
+        });
       console.log("[getBars]: Data", data);
 
       const bars: {
@@ -125,9 +130,9 @@ const createDataFeed: (ws: WebSocket) => IBasicDataFeed = (ws) => ({
 
   subscribeBars: (
     symbolInfo,
-    // _resolution,
-    // _onRealtimeCallback,
-    // _subscriberUID,
+    resolution,
+    onRealtimeCallback,
+    subscriberUID,
   ) => {
     console.log(
       "[subscribeBars]: Method call with subscriberUID:",
@@ -138,46 +143,47 @@ const createDataFeed: (ws: WebSocket) => IBasicDataFeed = (ws) => ({
       return;
     }
 
-    // const lastBar = lastBarsCache.get(symbolInfo.ticker)!;
+    let lastBar = lastBarsCache.get(symbolInfo.ticker)!;
 
-    // MCsubscribe(subscriberUID, (data) => {
-    //   if (data.ticker !== symbolInfo.ticker) {
-    //     return;
-    //   }
+    MCsubscribe(subscriberUID, (data) => {
+      console.log("[MCsubscribe]: Data", data.symbol, symbolInfo.ticker);
+      if (data.symbol !== symbolInfo.ticker) {
+        return;
+      }
 
-    //   console.log("[subscribeBar::MCsubscribe]]");
-    //   const nextBarTime = lastBar.time + Number(resolution) * 60 * 1000;
+      console.log("[subscribeBar::MCsubscribe]]");
+      const nextBarTime = lastBar.time + Number(resolution) * 60 * 1000;
 
-    //   let bar: {
-    //     time: number;
-    //     low: number;
-    //     high: number;
-    //     open: number;
-    //     close: number;
-    //   };
-    //   const price = parseFloat(data.price);
-    //   if (data.timestamp_ms >= nextBarTime) {
-    //     console.log("[subscribeBars]: Create new bar");
-    //     bar = {
-    //       time: nextBarTime,
-    //       low: price,
-    //       high: price,
-    //       open: price,
-    //       close: price,
-    //     };
-    //   } else {
-    //     console.log("[subscribeBars]: Update lastBar");
-    //     bar = {
-    //       ...lastBar,
-    //       high: Math.max(lastBar.high, price),
-    //       low: Math.min(lastBar.low, price),
-    //       close: price,
-    //     };
-    //   }
-    //   lastBar = bar;
+      let bar: {
+        time: number;
+        low: number;
+        high: number;
+        open: number;
+        close: number;
+      };
+      const price = parseFloat(data.amount);
+      if (data.timestamp_ms >= nextBarTime) {
+        console.log("[subscribeBars]: Create new bar");
+        bar = {
+          time: nextBarTime,
+          low: price,
+          high: price,
+          open: price,
+          close: price,
+        };
+      } else {
+        console.log("[subscribeBars]: Update lastBar");
+        bar = {
+          ...lastBar,
+          high: Math.max(lastBar.high, price),
+          low: Math.min(lastBar.low, price),
+          close: price,
+        };
+      }
+      lastBar = bar;
 
-    //   onRealtimeCallback(bar);
-    // });
+      onRealtimeCallback(bar);
+    });
   },
 
   unsubscribeBars: (subscriberUID) => {
