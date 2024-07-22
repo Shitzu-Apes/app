@@ -7,7 +7,7 @@
 
   import type { AccountId } from "$lib/abi";
   import { Near } from "$lib/assets";
-  import type { PoolFarm } from "$lib/near";
+  import { Dogshit, type PoolFarm } from "$lib/near";
   import { getToken, getToken$, type TokenInfo } from "$lib/store";
   import { FixedNumber } from "$lib/util";
 
@@ -72,12 +72,28 @@
           1_000_000_000n,
       );
 
+    const yearlyShares = new FixedNumber("1200000000000000000000000000000", 24);
+    const yearlySeconds = new FixedNumber(365n * 24n * 60n * 60n);
+    const farmSeconds = new FixedNumber(
+      (BigInt(farm.end_date) - BigInt(Math.max(now, Number(farm.start_date)))) /
+        1_000_000_000n,
+    );
+    const sharesToBeDistributed = yearlyShares
+      .mul(farmSeconds)
+      .div(yearlySeconds);
+
+    const validatorSupply = await Dogshit.balanceOf("shitzu.pool.near");
+    const undistributedMultiplier = sharesToBeDistributed
+      .div(validatorSupply)
+      .toNumber();
+
     $tokenAPRs$ = await Promise.all(
       undistributedRewards.map(async ([tokenId, rewards]) => {
         const { price, decimal } = await getToken(tokenId);
 
         const apr =
           (yearlyMultiplier *
+            undistributedMultiplier *
             new FixedNumber(rewards, decimal).toNumber() *
             Number(price ?? 0)) /
           nearPrice /

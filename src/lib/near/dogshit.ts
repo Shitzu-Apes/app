@@ -2,28 +2,9 @@ import { Ft } from "./fungibleToken";
 import { view } from "./utils";
 
 import type { AccountId } from "$lib/abi";
+import { FixedNumber } from "$lib/util";
 
 export abstract class Dogshit {
-  // export interface DogshitContract extends Contract {
-  //   get_whitelisted_tokens: ContractViewCall<undefined, AccountId[]>;
-  //   get_undistributed_rewards: ContractViewCall<undefined, [AccountId, string][]>;
-  //   get_deposits: ContractViewCall<undefined, [AccountId, string][]>;
-  //   simulate_burn: ContractViewCall<
-  //     {
-  //       shares: string;
-  //     },
-  //     [AccountId, string][]
-  //   >;
-
-  //   ft_balance_of: ContractViewCall<
-  //     {
-  //       account_id: string;
-  //     },
-  //     string
-  //   >;
-  //   ft_total_supply: ContractViewCall<undefined, string>;
-  //   ft_metadata: ContractViewCall<undefined, FungibleTokenMetadata>;
-  // }
   public static getWhitelistedTokens() {
     return view<AccountId[]>(
       import.meta.env.VITE_DOGSHIT_CONTRACT_ID,
@@ -67,7 +48,10 @@ export abstract class Dogshit {
   }
 
   public static async totalSupply() {
-    return Ft.totalSupply(import.meta.env.VITE_DOGSHIT_CONTRACT_ID);
+    return new FixedNumber(
+      await Ft.totalSupply(import.meta.env.VITE_DOGSHIT_CONTRACT_ID),
+      24,
+    );
   }
 
   public static async metadata() {
