@@ -24,8 +24,8 @@ export async function view<T>(
     });
 
     const json = await res.json();
-    if ("error" in json.result) {
-      throw new Error(json.result.error);
+    if ("error" in json) {
+      throw new Error(json.error.data);
     }
     const result = new Uint8Array(json.result.result);
     const decoder = new TextDecoder();
