@@ -44,7 +44,7 @@ export abstract class MemeCooking {
         twitterLink: "",
         telegramLink: "",
         website: "",
-        image: meme.icon,
+        image: meme.image,
       };
     }
 
@@ -168,20 +168,24 @@ export abstract class MemeCooking {
       });
     }
 
-    actions.push({
-      type: "FunctionCall",
-      params: {
-        methodName: "near_deposit",
-        args: {},
-        gas: 30_000_000_000_000n.toString(),
-        deposit: args.extraNearDeposit,
-      },
-    });
+    if (args.extraNearDeposit && args.extraNearDeposit !== "0") {
+      actions.push({
+        type: "FunctionCall",
+        params: {
+          methodName: "near_deposit",
+          args: {},
+          gas: 30_000_000_000_000n.toString(),
+          deposit: args.extraNearDeposit,
+        },
+      });
+    }
 
-    transactions.push({
-      receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
-      actions,
-    });
+    if (actions.length > 0) {
+      transactions.push({
+        receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
+        actions,
+      });
+    }
 
     transactions.push({
       receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
