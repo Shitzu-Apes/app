@@ -39,7 +39,7 @@
   $: {
     if ($accountId$ && $nearBalance) {
       Ft.balanceOf(
-        import.meta.env.VITE_WRAP_CONTRACT_ID!,
+        import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
         $accountId$,
         24,
       ).then((balance) => {
