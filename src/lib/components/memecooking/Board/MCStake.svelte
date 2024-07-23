@@ -127,7 +127,7 @@
 
       input = input.toNumber() < 0 ? new FixedNumber(0n, 24) : input;
 
-      $inputValue$ = input.toNumber().toFixed(4);
+      $inputValue$ = input.toString();
     }
   }
 
@@ -139,15 +139,24 @@
       unstake: { value: "0", label: "reset" },
     },
     {
-      stake: { value: "10", label: "10" },
+      stake: {
+        value: 10_000_000_000_000_000_000_000_000n.toString(),
+        label: "10",
+      },
       unstake: { value: "0.25", label: "25%" },
     },
     {
-      stake: { value: "50", label: "50" },
+      stake: {
+        value: 50_000_000_000_000_000_000_000_000n.toString(),
+        label: "50",
+      },
       unstake: { value: "0.5", label: "50%" },
     },
     {
-      stake: { value: "100", label: "100" },
+      stake: {
+        value: 100_000_000_000_000_000_000_000_000n.toString(),
+        label: "100",
+      },
       unstake: { value: "1", label: "100%" },
     },
   ];
@@ -161,6 +170,9 @@
     {#each tabs as tab}
       <button
         use:melt={$trigger(tab.id)}
+        on:click={() => {
+          $inputValue$ = "";
+        }}
         class="w-1/2 py-1 {tab.id === $value
           ? 'text-shitzu-4 border-current'
           : 'text-gray-4 border-transparent'} border-b-4 font-600"
@@ -214,7 +226,7 @@
               $inputValue$ = new FixedNumber(
                 defaultValue[$value].value,
                 24,
-              ).toU128();
+              ).toString();
             }}
           >
             {#if defaultValue[$value].value !== "0" && $value === "stake"}
