@@ -12,10 +12,14 @@
 
 <div class="w-full">
   <a
-    href="/meme/{memebid.id}"
+    href={`/meme/${memebid.meme_id}`}
     class="w-full flex items-start justify-start gap-3 p-2 border border-transparent hover:border-white cursor-pointer relative"
   >
-    <img src={memebid.image} alt={memebid.name} class="w-24" />
+    <img
+      src={`${import.meta.env.VITE_IPFS_GATEWAY}/${memebid.image}`}
+      alt={memebid.name}
+      class="w-24"
+    />
     <div
       class="flex flex-col items-start justify-start h-full gap-1 flex-1 relative"
     >
@@ -30,21 +34,23 @@
 
       <div class="flex flex-col gap-1">
         <span class="text-xs text-shitzu-4">
-          <Countdown
-            class="text-xs text-shitzu-4"
-            to={memebid.end_timestamp_ms}
-          />
+          {#if memebid.end_timestamp_ms}
+            <Countdown
+              class="text-xs text-shitzu-4"
+              to={memebid.end_timestamp_ms}
+            />
+          {/if}
         </span>
         <span
           class="text-xs bg-amber text-black px-2 rounded self-start flex items-center"
         >
           <Near className="size-4 -ml-1" />
-          {new FixedNumber(memebid.total_staked, 24).format()}
+          {new FixedNumber(memebid.total_deposit, 24).format()}
         </span>
       </div>
     </div>
   </a>
-  {#if memebid.end_timestamp_ms < Date.now()}
+  {#if memebid && memebid.end_timestamp_ms && !memebid.is_finalized && memebid.end_timestamp_ms < Date.now()}
     <button
       class="w-full border-2 border-black font-mono bg-memecooking-5 px-2 rounded text-black hover:bg-memecooking-6 flex items-center gap-2"
       on:click={(e) => {
@@ -55,7 +61,7 @@
       }}
     >
       <div class="i-mdi:alert" />
-      Gud meme, Let's CTO
+      Revive
     </button>
   {/if}
 </div>

@@ -1,23 +1,20 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { client, type Meme } from "$lib/api/client";
   import SHITZU_KING from "$lib/assets/shitzu_saiya.webp";
   import Board from "$lib/components/memecooking/Board/Board.svelte";
-  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
-  import { MemeCooking } from "$lib/near";
+  // import { MemeCooking } from "$lib/near";
   import { memebids } from "$lib/store/memebids";
   import { search } from "$lib/util/search";
 
-  let cacheMemebids: MCMemeInfoWithReference[];
+  let cacheMemebids: Meme[];
 
-  let initialMemebidsPromise: Promise<void> = MemeCooking.getLatestMeme(
-    parseInt($page.params.page || "0"),
-  ).then((newMemebids) => {
-    if (newMemebids) {
-      $memebids = newMemebids.filter((m) => m !== null);
+  let initialMemebidsPromise: Promise<void> = client
+    .GET("/meme")
+    .then((res) => {
+      if (!res.data) return;
+      $memebids = res.data;
       cacheMemebids = $memebids;
-    }
-  });
-
+    });
   let query = "";
 
   $: {

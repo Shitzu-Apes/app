@@ -5,7 +5,7 @@
 
   export let meme: MCMemeInfoWithReference;
   let holders: Promise<[string, number][] | null> = MemeCooking.getMemeStakes(
-    meme.id,
+    meme.meme_id,
     0,
     1000,
   ).then((holders) => {
@@ -17,7 +17,7 @@
     holders.sort((a, b) => (BigInt(b[1]) > BigInt(a[1]) ? 1 : -1));
 
     return holders.map(([holder, amount]) => {
-      const total_staked = new FixedNumber(meme.total_staked, 24).toNumber();
+      const total_staked = new FixedNumber(meme.total_deposit, 24).toNumber();
       const percentage =
         total_staked == 0
           ? 0

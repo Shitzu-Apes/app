@@ -1,18 +1,6 @@
-export type MCMemeInfo = {
-  id: number;
-  owner: string;
-  end_timestamp_ms: number;
-  name: string;
-  symbol: string;
-  icon: string;
-  decimals: number;
-  total_supply: string;
-  reference: string;
-  reference_hash: string;
-  deposit_token_id: string;
-  total_staked: string;
-  total_withdrawal_fees: string;
-};
+import type { Meme } from "$lib/api/client";
+
+export type MCMemeInfo = Meme;
 
 export type MCReference = {
   description: string;
@@ -22,7 +10,7 @@ export type MCReference = {
   image: string;
 };
 
-export type MCMemeInfoWithReference = MCMemeInfo & MCReference;
+export type MCMemeInfoWithReference = Meme;
 
 export type MCAccountInfo = {
   account_id: string;

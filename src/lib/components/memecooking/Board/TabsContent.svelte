@@ -11,7 +11,7 @@
   export let initialMemebidsPromise: Promise<void>;
 
   MCsubscribe(Symbol("main_feed"), (newMemeInfo) => {
-    const idx = $memebids.findIndex((b) => b.id === newMemeInfo.id);
+    const idx = $memebids.findIndex((b) => b.meme_id === newMemeInfo.meme_id);
 
     if (idx === currentMemebidsIdx) {
       return;
@@ -30,7 +30,7 @@
       return;
     }
 
-    const id = $memebids[idx].id;
+    const id = $memebids[idx].meme_id;
 
     if (!id) return;
 

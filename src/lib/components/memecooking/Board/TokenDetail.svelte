@@ -13,12 +13,14 @@
   <div class="flex flex-col w-full h-full items-center">
     <h2 class="flex text-2xl my-4 justify-between items-center w-full px-2">
       <div>
-        <Countdown to={memebid.end_timestamp_ms} class="text-shitzu-4" />
+        {#if memebid.end_timestamp_ms}
+          <Countdown to={memebid.end_timestamp_ms} class="text-shitzu-4" />
+        {/if}
         <div
           class="flex items-center bg-amber text-white px-2 text-2xl rounded mb-4"
         >
           <Near className="size-6 -ml-1" />{new FixedNumber(
-            memebid.total_staked,
+            memebid.total_deposit,
             24,
           ).format()}
         </div>

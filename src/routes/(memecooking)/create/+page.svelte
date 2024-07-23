@@ -53,11 +53,11 @@
 
     name = savedMeme.name;
     ticker = savedMeme.symbol;
-    description = savedMeme.description;
-    image = savedMeme.image;
-    icon = savedMeme.icon;
+    description = savedMeme.description || "";
+    image = savedMeme.image || null;
+    icon = savedMeme.image || null;
     imageCID = image?.split("/").pop() || null;
-    ctoFrom = savedMeme.id;
+    ctoFrom = savedMeme.meme_id;
 
     localStorage.removeItem("meme_to_cto");
   }

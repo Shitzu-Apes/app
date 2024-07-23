@@ -25,7 +25,7 @@
       is_deposit: newMemeInfo.is_deposit,
       party: newMemeInfo.account_id,
       ticker: newMemeInfo.symbol,
-      icon: newMemeInfo.icon,
+      icon: newMemeInfo.image || "",
     };
 
     // Trigger the shake animation

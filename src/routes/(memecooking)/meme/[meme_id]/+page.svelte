@@ -2,6 +2,7 @@
   import { onDestroy } from "svelte";
 
   import { page } from "$app/stores";
+  import { client } from "$lib/api/client";
   import Near from "$lib/assets/Near.svelte";
   import TradeTabs from "$lib/components/memecooking/Board/Desktop/TradeTabs.svelte";
   import MCStake from "$lib/components/memecooking/Board/MCStake.svelte";
@@ -38,10 +39,21 @@
     clearInterval(interval);
   });
 
-  let meme = retryPromise(() => MemeCooking.getMemeWithReference(+meme_id), 20);
+  let meme = retryPromise(
+    () =>
+      client
+        .GET("/meme/{id}", { params: { path: { id: meme_id } } })
+        .then((res) => {
+          return res.data;
+        }),
+    20,
+  );
   let required_stake = MemeCooking.requiredStake(
     import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
   );
+  $: meme.then((res) => {
+    console.log("[meme]", res);
+  });
 </script>
 
 <div class="mt-10 w-full p-2">
@@ -53,14 +65,16 @@
   {:then [meme, required_stake]}
     {#if meme}
       <div class="w-full flex">
-        <Countdown
-          class="mx-auto text-4xl text-shitzu-4 mb-10"
-          to={meme.end_timestamp_ms}
-        />
+        {#if meme.end_timestamp_ms}
+          <Countdown
+            class="mx-auto text-4xl text-shitzu-4 mb-10"
+            to={meme.end_timestamp_ms}
+          />
+        {/if}
       </div>
       <div class="w-120 mx-auto mb-10">
         <ProgressBar
-          progress={new FixedNumber(meme.total_staked, 24)
+          progress={new FixedNumber(meme.total_deposit, 24)
             .div(new FixedNumber(required_stake, 24))
             .toNumber()}
         />
@@ -77,7 +91,7 @@
             <span class="text-green-400 flex items-center">
               Total staked:{" "}
               <Near className="size-4" />
-              {new FixedNumber(meme.total_staked, 24).format()}
+              {new FixedNumber(meme.total_deposit, 24).format()}
             </span>
             <span
               class="ml-auto flex items-center justify-end text-right gap-1"
@@ -111,16 +125,16 @@
 
           <!-- Link -->
           <SocialLink
-            twitterLink={meme.twitterLink}
-            telegramLink={meme.telegramLink}
-            website={meme.website}
+            twitterLink={meme.twitterLink || ""}
+            telegramLink={meme.telegramLink || ""}
+            website={meme.website || ""}
           />
 
           <!-- Token Detail -->
           <div class="w-full text-gray-4">
             <div class="flex gap-2">
               <img
-                src={meme.image}
+                src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
                 alt={meme.name}
                 class="w-30 object-contain"
               />

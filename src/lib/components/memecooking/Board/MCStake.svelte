@@ -105,7 +105,7 @@
         {
           amount: $input$.toU128(),
           extraNearDeposit: extraNearDeposit.toString(),
-          memeId: meme.id,
+          memeId: meme.meme_id,
         },
         {},
         needStorageDeposit,
@@ -114,7 +114,7 @@
     } else {
       MemeCooking.withdraw(wallet, {
         amount: $input$.toU128(),
-        memeId: meme.id,
+        memeId: meme.meme_id,
       });
     }
   }

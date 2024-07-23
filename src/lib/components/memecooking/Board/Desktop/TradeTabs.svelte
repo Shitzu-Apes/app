@@ -19,7 +19,7 @@
     .GET("/trades", {
       params: {
         query: {
-          meme_id: meme.id.toString(),
+          meme_id: meme.meme_id.toString(),
         },
       },
     })
@@ -31,7 +31,7 @@
         ...trade,
         tokenAmount:
           (new FixedNumber(trade.amount, 24).toNumber() /
-            new FixedNumber(meme.total_staked, 24).toNumber()) *
+            new FixedNumber(meme.total_deposit, 24).toNumber()) *
           500_000_000,
       }));
 
@@ -62,7 +62,7 @@
 </div>
 
 <section use:melt={$content(tabs[0].id)}>
-  <TokenComment id={meme.id} />
+  <TokenComment id={meme.meme_id} />
 </section>
 <section use:melt={$content(tabs[1].id)}>
   <TokenTrade symbol={meme.symbol} {trades} />

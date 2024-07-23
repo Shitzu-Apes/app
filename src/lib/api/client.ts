@@ -8,3 +8,6 @@ export const client = createClient<paths>({
 
 export type Trade =
   paths["/trades"]["get"]["responses"]["200"]["content"]["application/json"][number];
+
+export type Meme =
+  paths["/meme"]["get"]["responses"]["200"]["content"]["application/json"][number];

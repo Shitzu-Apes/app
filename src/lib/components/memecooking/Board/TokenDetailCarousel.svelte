@@ -131,7 +131,7 @@
 <div
   class="h-[168px] w-full flex flex-col justify-center items-center pb-2 px-2"
 >
-  {#if memebid.end_timestamp_ms < Date.now()}
+  {#if memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now()}
     <button
       class="border-2 border-black font-mono bg-memecooking-5 px-2 rounded text-black hover:bg-memecooking-6 flex items-center gap-2"
       on:click={(e) => {
