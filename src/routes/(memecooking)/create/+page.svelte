@@ -250,6 +250,7 @@
         var reader = new FileReader();
         reader.onload = async function (event) {
           if (event.target && typeof event.target.result === "string") {
+            imageFile = blob;
             image = event.target.result;
             icon = await imageFileToIcon(blob);
           }
