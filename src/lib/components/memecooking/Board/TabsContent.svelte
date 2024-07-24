@@ -60,7 +60,7 @@
   }
 </script>
 
-<button
+<!-- <button
   on:click={() => {
     // simulate MCSubscribe
     // pick one from the array (not the first)
@@ -72,7 +72,7 @@
   }}
 >
   bump
-</button>
+</button> -->
 
 {#if isMobile()}
   <TokenCarousel
