@@ -147,7 +147,6 @@ export abstract class MemeCooking {
   ) {
     const transactions: HereCall[] = [];
 
-    console.log("needStorageDeposit", needStorageDeposit);
     if (needStorageDeposit) {
       transactions.push({
         receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
@@ -322,7 +321,10 @@ export abstract class MemeCooking {
   }
 
   public static storageBalanceOf(account_id: string) {
-    return view<{ total: string; available: string } | null>(
+    return view<{
+      total: string;
+      available: string;
+    } | null>(
       import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
       "storage_balance_of",
       { account_id },
