@@ -4,7 +4,7 @@
   import Chef from "../Chef.svelte";
 
   import type { Trade } from "$lib/api/client";
-  import { MCsubscribe } from "$lib/store/memebids";
+  import { MCsubscribe, MCunsubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
   import { timesAgo } from "$lib/util/timesAgo";
 
@@ -15,6 +15,7 @@
 
   onMount(() => {
     MCsubscribe(MCsymbol, (newTrade) => {
+      console.log("[newTrade]", newTrade);
       if (newTrade.meme_id === meme_id) {
         return;
       }
@@ -23,8 +24,14 @@
         (new FixedNumber(newTrade.amount, 24).toNumber() /
           new FixedNumber(newTrade.total_deposit, 24).toNumber()) *
         500_000_000;
+
       trades = [{ ...newTrade, tokenAmount }, ...trades];
+      trades = [...trades];
     });
+
+    return () => {
+      MCunsubscribe(MCsymbol);
+    };
   });
 </script>
 

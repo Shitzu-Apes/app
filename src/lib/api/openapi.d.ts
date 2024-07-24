@@ -121,7 +121,9 @@ export interface paths {
         /** @description Returns a meme token launch by id */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    accountId?: string;
+                };
                 header?: never;
                 path: {
                     id: string;
@@ -137,34 +139,43 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            meme_id: number;
-                            owner: string;
-                            end_timestamp_ms: number | null;
-                            name: string;
-                            symbol: string;
-                            decimals: number;
-                            total_supply?: string | null;
-                            reference: string;
-                            reference_hash: string;
-                            deposit_token_id: string;
-                            last_change_ms: number;
-                            total_supply_num: number;
-                            created_blockheight: number;
-                            created_timestamp_ms: number;
-                            total_deposit: string;
-                            total_deposit_num: number;
-                            total_deposit_fees: string;
-                            total_deposit_fees_num: number;
-                            total_withdraw_fees: string;
-                            total_withdraw_fees_num: number;
-                            is_finalized?: boolean | null;
-                            token_id?: string | null;
-                            pool_id?: number | null;
-                            description?: string | null;
-                            twitterLink?: string | null;
-                            telegramLink?: string | null;
-                            website?: string | null;
-                            image?: string | null;
+                            meme: {
+                                meme_id: number;
+                                owner: string;
+                                end_timestamp_ms: number | null;
+                                name: string;
+                                symbol: string;
+                                decimals: number;
+                                total_supply?: string | null;
+                                reference: string;
+                                reference_hash: string;
+                                deposit_token_id: string;
+                                last_change_ms: number;
+                                total_supply_num: number;
+                                created_blockheight: number;
+                                created_timestamp_ms: number;
+                                total_deposit: string;
+                                total_deposit_num: number;
+                                total_deposit_fees: string;
+                                total_deposit_fees_num: number;
+                                total_withdraw_fees: string;
+                                total_withdraw_fees_num: number;
+                                is_finalized?: boolean | null;
+                                token_id?: string | null;
+                                pool_id?: number | null;
+                                description?: string | null;
+                                twitterLink?: string | null;
+                                telegramLink?: string | null;
+                                website?: string | null;
+                                image?: string | null;
+                            };
+                            account?: {
+                                id: string;
+                                meme_id: number;
+                                account_id: string;
+                                balance: string;
+                                balance_num: number;
+                            };
                         };
                     };
                 };

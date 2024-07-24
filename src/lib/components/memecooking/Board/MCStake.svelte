@@ -26,6 +26,15 @@
   let inputValue$ = writable<string | undefined>();
 
   export let meme: MCMemeInfoWithReference;
+  export let account:
+    | {
+        id: string;
+        meme_id: number;
+        account_id: string;
+        balance: string;
+        balance_num: number;
+      }
+    | undefined;
 
   const {
     elements: { root, list, trigger },
@@ -122,12 +131,18 @@
   $: refreshNearBalance($accountId$);
 
   function setMax() {
-    if (totalNearBalance) {
-      let input = totalNearBalance.sub(new FixedNumber(5n, 1));
+    if ($value === "stake") {
+      if (totalNearBalance) {
+        let input = totalNearBalance.sub(new FixedNumber(5n, 1));
 
-      input = input.toNumber() < 0 ? new FixedNumber(0n, 24) : input;
+        input = input.toNumber() < 0 ? new FixedNumber(0n, 24) : input;
 
-      $inputValue$ = input.toString();
+        $inputValue$ = input.toString();
+      }
+    } else {
+      if (account) {
+        $inputValue$ = new FixedNumber(account.balance, 24).toString();
+      }
     }
   }
 
@@ -143,21 +158,21 @@
         value: 10_000_000_000_000_000_000_000_000n.toString(),
         label: "10",
       },
-      unstake: { value: "0.25", label: "25%" },
+      unstake: { value: "2500", label: "25%" },
     },
     {
       stake: {
         value: 50_000_000_000_000_000_000_000_000n.toString(),
         label: "50",
       },
-      unstake: { value: "0.5", label: "50%" },
+      unstake: { value: "5000", label: "50%" },
     },
     {
       stake: {
         value: 100_000_000_000_000_000_000_000_000n.toString(),
         label: "100",
       },
-      unstake: { value: "1", label: "100%" },
+      unstake: { value: "10000", label: "100%" },
     },
   ];
 </script>
@@ -184,18 +199,21 @@
   <div class="px-3">
     <div class="relative my-6">
       <div class="absolute inset-y-0 left-0 flex items-center pl-2">
-        {#if $value === "stake"}
-          <Near className="w-6 h-6 bg-white text-black rounded-full" />
-        {:else}
+        <!-- {#if $value === "stake"} -->
+        <Near className="w-6 h-6 bg-white text-black rounded-full" />
+        <!-- {:else}
           <img
             src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
             alt={meme.name}
             class="w-6 h-6 rounded-full"
           />
-        {/if}
+        {/if} -->
       </div>
       <TokenInput
-        class="bg-transparent rounded-xl w-full py-6 text-center text-2xl px-14 appearance-none outline-none text-shitzu-4"
+        class="bg-transparent rounded-xl w-full py-6 text-center text-2xl px-14 appearance-none outline-none {$value ===
+        'stake'
+          ? 'text-shitzu-4'
+          : 'text-rose-5'}"
         decimals={24}
         bind:this={input}
         bind:value={$inputValue$}
@@ -205,13 +223,24 @@
       >
         <div class="flex-grow basis-0" />
         <button
-          class="text-sm cursor-pointer bg-gray-3 px-2 rounded-full border border-gray-6 text-shitzu-6"
+          class="text-sm cursor-pointer bg-gray-3 px-2 rounded-full border border-gray-6 {$value ===
+          'stake'
+            ? 'text-shitzu-7'
+            : 'text-rose-5'}"
           on:click={setMax}
         >
-          <div class="text-shitzu-7">Max</div>
+          <div class="">Max</div>
         </button>
-        <div class="text-shitzu-4 flex-grow basis-0">
-          {#if totalNearBalance}
+        <div
+          class="{$value === 'stake'
+            ? 'text-shitzu-4'
+            : 'text-rose-4'} flex-grow basis-0"
+        >
+          {#if $value === "unstake"}
+            {#if account}
+              {new FixedNumber(account.balance, 24).format()}
+            {/if}
+          {:else if totalNearBalance}
             {totalNearBalance.format()}
           {/if}
         </div>
@@ -225,12 +254,22 @@
             : 'bg-rose-5'} px-1 rounded"
         >
           <button
-            class="hover:text-shitzu-4 flex items-center gap-1"
+            class="{$value === 'stake'
+              ? 'hover:text-shitzu-4'
+              : 'hover:text-rose-2'} flex items-center gap-1"
             on:click={() => {
-              $inputValue$ = new FixedNumber(
-                defaultValue[$value].value,
-                24,
-              ).toString();
+              if ($value === "stake") {
+                $inputValue$ = new FixedNumber(
+                  defaultValue[$value].value,
+                  24,
+                ).toString();
+              } else {
+                const bps = BigInt(defaultValue[$value].value);
+                $inputValue$ = new FixedNumber(
+                  (BigInt(account?.balance_num ?? 0) * bps) / 10000n,
+                  24,
+                ).toString();
+              }
             }}
           >
             {#if defaultValue[$value].value !== "0" && $value === "stake"}

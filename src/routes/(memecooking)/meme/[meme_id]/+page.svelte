@@ -12,11 +12,13 @@
   import Chef from "$lib/components/memecooking/Chef.svelte";
   import Countdown from "$lib/components/memecooking/Countdown.svelte";
   import ProgressBar from "$lib/components/memecooking/ProgressBar.svelte";
-  import { MemeCooking } from "$lib/near";
+  import { MemeCooking, wallet } from "$lib/near";
   import { FixedNumber } from "$lib/util";
 
   // page data
   let { meme_id } = $page.params as { meme_id: string };
+
+  const { accountId$ } = wallet;
 
   let interval: number;
   function retryPromise<T>(
@@ -42,8 +44,16 @@
   let meme = retryPromise(
     () =>
       client
-        .GET("/meme/{id}", { params: { path: { id: meme_id } } })
+        .GET("/meme/{id}", {
+          params: {
+            query: {
+              accountId: $accountId$,
+            },
+            path: { id: meme_id },
+          },
+        })
         .then((res) => {
+          console.log("[meme]", res.data);
           return res.data;
         }),
     20,
@@ -59,19 +69,19 @@
   </div>
   {#await Promise.all([meme, required_stake])}
     <div class="w-full text-center text-2xl">Loading...</div>
-  {:then [meme, required_stake]}
-    {#if meme}
+  {:then [detail, required_stake]}
+    {#if detail}
       <div class="w-full flex">
-        {#if meme.end_timestamp_ms}
+        {#if detail.meme.end_timestamp_ms}
           <Countdown
             class="mx-auto text-4xl text-shitzu-4 mb-10"
-            to={meme.end_timestamp_ms}
+            to={detail.meme.end_timestamp_ms}
           />
         {/if}
       </div>
       <div class="w-120 mx-auto mb-10">
         <ProgressBar
-          progress={new FixedNumber(meme.total_deposit, 24)
+          progress={new FixedNumber(detail.meme.total_deposit, 24)
             .div(new FixedNumber(required_stake, 24))
             .toNumber()}
         />
@@ -80,16 +90,16 @@
         <div class="flex-grow">
           <div class="w-full flex items-center gap-3 my-2 text-sm">
             <span>
-              {meme.name}
+              {detail.meme.name}
             </span>
             <span class="uppercase">
-              {meme.symbol}
+              {detail.meme.symbol}
             </span>
             <span class="text-green-400 flex items-center">
               Market cap:{" "}
               <Near className="size-4" />
               {new FixedNumber(
-                BigInt(meme.total_deposit) * BigInt(2),
+                BigInt(detail.meme.total_deposit) * BigInt(2),
                 24,
               ).format()}
             </span>
@@ -98,56 +108,56 @@
             >
               created by
               <a
-                href={`https://pikespeak.ai/wallet-explorer/${meme.owner}`}
+                href={`https://pikespeak.ai/wallet-explorer/${detail.meme.owner}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 class="text-shitzu-4"
               >
                 <Chef
-                  account={meme.owner}
+                  account={detail.meme.owner}
                   class="bg-shitzu-3 text-black px-1 rounded"
                 />
               </a>
             </span>
           </div>
           <div class="w-full aspect-ratio-21/9">
-            <TokenChart memebid={meme} />
+            <TokenChart memebid={detail.meme} />
           </div>
           <div class="w-full h-screen">
-            <TradeTabs {meme} />
+            <TradeTabs meme={detail.meme} />
           </div>
         </div>
 
         <div class="w-90 p-2 flex flex-col gap-5">
           <div class="w-full min-h-74 border-2 border-shitzu-4 rounded-xl p-2">
-            <MCStake {meme} />
+            <MCStake meme={detail.meme} account={detail.account} />
           </div>
 
           <!-- Link -->
           <SocialLink
-            twitterLink={meme.twitterLink || ""}
-            telegramLink={meme.telegramLink || ""}
-            website={meme.website || ""}
+            twitterLink={detail.meme.twitterLink || ""}
+            telegramLink={detail.meme.telegramLink || ""}
+            website={detail.meme.website || ""}
           />
 
           <!-- Token Detail -->
           <div class="w-full text-gray-4">
             <div class="flex gap-2">
               <img
-                src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
-                alt={meme.name}
+                src="{import.meta.env.VITE_IPFS_GATEWAY}/{detail.meme.image}"
+                alt={detail.meme.name}
                 class="w-30 object-contain"
               />
               <div>
-                <h2>{meme.name} <b>{meme.symbol}</b></h2>
-                <div class="text-sm">{meme.description}</div>
+                <h2>{detail.meme.name} <b>{detail.meme.symbol}</b></h2>
+                <div class="text-sm">{detail.meme.description}</div>
               </div>
             </div>
           </div>
 
           <!-- Holder -->
           <div class="w-full">
-            <TokenHolder {meme} />
+            <TokenHolder meme={detail.meme} />
           </div>
           <!-- End Right Nav -->
         </div>
