@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { fly } from "svelte/transition";
 
   import Chef from "../Chef.svelte";
 
@@ -54,8 +55,7 @@
 
   onMount(() => {
     MCsubscribe(MCsymbol, (newTrade) => {
-      console.log("[newTrade]", newTrade);
-      if (newTrade.meme_id === meme_id) {
+      if (newTrade.meme_id !== meme_id) {
         return;
       }
 
@@ -64,8 +64,9 @@
           new FixedNumber(newTrade.total_deposit, 24).toNumber()) *
         500_000_000;
 
-      trades = [{ ...newTrade, tokenAmount }, ...trades];
-      trades = [...trades];
+      const newTradeWithTokenAmount = { ...newTrade, tokenAmount };
+
+      trades = [newTradeWithTokenAmount, ...trades];
     });
 
     return () => {
@@ -74,9 +75,10 @@
   });
 </script>
 
-{#each trades as trade}
+{#each trades as trade (trade.receipt_id)}
   <li
     class="flex [&>*]:mx-[0.1rem] justify-between items-center p-2 bg-gray-600 rounded-lg text-white"
+    in:fly={{ x: "-100%" }}
   >
     <span
       class="flex-[0.5_1_5rem] text-start flex items-center gap-1 overflow-hidden text-ellipsis"
