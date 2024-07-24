@@ -4,6 +4,7 @@
   import { page } from "$app/stores";
   import { client } from "$lib/api/client";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
+  import Tooltip from "$lib/components/Tooltip.svelte";
   import ClaimList from "$lib/components/memecooking/Profile/ClaimList.svelte";
   import CoinCreated from "$lib/components/memecooking/Profile/CoinCreated.svelte";
   import DepositList from "$lib/components/memecooking/Profile/DepositList.svelte";
@@ -23,9 +24,21 @@
     });
 
   const tabs = [
-    { id: "not-finalized", label: "virtual coins held" },
-    { id: "finalized", label: "coins held" },
-    { id: "created", label: "coin created" },
+    {
+      id: "not-finalized",
+      label: "virtual coins held",
+      info: "All ongoing acutions and unsucsesful acutions",
+    },
+    {
+      id: "finalized",
+      label: "coins held",
+      info: "All successful acutions",
+    },
+    {
+      id: "created",
+      label: "coin created",
+      info: "All coins created by this account",
+    },
   ];
 
   const {
@@ -65,7 +78,9 @@
             ? 'text-shitzu-4 bg-transparent'
             : 'text-dark bg-shitzu-4'} font-400 px-2 rounded"
         >
-          {tab.label}
+          <Tooltip info={tab.info}>
+            {tab.label}
+          </Tooltip>
         </button>
       {/each}
     </div>
