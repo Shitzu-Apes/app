@@ -180,21 +180,21 @@
         value: 10_000_000_000_000_000_000_000_000n.toString(),
         label: "10",
       },
-      unstake: { value: "2500", label: "25%" },
+      unstake: { value: "25", label: "25%" },
     },
     {
       stake: {
         value: 50_000_000_000_000_000_000_000_000n.toString(),
         label: "50",
       },
-      unstake: { value: "5000", label: "50%" },
+      unstake: { value: "50", label: "50%" },
     },
     {
       stake: {
         value: 100_000_000_000_000_000_000_000_000n.toString(),
         label: "100",
       },
-      unstake: { value: "10000", label: "100%" },
+      unstake: { value: "100", label: "100%" },
     },
   ];
 </script>
@@ -286,11 +286,10 @@
                   24,
                 ).toString();
               } else {
-                const bps = BigInt(defaultValue[$value].value);
-                $inputValue$ = new FixedNumber(
-                  (BigInt(account?.balance_num ?? 0) * bps) / 10000n,
-                  24,
-                ).toString();
+                const bps = new FixedNumber(defaultValue[$value].value, 2);
+                $inputValue$ = new FixedNumber(account?.balance ?? 0n, 24)
+                  .mul(bps)
+                  .toString();
               }
             }}
           >
