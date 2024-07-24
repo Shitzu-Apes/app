@@ -27,26 +27,35 @@
             [twitter]
           </a>
         </li>
-        <div class="flex gap-2">
-          <li>
-            <a
-              href="https://t.me/+wIFBaPQJmAcwYTc0"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              [telegram]
-            </a>
-          </li>
-          <li>
-            <button
-              on:click={() => {
-                openBottomSheet(HowItWorkSheet);
-              }}
-            >
-              [how it works]</button
-            >
-          </li>
-        </div>
+        <li>
+          <a
+            href="https://app.rocketx.exchange/swap/SOLANA.solana/NEAR.near/0.0061?from=Solana&to=NEAR%20Protocol&mode=w"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            [bridge from sol]
+          </a>
+        </li>
+      </div>
+      <div class="flex gap-2">
+        <li>
+          <a
+            href="https://t.me/+wIFBaPQJmAcwYTc0"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            [telegram]
+          </a>
+        </li>
+        <li>
+          <button
+            on:click={() => {
+              openBottomSheet(HowItWorkSheet);
+            }}
+          >
+            [how it works]</button
+          >
+        </li>
       </div>
     </ul>
   </div>
