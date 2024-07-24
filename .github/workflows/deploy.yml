@@ -44,7 +44,7 @@ jobs:
         run: "./copy_charting_library_files.sh"
 
       - name: Add commit hash to .env
-        run: echo "\nVITE_COMMIT_HASH=${{ github.sha }}" >> .env
+        run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> .env
 
       - name: Build step
         run: "yarn build"
