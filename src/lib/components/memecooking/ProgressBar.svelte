@@ -12,6 +12,18 @@
 >
   <div
     class="h-3 bg-current rounded-lg absolute top-0.5 left-0.5 transition-all duration-300 animate-ease-linear"
-    style={`width: ${progress * 100}%`}
+    style={`width: ${Math.min(progress, 1.2) * 100}%`}
   ></div>
+  {#if progress > 1}
+    <img
+      src="/animations/explosion.gif"
+      alt="Explosion"
+      class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-full w-30 aspect-[150/97] object-cover"
+    />
+    <img
+      src="/animations/explosion.gif"
+      alt="Explosion"
+      class="absolute top-0 right-0 transform translate-x-1/2 w-30 aspect-[150/97] object-cover rotate-180"
+    />
+  {/if}
 </div>
