@@ -9,11 +9,14 @@
     <ul class="flex flex-col gap-2 justify-center items-center">
       {#each coins as claim (claim.meme_id)}
         <li>
-          <div class="flex gap-4 items-center">
+          <a
+            href={`/meme/${claim.meme_id}`}
+            class="flex gap-4 items-start border border-transparent hover:border-white p-2 rounded"
+          >
             <img
               src="{import.meta.env.VITE_IPFS_GATEWAY}/{claim.image}"
               alt="{claim.name} icon"
-              class="rounded-lg size-24"
+              class="rounded-lg w-24"
             />
             <div class="flex flex-col">
               <div class="">
@@ -24,7 +27,7 @@
               </div>
               <div class="">{claim.description}</div>
             </div>
-          </div>
+          </a>
         </li>
       {/each}
     </ul>

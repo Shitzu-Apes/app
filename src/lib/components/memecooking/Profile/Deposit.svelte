@@ -17,11 +17,11 @@
   }
 </script>
 
-<div class="flex gap-4 items-center">
+<div class="flex gap-4 items-start">
   <img
     src="{import.meta.env.VITE_IPFS_GATEWAY}/{deposit.image}"
     alt="{deposit.name} icon"
-    class="rounded-lg size-24"
+    class="rounded-lg w-24"
   />
   <div class="flex flex-col">
     <div class="">
