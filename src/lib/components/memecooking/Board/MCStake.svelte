@@ -187,7 +187,11 @@
         {#if $value === "stake"}
           <Near className="w-6 h-6 bg-white text-black rounded-full" />
         {:else}
-          <img src={meme.image} alt={meme.name} class="w-6 h-6 rounded-full" />
+          <img
+            src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
+            alt={meme.name}
+            class="w-6 h-6 rounded-full"
+          />
         {/if}
       </div>
       <TokenInput
