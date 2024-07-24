@@ -61,6 +61,17 @@
 
       width,
       height,
+      custom_formatters: {
+        priceFormatterFactory: () => ({
+          format: (price: number) => {
+            if (!price) return "0";
+            if (price < 0.0001) {
+              return price.toFixed(12);
+            }
+            return price.toFixed(4);
+          },
+        }),
+      },
     };
 
     new widget(widgetOptions);
