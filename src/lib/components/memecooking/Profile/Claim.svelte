@@ -1,18 +1,14 @@
 <script lang="ts">
-  import type { MCAccountInfo } from "$lib/models/memecooking";
-  import { Ft, MemeCooking, wallet } from "$lib/near";
+  import type { paths } from "$lib/api/openapi";
+  import { MemeCooking, wallet } from "$lib/near";
   import { FixedNumber } from "$lib/util";
 
-  export let claim: MCAccountInfo["claims"][number];
-
-  let tokenInfo = Ft.metadata(claim[0]);
+  export let claim: paths["/profile/{accountId}"]["get"]["responses"]["200"]["content"]["application/json"]["coins_held"][number];
 
   async function claiming() {
-    const token = await tokenInfo;
-    if (!token) return;
     try {
       await MemeCooking.claim(wallet, {
-        token_ids: [claim[0]],
+        token_ids: [claim.meme_id.toString()],
       });
     } catch (e) {
       console.error(e);
@@ -20,34 +16,20 @@
   }
 </script>
 
-{#await tokenInfo}
-  <div class="flex gap-4 items-center">
-    <div class="loader size-24" />
-    <div class="flex flex-col gap-2">
-      <div class="loader w-40 h-4" />
-      <div class="loader w-50 h-4" />
-      <div class="loader w-20 h-2" />
-      <div class="loader w-50 h-5" />
+<div class="flex gap-4 items-center">
+  <img
+    src="{import.meta.env.VITE_IPFS_GATEWAY}/{claim.image}"
+    alt="{claim.name} icon"
+    class="rounded-lg size-24"
+  />
+  <div class="flex flex-col">
+    <div class="">
+      <h3 class="text-lg font-bold uppercase">{claim.symbol}</h3>
     </div>
+    <div class="">
+      <h4 class="text-md font-normal">{claim.name}</h4>
+    </div>
+    <div class="">{new FixedNumber(claim.balance, 24).format()}</div>
+    <button class="" on:click={claiming}>[claim]</button>
   </div>
-{:then memeInfo}
-  {#if memeInfo}
-    <div class="flex gap-4 items-center">
-      <img
-        src={memeInfo?.icon}
-        alt="{memeInfo.name} icon"
-        class="rounded-lg size-24"
-      />
-      <div class="flex flex-col">
-        <div class="">
-          <h3 class="text-lg font-bold uppercase">{memeInfo.symbol}</h3>
-        </div>
-        <div class="">
-          <h4 class="text-md font-normal">{memeInfo.name}</h4>
-        </div>
-        <div class="">{new FixedNumber(claim[1], 24).format()}</div>
-        <button class="" on:click={claiming}>[claim]</button>
-      </div>
-    </div>
-  {/if}
-{/await}
+</div>

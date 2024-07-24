@@ -2,18 +2,25 @@
   import { createTabs, melt } from "@melt-ui/svelte";
 
   import { page } from "$app/stores";
+  import { client } from "$lib/api/client";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import ClaimList from "$lib/components/memecooking/Profile/ClaimList.svelte";
+  import CoinCreated from "$lib/components/memecooking/Profile/CoinCreated.svelte";
   import DepositList from "$lib/components/memecooking/Profile/DepositList.svelte";
-  import { MemeCooking } from "$lib/near";
+  // import { MemeCooking } from "$lib/near";
 
   const { accountId } = $page.params;
 
-  $: accountInfo = MemeCooking.getAccount(accountId);
-
-  $: accountInfo.then((info) => {
-    console.log("[accountInfo]", info);
-  });
+  $: profileInfo = client
+    .GET("/profile/{accountId}", {
+      params: {
+        path: { accountId },
+      },
+    })
+    .then((res) => {
+      console.log("[profileInfo]", res);
+      return res.data;
+    });
 
   const tabs = [
     { id: "not-finalized", label: "virtual coins held" },
@@ -64,19 +71,19 @@
     </div>
   </div>
 
-  {#await accountInfo}
+  {#await profileInfo}
     <div class="i-svg-spinners:pulse-3 size-6" />
   {:then info}
-    {#if info !== null}
+    {#if info}
       <section use:melt={$content(tabs[0].id)}>
-        <DepositList deposits={info.deposits} />
+        <DepositList deposits={info.virtual_coins} />
       </section>
       <section use:melt={$content(tabs[1].id)}>
-        <ClaimList claims={info.claims} />
+        <ClaimList claims={info.coins_held} />
       </section>
-      <section use:melt={$content(tabs[2].id)}>tabs 2</section>
-    {:else}
-      <div>No Account Info</div>
+      <section use:melt={$content(tabs[2].id)}>
+        <CoinCreated coins={info.coin_created} />
+      </section>
     {/if}
   {/await}
 </section>
