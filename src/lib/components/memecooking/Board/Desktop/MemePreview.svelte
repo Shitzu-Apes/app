@@ -50,7 +50,7 @@
       </div>
     </div>
   </a>
-  {#if memebid && memebid.end_timestamp_ms && !memebid.is_finalized && memebid.end_timestamp_ms < Date.now()}
+  {#if memebid && memebid.end_timestamp_ms && !memebid.pool_id && memebid.end_timestamp_ms < Date.now()}
     <button
       class="w-full border-2 border-black font-mono bg-memecooking-5 px-2 rounded text-black hover:bg-memecooking-6 flex items-center gap-2"
       on:click={(e) => {
