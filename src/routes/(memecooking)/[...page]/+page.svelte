@@ -6,12 +6,13 @@
   import { memebids } from "$lib/store/memebids";
   import { search } from "$lib/util/search";
 
-  let cacheMemebids: Meme[];
+  let cacheMemebids: Meme[] = [];
 
   let initialMemebidsPromise: Promise<void> = client
     .GET("/meme")
     .then((res) => {
       if (!res.data) return;
+      console.log("[+page] memebids", res.data);
       $memebids = res.data;
       cacheMemebids = $memebids;
     });
@@ -19,7 +20,7 @@
 
   $: {
     if (query.length > 0) {
-      // page.set(`/memecooking/${query}`);
+      cacheMemebids = $memebids;
       $memebids = search($memebids, query);
     } else {
       $memebids = cacheMemebids;

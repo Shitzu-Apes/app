@@ -20,14 +20,18 @@
 
   let liveOnly = false;
 
-  $: displayedMemebids = filterAndSortMeme(
-    memebids,
-    {
-      sort: selectedSort.value,
-      order: selectedDirection.value,
-    },
-    liveOnly,
-  );
+  console.log("[Terminal] memebids", memebids);
+
+  $: displayedMemebids = [
+    ...filterAndSortMeme(
+      memebids,
+      {
+        sort: selectedSort.value,
+        order: selectedDirection.value,
+      },
+      liveOnly,
+    ),
+  ];
 </script>
 
 <div class="flex gap-3 mt-6 px-4">

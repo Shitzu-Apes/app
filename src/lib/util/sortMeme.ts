@@ -19,34 +19,36 @@ export function filterAndSortMeme<T extends MCMemeInfo>(
   },
   liveOnly: boolean,
 ): T[] {
+  console.log("[filterAndSortMeme] memes", memes);
   if (liveOnly) {
-    memes = memes.filter((meme) => meme.end_timestamp_ms > Date.now());
+    memes = memes.filter(
+      (meme) => meme.end_timestamp_ms && meme.end_timestamp_ms > Date.now(),
+    );
   }
 
   switch (sort.sort) {
     case "bump order":
-      return memes;
-    // return memes.sort((a, b) => {
-    //   if (sort.order === "asc") {
-    //     return a - b;
-    //   } else {
-    //     return b - a;
-    //   }
-    // });
+      return memes.sort((a, b) => {
+        if (sort.order === "asc") {
+          return a.last_change_ms - b.last_change_ms;
+        } else {
+          return b.last_change_ms - a.last_change_ms;
+        }
+      });
     case "market cap":
       return memes.sort((a, b) => {
         if (sort.order === "asc") {
-          return BigInt(a.total_staked) > BigInt(b.total_staked) ? 1 : -1;
+          return BigInt(a.total_deposit) > BigInt(b.total_deposit) ? 1 : -1;
         } else {
-          return BigInt(b.total_staked) > BigInt(a.total_staked) ? 1 : -1;
+          return BigInt(b.total_deposit) > BigInt(a.total_deposit) ? 1 : -1;
         }
       });
     case "creation time":
       return memes.sort((a, b) => {
         if (sort.order === "asc") {
-          return a.id - b.id;
+          return a.meme_id - b.meme_id;
         } else {
-          return b.id - a.id;
+          return b.meme_id - a.meme_id;
         }
       });
   }
