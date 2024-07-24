@@ -2,6 +2,8 @@
   import { createTabs, melt } from "@melt-ui/svelte";
   import { writable } from "svelte/store";
 
+  import { addToast } from "../Toast.svelte";
+
   import Near from "$lib/assets/Near.svelte";
   import TokenInput from "$lib/components/TokenInput.svelte";
   import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
@@ -59,7 +61,27 @@
   }
 
   async function action() {
-    if (!$input$ || !$accountId$) return;
+    if (!$accountId$) {
+      console.error("No input or account id");
+      addToast({
+        data: {
+          title: "Error",
+          description: "Please Connect Wallet",
+          color: "red",
+        },
+      });
+      return;
+    }
+    if (!$input$) {
+      addToast({
+        data: {
+          title: "Error",
+          description: "Please enter a valid amount",
+          color: "red",
+        },
+      });
+      return;
+    }
     if ($value === "stake") {
       // Check storage balance before staking
       const [

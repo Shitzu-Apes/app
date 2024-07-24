@@ -9,6 +9,7 @@
   import SelectBox from "$lib/components/SelectBox.svelte";
   import CreateCoinSheet from "$lib/components/memecooking/BottomSheet/CreateCoinSheet.svelte";
   import InputField from "$lib/components/memecooking/InputField.svelte";
+  import { addToast } from "$lib/components/memecooking/Toast.svelte";
   import {
     close,
     openBottomSheet,
@@ -101,6 +102,16 @@
   // let isWebsiteValid = true;
 
   async function createCoin() {
+    if (!$accountId$) {
+      addToast({
+        data: {
+          title: "Error",
+          description: "Please Connect Wallet",
+          color: "red",
+        },
+      });
+      return;
+    }
     // Add your logic to handle form submission here
 
     if (!name || !ticker || !description || !imageReady || !icon) {

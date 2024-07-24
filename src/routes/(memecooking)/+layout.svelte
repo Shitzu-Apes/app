@@ -6,6 +6,7 @@
   import { cubicIn, cubicOut } from "svelte/easing";
   import { blur } from "svelte/transition";
 
+  import Toast from "$lib/components/memecooking/Toast.svelte";
   import { BottomSheet } from "$lib/layout/BottomSheet";
   import MCHeader from "$lib/layout/memecooking/MCHeader.svelte";
   import { initializeWebsocket, ws } from "$lib/store/memebids";
@@ -32,4 +33,5 @@
       <slot />
     </div>
   </div>
+  <Toast />
 {/key}
