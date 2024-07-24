@@ -23,6 +23,19 @@
     <div
       class="flex flex-col items-start justify-start h-full gap-1 flex-1 relative"
     >
+      {#if memebid.pool_id}
+        <div
+          class="text-xs self-end px-1 tracking-tight bg-shitzu-3 rounded-full text-black"
+        >
+          live on ref
+        </div>
+      {:else if memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now()}
+        <div
+          class="text-xs self-end px-1 tracking-tight bg-rose-4 rounded-full text-black"
+        >
+          didn&apos;t make it
+        </div>
+      {/if}
       <div class="text-xs flex items-center gap-1">
         created by <Chef account={memebid.owner} />
       </div>
