@@ -46,8 +46,9 @@ const createDataFeed: (ws: WebSocket) => IBasicDataFeed = (ws) => ({
     console.log("[resolveSymbol]: Method call", symbolName);
     try {
       const symbol = await fetch(
-        `${import.meta.env.VITE_CLOUDFLARE_WORKER_URL}/tradingview/get_token/${symbolName}`,
+        `${import.meta.env.VITE_MEME_COOKING_API}/tradingview/get_token/${symbolName}`,
       ).then((res) => res.json());
+      console.log("[resolveSymbol]: Symbol", symbol);
 
       const symbolInfo: LibrarySymbolInfo = {
         ticker: symbol.symbol,
@@ -97,7 +98,7 @@ const createDataFeed: (ws: WebSocket) => IBasicDataFeed = (ws) => ({
 
     try {
       const data = await fetch(
-        `${import.meta.env.VITE_CLOUDFLARE_WORKER_URL}/tradingview/get/${symbolInfo.ticker}/${from}/${to}/${resolution}`,
+        `${import.meta.env.VITE_CLOUDFLARE_WORKER_URL}/tradingview/get/${symbolInfo.ticker}/${from}/${to}/${resolution}/${periodParams.countBack}`,
       )
         .then((res) => res.json())
         .catch((err) => {
