@@ -35,7 +35,7 @@
           500_000_000,
       }));
 
-      return trades;
+      return trades.sort((a, b) => b.timestamp_ms - a.timestamp_ms);
     });
 
   const {
