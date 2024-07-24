@@ -86,12 +86,12 @@
       // Check storage balance before staking
       const [
         storageBalance,
-        { min: minStorageBalance },
+        { account: accountCost, perMemeDeposit },
         wrapNearRegistered,
         wrapNearMinDeposit,
       ] = await Promise.all([
         MemeCooking.storageBalanceOf($accountId$),
-        MemeCooking.storageBalanceBounds(),
+        MemeCooking.storageCosts(),
         Ft.isUserRegistered(
           import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
           $accountId$,
@@ -100,17 +100,16 @@
       ]);
 
       let needStorageDeposit = null;
-      if (
-        // no storage balance or
-        // storage balance is less than min storage balance
-
-        storageBalance === null ||
-        (storageBalance !== null &&
-          new FixedNumber(storageBalance).toBigInt() <
-            new FixedNumber(minStorageBalance).toBigInt())
-      ) {
+      if (storageBalance == null) {
         needStorageDeposit = {
-          depositAmount: minStorageBalance,
+          depositAmount: (
+            BigInt(accountCost) +
+            5n * BigInt(perMemeDeposit)
+          ).toString(),
+        };
+      } else if (BigInt(storageBalance.available) < BigInt(perMemeDeposit)) {
+        needStorageDeposit = {
+          depositAmount: (5n * BigInt(perMemeDeposit)).toString(),
         };
       }
 
