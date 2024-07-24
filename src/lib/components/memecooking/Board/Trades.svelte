@@ -13,6 +13,27 @@
 
   const MCsymbol = Symbol();
 
+  const txIdCache: Record<string, string | null> = {};
+  async function fetchTxIdViaReceiptId(
+    receiptId: string,
+  ): Promise<string | null | undefined> {
+    if (txIdCache[receiptId] !== undefined) {
+      return txIdCache[receiptId];
+    }
+    try {
+      const res = await fetch(
+        `https://api3-testnet.nearblocks.io/v1/search/?keyword=${receiptId}`,
+      );
+      const json = await res.json();
+      const txId = json.receipts[0].originated_from_transaction_hash;
+      txIdCache[receiptId] = txId;
+      return txId;
+    } catch (err) {
+      console.error(err);
+      txIdCache[receiptId] = null;
+    }
+  }
+
   onMount(() => {
     MCsubscribe(MCsymbol, (newTrade) => {
       console.log("[newTrade]", newTrade);
@@ -65,12 +86,17 @@
     <span class="w-1/5 text-start"
       >{timesAgo(new Date(trade.timestamp_ms))} ago</span
     >
-    <a
-      href={`https://nearblocks.io/tx/${trade.meme_id}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="w-1/5 text-start hover:text-shitzu-4 hover:underline overflow-hidden text-ellipsis"
-      >{trade.receipt_id.slice(0, 4)}...{trade.receipt_id.slice(-4)}</a
-    >
+    {#await fetchTxIdViaReceiptId(trade.receipt_id) then txId}
+      {#if txId != null}
+        <a
+          href="{import.meta.env.VITE_EXPLORER_URL}/transactions/{txId}"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-1/5 text-start hover:text-shitzu-4 hover:underline overflow-hidden text-ellipsis"
+        >
+          {txId.slice(0, 4)}...{txId.slice(-4)}
+        </a>
+      {/if}
+    {/await}
   </li>
 {/each}
