@@ -18,14 +18,13 @@
   // wait for actual type when integrate
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   MCsubscribe(Symbol("notification"), (newMemeInfo) => {
-    console.log("[Notification]: New meme info", newMemeInfo);
     notification = {
       id: newMemeInfo.receipt_id,
       amount: newMemeInfo.amount,
       is_deposit: newMemeInfo.is_deposit,
       party: newMemeInfo.account_id,
       ticker: newMemeInfo.symbol,
-      icon: newMemeInfo.image || "",
+      icon: `${import.meta.env.VITE_IPFS_GATEWAY}/${newMemeInfo.image}`,
     };
 
     // Trigger the shake animation
