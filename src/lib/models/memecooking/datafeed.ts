@@ -162,14 +162,26 @@ const createDataFeed: (ws: WebSocket) => IBasicDataFeed = (ws) => ({
         open: number;
         close: number;
       };
-      const price = parseFloat(data.amount);
+
+      if (!data.total_supply || !data.amount) {
+        return;
+      }
+
+      const total_supply = parseFloat(
+        `${data.total_supply.slice(0, -24)}.${data.total_supply.slice(-24)}`,
+      );
+      const total_deposit = parseFloat(
+        `${data.total_deposit.slice(0, -24)}.${data.total_deposit.slice(-24)}`,
+      );
+      const price = total_deposit / total_supply;
+
       if (data.timestamp_ms >= nextBarTime) {
         console.log("[subscribeBars]: Create new bar");
         bar = {
           time: nextBarTime,
           low: price,
           high: price,
-          open: price,
+          open: lastBar.close,
           close: price,
         };
       } else {
