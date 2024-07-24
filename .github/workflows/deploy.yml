@@ -47,7 +47,9 @@ jobs:
         id: commit_hash
         uses: actions/github-script@v6
         with:
-          script: return github.context.sha
+          script: |
+            const core = require('@actions/core');
+            core.setOutput('result', github.context.sha);
 
       - name: Add commit hash to .env
         run: echo "VITE_COMMIT_HASH=${{ steps.commit_hash.outputs.result }}" >> .env
