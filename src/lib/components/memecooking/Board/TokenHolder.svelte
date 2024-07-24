@@ -3,6 +3,10 @@
   import { MemeCooking } from "$lib/near";
   import { FixedNumber } from "$lib/util";
 
+  const percentFormatter = new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 2,
+  });
+
   export let meme: MCMemeInfoWithReference;
   let holders: Promise<[string, number][] | null> = MemeCooking.getMemeStakes(
     meme.meme_id,
@@ -47,7 +51,7 @@
               {holder[0]}
             </p>
             <p class="flex items-center">
-              {holder[1] * 100}%
+              {percentFormatter.format(holder[1] * 100)}%
             </p>
           </div>
         {/each}
