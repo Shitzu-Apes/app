@@ -81,9 +81,11 @@
       </div>
       <div class="w-120 mx-auto mb-10">
         <ProgressBar
+          meme_id={detail.meme.meme_id}
           progress={new FixedNumber(detail.meme.total_deposit, 24)
             .div(new FixedNumber(required_stake, 24))
             .toNumber()}
+          {required_stake}
         />
       </div>
       <div class="flex px-2 gap-2">

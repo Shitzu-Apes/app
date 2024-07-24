@@ -1,5 +1,23 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+
+  import { MCsubscribe } from "$lib/store/memebids";
+  import { FixedNumber } from "$lib/util";
+
   export let progress: number;
+  export let meme_id: number;
+  export let required_stake: string;
+
+  const symbol = Symbol();
+  onMount(() => {
+    MCsubscribe(symbol, (meme) => {
+      if (meme.meme_id !== meme_id) return;
+      console.log("[ProgressBar] meme_id", meme_id);
+      progress = new FixedNumber(meme.total_deposit, 24)
+        .div(new FixedNumber(required_stake, 24))
+        .toNumber();
+    });
+  });
 </script>
 
 <div class="mb-2">Staking progress: {(progress * 100).toFixed(2)}%</div>
