@@ -56,14 +56,17 @@
   </div>
 
   {#if $accountId$}
-    <a
-      href="/profile/{$accountId$}"
-      class="text-sm inline-flex items-center h-fit"
-    >
-      [
-      <Chef account={$accountId$} class="mr-1 text-shitzu-4 w-fit" />
-      ]
-    </a>
+    <div class="flex flex-col items-end">
+      <a
+        href="/profile/{$accountId$}"
+        class="text-sm inline-flex items-center h-fit"
+      >
+        [
+        <Chef account={$accountId$} class="mr-1 text-shitzu-4 w-fit" />
+        ]
+      </a>
+      <button class="text-xs w-fit" on:click={wallet.signOut}>[logout]</button>
+    </div>
   {:else}
     <button
       class="text-sm"
