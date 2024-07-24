@@ -51,9 +51,6 @@
   let required_stake = MemeCooking.requiredStake(
     import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
   );
-  $: meme.then((res) => {
-    console.log("[meme]", res);
-  });
 </script>
 
 <div class="mt-10 w-full p-2">
@@ -89,9 +86,12 @@
               {meme.symbol}
             </span>
             <span class="text-green-400 flex items-center">
-              Total staked:{" "}
+              Market cap:{" "}
               <Near className="size-4" />
-              {new FixedNumber(meme.total_deposit, 24).format()}
+              {new FixedNumber(
+                BigInt(meme.total_deposit) * BigInt(2),
+                24,
+              ).format()}
             </span>
             <span
               class="ml-auto flex items-center justify-end text-right gap-1"
