@@ -26,6 +26,24 @@
       );
       const json = await res.json();
       const txId = json.receipts[0].originated_from_transaction_hash;
+      // const res = await fetch(import.meta.env.VITE_NODE_URL, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     jsonrpc: "2.0",
+      //     id: "dontcare",
+      //     method: "view_receipt_record",
+      //     params: {
+      //       receipt_id: receiptId,
+      //     },
+      //   }),
+      // });
+      // const json = (await res.json()) as {
+      //   result: { parent_transaction_hash: string };
+      // };
+      // const txId = json.result.parent_transaction_hash;
       txIdCache[receiptId] = txId;
       return txId;
     } catch (err) {
@@ -58,44 +76,46 @@
 
 {#each trades as trade}
   <li
-    class="flex justify-between items-center p-2 bg-gray-600 rounded-lg text-white"
+    class="flex [&>*]:mx-[0.1rem] justify-between items-center p-2 bg-gray-600 rounded-lg text-white"
   >
     <span
-      class="w-1/5 text-start flex items-center gap-1 overflow-hidden text-ellipsis"
+      class="flex-[0.5_1_5rem] text-start flex items-center gap-1 overflow-hidden text-ellipsis"
     >
       <Chef
         account={trade.account_id}
         class="bg-shitzu-4 px-1 rounded text-black"
       />
     </span>
-    <span class="w-1/5 text-start">
+    <span class="flex-[0_0_3rem] text-start">
       <span class={trade.is_deposit ? "text-green-500" : "text-red-500"}>
         {trade.is_deposit ? "buy" : "sell"}
       </span>
     </span>
-    <span class="w-1/5 text-start"
-      >{new FixedNumber(trade.amount, 24).format()}</span
-    >
-    <span class="w-1/5 text-start"
-      >{new Intl.NumberFormat("en-US", {
+    <span class="flex-[0.1_0_5rem] text-start">
+      {new FixedNumber(trade.amount, 24).format()}
+    </span>
+    <span class="flex-[0.1_0_5rem] text-start">
+      {new Intl.NumberFormat("en-US", {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
         notation: "compact",
-      }).format(trade.tokenAmount)}</span
-    >
-    <span class="w-1/5 text-start"
-      >{timesAgo(new Date(trade.timestamp_ms))} ago</span
-    >
+      }).format(trade.tokenAmount)}
+    </span>
+    <span class="flex-[0.1_0_5rem] text-start">
+      {timesAgo(new Date(trade.timestamp_ms))} ago
+    </span>
     {#await fetchTxIdViaReceiptId(trade.receipt_id) then txId}
       {#if txId != null}
         <a
           href="{import.meta.env.VITE_EXPLORER_URL}/transactions/{txId}"
           target="_blank"
           rel="noopener noreferrer"
-          class="w-1/5 text-start hover:text-shitzu-4 hover:underline overflow-hidden text-ellipsis"
+          class="flex-[0.2_0_5rem] text-start hover:text-shitzu-4 hover:underline overflow-hidden text-ellipsis"
         >
           {txId.slice(0, 4)}...{txId.slice(-4)}
         </a>
+      {:else}
+        <span class="flex-[0.2_0_5rem]">-</span>
       {/if}
     {/await}
   </li>

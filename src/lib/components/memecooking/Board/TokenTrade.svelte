@@ -16,14 +16,14 @@
 
 <ul class="w-full flex flex-col gap-1 text-xs">
   <li
-    class="flex justify-between items-center p-2 bg-gray-600 rounded-lg text-white"
+    class="flex [&>*]:mx-[0.1rem] justify-between items-center p-2 bg-gray-600 rounded-lg text-white"
   >
-    <span class="w-1/5 text-start">account</span>
-    <span class="w-1/5 text-start">type</span>
-    <span class="w-1/5 text-start">NEAR</span>
-    <span class="w-1/5 text-start uppercase">{symbol}</span>
-    <span class="w-1/5 text-start">date</span>
-    <span class="w-1/5 text-start">transaction</span>
+    <span class="flex-[0.5_1_5rem] text-start">account</span>
+    <span class="flex-[0_0_3rem] text-start">type</span>
+    <span class="flex-[0.1_0_5rem] text-start">NEAR</span>
+    <span class="flex-[0.1_0_5rem] text-start uppercase">{symbol}</span>
+    <span class="flex-[0.1_0_5rem] text-start">date</span>
+    <span class="flex-[0.2_0_5rem] text-start">transaction</span>
   </li>
   {#await trades}
     <li
