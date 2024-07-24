@@ -40,6 +40,7 @@ type PoolIdsType = {
   "babyblackdragon.tkn.near": PoolConfig;
   "bean.tkn.near": PoolConfig;
   "slush.tkn.near": PoolConfig;
+  "hat.tkn.near": PoolConfig;
   "ftv2.nekotoken.near": PoolConfig;
 };
 
@@ -62,6 +63,7 @@ const poolIds: PoolIdsType = {
   "babyblackdragon.tkn.near": { poolId: 4840, denom: "wrap.near" },
   "bean.tkn.near": { poolId: 4473, denom: "ftv2.nekotoken.near" },
   "slush.tkn.near": { poolId: 4623, denom: "wrap.near" },
+  "hat.tkn.near": { poolId: 5179, denom: "wrap.near" },
   "ftv2.nekotoken.near": {
     poolId: 3804,
     denom: "a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near",
@@ -87,6 +89,7 @@ const tokenSortIndex: Record<keyof PoolIdsType, number> = {
   "babyblackdragon.tkn.near": 298,
   "bean.tkn.near": 297,
   "slush.tkn.near": 296,
+  "hat.tkn.near": 295,
   "ftv2.nekotoken.near": -1,
 };
 

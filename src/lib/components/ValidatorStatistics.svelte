@@ -83,8 +83,9 @@
       .div(yearlySeconds);
 
     const validatorSupply = await Dogshit.balanceOf("shitzu.pool.near");
+    const daoSupply = await Dogshit.balanceOf("shitzu.sputnik-dao.near");
     const undistributedMultiplier = sharesToBeDistributed
-      .div(validatorSupply)
+      .div(validatorSupply.add(daoSupply))
       .toNumber();
 
     $tokenAPRs$ = await Promise.all(
