@@ -48,7 +48,6 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const core = require('@actions/core');
             core.setOutput('result', github.context.sha);
 
       - name: Add commit hash to .env
