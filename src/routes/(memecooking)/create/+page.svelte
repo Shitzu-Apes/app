@@ -366,9 +366,9 @@
               return "";
             }
 
-            const error = /^(https:\/\/twitter\.com\/)/.test(value)
+            const error = /^(https:\/\/(twitter|x)\.com\/)/.test(value)
               ? ""
-              : "website should start with https://twitter.com/";
+              : "website should start with https://twitter.com/ or https://x.com/";
             return error;
           }}
         />

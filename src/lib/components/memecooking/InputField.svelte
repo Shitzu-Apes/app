@@ -15,6 +15,7 @@
   bind:value
   {placeholder}
   class="w-full p-2 bg-gray-700 rounded text-white border border-white"
+  autocomplete="off"
 />
 {#if error}
   <div
