@@ -2,6 +2,7 @@
   import "@unocss/reset/tailwind.css";
   import "virtual:uno.css";
 
+  import { onDestroy, onMount } from "svelte";
   import { cubicIn, cubicOut } from "svelte/easing";
   import { blur } from "svelte/transition";
 
@@ -9,7 +10,13 @@
   import MCHeader from "$lib/layout/memecooking/MCHeader.svelte";
   import { initializeWebsocket, ws } from "$lib/store/memebids";
 
-  $: initializeWebsocket($ws);
+  onMount(() => {
+    initializeWebsocket($ws);
+  });
+
+  onDestroy(() => {
+    $ws.close();
+  });
 </script>
 
 {#key "memecooking"}
