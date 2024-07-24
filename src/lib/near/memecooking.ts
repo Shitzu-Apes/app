@@ -146,6 +146,7 @@ export abstract class MemeCooking {
     wrapNearDeposit: { depositAmount: string } | null = null,
   ) {
     const transactions: HereCall[] = [];
+    let gas = 300_000_000_000_000n;
 
     if (needStorageDeposit) {
       transactions.push({
@@ -156,12 +157,13 @@ export abstract class MemeCooking {
             params: {
               methodName: "storage_deposit",
               args: {},
-              gas: "300000000000000",
+              gas: 30_000_000_000_000n.toString(),
               deposit: needStorageDeposit.depositAmount,
             },
           },
         ],
       });
+      gas -= 30_000_000_000_000n;
     }
 
     const actions: HereCall["actions"] = [];
@@ -172,10 +174,11 @@ export abstract class MemeCooking {
         params: {
           methodName: "storage_deposit",
           args: {},
-          gas: "300000000000000",
+          gas: 30_000_000_000_000n.toString(),
           deposit: wrapNearDeposit.depositAmount,
         },
       });
+      gas -= 30_000_000_000_000n;
     }
 
     if (args.extraNearDeposit && args.extraNearDeposit !== "0") {
@@ -188,6 +191,7 @@ export abstract class MemeCooking {
           deposit: args.extraNearDeposit,
         },
       });
+      gas -= 30_000_000_000_000n;
     }
 
     if (actions.length > 0) {
@@ -200,6 +204,7 @@ export abstract class MemeCooking {
     transactions.push({
       receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
       actions: [
+        ...actions,
         {
           type: "FunctionCall",
           params: {
@@ -213,7 +218,7 @@ export abstract class MemeCooking {
                 },
               }),
             },
-            gas: "300000000000000",
+            gas: gas.toString(),
             deposit: "1",
           },
         },
