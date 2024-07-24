@@ -31,6 +31,9 @@
     <div class="text-white min-h-screen">
       <MCHeader />
       <slot />
+      <div class="fixed bottom-0 right-0 p-2 text-xs text-white bg-gray-800">
+        commit: {import.meta.env.VITE_COMMIT_HASH}
+      </div>
     </div>
   </div>
   <Toast />

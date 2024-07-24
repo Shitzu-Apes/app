@@ -43,6 +43,15 @@ jobs:
       - name: Copy Charting Library files
         run: "./copy_charting_library_files.sh"
 
+      - name: Get commit hash
+        id: commit_hash
+        uses: actions/github-script@v6
+        with:
+          script: return github.context.sha
+
+      - name: Add commit hash to .env
+        run: echo "VITE_COMMIT_HASH=${{ steps.commit_hash.outputs.result }}" >> .env
+
       - name: Build step
         run: "yarn build"
 
