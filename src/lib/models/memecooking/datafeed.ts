@@ -123,25 +123,8 @@ const createDataFeed: (ws: WebSocket) => IBasicDataFeed = (ws) => ({
       if (!responses.data) {
         throw new Error("No data returned");
       }
-      const data = responses.data;
-      console.log("[getBars]: Data", data);
-      const bars: {
-        time: number;
-        low: number;
-        high: number;
-        open: number;
-        close: number;
-      }[] = Object.values(data).filter(
-        (
-          bar,
-        ): bar is {
-          time: number;
-          low: number;
-          high: number;
-          open: number;
-          close: number;
-        } => bar !== undefined,
-      );
+      const bars = responses.data;
+      console.log("[getBars]: Bars", bars);
 
       if (firstDataRequest && symbolInfo.ticker) {
         lastBarsCache.set(symbolInfo.ticker, {
@@ -181,7 +164,6 @@ const createDataFeed: (ws: WebSocket) => IBasicDataFeed = (ws) => ({
         return;
       }
 
-      console.log("[subscribeBar::MCsubscribe]]");
       const nextBarTime = lastBar.time + Number(resolution) * 60 * 1000;
 
       let bar: {
