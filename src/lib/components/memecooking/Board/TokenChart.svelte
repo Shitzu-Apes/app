@@ -25,6 +25,27 @@
   }
 
   onMount(() => {
+    const now = Date.now();
+    const to =
+      now < memebid.end_timestamp_ms! ? now : memebid.end_timestamp_ms!;
+    const timeframe = {
+      from: ~~(memebid.created_timestamp_ms / 1000),
+      to: ~~(to / 1000),
+    };
+
+    let interval: ResolutionString;
+    const duration = to - memebid.created_timestamp_ms;
+
+    if (duration < 10 * 60 * 1000) {
+      interval = "1" as ResolutionString;
+    } else if (duration < 8 * 60 * 60 * 1000) {
+      interval = "5" as ResolutionString;
+    } else {
+      interval = "15" as ResolutionString;
+    }
+
+    console.log("interval", interval);
+
     const widgetOptions: ChartingLibraryWidgetOptions = {
       theme: "dark",
       symbol: memebid.meme_id.toString(),
@@ -34,11 +55,11 @@
         { text: "15m", resolution: "15" },
         { text: "30m", resolution: "30" },
         { text: "1h", resolution: "60" },
-        { text: "1d", resolution: "1D" },
+        { text: "2h", resolution: "120" },
       ] as { text: string; resolution: ResolutionString }[],
       // BEWARE: no trailing slash is expected in feed URL
       datafeed: createDataFeed($ws),
-      interval: "1" as ResolutionString,
+      interval,
       container: ref,
       library_path: "/charting_library/",
 
@@ -58,11 +79,7 @@
       user_id: "public_user_id",
       fullscreen: false,
       autosize: true,
-      timeframe: {
-        from: ~~(memebid.created_timestamp_ms / 1000),
-        to: ~~(memebid.end_timestamp_ms! / 1000),
-      },
-
+      timeframe,
       width,
       height,
       custom_formatters: {
@@ -78,7 +95,20 @@
       },
     };
 
-    new widget(widgetOptions);
+    const chart = new widget(widgetOptions);
+
+    chart.onChartReady(() => {
+      const priceScale = chart
+        .activeChart()
+        .getPanes()[0]
+        .getRightPriceScales()[0];
+      const DEFAULT_PRICE = 1e-8;
+      const price =
+        memebid.total_supply && parseFloat(memebid.total_supply) !== 0
+          ? +memebid.total_deposit / +memebid.total_supply
+          : DEFAULT_PRICE;
+      priceScale.setVisiblePriceRange({ from: 0, to: price });
+    });
   });
 
   let isInteracted = false || !touchToStart;
