@@ -258,25 +258,48 @@ export abstract class MemeCooking {
   public static async claim(
     wallet: Wallet,
     args: { token_ids: string[] },
-    callback: TransactionCallbacks<FinalExecutionOutcome> = {},
+    callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
   ) {
-    return wallet.signAndSendTransaction(
-      {
-        receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+    const transactions: HereCall[] = [];
+
+    const MIN_STORAGE_DEPOSIT = 1250000000000000000000n;
+    let gas = 300_000_000_000_000n;
+
+    for (const token_id of args.token_ids) {
+      const storageDepositGas = 30_000_000_000_000n;
+      gas -= storageDepositGas;
+      transactions.push({
+        receiverId: token_id,
         actions: [
           {
             type: "FunctionCall",
             params: {
-              methodName: "claim",
-              args,
-              gas: "300000000000000",
-              deposit: "1",
+              methodName: "storage_deposit",
+              args: {},
+              gas: storageDepositGas.toString(),
+              deposit: MIN_STORAGE_DEPOSIT.toString(),
             },
           },
         ],
-      },
-      callback,
-    );
+      });
+    }
+
+    transactions.push({
+      receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+      actions: [
+        {
+          type: "FunctionCall",
+          params: {
+            methodName: "claim",
+            args,
+            gas: gas.toString(),
+            deposit: "1",
+          },
+        },
+      ],
+    });
+
+    return wallet.signAndSendTransactions({ transactions }, callback);
   }
 
   public static storageCosts() {

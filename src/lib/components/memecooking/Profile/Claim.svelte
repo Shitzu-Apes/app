@@ -6,9 +6,10 @@
   export let claim: paths["/profile/{accountId}"]["get"]["responses"]["200"]["content"]["application/json"]["coins_held"][number];
 
   async function claiming() {
+    const token_id = `${claim.symbol.toLowerCase()}-${claim.meme_id}.${import.meta.env.VITE_MEME_COOKING_CONTRACT_ID}`;
     try {
       await MemeCooking.claim(wallet, {
-        token_ids: [claim.meme_id.toString()],
+        token_ids: [token_id],
       });
     } catch (e) {
       console.error(e);
