@@ -1,5 +1,6 @@
 // import { subscribeOnStream, unsubscribeFromStream } from "./streaming.js";
 
+import { client } from "$lib/api/client";
 import type {
   IBasicDataFeed,
   LibrarySymbolInfo,
@@ -43,30 +44,40 @@ const createDataFeed: (ws: WebSocket) => IBasicDataFeed = (ws) => ({
     onSymbolResolvedCallback,
     onResolveErrorCallback,
   ) => {
-    console.log("[resolveSymbol]: Method call", symbolName);
     try {
-      const symbol = await fetch(
-        `${import.meta.env.VITE_MEME_COOKING_API}/tradingview/get_token/${symbolName}`,
-      ).then((res) => res.json());
-      console.log("[resolveSymbol]: Symbol", symbol);
+      const symbol = await client.GET("/meme/{id}", {
+        params: {
+          path: {
+            id: symbolName,
+          },
+        },
+      });
+
+      const { data } = symbol;
+      console.log("[resolveSymbol]: Symbol", data);
+      if (!data) {
+        throw new Error("Symbol not found");
+      }
 
       const symbolInfo: LibrarySymbolInfo = {
-        ticker: symbol.symbol,
-        name: symbol.name,
-        description: symbol.description,
-        type: symbol.type,
+        ticker: data.meme.symbol,
+        name: data.meme.name,
+        description: data.meme.description || "",
+        type: "crypto",
         session: "24x7",
         timezone: "Etc/UTC",
         exchange: "MemeCooking",
-        minmov: 1,
+        minmov: 1e-10,
         pricescale: 100,
         has_intraday: true,
         has_weekly_and_monthly: false,
         supported_resolutions: ["1", "5", "15"] as ResolutionString[],
-        volume_precision: 2,
+        volume_precision: 5,
         data_status: "streaming",
         listed_exchange: "MemeCooking",
         format: "price",
+        logo_urls: data.meme.image ? [data.meme.image] : undefined,
+        unit_id: data.meme.meme_id.toString(),
       };
 
       console.log("[resolveSymbol]: Symbol resolved", symbolName);
@@ -97,22 +108,40 @@ const createDataFeed: (ws: WebSocket) => IBasicDataFeed = (ws) => ({
     );
 
     try {
-      const data = await fetch(
-        `${import.meta.env.VITE_CLOUDFLARE_WORKER_URL}/tradingview/get/${symbolInfo.ticker}/${from}/${to}/${resolution}/${periodParams.countBack}`,
-      )
-        .then((res) => res.json())
-        .catch((err) => {
-          console.error("[getBars]: Error fetching data", err);
-        });
+      if (!symbolInfo.unit_id) {
+        throw new Error("Symbol not found");
+      }
+      const responses = await client.POST("/tradingview/history", {
+        body: {
+          meme_id: symbolInfo.unit_id,
+          from,
+          to,
+          resolution,
+          countBack: periodParams.countBack,
+        },
+      });
+      if (!responses.data) {
+        throw new Error("No data returned");
+      }
+      const data = responses.data;
       console.log("[getBars]: Data", data);
-
       const bars: {
         time: number;
         low: number;
         high: number;
         open: number;
         close: number;
-      }[] = Object.values(data);
+      }[] = Object.values(data).filter(
+        (
+          bar,
+        ): bar is {
+          time: number;
+          low: number;
+          high: number;
+          open: number;
+          close: number;
+        } => bar !== undefined,
+      );
 
       if (firstDataRequest && symbolInfo.ticker) {
         lastBarsCache.set(symbolInfo.ticker, {

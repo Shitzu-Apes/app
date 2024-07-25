@@ -27,7 +27,7 @@
   onMount(() => {
     const widgetOptions: ChartingLibraryWidgetOptions = {
       theme: "dark",
-      symbol: memebid.symbol,
+      symbol: memebid.meme_id.toString(),
       time_frames: [
         { text: "1m", resolution: "1" },
         { text: "5m", resolution: "5" },

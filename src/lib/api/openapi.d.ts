@@ -246,6 +246,63 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/tradingview/history": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Returns OHLC data for given symbol and time range */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": {
+            meme_id: string;
+            from: number;
+            to: number;
+            resolution: string;
+            countBack: number;
+          };
+        };
+      };
+      responses: {
+        /** @description OHLC data */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              [key: string]:
+                | {
+                    time: number;
+                    open: number;
+                    high: number;
+                    low: number;
+                    close: number;
+                    volume?: number;
+                  }
+                | undefined;
+            };
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/profile/{accountId}": {
     parameters: {
       query?: never;
