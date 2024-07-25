@@ -6,7 +6,7 @@
 
   import { client } from "$lib/api/client";
   import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
-  import { FixedNumber } from "$lib/util";
+  import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
 
   export let meme: MCMemeInfoWithReference;
 
@@ -29,10 +29,7 @@
 
       const trades = trade.data.map((trade) => ({
         ...trade,
-        tokenAmount:
-          (new FixedNumber(trade.amount, 24).toNumber() /
-            new FixedNumber(meme.total_deposit, 24).toNumber()) *
-          500_000_000,
+        tokenAmount: predictedTokenAmount({ ...trade, ...meme }),
       }));
 
       return trades.sort((a, b) => b.timestamp_ms - a.timestamp_ms);

@@ -7,6 +7,7 @@
   import type { Trade } from "$lib/api/client";
   import { MCsubscribe, MCunsubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
+  import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
   import { timesAgo } from "$lib/util/timesAgo";
 
   export let trades: Array<Trade & { tokenAmount: number }>;
@@ -25,26 +26,9 @@
       const res = await fetch(
         `https://api3-testnet.nearblocks.io/v1/search/?keyword=${receiptId}`,
       );
+
       const json = await res.json();
       const txId = json.receipts[0].originated_from_transaction_hash;
-      // const res = await fetch(import.meta.env.VITE_NODE_URL, {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     jsonrpc: "2.0",
-      //     id: "dontcare",
-      //     method: "view_receipt_record",
-      //     params: {
-      //       receipt_id: receiptId,
-      //     },
-      //   }),
-      // });
-      // const json = (await res.json()) as {
-      //   result: { parent_transaction_hash: string };
-      // };
-      // const txId = json.result.parent_transaction_hash;
       txIdCache[receiptId] = txId;
       return txId;
     } catch (err) {
@@ -59,10 +43,7 @@
         return;
       }
 
-      const tokenAmount =
-        (new FixedNumber(newTrade.amount, 24).toNumber() /
-          new FixedNumber(newTrade.total_deposit, 24).toNumber()) *
-        500_000_000;
+      const tokenAmount = predictedTokenAmount(newTrade);
 
       const newTradeWithTokenAmount = { ...newTrade, tokenAmount };
 
