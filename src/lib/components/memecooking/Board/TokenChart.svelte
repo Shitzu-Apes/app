@@ -58,6 +58,10 @@
       user_id: "public_user_id",
       fullscreen: false,
       autosize: true,
+      timeframe: {
+        from: ~~(memebid.created_timestamp_ms / 1000),
+        to: ~~(memebid.end_timestamp_ms! / 1000),
+      },
 
       width,
       height,
