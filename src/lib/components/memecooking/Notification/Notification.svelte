@@ -15,8 +15,6 @@
 
   let shake = false;
 
-  // wait for actual type when integrate
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   MCsubscribe(Symbol("notification"), (newMemeInfo) => {
     notification = {
       id: newMemeInfo.receipt_id,

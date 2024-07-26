@@ -132,7 +132,7 @@
 
         <div class="w-90 p-2 flex flex-col gap-5">
           <div class="w-full min-h-74 border-2 border-shitzu-4 rounded-xl p-2">
-            <MCStake meme={detail.meme} account={detail.account} />
+            <MCStake meme={detail.meme} />
           </div>
 
           <!-- Link -->

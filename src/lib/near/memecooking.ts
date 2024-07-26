@@ -1,8 +1,9 @@
 import type { HereCall } from "@here-wallet/core";
 import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
+import { derived, writable } from "svelte/store";
 
 import { view } from "./utils";
-import { Wallet, type TransactionCallbacks } from "./wallet";
+import { wallet, Wallet, type TransactionCallbacks } from "./wallet";
 
 import type {
   MCMemeInfo,
@@ -10,6 +11,22 @@ import type {
   MCMemeInfoWithReference,
   MCReference,
 } from "$lib/models/memecooking";
+
+const _mcAccount$ = writable<MCAccountInfo | null>();
+export const mcAccount$ = derived(_mcAccount$, (a) => a);
+
+export async function updateMcAccount(accountId: string) {
+  const account = await MemeCooking.getAccount(accountId);
+  _mcAccount$.set(account);
+}
+
+wallet.accountId$.subscribe((accountId) => {
+  if (accountId) {
+    updateMcAccount(accountId);
+  } else {
+    _mcAccount$.set(null);
+  }
+});
 
 export abstract class MemeCooking {
   public static getLatestMeme(
@@ -146,7 +163,6 @@ export abstract class MemeCooking {
     wrapNearDeposit: { depositAmount: string } | null = null,
   ) {
     const transactions: HereCall[] = [];
-    let gas = 300_000_000_000_000n;
 
     if (needStorageDeposit) {
       transactions.push({
@@ -163,7 +179,6 @@ export abstract class MemeCooking {
           },
         ],
       });
-      gas -= 30_000_000_000_000n;
     }
 
     const actions: HereCall["actions"] = [];
@@ -174,11 +189,10 @@ export abstract class MemeCooking {
         params: {
           methodName: "storage_deposit",
           args: {},
-          gas: 30_000_000_000_000n.toString(),
+          gas: 15_000_000_000_000n.toString(),
           deposit: wrapNearDeposit.depositAmount,
         },
       });
-      gas -= 30_000_000_000_000n;
     }
 
     if (args.extraNearDeposit && args.extraNearDeposit !== "0") {
@@ -187,42 +201,32 @@ export abstract class MemeCooking {
         params: {
           methodName: "near_deposit",
           args: {},
-          gas: 30_000_000_000_000n.toString(),
+          gas: 15_000_000_000_000n.toString(),
           deposit: args.extraNearDeposit,
         },
       });
-      gas -= 30_000_000_000_000n;
     }
 
-    if (actions.length > 0) {
-      transactions.push({
-        receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
-        actions,
-      });
-    }
-
+    actions.push({
+      type: "FunctionCall",
+      params: {
+        methodName: "ft_transfer_call",
+        args: {
+          receiver_id: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+          amount: args.amount,
+          msg: JSON.stringify({
+            Deposit: {
+              meme_id: args.memeId,
+            },
+          }),
+        },
+        gas: 100_000_000_000_000n.toString(),
+        deposit: "1",
+      },
+    });
     transactions.push({
       receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
-      actions: [
-        ...actions,
-        {
-          type: "FunctionCall",
-          params: {
-            methodName: "ft_transfer_call",
-            args: {
-              receiver_id: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
-              amount: args.amount,
-              msg: JSON.stringify({
-                Deposit: {
-                  meme_id: args.memeId,
-                },
-              }),
-            },
-            gas: gas.toString(),
-            deposit: "1",
-          },
-        },
-      ],
+      actions,
     });
 
     return wallet.signAndSendTransactions({ transactions }, callback);
@@ -245,7 +249,7 @@ export abstract class MemeCooking {
                 meme_id: args.memeId,
                 amount: args.amount,
               },
-              gas: "300000000000000",
+              gas: 100_000_000_000_000n.toString(),
               deposit: "1",
             },
           },
@@ -263,11 +267,8 @@ export abstract class MemeCooking {
     const transactions: HereCall[] = [];
 
     const MIN_STORAGE_DEPOSIT = 1250000000000000000000n;
-    let gas = 300_000_000_000_000n;
 
     for (const token_id of args.token_ids) {
-      const storageDepositGas = 30_000_000_000_000n;
-      gas -= storageDepositGas;
       transactions.push({
         receiverId: token_id,
         actions: [
@@ -276,7 +277,7 @@ export abstract class MemeCooking {
             params: {
               methodName: "storage_deposit",
               args: {},
-              gas: storageDepositGas.toString(),
+              gas: 30_000_000_000_000n.toString(),
               deposit: MIN_STORAGE_DEPOSIT.toString(),
             },
           },
@@ -292,7 +293,7 @@ export abstract class MemeCooking {
           params: {
             methodName: "claim",
             args,
-            gas: gas.toString(),
+            gas: 300_000_000_000_000n.toString(),
             deposit: "1",
           },
         },

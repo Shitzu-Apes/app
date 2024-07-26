@@ -35,8 +35,6 @@
 
   const { accountId$ } = wallet;
 
-  $: refreshShitzuBalance($accountId$);
-
   $: {
     if ($accountId$) {
       refreshPrimaryNftOf($accountId$);

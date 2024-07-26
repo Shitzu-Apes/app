@@ -13,12 +13,14 @@
   import { Footer, Header, Body } from "$lib/layout";
   import { BottomSheet } from "$lib/layout/BottomSheet";
   import { ScreenSize } from "$lib/models";
+  import { wallet } from "$lib/near";
   import { screenSize$ } from "$lib/screen-size";
   import {
     handleCloseSnackbar,
     snackbar$,
     snackbarComponent$,
   } from "$lib/snackbar";
+  import { refreshShitzuBalance } from "$lib/store";
 
   // eslint-disable-next-line import/no-named-as-default-member
   dayjs.extend(localizedFormat);
@@ -51,6 +53,11 @@
 
   $: snackbarClass$ = $snackbarComponent$?.class$;
   $: snackbarCanClose$ = $snackbarComponent$?.canClose$;
+
+  wallet.accountId$.subscribe((accountId) => {
+    if (accountId == null) return;
+    refreshShitzuBalance(accountId);
+  });
 </script>
 
 <BottomSheet />

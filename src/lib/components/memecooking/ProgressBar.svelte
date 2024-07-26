@@ -8,13 +8,9 @@
   export let progress: number;
   export let meme_id: number;
   export let required_stake: string;
-  let animatedWidth = 0;
-  setTimeout(() => {
-    animatedWidth = Math.min(progress, 1.2);
-  });
+  $: animatedWidth = Math.min(progress, 1.2);
 
   const explosionDelay = 2_000 / Math.min(progress, 1.2) - 300;
-  console.log("explosionDelay", explosionDelay);
   let explode = false;
   setTimeout(() => {
     explode = true;

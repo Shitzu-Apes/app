@@ -105,9 +105,12 @@
     if (!$accountId$) {
       addToast({
         data: {
-          title: "Error",
-          description: "Please Connect Wallet",
-          color: "red",
+          type: "simple",
+          data: {
+            title: "Error",
+            description: "Please Connect Wallet",
+            color: "red",
+          },
         },
       });
       return;

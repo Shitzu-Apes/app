@@ -5,13 +5,16 @@
   import { addToast } from "../Toast.svelte";
 
   import Near from "$lib/assets/Near.svelte";
+  import { Button } from "$lib/components";
   import TokenInput from "$lib/components/TokenInput.svelte";
   import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
   import {
     Ft,
+    mcAccount$,
     MemeCooking,
     nearBalance,
     refreshNearBalance,
+    updateMcAccount,
     wallet,
   } from "$lib/near";
   import { FixedNumber } from "$lib/util";
@@ -28,15 +31,14 @@
   let inputValue$ = writable<string | undefined>();
 
   export let meme: MCMemeInfoWithReference;
-  export let account:
-    | {
-        id: string;
-        meme_id: number;
-        account_id: string;
-        balance: string;
-        balance_num: number;
-      }
-    | undefined;
+
+  const depositAmount$ = writable<FixedNumber | undefined>();
+  $: if ($mcAccount$) {
+    const deposit = $mcAccount$.deposits.find(
+      ([memeId]) => memeId === meme.meme_id,
+    );
+    $depositAmount$ = new FixedNumber(deposit?.[1] ?? "0", 24);
+  }
 
   const {
     elements: { root, list, trigger },
@@ -45,19 +47,17 @@
     defaultValue: "stake",
   });
 
-  let totalNearBalance = $nearBalance;
+  let totalNearBalance$ = writable($nearBalance);
   let wrapNearBalance: FixedNumber | null = null;
-  $: {
-    if ($accountId$ && $nearBalance) {
-      Ft.balanceOf(
-        import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
-        $accountId$,
-        24,
-      ).then((balance) => {
-        wrapNearBalance = balance;
-        totalNearBalance = $nearBalance.add(balance);
-      });
-    }
+  $: if ($accountId$ && $nearBalance) {
+    Ft.balanceOf(
+      import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
+      $accountId$,
+      24,
+    ).then((balance) => {
+      wrapNearBalance = balance;
+      $totalNearBalance$ = $nearBalance.add(balance);
+    });
   }
 
   async function action() {
@@ -65,9 +65,12 @@
       console.error("No input or account id");
       addToast({
         data: {
-          title: "Error",
-          description: "Please Connect Wallet",
-          color: "red",
+          type: "simple",
+          data: {
+            title: "Error",
+            description: "Please Connect Wallet",
+            color: "red",
+          },
         },
       });
       return;
@@ -75,13 +78,17 @@
     if (!$input$) {
       addToast({
         data: {
-          title: "Error",
-          description: "Please enter a valid amount",
-          color: "red",
+          type: "simple",
+          data: {
+            title: "Error",
+            description: "Please enter a valid amount",
+            color: "red",
+          },
         },
       });
       return;
     }
+
     if ($value === "stake") {
       // Check storage balance before staking
       const [
@@ -138,40 +145,69 @@
         return;
       }
 
-      MemeCooking.deposit(
+      return MemeCooking.deposit(
         wallet,
         {
           amount: $input$.toU128(),
           extraNearDeposit: extraNearDeposit.toString(),
           memeId: meme.meme_id,
         },
-        {},
+        {
+          onSuccess: () => {
+            $inputValue$ = "";
+            addToast({
+              data: {
+                type: "simple",
+                data: {
+                  title: "Deposit Success",
+                  description: `You successfully deposited ${$input$.format()} NEAR`,
+                },
+              },
+            });
+          },
+        },
         needStorageDeposit,
         wrapNearDeposit,
       );
     } else {
-      MemeCooking.withdraw(wallet, {
-        amount: $input$.toU128(),
-        memeId: meme.meme_id,
-      });
+      return MemeCooking.withdraw(
+        wallet,
+        {
+          amount: $input$.toU128(),
+          memeId: meme.meme_id,
+        },
+        {
+          onSuccess: () => {
+            $inputValue$ = "";
+            addToast({
+              data: {
+                type: "simple",
+                data: {
+                  title: "Withdraw Success",
+                  description: `You have successfully withdrawn ${$input$.format()} NEAR`,
+                },
+              },
+            });
+          },
+        },
+      );
     }
   }
 
-  $: refreshNearBalance($accountId$);
-
   function setMax() {
     if ($value === "stake") {
-      if (totalNearBalance) {
-        let input = totalNearBalance.sub(new FixedNumber(5n, 1));
+      if ($totalNearBalance$) {
+        let input = $totalNearBalance$.sub(new FixedNumber(5n, 1));
 
         input = input.toNumber() < 0 ? new FixedNumber(0n, 24) : input;
 
         $inputValue$ = input.toString();
       }
     } else {
-      if (account) {
-        $inputValue$ = new FixedNumber(account.balance, 24).toString();
+      if (!$depositAmount$) {
+        return;
       }
+      $inputValue$ = $depositAmount$.toString();
     }
   }
 
@@ -266,11 +302,13 @@
             : 'text-rose-4'} flex-grow basis-0"
         >
           {#if $value === "unstake"}
-            {#if account}
-              {new FixedNumber(account.balance, 24).format()}
+            {#if $depositAmount$ != null}
+              {$depositAmount$.format()}
+            {:else}
+              -
             {/if}
-          {:else if totalNearBalance}
-            {totalNearBalance.format()}
+          {:else if $totalNearBalance$}
+            {$totalNearBalance$.format()}
           {/if}
         </div>
       </div>
@@ -293,10 +331,9 @@
                   24,
                 ).toString();
               } else {
+                if ($depositAmount$ == null) return;
                 const bps = new FixedNumber(defaultValue[$value].value, 2);
-                $inputValue$ = new FixedNumber(account?.balance ?? 0n, 24)
-                  .mul(bps)
-                  .toString();
+                $inputValue$ = $depositAmount$.mul(bps).toString();
               }
             }}
           >
@@ -308,14 +345,23 @@
         </li>
       {/each}
     </ul>
-    <button
-      on:click={action}
+    <Button
+      onClick={async () => {
+        await action();
+        if (!$accountId$) return;
+        await new Promise((resolve) => setTimeout(resolve, 5_000));
+        refreshNearBalance($accountId$);
+        updateMcAccount($accountId$);
+      }}
+      type="custom"
+      disabled={$input$ == null || $input$.toNumber() == 0}
       class="{$value === 'stake'
         ? 'bg-shitzu-3'
         : 'bg-rose-4'} w-full py-2 rounded-full text-xl tracking-wider text-black border-b-4 {$value ===
       'stake'
         ? 'border-shitzu-4'
-        : 'border-rose-5'} active:translate-y-1 my-12">[{$value}]</button
-    >
+        : 'border-rose-5'} active:translate-y-1 my-12"
+      >[{$value}]
+    </Button>
   </div>
 </div>

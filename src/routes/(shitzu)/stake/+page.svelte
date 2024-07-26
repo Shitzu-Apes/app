@@ -32,7 +32,6 @@
     ? Rewarder.primaryNftOf($accountId$).then((nft) => nft != null)
     : Promise.resolve(false);
 
-  $: refreshNearBalance($accountId$);
   $: fetchStake($accountId$);
   fetchTotalStake();
   fetchFarm();

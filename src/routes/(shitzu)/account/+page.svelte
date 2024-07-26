@@ -13,15 +13,11 @@
   import {
     primaryNftTokenId,
     refreshPrimaryNftOf,
-    // refreshShitzuBalance,
     resolvedPrimaryNftTokenId,
-    // shitzuBalance,
   } from "$lib/store";
   import { FixedNumber } from "$lib/util";
 
   const { accountId$ } = wallet;
-
-  // $: refreshShitzuBalance($accountId$);
 
   $: {
     if ($accountId$) {

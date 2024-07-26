@@ -14,8 +14,8 @@ import { derived, get, readable, writable } from "svelte/store";
 import { P, match } from "ts-pattern";
 
 import { browser } from "$app/environment";
+import { addTxToast, addToast } from "$lib/components/memecooking/Toast.svelte";
 import type { UnionModuleState, WalletAccount } from "$lib/models";
-import { showSnackbar, showTxSnackbar } from "$lib/snackbar";
 
 export type TransactionCallbacks<T> = {
   onSuccess?: (outcome: T | undefined) => Promise<void> | void;
@@ -195,9 +195,15 @@ export class Wallet {
           type: "wallet-selector",
           account,
         });
-        showSnackbar(
-          `Connected Near account ${account.accountId} via ${wallet.metadata.name}`,
-        );
+        addToast({
+          data: {
+            type: "simple",
+            data: {
+              title: "Connect",
+              description: `Successfully connected Near account ${account.accountId} via ${wallet.metadata.name}`,
+            },
+          },
+        });
       })
       .otherwise(() => {
         throw new Error("unimplemented");
@@ -227,7 +233,15 @@ export class Wallet {
           const selector = await get(this.selector$);
           const wallet = await selector.wallet();
           await wallet.signOut();
-          showSnackbar(`Disconnected Near account ${account.accountId}`);
+          addToast({
+            data: {
+              type: "simple",
+              data: {
+                title: "Disconnect",
+                description: `Disconnected Near account ${account.accountId}`,
+              },
+            },
+          });
           this._account$.set(undefined);
         },
       )
@@ -241,7 +255,15 @@ export class Wallet {
             throw new Error("HereWallet not yet initialized");
           }
           await this.hereWallet.signOut();
-          showSnackbar(`Disconnected Near account ${account}`);
+          addToast({
+            data: {
+              type: "simple",
+              data: {
+                title: "Disconnect",
+                description: `Disconnected Near account ${account}`,
+              },
+            },
+          });
           this._account$.set(undefined);
         },
       )
@@ -284,9 +306,7 @@ export class Wallet {
       )
       .exhaustive();
     if (!txPromise) return;
-    // FIXME type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    showTxSnackbar(txPromise as any);
+    addTxToast(txPromise);
     return txPromise
       .then((outcome) => {
         if (onSuccess) {
@@ -333,9 +353,7 @@ export class Wallet {
       )
       .exhaustive();
     if (!txPromise) return;
-    // FIXME type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    showTxSnackbar(txPromise as any);
+    addTxToast(txPromise);
     return txPromise
       .then((outcome) => {
         if (onSuccess) {

@@ -90,7 +90,11 @@
         {/if}
       </div>
       <div class="flex-[0_0_100%] min-w-0">
-        <TokenTrade symbol={memebid.symbol} trades={Promise.resolve([])} />
+        <TokenTrade
+          meme_id={memebid.meme_id}
+          symbol={memebid.symbol}
+          trades={Promise.resolve([])}
+        />
       </div>
       <div class="flex-[0_0_100%] min-w-0">
         <TokenHolder meme={memebid} />
@@ -150,6 +154,7 @@
       openBottomSheet(StakeSheet, { meme: memebid });
     }}
     class="bg-shitzu-3 w-full py-2 rounded-full text-xl tracking-wider text-black border-b-4 border-shitzu-4 active:translate-y-1"
-    >[stake]</button
   >
+    [stake]
+  </button>
 </div>
