@@ -39,20 +39,32 @@
   <section
     class="flex items-center {notification.is_deposit
       ? 'bg-shitzu-3'
-      : 'bg-memecooking-3'} text-sm text-dark px-2 py-1 rounded {shake
+      : 'bg-rose-3'} text-sm text-dark px-2 py-1 rounded {shake
       ? 'animate-shake-x animate-duration-500'
       : ''}"
   >
     <img src={SHITZU_POCKET} alt="shitzu pocket" class="size-6 mr-1" />
-    <span class="max-w-16 overflow-hidden text-ellipsis mx-1">
+    <a
+      href={`/profile/${notification.party}`}
+      class="max-w-20 overflow-hidden text-ellipsis mx-1"
+    >
       {notification.party}
-    </span>
-    {notification.is_deposit ? "deposited" : "withdrawn"}
+    </a>
+    {notification.is_deposit ? "staked" : "unstaked"}
     <Near className="size-6 ml-1" />
     {new FixedNumber(notification.amount, 24).format({
       maximumSignificantDigits: 4,
     })} for
-    {notification.ticker}
-    <img src={notification.icon} alt="icon" class="size-6 rounded-full ml-1" />
+    <a
+      href={`/meme/${notification.id}`}
+      class="text-shitzu-7 flex items-center ml-1"
+    >
+      {notification.ticker}
+      <img
+        src={notification.icon}
+        alt="icon"
+        class="size-6 rounded-full ml-1"
+      />
+    </a>
   </section>
 {/if}
