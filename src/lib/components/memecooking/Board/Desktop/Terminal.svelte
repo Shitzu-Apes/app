@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { fly } from "svelte/transition";
+
   import MemePreview from "./MemePreview.svelte";
 
   import SelectBox from "$lib/components/SelectBox.svelte";
@@ -69,10 +71,49 @@
   <div
     class="w-full flex items-center justify-start flex-wrap mt-10 gap-6 px-4 mb-10"
   >
-    {#each displayedMemebids as memebid (memebid.meme_id)}
-      <div class="flex-grow basis-[30%] min-w-[300px] max-w-[30%]">
+    {#if displayedMemebids[0]}
+      {#key displayedMemebids[0].meme_id}
+        <div
+          class="flex-grow basis-[30%] min-w-[300px] max-w-[30%] border-3 border-transparent animate-shake-and-border"
+        >
+          <MemePreview memebid={displayedMemebids[0]} />
+        </div>
+      {/key}
+    {/if}
+    {#each displayedMemebids.slice(1) as memebid (memebid.meme_id)}
+      <div class="flex-grow basis-[30%] min-w-[300px] max-w-[30%]" in:fly>
         <MemePreview {memebid} />
       </div>
     {/each}
   </div>
 {/await}
+
+<style>
+  @keyframes shakeAndBorder {
+    0% {
+      transform: translateX(0);
+      border-color: transparent;
+    }
+    25% {
+      transform: translateX(-15px);
+      border-color: yellow;
+    }
+    50% {
+      transform: translateX(15px);
+      border-color: yellow;
+    }
+    75% {
+      transform: translateX(-15px);
+      border-color: yellow;
+    }
+    100% {
+      transform: translateX(0);
+      border-color: transparent;
+    }
+  }
+
+  .animate-shake-and-border {
+    animation: shakeAndBorder 500ms;
+    animation-iteration-count: 3;
+  }
+</style>
