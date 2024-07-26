@@ -6,11 +6,7 @@ import type {
   LibrarySymbolInfo,
   ResolutionString,
 } from "$lib/charting_library/charting_library";
-import {
-  MCsubscribe,
-  // MCsubscribe
-  MCunsubscribe,
-} from "$lib/store/memebids";
+import { MCsubscribe, MCunsubscribe } from "$lib/store/memebids";
 
 const lastBarsCache: Map<
   string,
@@ -23,7 +19,7 @@ const lastBarsCache: Map<
   }
 > = new Map();
 
-const createDataFeed: (ws: WebSocket) => IBasicDataFeed = (ws) => ({
+const MemeCookingDataFeed: IBasicDataFeed = {
   onReady: (callback) => {
     console.log("[onReady]: Method call");
     setTimeout(() => callback({}));
@@ -222,13 +218,8 @@ const createDataFeed: (ws: WebSocket) => IBasicDataFeed = (ws) => ({
       "[unsubscribeBars]: Method call with subscriberUID:",
       subscriberUID,
     );
-    ws.send(
-      JSON.stringify({
-        action: "unsubscribe",
-      }),
-    );
     MCunsubscribe(subscriberUID);
   },
-});
+};
 
-export default createDataFeed;
+export default MemeCookingDataFeed;

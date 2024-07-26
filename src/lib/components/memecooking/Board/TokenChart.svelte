@@ -8,8 +8,7 @@
     type ResolutionString,
   } from "$lib/charting_library";
   import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
-  import createDataFeed from "$lib/models/memecooking/datafeed";
-  import { ws } from "$lib/store/memebids";
+  import MemeCookingDataFeed from "$lib/models/memecooking/datafeed";
 
   export let memebid: MCMemeInfoWithReference;
   export let touchToStart: boolean = false;
@@ -58,7 +57,7 @@
         { text: "2h", resolution: "120" },
       ] as { text: string; resolution: ResolutionString }[],
       // BEWARE: no trailing slash is expected in feed URL
-      datafeed: createDataFeed($ws),
+      datafeed: MemeCookingDataFeed,
       interval,
       container: ref,
       library_path: "/charting_library/",
