@@ -1,19 +1,11 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
 
+  import MemeDetail from "./MemeDetail.svelte";
+
   import { page } from "$app/stores";
   import { client } from "$lib/api/client";
-  import Near from "$lib/assets/Near.svelte";
-  import TradeTabs from "$lib/components/memecooking/Board/Desktop/TradeTabs.svelte";
-  import MCStake from "$lib/components/memecooking/Board/MCStake.svelte";
-  import SocialLink from "$lib/components/memecooking/Board/SocialLink.svelte";
-  import TokenChart from "$lib/components/memecooking/Board/TokenChart.svelte";
-  import TokenHolder from "$lib/components/memecooking/Board/TokenHolder.svelte";
-  import Chef from "$lib/components/memecooking/Chef.svelte";
-  import Countdown from "$lib/components/memecooking/Countdown.svelte";
-  import ProgressBar from "$lib/components/memecooking/ProgressBar.svelte";
   import { MemeCooking, wallet } from "$lib/near";
-  import { FixedNumber } from "$lib/util";
 
   // page data
   let { meme_id } = $page.params as { meme_id: string };
@@ -71,99 +63,7 @@
     <div class="w-full text-center text-2xl">Loading...</div>
   {:then [detail, required_stake]}
     {#if detail}
-      <div class="w-full flex">
-        {#if detail.meme.end_timestamp_ms}
-          <Countdown
-            class="mx-auto text-4xl text-shitzu-4 mb-10"
-            to={detail.meme.end_timestamp_ms}
-          />
-        {/if}
-      </div>
-      <div class="w-120 mx-auto mb-10">
-        <ProgressBar
-          meme_id={detail.meme.meme_id}
-          progress={new FixedNumber(detail.meme.total_deposit, 24)
-            .div(new FixedNumber(required_stake, 24))
-            .toNumber()}
-          {required_stake}
-        />
-      </div>
-      <div class="flex px-2 gap-2">
-        <div class="flex-grow">
-          <div class="w-full flex items-center gap-3 my-2 text-sm">
-            <span>
-              {detail.meme.name}
-            </span>
-            <span class="uppercase">
-              {detail.meme.symbol}
-            </span>
-            <span class="text-green-400 flex items-center">
-              Market cap:{" "}
-              <Near className="size-4" />
-              {new FixedNumber(
-                BigInt(detail.meme.total_deposit) * BigInt(2),
-                24,
-              ).format()}
-            </span>
-            <span
-              class="ml-auto flex items-center justify-end text-right gap-1"
-            >
-              created by
-              <a
-                href={`https://pikespeak.ai/wallet-explorer/${detail.meme.owner}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-shitzu-4"
-              >
-                <Chef
-                  account={detail.meme.owner}
-                  class="bg-shitzu-3 text-black px-1 rounded"
-                />
-              </a>
-            </span>
-          </div>
-          <div class="w-full aspect-ratio-21/9">
-            <TokenChart memebid={detail.meme} />
-          </div>
-          <div class="w-full h-screen">
-            <TradeTabs meme={detail.meme} />
-          </div>
-        </div>
-
-        <div class="w-90 p-2 flex flex-col gap-5">
-          <div class="w-full min-h-74 border-2 border-shitzu-4 rounded-xl p-2">
-            <MCStake meme={detail.meme} />
-          </div>
-
-          <!-- Link -->
-          <SocialLink
-            twitterLink={detail.meme.twitterLink || ""}
-            telegramLink={detail.meme.telegramLink || ""}
-            website={detail.meme.website || ""}
-          />
-
-          <!-- Token Detail -->
-          <div class="w-full text-gray-4">
-            <div class="flex gap-2">
-              <img
-                src="{import.meta.env.VITE_IPFS_GATEWAY}/{detail.meme.image}"
-                alt={detail.meme.name}
-                class="w-30 object-contain"
-              />
-              <div>
-                <h2>{detail.meme.name} <b>{detail.meme.symbol}</b></h2>
-                <div class="text-sm">{detail.meme.description}</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Holder -->
-          <div class="w-full">
-            <TokenHolder meme={detail.meme} />
-          </div>
-          <!-- End Right Nav -->
-        </div>
-      </div>
+      <MemeDetail meme={detail.meme} {required_stake} />
     {:else}
       <div>Meme not found</div>
     {/if}
