@@ -1,47 +1,36 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+
   import Terminal from "./Desktop/Terminal.svelte";
   import TokenCarousel from "./TokenCarousel.svelte";
 
   import { replaceState } from "$app/navigation";
   import { page } from "$app/stores";
-  import { MCsubscribe, memebids } from "$lib/store/memebids";
+  import { MCsubscribe, MCunsubscribe, memebids } from "$lib/store/memebids";
   import { isMobile } from "$lib/util";
 
   export let currentMemebidsIdx: number;
   export let initialMemebidsPromise: Promise<void>;
 
-  MCsubscribe(Symbol("main_feed"), async (newMemeInfo) => {
-    if (isMobile()) {
+  const symbol = Symbol("main_feed");
+
+  onMount(() => {
+    MCsubscribe(symbol, async (newMemeInfo) => {
       const idx = $memebids.findIndex((b) => b.meme_id === newMemeInfo.meme_id);
+      const meme = $memebids[idx];
+      meme.total_deposit = newMemeInfo.total_deposit;
+      meme.total_deposit_fees = newMemeInfo.total_deposit_fees;
+      meme.last_change_ms = Date.now();
 
-      if (idx === currentMemebidsIdx) {
-        return;
-      }
-      return;
-    }
+      $memebids = [
+        meme,
+        ...$memebids.filter((b) => b.meme_id !== meme.meme_id),
+      ];
+    });
 
-    // console.log(
-    //   "[bump] newMemeInfo last_change_ms",
-    //   newMemeInfo.last_change_ms,
-    // );
-    // console.log(
-    //   "[bump] $memebids max last_change_ms",
-    //   Math.max(...$memebids.map((b) => b.last_change_ms)),
-    // );
-    // // bump new meme to the top
-    // memebids.set([
-    //   newMemeInfo,
-    //   ...$memebids.filter((b) => b.meme_id !== newMemeInfo.meme_id),
-    // ]);
-    // $memebids = $memebids;
-    // console.log("[bump] $memebids", $memebids);
-    const idx = $memebids.findIndex((b) => b.meme_id === newMemeInfo.meme_id);
-    const meme = $memebids[idx];
-    meme.total_deposit = newMemeInfo.total_deposit;
-    meme.total_deposit_fees = newMemeInfo.total_deposit_fees;
-    meme.last_change_ms = Date.now();
-
-    $memebids = [meme, ...$memebids.filter((b) => b.meme_id !== meme.meme_id)];
+    return () => {
+      MCunsubscribe(symbol);
+    };
   });
 
   async function onSelect(event: CustomEvent<number>) {
@@ -59,20 +48,6 @@
     replaceState(`/${id}`, $page.state);
   }
 </script>
-
-<!-- <button
-  on:click={() => {
-    // simulate MCSubscribe
-    // pick one from the array (not the first)
-    const idx = Math.floor(Math.random() * ($memebids.length - 1)) + 1;
-    const meme = $memebids[idx];
-    meme.last_change_ms = Date.now();
-    console.log("[bump] meme", meme);
-    $memebids = [meme, ...$memebids.filter((b) => b.meme_id !== meme.meme_id)];
-  }}
->
-  bump
-</button> -->
 
 {#if isMobile()}
   <TokenCarousel
