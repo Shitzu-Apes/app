@@ -8,35 +8,60 @@
   import ClaimList from "$lib/components/memecooking/Profile/ClaimList.svelte";
   import CoinCreated from "$lib/components/memecooking/Profile/CoinCreated.svelte";
   import DepositList from "$lib/components/memecooking/Profile/DepositList.svelte";
-  // import { MemeCooking } from "$lib/near";
+  import { MemeCooking } from "$lib/near";
 
   const { accountId } = $page.params;
 
-  $: profileInfo = client
-    .GET("/profile/{accountId}", {
-      params: {
-        path: { accountId },
-      },
-    })
-    .then((res) => {
-      console.log("[profileInfo]", res);
-      return res.data;
-    });
+  const fullAccount = MemeCooking.getAccount(accountId).then(
+    async (account) => {
+      if (!account) return;
+      const data = await client.POST("/profile", {
+        body: {
+          meme_id: account
+            ? account.deposits.map((deposit) => deposit[0].toString())
+            : [],
+          token_id: account ? account.claims.map((claim) => claim[0]) : [],
+          account_id: accountId,
+        },
+      });
+      const deposits = account.deposits.map((deposit) => ({
+        meme_id: deposit[0].toString(),
+        amount: deposit[1].toString(),
+        meme: data.data?.meme_info[deposit[0].toString()],
+      }));
+      const claims = account.claims.map((claim) => ({
+        token_id: claim[0].toString(),
+        amount: claim[1].toString(),
+        meme: data.data?.token_info[claim[0].toString()],
+      }));
+
+      return {
+        account,
+        deposits,
+        claims,
+        created: data.data?.coinsCreated,
+      };
+    },
+  );
+
+  fullAccount.then((account) => {
+    console.log("[fullAccount]", account);
+  });
 
   const tabs = [
     {
       id: "not-finalized",
-      label: "virtual coins held",
+      label: "withdraw NEAR",
       info: "All ongoing acutions and unsucsesful acutions",
     },
     {
       id: "finalized",
-      label: "coins held",
+      label: "claim MEME",
       info: "All successful acutions",
     },
     {
       id: "created",
-      label: "coin created",
+      label: "my MEME",
       info: "All coins created by this account",
     },
   ];
@@ -86,18 +111,18 @@
     </div>
   </div>
 
-  {#await profileInfo}
+  {#await fullAccount}
     <div class="i-svg-spinners:pulse-3 size-6" />
   {:then info}
     {#if info}
       <section use:melt={$content(tabs[0].id)}>
-        <DepositList deposits={info.virtual_coins} />
+        <DepositList deposits={info.deposits} />
       </section>
       <section use:melt={$content(tabs[1].id)}>
-        <ClaimList claims={info.coins_held} />
+        <ClaimList claims={info.claims} />
       </section>
       <section use:melt={$content(tabs[2].id)}>
-        <CoinCreated coins={info.coin_created} />
+        <CoinCreated coins={info.created} />
       </section>
     {/if}
   {/await}

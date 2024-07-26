@@ -1,15 +1,22 @@
 <script lang="ts">
-  import type { paths } from "$lib/api/openapi";
+  import type { Meme } from "$lib/api/client";
+  import Near from "$lib/assets/Near.svelte";
   import { MemeCooking, wallet } from "$lib/near";
   import { FixedNumber } from "$lib/util";
 
-  export let deposit: paths["/profile/{accountId}"]["get"]["responses"]["200"]["content"]["application/json"]["virtual_coins"][number];
+  export let deposit: {
+    meme_id: string;
+    amount: string;
+    meme: Meme | undefined;
+  };
+
+  console.log("[deposit]", deposit);
 
   async function withdraw() {
     try {
       await MemeCooking.withdraw(wallet, {
-        memeId: deposit.meme_id,
-        amount: deposit.balance,
+        memeId: +deposit.meme_id,
+        amount: deposit.amount,
       });
     } catch (e) {
       console.error(e);
@@ -17,20 +24,32 @@
   }
 </script>
 
-<div class="flex gap-4 items-start">
-  <img
-    src="{import.meta.env.VITE_IPFS_GATEWAY}/{deposit.image}"
-    alt="{deposit.name} icon"
-    class="rounded-lg w-24"
-  />
-  <div class="flex flex-col">
+<div class="flex gap-4 items-start max-w-xl">
+  {#if deposit.meme?.image}
+    <img
+      src="{import.meta.env.VITE_IPFS_GATEWAY}/{deposit.meme?.image}"
+      alt="{deposit.meme?.name} icon"
+      class="rounded-lg w-24"
+    />
+  {:else}
+    <div class="size-24 bg-gray-200 rounded-lg" />
+  {/if}
+
+  <div class="flex flex-col flex-1">
     <div class="">
-      <h3 class="text-lg font-bold uppercase">{deposit.symbol}</h3>
+      <h3 class="text-lg font-bold uppercase">
+        {deposit.meme ? deposit.meme.symbol : "N/A"}
+      </h3>
     </div>
     <div class="">
-      <h4 class="text-md font-normal">{deposit.name}</h4>
+      <h4 class="text-md font-normal">
+        {deposit.meme ? deposit.meme.name : "N/A"}
+      </h4>
     </div>
-    <div class="">{new FixedNumber(deposit.balance, 24).format()}</div>
+    <div class="flex items-center gap-1">
+      <Near className="size-4" />
+      {new FixedNumber(deposit.amount, 24).format()}
+    </div>
     <button class="" on:click={withdraw}>[withdraw]</button>
   </div>
 </div>

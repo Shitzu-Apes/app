@@ -1,14 +1,14 @@
 <script lang="ts">
-  import type { paths } from "$lib/api/openapi";
+  import type { Meme } from "$lib/api/client";
 
-  export let coins: paths["/profile/{accountId}"]["get"]["responses"]["200"]["content"]["application/json"]["coin_created"];
+  export let coins: Meme[] | undefined;
 </script>
 
 <div class="my-6">
-  {#if coins.length > 0}
+  {#if coins && coins.length > 0}
     <ul class="flex flex-col gap-2 justify-center items-center">
       {#each coins as claim (claim.meme_id)}
-        <li>
+        <li class="w-full max-w-xl">
           <a
             href={`/meme/${claim.meme_id}`}
             class="flex gap-4 items-start border border-transparent hover:border-white p-2 rounded"
@@ -18,7 +18,7 @@
               alt="{claim.name} icon"
               class="rounded-lg w-24"
             />
-            <div class="flex flex-col">
+            <div class="flex flex-col flex-1">
               <div class="">
                 <h3 class="text-lg font-bold uppercase">{claim.symbol}</h3>
               </div>
