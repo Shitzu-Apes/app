@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Countdown from "../Countdown.svelte";
+
   import type { Meme } from "$lib/api/client";
   import Near from "$lib/assets/Near.svelte";
   import { MemeCooking, wallet } from "$lib/near";
@@ -9,8 +11,6 @@
     amount: string;
     meme: Meme | undefined;
   };
-
-  console.log("[deposit]", deposit);
 
   async function withdraw() {
     try {
@@ -36,15 +36,16 @@
   {/if}
 
   <div class="flex flex-col flex-1">
-    <div class="">
-      <h3 class="text-lg font-bold uppercase">
-        {deposit.meme ? deposit.meme.symbol : "N/A"}
-      </h3>
-    </div>
-    <div class="">
+    <div class="flex flex-col">
       <h4 class="text-md font-normal">
         {deposit.meme ? deposit.meme.name : "N/A"}
       </h4>
+      <h3 class="text-base font-semibold">
+        ({deposit.meme ? deposit.meme.symbol : "N/A"})
+      </h3>
+    </div>
+    <div>
+      <Countdown to={deposit.meme?.end_timestamp_ms || 0} />
     </div>
     <div class="flex items-center gap-1">
       <Near className="size-4" />

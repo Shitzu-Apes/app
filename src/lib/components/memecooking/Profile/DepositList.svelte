@@ -8,6 +8,22 @@
     amount: string;
     meme: Meme | undefined;
   }[];
+
+  deposits.sort((a, b) => {
+    // ended_timestamp_ms doesn't exist or ended_timestamp_ms has already passed then it should be at the end of the list
+    if (!a.meme?.end_timestamp_ms || a.meme?.end_timestamp_ms < Date.now()) {
+      return 1;
+    }
+    if (!b.meme?.end_timestamp_ms || b.meme?.end_timestamp_ms < Date.now()) {
+      return -1;
+    }
+
+    // otherwise sort by ended_timestamp_ms
+    return (
+      new Date(a.meme?.end_timestamp_ms || 0).getTime() -
+      new Date(b.meme?.end_timestamp_ms || 0).getTime()
+    );
+  });
 </script>
 
 <div class="my-6">
