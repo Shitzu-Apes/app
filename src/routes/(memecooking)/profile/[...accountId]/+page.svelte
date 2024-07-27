@@ -115,13 +115,13 @@
     <div class="i-svg-spinners:pulse-3 size-6" />
   {:then info}
     {#if info}
-      <section use:melt={$content(tabs[0].id)}>
+      <section class="w-full max-w-xs" use:melt={$content(tabs[0].id)}>
         <DepositList deposits={info.deposits} />
       </section>
-      <section use:melt={$content(tabs[1].id)}>
+      <section class="w-full max-w-xs" use:melt={$content(tabs[1].id)}>
         <ClaimList claims={info.claims} />
       </section>
-      <section use:melt={$content(tabs[2].id)}>
+      <section class="w-full max-w-xs" use:melt={$content(tabs[2].id)}>
         <CoinCreated coins={info.created} />
       </section>
     {/if}

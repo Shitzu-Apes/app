@@ -21,8 +21,8 @@
   }
 </script>
 
-{#if claim.token_id === import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID}
-  <div class="w-full flex gap-4 items-start max-w-xl">
+<div class="w-full flex gap-4 items-start">
+  {#if claim.token_id === import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID}
     <div class="rounded-lg w-24 bg-white">
       <Near className="size-24 text-black" />
     </div>
@@ -39,9 +39,7 @@
       </div>
       <button class="" on:click={claiming}>[claim]</button>
     </div>
-  </div>
-{:else}
-  <div class="w-full flex gap-4 items-start max-w-xl">
+  {:else}
     {#if claim.meme?.image}
       <img
         src="{import.meta.env.VITE_IPFS_GATEWAY}/{claim.meme.image}"
@@ -52,17 +50,15 @@
       <div class="rounded-lg w-24 bg-gray-200"></div>
     {/if}
     <div class="flex flex-col flex-1">
-      <div class="">
-        <h3 class="text-lg font-bold uppercase">
+      <div class="flex flex-col">
+        <h3 class="text-lg font-semibold">
           {claim.meme ? claim.meme.symbol : "N/A"}
         </h3>
-      </div>
-      <div class="">
-        <h4 class="text-md font-normal">
+        <h4 class="text-xs font-normal">
           {claim.meme ? claim.meme.name : "N/A"}
         </h4>
       </div>
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-1 mt-auto">
         {#if claim.meme?.image}
           <img
             src="{import.meta.env.VITE_IPFS_GATEWAY}/{claim.meme?.image}"
@@ -74,7 +70,13 @@
         {/if}
         {new FixedNumber(claim.amount, 24).format()}
       </div>
-      <button class="" on:click={claiming}>[claim]</button>
     </div>
-  </div>
-{/if}
+
+    <div class="ml-auto flex flex-col justify-end items-end">
+      <a href={`/meme/${claim.meme?.meme_id}`} class="hover:underline">
+        [view]
+      </a>
+      <button class="hover:underline" on:click={claiming}>[claim]</button>
+    </div>
+  {/if}
+</div>

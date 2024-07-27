@@ -24,7 +24,7 @@
   }
 </script>
 
-<div class="flex gap-4 items-start max-w-xl">
+<div class="flex gap-4 items-start w-full">
   {#if deposit.meme?.image}
     <img
       src="{import.meta.env.VITE_IPFS_GATEWAY}/{deposit.meme?.image}"
@@ -37,12 +37,12 @@
 
   <div class="flex flex-col flex-1">
     <div class="flex flex-col">
-      <h4 class="text-md font-normal">
+      <h3 class="text-base font-semibold">
+        {deposit.meme ? deposit.meme.symbol : "N/A"}
+      </h3>
+      <h4 class="text-xs font-normal">
         {deposit.meme ? deposit.meme.name : "N/A"}
       </h4>
-      <h3 class="text-base font-semibold">
-        ({deposit.meme ? deposit.meme.symbol : "N/A"})
-      </h3>
     </div>
     <div>
       <Countdown to={deposit.meme?.end_timestamp_ms || 0} />
@@ -51,6 +51,10 @@
       <Near className="size-4" />
       {new FixedNumber(deposit.amount, 24).format()}
     </div>
-    <button class="" on:click={withdraw}>[withdraw]</button>
+  </div>
+
+  <div class="ml-auto flex flex-col justify-end items-end">
+    <a href={`/meme/${deposit.meme_id}`} class="hover:underline"> [view] </a>
+    <button class="hover:underline" on:click={withdraw}>[withdraw]</button>
   </div>
 </div>

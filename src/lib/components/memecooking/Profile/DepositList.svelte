@@ -26,11 +26,11 @@
   });
 </script>
 
-<div class="my-6">
+<div class="my-6 w-full">
   {#if deposits.length > 0}
-    <ul class="flex flex-col gap-2 justify-center items-center">
+    <ul class="w-full flex flex-col gap-4 justify-center items-center">
       {#each deposits as deposit, index (deposit.meme_id || `index-${index}`)}
-        <li class="w-full max-w-xl">
+        <li class="w-full">
           <Deposit {deposit} />
         </li>
       {/each}

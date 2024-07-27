@@ -10,11 +10,11 @@
   }[];
 </script>
 
-<div class="my-6">
+<div class="my-6 w-full">
   {#if claims.length > 0}
-    <ul class="flex flex-col gap-2 justify-center items-center">
+    <ul class="w-full flex flex-col gap-4 justify-center items-center">
       {#each claims as claim, index (claim.meme ? claim.meme.meme_id : `index-${index}`)}
-        <li class="w-full max-w-xl">
+        <li class="w-full">
           <Claim {claim} />
         </li>
       {/each}
