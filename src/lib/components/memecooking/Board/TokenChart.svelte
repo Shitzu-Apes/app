@@ -25,32 +25,36 @@
 
   onMount(() => {
     const now = Date.now();
-    const to =
-      now < memebid.end_timestamp_ms! ? now : memebid.end_timestamp_ms!;
-    const timeframe = {
-      from: ~~(memebid.created_timestamp_ms / 1000),
-      to: ~~(to / 1000),
-    };
+    const to = Math.min(now, memebid.end_timestamp_ms!);
 
     let interval: ResolutionString;
     const duration = to - memebid.created_timestamp_ms;
 
+    const aspectRatio = width / height;
+    const bars = Math.round(aspectRatio * 48);
+    let from;
     if (duration < 10 * 60 * 1000) {
       interval = "1" as ResolutionString;
+      from = to - bars * 60 * 1000;
     } else if (duration < 8 * 60 * 60 * 1000) {
-      interval = "5" as ResolutionString;
+      interval = "2" as ResolutionString;
+      from = to - bars * 2 * 60 * 1000;
     } else {
       interval = "15" as ResolutionString;
+      from = to - bars * 15 * 60 * 1000;
     }
 
-    console.log("interval", interval);
+    const timeframe = {
+      from: ~~(from / 1000),
+      to: ~~(to / 1000),
+    };
 
     const widgetOptions: ChartingLibraryWidgetOptions = {
       theme: "dark",
       symbol: memebid.meme_id.toString(),
       time_frames: [
         { text: "1m", resolution: "1" },
-        { text: "5m", resolution: "5" },
+        { text: "2m", resolution: "2" },
         { text: "15m", resolution: "15" },
         { text: "30m", resolution: "30" },
         { text: "1h", resolution: "60" },
@@ -61,7 +65,6 @@
       interval,
       container: ref,
       library_path: "/charting_library/",
-
       locale: getLanguageFromURL() || "en",
       disabled_features: [
         "symbol_search_hot_key",
@@ -106,7 +109,7 @@
         memebid.total_supply && parseFloat(memebid.total_supply) !== 0
           ? +memebid.total_deposit / +memebid.total_supply
           : DEFAULT_PRICE;
-      priceScale.setVisiblePriceRange({ from: 0, to: price });
+      priceScale.setVisiblePriceRange({ from: 0, to: price * 1.5 });
     });
   });
 

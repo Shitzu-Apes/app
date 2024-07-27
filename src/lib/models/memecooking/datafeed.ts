@@ -69,6 +69,7 @@ const MemeCookingDataFeed: IBasicDataFeed = {
         has_weekly_and_monthly: false,
         supported_resolutions: [
           "1",
+          "2",
           "5",
           "15",
           "30",
