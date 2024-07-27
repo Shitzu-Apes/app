@@ -160,12 +160,23 @@ const MemeCookingDataFeed: IBasicDataFeed = {
       return;
     }
 
-    let lastBar = lastBarsCache.get(symbolInfo.ticker)!;
+    let lastBar = lastBarsCache.get(symbolInfo.ticker);
 
     MCsubscribe(subscriberUID, (data) => {
       console.log("[MCsubscribe]: Data", data.symbol, symbolInfo.ticker);
       if (data.symbol !== symbolInfo.ticker) {
         return;
+      }
+
+      if (!lastBar) {
+        const time = Math.floor(data.timestamp_ms / 1000) * 1000;
+        lastBar = {
+          time,
+          low: 0,
+          high: 0,
+          open: 0,
+          close: 0,
+        };
       }
 
       const nextBarTime = lastBar.time + Number(resolution) * 60 * 1000;

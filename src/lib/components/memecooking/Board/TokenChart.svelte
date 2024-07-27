@@ -106,9 +106,9 @@
         .getRightPriceScales()[0];
       const DEFAULT_PRICE = 1e-8;
       const price =
-        memebid.total_supply && parseFloat(memebid.total_supply) !== 0
+        (memebid.total_supply && parseFloat(memebid.total_supply) !== 0
           ? +memebid.total_deposit / +memebid.total_supply
-          : DEFAULT_PRICE;
+          : DEFAULT_PRICE) || DEFAULT_PRICE;
       priceScale.setVisiblePriceRange({ from: 0, to: price * 1.5 });
     });
   });
