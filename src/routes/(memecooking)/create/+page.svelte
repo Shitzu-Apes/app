@@ -55,7 +55,7 @@
     name = savedMeme.name;
     ticker = savedMeme.symbol;
     description = savedMeme.description || "";
-    image = savedMeme.image || null;
+    image = `${import.meta.env.VITE_IPFS_GATEWAY}/${savedMeme.image}` || null;
     icon = savedMeme.image || null;
     imageCID = image?.split("/").pop() || null;
     ctoFrom = savedMeme.meme_id;
@@ -321,7 +321,7 @@
         class="block text-sm text-shitzu-4 font-600 inline-flex items-center gap-2"
       >
         image
-        {#if imageFile}
+        {#if imageReady}
           <button
             on:click={() => {
               image = null;
@@ -334,7 +334,7 @@
       </label>
       {#if image}
         <div class="w-full max-h-60 flex justify-center items-center">
-          <img src={image} alt="token icon" class="max-h-60" />
+          <img src={image || imageCID} alt="token icon" class="max-h-60" />
         </div>
       {:else}
         <div class="relative w-full">
