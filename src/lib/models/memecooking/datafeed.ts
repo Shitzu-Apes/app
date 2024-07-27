@@ -58,7 +58,7 @@ const MemeCookingDataFeed: IBasicDataFeed = {
       const symbolInfo: LibrarySymbolInfo = {
         ticker: data.meme.symbol,
         name: data.meme.name,
-        description: data.meme.description || "",
+        description: data.meme.symbol || "",
         type: "crypto",
         session: "24x7",
         timezone: "Etc/UTC",
