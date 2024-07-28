@@ -2,6 +2,7 @@
   import { client, type Meme } from "$lib/api/client";
   import SHITZU_KING from "$lib/assets/shitzu_saiya.webp";
   import Board from "$lib/components/memecooking/Board/Board.svelte";
+  import King from "$lib/components/memecooking/Board/King.svelte";
   // import { MemeCooking } from "$lib/near";
   import { memebids } from "$lib/store/memebids";
   import { search } from "$lib/util/search";
@@ -27,6 +28,7 @@
     }
   }
 
+  let currentKing = client.GET("/meme/king");
   let currentMemebidsIdx = 0;
 </script>
 
@@ -42,19 +44,23 @@
     </h2>
     <img src={SHITZU_KING} alt="shitzu king" class="size-24" />
   </div>
-  <div class="flex gap-4 items-center">
-    <div class="loader size-24" />
-    <div class="flex flex-col gap-2">
-      <!-- Created by -->
-      <div class="loader w-40 h-4" />
-      <!-- MCap -->
-      <div class="loader w-50 h-4" />
-      <!-- replies -->
-      <div class="loader w-20 h-2" />
-      <!-- Ticker -->
-      <div class="loader w-50 h-5" />
+  {#await currentKing}
+    <div class="flex gap-4 items-center">
+      <div class="loader size-24" />
+      <div class="flex flex-col gap-2">
+        <!-- Created by -->
+        <div class="loader w-40 h-4" />
+        <!-- MCap -->
+        <div class="loader w-50 h-4" />
+        <!-- replies -->
+        <div class="loader w-20 h-2" />
+        <!-- Ticker -->
+        <div class="loader w-50 h-5" />
+      </div>
     </div>
-  </div>
+  {:then data}
+    <King king={data.data} />
+  {/await}
 
   <!-- Search box -->
   <div class="flex justify-center items-center gap-2 w-full my-10 text-black">
