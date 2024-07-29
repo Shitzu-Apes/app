@@ -5,6 +5,7 @@
   import { client } from "$lib/api/client";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import Tooltip from "$lib/components/Tooltip.svelte";
+  import Claim from "$lib/components/memecooking/Profile/Claim.svelte";
   import ClaimList from "$lib/components/memecooking/Profile/ClaimList.svelte";
   import CoinCreated from "$lib/components/memecooking/Profile/CoinCreated.svelte";
   import DepositList from "$lib/components/memecooking/Profile/DepositList.svelte";
@@ -29,20 +30,20 @@
         amount: deposit[1].toString(),
         meme: data.data?.meme_info[deposit[0].toString()],
       }));
-      const claims = account.claims
-        .map((claim) => ({
-          token_id: claim[0].toString(),
-          amount: claim[1].toString(),
-          meme: data.data?.token_info[claim[0].toString()],
-        }))
-        .filter(
-          (claim) =>
-            claim.token_id !== import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
-        );
+      let claims = account.claims.map((claim) => ({
+        token_id: claim[0].toString(),
+        amount: claim[1].toString(),
+        meme: data.data?.token_info[claim[0].toString()],
+      }));
 
       const revenue = claims.find(
         (claim) =>
           claim.token_id === import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
+      );
+
+      claims = claims.filter(
+        (claim) =>
+          claim.token_id !== import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
       );
 
       console.log("[claims]", claims);
@@ -107,6 +108,14 @@
       </div>
     </div>
   </div>
+  {#await fullAccount then info}
+    {#if info && info.revenue}
+      <div class="max-w-xs my-10 w-full">
+        <h3 class="mb-6 font-semibold text-lg">Revenue</h3>
+        <Claim claim={info.revenue} />
+      </div>
+    {/if}
+  {/await}
 
   <div use:melt={$root}>
     <div use:melt={$list} class="flex gap-1">
@@ -129,11 +138,6 @@
     <div class="i-svg-spinners:pulse-3 size-20 mt-[80px]" />
   {:then info}
     {#if info}
-      {#if info.revenue}
-        <div class="text-lg text-shitzu-4">
-          Revenue: {info.revenue.amount}
-        </div>
-      {/if}
       <section class="w-full max-w-xs" use:melt={$content(tabs[0].id)}>
         <DepositList deposits={info.deposits} />
       </section>
