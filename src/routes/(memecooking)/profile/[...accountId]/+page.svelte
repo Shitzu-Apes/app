@@ -51,18 +51,18 @@
   const tabs = [
     {
       id: "not-finalized",
-      label: "withdraw NEAR",
-      info: "All ongoing acutions and unsucsesful acutions",
+      label: "withdraw Stake",
+      info: "All ongoing staking and unsucsesful launches",
     },
     {
       id: "finalized",
-      label: "claim MEME",
-      info: "All successful acutions",
+      label: "claim Token",
+      info: "Successful launches",
     },
     {
       id: "created",
-      label: "my MEME",
-      info: "All coins created by this account",
+      label: "created Token",
+      info: "All tokens created by this account",
     },
   ];
 
