@@ -27,17 +27,19 @@
       <Near className="size-24 text-black" />
     </div>
     <div class="flex flex-col flex-1">
-      <div class="">
-        <h3 class="text-lg font-bold uppercase">wNEAR</h3>
+      <div class="flex flex-col">
+        <h3 class="text-lg font-semibold">wNEAR</h3>
+        <h4 class="text-xs font-normal">Wrapped NEAR</h4>
       </div>
-      <div class="">
-        <h4 class="text-md font-normal">Wrapped NEAR</h4>
-      </div>
-      <div class="flex items-center gap-1">
-        <Near className="size-4 text-black bg-white rounded-full" />
+      <div class="flex items-center gap-1 mt-auto">
+        <Near className="size-4 text-black bg-white" />
         {new FixedNumber(claim.amount, 24).format()}
       </div>
-      <button class="" on:click={claiming}>[claim]</button>
+    </div>
+
+    <div class="ml-auto flex flex-col justify-end items-end">
+      <a href={`/meme/${claim.token_id}`} class="hover:underline"> [view] </a>
+      <button class="hover:underline" on:click={claiming}>[claim]</button>
     </div>
   {:else}
     {#if claim.meme?.image}
