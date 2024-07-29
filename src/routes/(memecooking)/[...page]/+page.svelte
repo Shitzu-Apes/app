@@ -72,10 +72,6 @@
     />
     <button class="bg-shitzu-5 px-4 py-2 rounded-lg">Search</button>
   </div>
-
-  <div class="flex items-center justify-center text-base text-shitzu-4">
-    &leftarrow;&uparrow;&downarrow;&rightarrow; Use arrow keys to navigate
-  </div>
   <section class="w-full">
     <Board {initialMemebidsPromise} {currentMemebidsIdx} />
   </section>

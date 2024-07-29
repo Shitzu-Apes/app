@@ -15,11 +15,27 @@
     href={`/meme/${memebid.meme_id}`}
     class="w-full flex items-start justify-start gap-3 p-2 border border-transparent hover:border-white cursor-pointer relative"
   >
-    <img
-      src={`${import.meta.env.VITE_IPFS_GATEWAY}/${memebid.image}`}
-      alt={memebid.name}
-      class="w-24"
-    />
+    <div class="w-24 flex flex-col items-center">
+      <img
+        src={`${import.meta.env.VITE_IPFS_GATEWAY}/${memebid.image}`}
+        alt={memebid.name}
+        class="w-full"
+      />
+      {#if memebid && memebid.end_timestamp_ms && !memebid.pool_id && memebid.end_timestamp_ms < Date.now()}
+        <button
+          class="border-2 border-memecooking-2 font-mono text-memecooking-2 hover:bg-memecooking-2 hover:text-black flex items-center gap-1 w-24 px-1"
+          on:click={(e) => {
+            e.preventDefault();
+            goto(`/create`);
+
+            localStorage.setItem("meme_to_cto", JSON.stringify(memebid));
+          }}
+        >
+          <div class="i-mdi:alert" />
+          <span class="text-xs"> Relaunch </span>
+        </button>
+      {/if}
+    </div>
     <div
       class="flex flex-col items-start justify-start h-full gap-1 flex-1 relative"
     >
@@ -63,18 +79,4 @@
       </div>
     </div>
   </a>
-  {#if memebid && memebid.end_timestamp_ms && !memebid.pool_id && memebid.end_timestamp_ms < Date.now()}
-    <button
-      class="w-full border-2 border-black font-mono bg-memecooking-5 px-2 rounded text-black hover:bg-memecooking-6 flex items-center gap-2"
-      on:click={(e) => {
-        e.preventDefault();
-        goto(`/create`);
-
-        localStorage.setItem("meme_to_cto", JSON.stringify(memebid));
-      }}
-    >
-      <div class="i-mdi:alert" />
-      Revive
-    </button>
-  {/if}
 </div>
