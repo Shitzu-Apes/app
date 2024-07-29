@@ -3,6 +3,7 @@
 
   import MEMECOOKING_LOGO from "$lib/assets/logo/memecooking.svg";
   import { showWalletSelector } from "$lib/auth";
+  import BridgeSheet from "$lib/components/memecooking/BottomSheet/BridgeSheet.svelte";
   import HowItWorkSheet from "$lib/components/memecooking/BottomSheet/HowItWorkSheet.svelte";
   import Chef from "$lib/components/memecooking/Chef.svelte";
   import Notification from "$lib/components/memecooking/Notification/Notification.svelte";
@@ -28,13 +29,13 @@
           </a>
         </li>
         <li>
-          <a
-            href="https://app.rocketx.exchange/swap/SOLANA.solana/NEAR.near/0.0061?from=Solana&to=NEAR%20Protocol&mode=w"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            on:click={() => {
+              openBottomSheet(BridgeSheet);
+            }}
           >
-            [bridge from sol]
-          </a>
+            [bridge]
+          </button>
         </li>
       </div>
       <div class="flex gap-2">
