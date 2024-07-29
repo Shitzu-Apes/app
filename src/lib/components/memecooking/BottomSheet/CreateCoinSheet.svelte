@@ -68,7 +68,7 @@
         class="w-full h-full flex flex-col justify-center items-center gap-10"
       >
         <div class="i-svg-spinners:180-ring size-20" />
-        <h1 class="text-xl">Is it ready, Chef?</h1>
+        <h1 class="text-xl">Cooking Meme</h1>
       </div>
     {:else if status === "Cooking"}
       <div
