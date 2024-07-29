@@ -16,16 +16,15 @@ export function imageFileToBase64(imageFile: File): Promise<string> {
 const UploadResizeWidth = 64;
 const UploadResizeHeight = 64;
 
-export function imageFileToIcon(imageFile: File): Promise<string> {
+export async function imageFileToIcon(imageFile: File): Promise<string> {
+  const base64Image = await imageFileToBase64(imageFile);
+  return base64ToIcon(base64Image);
+}
+
+export function base64ToIcon(base64Image: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
     const image = new Image();
-    reader.onload = (e) => {
-      if (typeof e.target?.result !== "string") {
-        return reject();
-      }
-      image.src = e.target.result as string;
-    };
+    image.src = base64Image;
 
     image.onload = () => {
       const canvas = document.createElement("canvas");
@@ -51,13 +50,12 @@ export function imageFileToIcon(imageFile: File): Promise<string> {
       // Convert the canvas to a data URL in PNG format
       const options = [
         canvas.toDataURL("image/jpeg", 0.92),
-        // Disabling webp because it doesn't work on iOS.
-        // canvas.toDataURL('image/webp', 0.92),
         canvas.toDataURL("image/png"),
       ];
       options.sort((a, b) => a.length - b.length);
       resolve(canvas.toDataURL("image/png"));
     };
-    reader.readAsDataURL(imageFile);
+
+    image.onerror = reject;
   });
 }

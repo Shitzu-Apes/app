@@ -29,17 +29,31 @@
         amount: deposit[1].toString(),
         meme: data.data?.meme_info[deposit[0].toString()],
       }));
-      const claims = account.claims.map((claim) => ({
-        token_id: claim[0].toString(),
-        amount: claim[1].toString(),
-        meme: data.data?.token_info[claim[0].toString()],
-      }));
+      const claims = account.claims
+        .map((claim) => ({
+          token_id: claim[0].toString(),
+          amount: claim[1].toString(),
+          meme: data.data?.token_info[claim[0].toString()],
+        }))
+        .filter(
+          (claim) =>
+            claim.token_id !== import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
+        );
+
+      const revenue = claims.find(
+        (claim) =>
+          claim.token_id === import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
+      );
+
+      console.log("[claims]", claims);
+      console.log("[revenue]", revenue);
 
       return {
         account,
         deposits,
         claims,
         created: data.data?.coinsCreated,
+        revenue,
       };
     },
   );
@@ -112,9 +126,14 @@
   </div>
 
   {#await fullAccount}
-    <div class="i-svg-spinners:pulse-3 size-6" />
+    <div class="i-svg-spinners:pulse-3 size-20 mt-[80px]" />
   {:then info}
     {#if info}
+      {#if info.revenue}
+        <div class="text-lg text-shitzu-4">
+          Revenue: {info.revenue.amount}
+        </div>
+      {/if}
       <section class="w-full max-w-xs" use:melt={$content(tabs[0].id)}>
         <DepositList deposits={info.deposits} />
       </section>
