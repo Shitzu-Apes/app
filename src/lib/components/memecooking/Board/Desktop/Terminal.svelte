@@ -22,7 +22,8 @@
 
   let liveOnly = false;
 
-  console.log("[Terminal] memebids", memebids);
+  let page = 0;
+  let pageSize = 9;
 
   $: displayedMemebids = [
     ...filterAndSortMeme(
@@ -33,7 +34,7 @@
       },
       liveOnly,
     ),
-  ];
+  ].slice(1 + page * pageSize, 1 + (page + 1) * pageSize);
 </script>
 
 <div class="flex gap-3 mt-6 px-4">
@@ -85,6 +86,12 @@
         <MemePreview {memebid} />
       </div>
     {/each}
+  </div>
+  <!-- [page] -->
+  <div class="flex items-center justify-center gap-3 mb-10">
+    <button on:click={() => (page = page - 1)}>[prev]</button>
+    <span>{page + 1}</span>
+    <button on:click={() => (page = page + 1)}>[next]</button>
   </div>
 {/await}
 
