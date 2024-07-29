@@ -11,27 +11,58 @@
   });
 
   export let meme: MCMemeInfoWithReference;
-  let holders: Promise<[string, number][] | null> = getMemeStakes();
+  let holders: Promise<[string, number][] | null> = getHolders();
 
-  function getMemeStakes(): Promise<[string, number][] | null> {
-    return MemeCooking.getMemeStakes(meme.meme_id, 0, 1000).then((holders) => {
-      if (!holders || holders.length === 0) {
-        return null;
-      }
+  function getHolders(): Promise<[string, number][] | null> {
+    if (meme.pool_id) {
+      const token_id = meme.token_id;
+      return fetch(`https://api.fastnear.com/v1/ft/${token_id}/top`)
+        .then((res) => res.json())
+        .then(
+          (data: {
+            accounts: {
+              account_id: string;
+              balance: string;
+            }[];
+          }) => {
+            return data.accounts.map((holder) => {
+              const percentage =
+                new FixedNumber(holder.balance, 24).toNumber() /
+                new FixedNumber(meme.total_supply, 24).toNumber();
+              return [holder.account_id, percentage];
+            });
+          },
+        );
+    } else {
+      return MemeCooking.getMemeStakes(meme.meme_id, 0, 1000).then(
+        (holders) => {
+          if (!holders || holders.length === 0) {
+            return null;
+          }
 
-      // sort from highest to lowest
-      holders.sort((a, b) => (BigInt(b[1]) > BigInt(a[1]) ? 1 : -1));
+          // sort from highest to lowest
+          holders.sort((a, b) => (BigInt(b[1]) > BigInt(a[1]) ? 1 : -1));
 
-      return holders.map(([holder, amount]) => {
-        const total_staked = new FixedNumber(meme.total_deposit, 24).toNumber();
-        const percentage =
-          total_staked == 0
-            ? 0
-            : (new FixedNumber(amount, 24).toNumber() / total_staked) * 0.5;
+          const holders_with_percentage = holders.map(([holder, amount]) => {
+            const total_staked = new FixedNumber(
+              meme.total_deposit,
+              24,
+            ).toNumber();
+            const percentage =
+              total_staked == 0
+                ? 0
+                : (new FixedNumber(amount, 24).toNumber() / total_staked) * 0.5;
 
-        return [holder, percentage];
-      });
-    });
+            return [holder, percentage];
+          });
+
+          return [["pool", 0.5], ...holders_with_percentage] as [
+            string,
+            number,
+          ][];
+        },
+      );
+    }
   }
 
   const MCsymbol = Symbol();
@@ -41,7 +72,7 @@
         return;
       }
 
-      holders = getMemeStakes();
+      holders = getHolders();
     });
 
     return () => {
@@ -59,10 +90,6 @@
       <p>No holders</p>
     {:else}
       <div class="w-full h-full flex flex-col gap-2 items-center">
-        <div class="w-full flex justify-between items-center">
-          <p class="w-1/2 overflow-hidden text-ellipsis">pool</p>
-          <p class="flex items-center">50%</p>
-        </div>
         {#each holders as holder (holder[0])}
           <div class="w-full flex justify-between items-center">
             <p class="w-1/2 overflow-hidden text-ellipsis">
