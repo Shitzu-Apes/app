@@ -38,7 +38,9 @@
     </div>
 
     <div class="ml-auto flex flex-col justify-end items-end">
-      <a href={`/meme/${claim.token_id}`} class="hover:underline"> [view] </a>
+      <a href={`/meme/${claim.meme?.meme_id}`} class="hover:underline">
+        [view]
+      </a>
       <button class="hover:underline" on:click={claiming}>[claim]</button>
     </div>
   {:else}
