@@ -14,8 +14,10 @@
   import TokenTrade from "./TokenTrade.svelte";
 
   import { goto } from "$app/navigation";
+  import { client } from "$lib/api/client";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
+  import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
 
   export let memebid: MCMemeInfoWithReference;
 
@@ -48,6 +50,26 @@
       }
     }, 1000);
   }
+
+  const trades = client
+    .GET("/trades", {
+      params: {
+        query: {
+          meme_id: memebid.meme_id.toString(),
+        },
+      },
+    })
+    .then((trade) => {
+      console.log("[trade]", trade);
+      if (!trade.data) return [];
+
+      const trades = trade.data.map((trade) => ({
+        ...trade,
+        tokenAmount: predictedTokenAmount({ ...trade, ...memebid }),
+      }));
+
+      return trades.sort((a, b) => b.timestamp_ms - a.timestamp_ms);
+    });
 </script>
 
 <svelte:window
@@ -93,7 +115,7 @@
         <TokenTrade
           meme_id={memebid.meme_id}
           symbol={memebid.symbol}
-          trades={Promise.resolve([])}
+          {trades}
         />
       </div>
       <div class="flex-[0_0_100%] min-w-0">

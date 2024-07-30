@@ -42,7 +42,7 @@
     </h2>
     <div class="w-full h-[calc(100%-100px)]">
       <img
-        src={memebid.image}
+        src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
         alt="{memebid.name} icon"
         class="w-full h-full object-contain"
       />

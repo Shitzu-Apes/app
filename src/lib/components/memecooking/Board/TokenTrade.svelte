@@ -14,22 +14,24 @@
   >;
 </script>
 
-<ul class="w-full flex flex-col gap-1 text-xs">
-  <li
-    class="flex [&>*]:mx-[0.1rem] justify-between items-center p-2 bg-gray-600 rounded-lg text-white"
-  >
-    <span class="flex-[0.5_1_5rem] text-start">account</span>
-    <span class="flex-[0_0_3rem] text-start">type</span>
-    <span class="flex-[0.1_0_5rem] text-start">NEAR</span>
-    <span class="flex-[0.1_0_5rem] text-start uppercase">{symbol}</span>
-    <span class="flex-[0.1_0_5rem] text-start">date</span>
-    <span class="flex-[0.2_0_5rem] text-start">transaction</span>
-  </li>
-  {#await trades}
+<div class="w-full overflow-x-auto h-full">
+  <ul class="w-full flex flex-col gap-1 text-xs min-w-[500px]">
     <li
-      class="flex justify-between items-center p-2 bg-gray-600 rounded-lg text-white loader h-8"
-    ></li>
-  {:then trades}
-    <Trades {trades} {meme_id} />
-  {/await}
-</ul>
+      class="flex [&>*]:mx-[0.1rem] justify-between items-center p-2 bg-gray-600 rounded-lg text-white"
+    >
+      <span class="flex-[0.5_1_5rem] text-start">account</span>
+      <span class="flex-[0_0_3rem] text-start">type</span>
+      <span class="flex-[0.1_0_5rem] text-start">NEAR</span>
+      <span class="flex-[0.1_0_5rem] text-start">{symbol}</span>
+      <span class="flex-[0.1_0_5rem] text-start">date</span>
+      <span class="flex-[0.2_0_5rem] text-start">transaction</span>
+    </li>
+    {#await trades}
+      <li
+        class="flex justify-between items-center p-2 bg-gray-600 rounded-lg text-white loader h-8"
+      ></li>
+    {:then trades}
+      <Trades {trades} {meme_id} />
+    {/await}
+  </ul>
+</div>
