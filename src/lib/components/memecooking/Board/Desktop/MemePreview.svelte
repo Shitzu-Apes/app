@@ -40,11 +40,14 @@
       class="flex flex-col items-start justify-start h-full gap-1 flex-1 relative"
     >
       {#if memebid.pool_id}
-        <div
-          class="text-xs self-end px-1 tracking-tight bg-shitzu-3 rounded-full text-black"
+        <a
+          href={`https://testnet.ref.finance/pool/${memebid.pool_id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-xs self-end px-1 tracking-tight bg-shitzu-3 rounded-full text-black flex items-center gap-1"
         >
-          live on ref
-        </div>
+          live on ref <div class="i-mdi:open-in-new" />
+        </a>
       {:else if memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now()}
         <div
           class="text-xs self-end px-1 tracking-tight bg-rose-4 rounded-full text-black"
