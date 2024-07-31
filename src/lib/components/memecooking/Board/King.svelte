@@ -1,9 +1,29 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+
   import MemePreview from "./Desktop/MemePreview.svelte";
 
   import type { Meme } from "$lib/api/client";
+  import { MCsubscribe, MCunsubscribe } from "$lib/store/memebids";
 
   export let king: Meme | undefined;
+
+  let MCSymbol = Symbol();
+  onMount(() => {
+    MCsubscribe(MCSymbol, (meme) => {
+      if (
+        meme.coronated_at_ms &&
+        king?.coronated_at_ms &&
+        (!king || meme.coronated_at_ms > king.coronated_at_ms)
+      ) {
+        king = meme;
+      }
+    });
+
+    return () => {
+      MCunsubscribe(MCSymbol);
+    };
+  });
 </script>
 
 {#if king}
