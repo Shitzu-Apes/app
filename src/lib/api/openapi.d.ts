@@ -95,6 +95,7 @@ export interface paths {
               website?: string | null;
               image?: string | null;
               coronated_at_ms?: number | null;
+              telegram_discussion_id: string;
             };
           };
         };
@@ -172,6 +173,7 @@ export interface paths {
               website?: string | null;
               image?: string | null;
               coronated_at_ms?: number | null;
+              telegram_discussion_id: string;
             }[];
           };
         };
@@ -243,6 +245,7 @@ export interface paths {
                 website?: string | null;
                 image?: string | null;
                 coronated_at_ms?: number | null;
+                telegram_discussion_id: string;
               };
               account?: {
                 id: string;
@@ -431,6 +434,7 @@ export interface paths {
                 website?: string | null;
                 image?: string | null;
                 coronated_at_ms?: number | null;
+                telegram_discussion_id: string;
               }[];
               coins_held: {
                 id: string;
@@ -466,6 +470,7 @@ export interface paths {
                 website?: string | null;
                 image?: string | null;
                 coronated_at_ms?: number | null;
+                telegram_discussion_id: string;
               }[];
               coin_created: {
                 meme_id: number;
@@ -497,6 +502,7 @@ export interface paths {
                 website?: string | null;
                 image?: string | null;
                 coronated_at_ms?: number | null;
+                telegram_discussion_id: string;
               }[];
             };
           };
@@ -577,6 +583,7 @@ export interface paths {
                       website?: string | null;
                       image?: string | null;
                       coronated_at_ms?: number | null;
+                      telegram_discussion_id: string;
                     }
                   | undefined;
               };
@@ -612,6 +619,7 @@ export interface paths {
                       website?: string | null;
                       image?: string | null;
                       coronated_at_ms?: number | null;
+                      telegram_discussion_id: string;
                     }
                   | undefined;
               };
@@ -645,6 +653,7 @@ export interface paths {
                 website?: string | null;
                 image?: string | null;
                 coronated_at_ms?: number | null;
+                telegram_discussion_id: string;
               }[];
             };
           };

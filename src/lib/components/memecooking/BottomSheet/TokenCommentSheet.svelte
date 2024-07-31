@@ -3,7 +3,7 @@
 
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
 
-  export let id: number;
+  export let id: string;
 </script>
 
 <BottomSheetContent variant="shitzu">

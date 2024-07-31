@@ -59,7 +59,7 @@
 </div>
 
 <section use:melt={$content(tabs[0].id)}>
-  <TokenComment id={meme.meme_id} />
+  <TokenComment id={meme.telegram_discussion_id} />
 </section>
 <section use:melt={$content(tabs[1].id)}>
   <TokenTrade meme_id={meme.meme_id} symbol={meme.symbol} {trades} />

@@ -27,8 +27,6 @@
     loop: true,
   };
 
-  // just a placeholder for testing comment widget
-  export let id: number;
   let selected = 0;
 
   function prev() {
@@ -128,7 +126,9 @@
       <li>
         <button
           on:click={() => {
-            openBottomSheet(TokenCommentSheet, { id });
+            openBottomSheet(TokenCommentSheet, {
+              id: memebid.telegram_discussion_id,
+            });
           }}
         >
           [discuss]
