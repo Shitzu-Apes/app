@@ -187,7 +187,7 @@ export class Wallet {
     return match(wallet)
       .with({ type: P.union("browser", "injected") }, async (wallet) => {
         const accounts = await wallet.signIn({
-          contractId: import.meta.env.VITE_DOGSHIT_CONTRACT_ID,
+          contractId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
         });
         const account = accounts.pop();
         if (!account) return;
