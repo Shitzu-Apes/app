@@ -2,6 +2,11 @@
   import type { Meme } from "$lib/api/client";
 
   export let coins: Meme[] | undefined;
+
+  // sort by created time
+  $: coins = coins?.sort(
+    (a, b) => b.created_timestamp_ms - a.created_timestamp_ms,
+  );
 </script>
 
 <div class="my-6">
