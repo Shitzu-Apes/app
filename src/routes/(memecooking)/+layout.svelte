@@ -8,6 +8,7 @@
   import { cubicIn, cubicOut } from "svelte/easing";
   import { blur } from "svelte/transition";
 
+  import { client } from "$lib/api/client";
   import Toast from "$lib/components/memecooking/Toast.svelte";
   import { BottomSheet } from "$lib/layout/BottomSheet";
   import MCHeader from "$lib/layout/memecooking/MCHeader.svelte";
@@ -18,8 +19,38 @@
   } from "$lib/snackbar";
   import { initializeWebsocket, ws } from "$lib/store/memebids";
 
+  let indexer_last_block_height: number | null = null;
+  let node_last_block_height: number | null = null;
+
   onMount(() => {
     initializeWebsocket($ws);
+
+    const fetchLastBlockHeight = async () => {
+      const res = await client.GET("/info");
+      indexer_last_block_height = res.data?.last_block_height ?? null;
+
+      const nodeUrl = import.meta.env.VITE_NODE_URL;
+      const response = await fetch(nodeUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "dontcare",
+          method: "status",
+          params: [],
+        }),
+      });
+      const data = await response.json();
+      node_last_block_height = data.result.sync_info.latest_block_height;
+    };
+
+    fetchLastBlockHeight(); // Fetch once immediately
+
+    let interval = setInterval(fetchLastBlockHeight, 10000);
+
+    return () => {
+      clearInterval(interval);
+    };
   });
 
   onDestroy(() => {
@@ -75,7 +106,31 @@
       <MCHeader />
       <slot />
       <div class="fixed bottom-0 right-0 p-2 text-xs text-white bg-gray-800">
-        commit: {import.meta.env.VITE_COMMIT_HASH}
+        <div>
+          commit: {import.meta.env.VITE_COMMIT_HASH}
+        </div>
+        <div>
+          {#if indexer_last_block_height}
+            {#if indexer_last_block_height && node_last_block_height}
+              {#if node_last_block_height - indexer_last_block_height > 100}
+                <span class="inline-flex relative mr-1">
+                  <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span
+                    class="w-2 h-2 bg-red-500 rounded-full absolute animate-ping"
+                  ></span>
+                </span>
+              {:else}
+                <span class="inline-flex relative mr-1">
+                  <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                  <span
+                    class="w-2 h-2 bg-green-500 rounded-full absolute animate-ping"
+                  ></span>
+                </span>
+              {/if}
+            {/if}
+            last indexed block: {indexer_last_block_height}
+          {/if}
+        </div>
       </div>
     </div>
   </div>
