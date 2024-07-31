@@ -7,10 +7,10 @@
     type LanguageCode,
     type ResolutionString,
   } from "$lib/charting_library";
-  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
+  import type { Meme } from "$lib/models/memecooking";
   import MemeCookingDataFeed from "$lib/models/memecooking/datafeed";
 
-  export let memebid: MCMemeInfoWithReference;
+  export let memebid: Meme;
   export let touchToStart: boolean = false;
 
   let width: number, height: number;

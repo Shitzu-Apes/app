@@ -5,7 +5,7 @@
 
   import SelectBox from "$lib/components/SelectBox.svelte";
   import Toggle from "$lib/components/Toggle.svelte";
-  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
+  import type { Meme } from "$lib/models/memecooking";
   import {
     orderOptions,
     filterAndSortMeme,
@@ -16,7 +16,7 @@
 
   let selectedDirection = orderOptions[0];
 
-  export let memebids: MCMemeInfoWithReference[];
+  export let memebids: Meme[];
 
   export let initialMemebidsPromise: Promise<void>;
 

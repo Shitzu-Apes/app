@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
-  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
+  import type { Meme } from "$lib/models/memecooking";
   import { MemeCooking } from "$lib/near";
   import { MCsubscribe, MCunsubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
@@ -10,7 +10,7 @@
     maximumFractionDigits: 2,
   });
 
-  export let meme: MCMemeInfoWithReference;
+  export let meme: Meme;
   let holders: Promise<[string, number][] | null> = getHolders();
 
   function getHolders(): Promise<[string, number][] | null> {

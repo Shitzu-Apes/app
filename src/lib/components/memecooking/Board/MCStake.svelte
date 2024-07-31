@@ -7,7 +7,7 @@
   import Near from "$lib/assets/Near.svelte";
   import { Button } from "$lib/components";
   import TokenInput from "$lib/components/TokenInput.svelte";
-  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
+  import type { Meme } from "$lib/models/memecooking";
   import {
     Ft,
     mcAccount$,
@@ -30,7 +30,7 @@
   $: input$ = input?.u128$;
   let inputValue$ = writable<string | undefined>();
 
-  export let meme: MCMemeInfoWithReference;
+  export let meme: Meme;
 
   const depositAmount$ = writable<FixedNumber | undefined>();
   $: if ($mcAccount$) {

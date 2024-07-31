@@ -1,4 +1,4 @@
-import type { MCMemeInfo } from "$lib/models/memecooking";
+import type { Meme } from "$lib/models/memecooking";
 
 export const sortOptions = [
   { label: "sort: bump order", value: "bump order" },
@@ -11,7 +11,7 @@ export const orderOptions = [
   { label: "order: asc", value: "asc" },
 ];
 
-export function filterAndSortMeme<T extends MCMemeInfo>(
+export function filterAndSortMeme<T extends Meme>(
   memes: T[],
   sort: {
     sort: string;

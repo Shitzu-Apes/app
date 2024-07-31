@@ -3,10 +3,10 @@
   import Countdown from "../Countdown.svelte";
 
   import Near from "$lib/assets/Near.svelte";
-  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
+  import type { Meme } from "$lib/models/memecooking";
   import { FixedNumber } from "$lib/util";
 
-  export let memebid: MCMemeInfoWithReference;
+  export let memebid: Meme;
 </script>
 
 {#if memebid}

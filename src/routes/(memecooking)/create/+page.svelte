@@ -14,14 +14,13 @@
     close,
     openBottomSheet,
   } from "$lib/layout/BottomSheet/Container.svelte";
-  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
+  import type { Meme } from "$lib/models/memecooking";
   import { MemeCooking, wallet } from "$lib/near";
   import {
     imageFileToIcon,
     imageFileToBase64,
     FixedNumber,
     isMobile,
-    base64ToIcon,
   } from "$lib/util";
   import { calculateReferenceHash } from "$lib/util/cid";
 
@@ -51,16 +50,20 @@
 
   const memeToCto = localStorage.getItem("meme_to_cto");
   if (memeToCto) {
-    const savedMeme = JSON.parse(memeToCto) as MCMemeInfoWithReference;
+    const savedMeme = JSON.parse(memeToCto) as Meme;
 
     name = savedMeme.name;
     ticker = savedMeme.symbol;
     description = savedMeme.description || "";
     image = `${import.meta.env.VITE_IPFS_GATEWAY}/${savedMeme.image}` || null;
-    if (savedMeme.image) {
-      base64ToIcon(`/api/ipfs/${savedMeme.image}`).then((newIcon) => {
-        console.log("newIcon", newIcon);
-        icon = newIcon;
+    if (savedMeme.meme_id) {
+      console.log("savedMeme.meme_id", savedMeme.meme_id);
+      MemeCooking.getMeme(savedMeme.meme_id).then((meme) => {
+        console.log("meme", meme);
+        if (meme) {
+          icon = meme.image || null;
+          console.log("icon", icon);
+        }
       });
     }
     imageCID = image?.split("/").pop() || null;

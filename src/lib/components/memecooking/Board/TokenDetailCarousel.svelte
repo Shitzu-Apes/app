@@ -16,10 +16,10 @@
   import { goto } from "$app/navigation";
   import { client } from "$lib/api/client";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
-  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
+  import type { Meme } from "$lib/models/memecooking";
   import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
 
-  export let memebid: MCMemeInfoWithReference;
+  export let memebid: Meme;
 
   let emblaApi: EmblaCarouselType | undefined = undefined;
   let options: EmblaOptionsType = {

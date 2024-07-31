@@ -2,9 +2,9 @@
   import MCStake from "../Board/MCStake.svelte";
 
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
-  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
+  import type { Meme } from "$lib/models/memecooking";
 
-  export let meme: MCMemeInfoWithReference;
+  export let meme: Meme;
 </script>
 
 <BottomSheetContent variant="shitzu">

@@ -5,10 +5,10 @@
   import TokenTrade from "../TokenTrade.svelte";
 
   import { client } from "$lib/api/client";
-  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
+  import type { Meme } from "$lib/models/memecooking";
   import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
 
-  export let meme: MCMemeInfoWithReference;
+  export let meme: Meme;
 
   const tabs = [
     { id: "thread", label: "Thread" },

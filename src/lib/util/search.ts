@@ -1,6 +1,6 @@
-import type { MCMemeInfo } from "$lib/models/memecooking";
+import type { Meme } from "$lib/models/memecooking";
 
-export function search<T extends MCMemeInfo>(memes: T[], query: string): T[] {
+export function search<T extends Meme>(memes: T[], query: string): T[] {
   return memes.filter((meme) => {
     return (
       meme.name.toLowerCase().includes(query.toLowerCase()) ||

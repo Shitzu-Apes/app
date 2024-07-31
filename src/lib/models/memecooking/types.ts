@@ -1,6 +1,6 @@
-import type { Meme } from "$lib/api/client";
+import type { Meme as MemeType } from "$lib/api/client";
 
-export type MCMemeInfo = Meme;
+// re-export Meme
 
 export type MCReference = {
   description: string;
@@ -10,7 +10,7 @@ export type MCReference = {
   image: string;
 };
 
-export type MCMemeInfoWithReference = Meme;
+export type Meme = MemeType;
 
 export type MCAccountInfo = {
   account_id: string;

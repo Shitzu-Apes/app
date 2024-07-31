@@ -1,9 +1,9 @@
 import { writable } from "svelte/store";
 
 import type { Trade } from "$lib/api/client";
-import { type MCMemeInfoWithReference } from "$lib/models/memecooking";
+import { type Meme } from "$lib/models/memecooking";
 
-export const memebids = writable<MCMemeInfoWithReference[]>([]);
+export const memebids = writable<Meme[]>([]);
 
 export const ws = writable(
   (() => {
@@ -18,10 +18,7 @@ export const ws = writable(
   })(),
 );
 
-const callbacks: Map<
-  string | symbol,
-  (data: MCMemeInfoWithReference & Trade) => void
-> = new Map();
+const callbacks: Map<string | symbol, (data: Meme & Trade) => void> = new Map();
 export function initializeWebsocket(ws: WebSocket) {
   ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
@@ -38,7 +35,7 @@ export function initializeWebsocket(ws: WebSocket) {
 
 export function MCsubscribe(
   id: string | symbol,
-  callback: (data: MCMemeInfoWithReference & Trade) => void,
+  callback: (data: Meme & Trade) => void,
 ) {
   callbacks.set(id, callback);
 }

@@ -4,10 +4,10 @@
 
   import { goto } from "$app/navigation";
   import Near from "$lib/assets/Near.svelte";
-  import type { MCMemeInfoWithReference } from "$lib/models/memecooking";
+  import type { Meme } from "$lib/models/memecooking";
   import { FixedNumber } from "$lib/util";
 
-  export let memebid: MCMemeInfoWithReference;
+  export let memebid: Meme;
 </script>
 
 <div class="w-full">
