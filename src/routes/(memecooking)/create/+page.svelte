@@ -61,7 +61,7 @@
       MemeCooking.getMeme(savedMeme.meme_id).then((meme) => {
         console.log("meme", meme);
         if (meme) {
-          icon = meme.image || null;
+          icon = meme.icon || null;
           console.log("icon", icon);
         }
       });

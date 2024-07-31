@@ -5,7 +5,12 @@ import { derived, writable } from "svelte/store";
 import { view } from "./utils";
 import { wallet, Wallet, type TransactionCallbacks } from "./wallet";
 
-import type { Meme, MCAccountInfo, MCReference } from "$lib/models/memecooking";
+import type {
+  MemeInfo,
+  MCAccountInfo,
+  MCReference,
+  MemeInfoWithReference,
+} from "$lib/models/memecooking";
 
 const _mcAccount$ = writable<MCAccountInfo | null>();
 export const mcAccount$ = derived(_mcAccount$, (a) => a);
@@ -26,7 +31,7 @@ wallet.accountId$.subscribe((accountId) => {
 export abstract class MemeCooking {
   public static getLatestMeme(
     firstMemeId?: number,
-  ): Promise<Array<Meme | null>> {
+  ): Promise<Array<MemeInfo | null>> {
     const promises = [...new Set([firstMemeId || 0, ...Array(50).keys()])].map(
       (id) => {
         return this.getMemeWithReference(id);
@@ -42,7 +47,7 @@ export abstract class MemeCooking {
 
   public static async getMemeWithReference(
     meme_id: number,
-  ): Promise<Meme | null> {
+  ): Promise<MemeInfoWithReference | null> {
     const meme = await this.getMeme(meme_id);
     console.log("[getMemeWithReference]", meme, meme_id);
     if (!meme) {
@@ -56,7 +61,7 @@ export abstract class MemeCooking {
         twitterLink: "",
         telegramLink: "",
         website: "",
-        image: meme.image,
+        image: meme.icon,
       };
     }
 
@@ -71,8 +76,8 @@ export abstract class MemeCooking {
     };
   }
 
-  public static getMeme(meme_id: number): Promise<Meme | null> {
-    return view<Meme>(
+  public static getMeme(meme_id: number): Promise<MemeInfo | null> {
+    return view<MemeInfo>(
       import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
       "get_meme",
       { meme_id },

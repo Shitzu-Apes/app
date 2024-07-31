@@ -25,6 +25,7 @@ export async function view<T>(
 
     const json = await res.json();
     if ("error" in json) {
+      console.error("[view]: Error", json.error.data);
       throw new Error(json.error.data);
     }
     const result = new Uint8Array(json.result.result);
