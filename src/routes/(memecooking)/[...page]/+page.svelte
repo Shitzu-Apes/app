@@ -21,8 +21,7 @@
 
   $: {
     if (query.length > 0) {
-      cacheMemebids = $memebids;
-      $memebids = search($memebids, query);
+      $memebids = search(cacheMemebids, query);
     } else {
       $memebids = cacheMemebids;
     }
