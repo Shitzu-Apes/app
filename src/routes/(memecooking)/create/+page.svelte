@@ -177,7 +177,6 @@
       });
 
     const createTransactionPromise = async ({
-      imageCID,
       referenceCID,
       referenceHash,
     }: {
@@ -201,25 +200,6 @@
         await storageCost,
         {
           onSuccess: async (outcome) => {
-            const broadcastForm = new FormData();
-            broadcastForm.append("name", name);
-            broadcastForm.append("ticker", ticker);
-            broadcastForm.append("description", description);
-            broadcastForm.append("twitterLink", twitterLink);
-            broadcastForm.append("telegramLink", telegramLink);
-            broadcastForm.append("website", website);
-            broadcastForm.append("durationMs", durationMs.value);
-            broadcastForm.append("imageCID", imageCID);
-
-            const res = await fetch("/api/broadcast", {
-              method: "POST",
-              body: broadcastForm,
-            });
-
-            if (!res.ok) {
-              throw new Error("Failed to broadcast");
-            }
-
             function isFinalExecutionStatus(
               status: FinalExecutionStatus | FinalExecutionStatusBasic,
             ): status is FinalExecutionStatus {

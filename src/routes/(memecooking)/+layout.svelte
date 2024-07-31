@@ -128,7 +128,8 @@
                 </span>
               {/if}
             {/if}
-            last indexed block: {indexer_last_block_height}
+            last indexed block:
+            <span class="font-mono">{indexer_last_block_height}</span>
           {/if}
         </div>
       </div>
