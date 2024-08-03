@@ -100,13 +100,22 @@ export abstract class MemeCooking {
     );
   }
 
-  public static getAccountStakes(
-    accountId: string,
-  ): Promise<Array<[number, string]> | null> {
-    return view<Array<[number, string]>>(
+  public static getUnclaimed(accountId: string): Promise<number[] | null> {
+    return view<number[]>(
       import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
-      "get_account_stakes",
+      "get_unclaimed",
       { account_id: accountId },
+    );
+  }
+
+  public static getClaimable(
+    accountId: string,
+    memeId: number,
+  ): Promise<string | null> {
+    return view<string>(
+      import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+      "get_claimable",
+      { account_id: accountId, meme_id: memeId },
     );
   }
 

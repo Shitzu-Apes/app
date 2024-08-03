@@ -31,5 +31,6 @@ export type MemeInfoWithReference = MemeInfo & MCReference;
 export type MCAccountInfo = {
   account_id: string;
   deposits: Array<[number, string]>;
-  claims: Array<[string, string]>;
+  income: Array<[string, string]>;
+  shitstar_claim: string;
 };
