@@ -1,7 +1,7 @@
 <script lang="ts">
   import { openBottomSheet } from "../BottomSheet/Container.svelte";
 
-  import MEMECOOKING_LOGO from "$lib/assets/logo/memecooking.svg";
+  import MEMECOOKING_LOGO from "$lib/assets/logo/meme-cooking.webp";
   import { showWalletSelector } from "$lib/auth";
   import BridgeSheet from "$lib/components/memecooking/BottomSheet/BridgeSheet.svelte";
   import HowItWorkSheet from "$lib/components/memecooking/BottomSheet/HowItWorkSheet.svelte";
