@@ -16,13 +16,17 @@
   const fullAccount = MemeCooking.getAccount(accountId).then(
     async (account) => {
       if (!account) return;
+      const unclaimed = (await MemeCooking.getUnclaimed(accountId)) || [];
       const data = await client.POST("/profile", {
         body: {
           meme_id: account
-            ? account.deposits.map((deposit) => deposit[0].toString())
+            ? [
+                ...account.deposits.map((deposit) => deposit[0].toString()),
+                ...(unclaimed || []).map((claim) => claim.toString()),
+              ]
             : [],
-          token_id: account ? account.claims.map((claim) => claim[0]) : [],
           account_id: accountId,
+          token_id: account.income.map((income) => income[0].toString()),
         },
       });
       const deposits = account.deposits.map((deposit) => ({
@@ -30,21 +34,38 @@
         amount: deposit[1].toString(),
         meme: data.data?.meme_info[deposit[0].toString()],
       }));
-      let claims = account.claims.map((claim) => ({
-        token_id: claim[0].toString(),
-        amount: claim[1].toString(),
-        meme: data.data?.token_info[claim[0].toString()],
+      let claims = await Promise.all(
+        unclaimed.map(async (meme_id) => {
+          // find meme id from data
+          const meme = data.data?.meme_info[meme_id.toString()];
+          if (!meme) return null;
+          const token_id = `${meme.meme_id}-${meme.token_id}.${import.meta.env.VITE_MEME_COOKING_CONTRACT_ID}`;
+          const amount = await MemeCooking.getClaimable(
+            accountId,
+            meme.meme_id,
+          );
+          if (amount === null) return null;
+          return {
+            token_id,
+            amount,
+            meme,
+          };
+        }),
+      ).then((claims) =>
+        claims.filter(
+          (claim): claim is NonNullable<typeof claim> => claim !== null,
+        ),
+      );
+
+      // claims = claims.filter(
+      //   (claim): claim is NonNullable<typeof claim> => claim !== null,
+      // );
+
+      const revenue = account.income.map((income) => ({
+        token_id: income[0].toString(),
+        amount: income[1].toString(),
+        meme: data.data?.token_info[income[0].toString()],
       }));
-
-      const revenue = claims.find(
-        (claim) =>
-          claim.token_id === import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
-      );
-
-      claims = claims.filter(
-        (claim) =>
-          claim.token_id !== import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
-      );
 
       console.log("[claims]", claims);
       console.log("[revenue]", revenue);
@@ -112,7 +133,7 @@
     {#if info && info.revenue}
       <div class="max-w-xs my-10 w-full">
         <h3 class="mb-6 font-semibold text-lg">Revenue</h3>
-        <Claim claim={info.revenue} />
+        <Claim claim={info.revenue[0]} />
       </div>
     {/if}
   {/await}
@@ -142,6 +163,7 @@
         <DepositList deposits={info.deposits} />
       </section>
       <section class="w-full max-w-xs" use:melt={$content(tabs[1].id)}>
+        <!-- @ts-expect-error not null -->
         <ClaimList claims={info.claims} />
       </section>
       <section class="w-full max-w-xs" use:melt={$content(tabs[2].id)}>
