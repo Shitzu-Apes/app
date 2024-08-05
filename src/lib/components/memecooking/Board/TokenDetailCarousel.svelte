@@ -159,7 +159,7 @@
 >
   {#if memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now()}
     <button
-      class="border-2 border-black font-mono bg-memecooking-5 px-2 rounded text-black hover:bg-memecooking-6 flex items-center gap-2"
+      class="border-2 border-black font-mono bg-memecooking-5 px-2 rounded text-black hover:bg-memecooking-6 flex items-center gap-2 mb-2"
       on:click={(e) => {
         e.preventDefault();
         goto(`/create`);
@@ -168,7 +168,7 @@
       }}
     >
       <div class="i-mdi:alert" />
-      Gud meme, Let's CTO
+      <span class="text-xs"> Relaunch </span>
     </button>
   {/if}
   <button
