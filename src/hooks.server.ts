@@ -16,9 +16,10 @@ export const handle: Handle = async ({ event, resolve }) => {
     const faviconPath = MEMECOOKING_LOGO;
 
     // Check if the path matches /meme/{meme_id}
-    const memeMatch = event.url.pathname.match(/^\/meme\/(\d+)$/);
+    const memeMatch = /^\/meme\/(\d+)$/.test(event.url.pathname);
+
     if (memeMatch) {
-      const memeId = memeMatch[1];
+      const memeId = event.url.pathname.split("/meme/")[1];
       try {
         // Fetch meme info (replace with actual API call)
         const response = await client.GET("/meme/{id}", {
