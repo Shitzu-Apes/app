@@ -7,7 +7,6 @@
   import { replaceState } from "$app/navigation";
   import { page } from "$app/stores";
   import { MCsubscribe, MCunsubscribe, memebids } from "$lib/store/memebids";
-  import { isMobile } from "$lib/util";
 
   export let currentMemebidsIdx: number;
   export let initialMemebidsPromise: Promise<void>;
@@ -49,13 +48,32 @@
   }
 </script>
 
-{#if isMobile()}
+<div class="mobile">
   <TokenCarousel
     {initialMemebidsPromise}
     memebids={$memebids}
     {currentMemebidsIdx}
     on:select={onSelect}
   />
-{:else}
+</div>
+<div class="desktop">
   <Terminal {initialMemebidsPromise} memebids={$memebids} />
-{/if}
+</div>
+
+<style lang="scss">
+  .mobile {
+    display: none;
+  }
+  .desktop {
+    display: contents;
+  }
+
+  @include breakpoint(mobile, max) {
+    .mobile {
+      display: contents;
+    }
+    .desktop {
+      display: none;
+    }
+  }
+</style>

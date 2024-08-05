@@ -18,4 +18,11 @@ export default defineConfig({
       "@": path.resolve("src"),
     },
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: '@use "src/mixins.scss" as *;',
+      },
+    },
+  },
 });

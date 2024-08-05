@@ -181,11 +181,7 @@
       <div class="flex flex-col h-screen">
         {#each memebids as memebid, i (memebid.meme_id)}
           <div class="flex-[0_0_100%] min-h-0">
-            <TokenDetailCarousel
-              focused={currentMemebidsIdx === i}
-              id={i}
-              {memebid}
-            />
+            <TokenDetailCarousel focused={currentMemebidsIdx === i} {memebid} />
           </div>
         {/each}
       </div>
