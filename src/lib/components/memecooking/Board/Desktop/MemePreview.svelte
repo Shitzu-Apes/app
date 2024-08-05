@@ -13,13 +13,13 @@
 <div class="w-full">
   <a
     href={`/meme/${memebid.meme_id}`}
-    class="w-full flex items-start justify-start gap-3 p-2 border border-transparent hover:border-white cursor-pointer relative"
+    class="w-full flex items-center justify-start gap-3 p-2 border border-transparent hover:border-white cursor-pointer relative"
   >
     <div class="w-24 flex flex-col items-center">
       <img
         src={`${import.meta.env.VITE_IPFS_GATEWAY}/${memebid.image}`}
         alt={memebid.name}
-        class="w-full"
+        class="max-h-24"
       />
       {#if memebid && memebid.end_timestamp_ms && !memebid.pool_id && memebid.end_timestamp_ms < Date.now()}
         <button
