@@ -10,6 +10,7 @@
   import CoinCreated from "$lib/components/memecooking/Profile/CoinCreated.svelte";
   import DepositList from "$lib/components/memecooking/Profile/DepositList.svelte";
   import { MemeCooking } from "$lib/near";
+  import { getTokenId } from "$lib/util/getTokenId";
 
   const { accountId } = $page.params;
 
@@ -39,7 +40,7 @@
           // find meme id from data
           const meme = data.data?.meme_info[meme_id.toString()];
           if (!meme) return null;
-          const token_id = `${meme.meme_id}-${meme.token_id}.${import.meta.env.VITE_MEME_COOKING_CONTRACT_ID}`;
+          const token_id = getTokenId(meme.symbol, meme.meme_id);
           const amount = await MemeCooking.getClaimable(
             accountId,
             meme.meme_id,

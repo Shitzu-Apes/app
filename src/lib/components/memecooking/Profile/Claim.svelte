@@ -3,6 +3,7 @@
   import Near from "$lib/assets/Near.svelte";
   import { MemeCooking, wallet } from "$lib/near";
   import { FixedNumber } from "$lib/util";
+  import { getTokenId } from "$lib/util/getTokenId";
 
   export let claim: {
     token_id: string;
@@ -12,8 +13,10 @@
 
   async function claiming() {
     try {
+      if (!claim.meme) return;
       await MemeCooking.claim(wallet, {
-        token_ids: [claim.token_id],
+        meme_ids: [claim.meme.meme_id],
+        token_ids: [getTokenId(claim.meme.symbol, claim.meme.meme_id)],
       });
     } catch (e) {
       console.error(e);

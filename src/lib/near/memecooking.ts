@@ -270,7 +270,7 @@ export abstract class MemeCooking {
 
   public static async claim(
     wallet: Wallet,
-    args: { token_ids: string[] },
+    args: { meme_ids: number[]; token_ids: string[] },
     callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
   ) {
     const transactions: HereCall[] = [];
