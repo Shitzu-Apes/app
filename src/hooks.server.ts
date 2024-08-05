@@ -35,7 +35,7 @@ export const handle: Handle = async ({ event, resolve }) => {
           const ogTags = `
             <meta property="og:title" content="${response.data.meme.name || "Meme Cooking"}">
             <meta property="og:description" content="${response.data.meme.description || "Check out this meme on Meme Cooking!"}">
-            <meta property="og:image" content="${response.data.meme.image}">
+            <meta property="og:image" content="${import.meta.env.VITE_IPFS_GATEWAY}/${response.data.meme.image}">
             <meta property="og:url" content="${event.url.href}">
             <meta property="og:type" content="website">
             <meta name="twitter:card" content="summary_large_image">
