@@ -1,5 +1,6 @@
 import type { Handle } from "@sveltejs/kit";
 
+import { client } from "$lib/api/client";
 import MEMECOOKING_LOGO from "$lib/assets/logo/meme-cooking.webp";
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -13,6 +14,37 @@ export const handle: Handle = async ({ event, resolve }) => {
 
     // Determine favicon based on route (example logic)
     const faviconPath = MEMECOOKING_LOGO;
+
+    // Check if the path matches /meme/{meme_id}
+    const memeMatch = event.url.pathname.match(/^\/meme\/(\d+)$/);
+    if (memeMatch) {
+      const memeId = memeMatch[1];
+      try {
+        // Fetch meme info (replace with actual API call)
+        const response = await client.GET("/meme/{id}", {
+          params: {
+            path: {
+              id: memeId,
+            },
+          },
+        });
+
+        if (response.data && response.data.meme.image) {
+          // Add Open Graph meta tags for the meme
+          const ogTags = `
+            <meta property="og:title" content="${response.data.meme.name || "Meme Cooking"}">
+            <meta property="og:description" content="${response.data.meme.description || "Check out this meme on Meme Cooking!"}">
+            <meta property="og:image" content="${response.data.meme.image}">
+            <meta property="og:url" content="${event.url.href}">
+            <meta property="og:type" content="website">
+            <meta name="twitter:card" content="summary_large_image">
+          `;
+          html = html.replace("</head>", `${ogTags}\n</head>`);
+        }
+      } catch (error) {
+        console.error("Error fetching meme info:", error);
+      }
+    }
 
     // Replace all favicon-related tags
     const faviconReplacements = [
