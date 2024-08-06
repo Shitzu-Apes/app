@@ -329,7 +329,7 @@
         <div class="relative w-full">
           <DropZone
             containerClasses="opacity-0 absolute inset-0 w-full h-full"
-            accept={[".png", ".jpg", ".jpeg", ".svg", ".gif"]}
+            accept={[".png", ".jpg", ".jpeg", ".svg", ".gif", ".webp", ".avif"]}
             on:drop={handleFilesSelect}
           />
           <div
