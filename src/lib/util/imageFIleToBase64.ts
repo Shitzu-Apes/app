@@ -52,7 +52,7 @@ export async function base64ToIcon(base64Image: string): Promise<string> {
     height: UploadResizeHeight,
   });
 
-  const encodedImage = await encode("png", resizedImage);
+  const encodedImage = await encode("webp", resizedImage);
 
   const blob = new Blob([encodedImage], { type: "image/png" });
   const base64 = (await blobToBase64(blob)) as string;
@@ -106,7 +106,9 @@ async function encode(
       result = await png.encode(imageData);
       break;
     case "webp":
-      result = await webp.encode(imageData);
+      result = await webp.encode(imageData, {
+        quality: 0.85,
+      });
       break;
     default:
       throw new Error(`Unknown output type: ${outputType}`);
