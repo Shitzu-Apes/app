@@ -157,20 +157,36 @@
 <div
   class="h-[168px] w-full flex flex-col justify-center items-center pb-2 px-2"
 >
-  {#if memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now()}
-    <button
-      class="border-2 border-black font-mono bg-memecooking-5 px-2 rounded text-black hover:bg-memecooking-6 flex items-center gap-2 mb-2"
-      on:click={(e) => {
-        e.preventDefault();
-        goto(`/create`);
+  <div class="flex gap-4 mb-2">
+    {#if memebid.pool_id}
+      <a
+        href={`https://testnet.ref.finance/pool/${memebid.pool_id}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-xs self-end px-1 tracking-tight bg-shitzu-3 rounded-full text-black flex items-center"
+      >
+        live on ref <div class="i-mdi:open-in-new" />
+      </a>
+    {:else if memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now()}
+      <div
+        class="text-xs px-1 tracking-tight bg-rose-4 rounded-full text-black"
+      >
+        didn&apos;t make it
+      </div>
+      <button
+        class="border-2 border-black font-mono bg-memecooking-5 px-2 rounded text-black hover:bg-memecooking-6 flex items-center"
+        on:click={(e) => {
+          e.preventDefault();
+          goto(`/create`);
 
-        localStorage.setItem("meme_to_cto", JSON.stringify(memebid));
-      }}
-    >
-      <div class="i-mdi:alert" />
-      <span class="text-xs"> Relaunch </span>
-    </button>
-  {/if}
+          localStorage.setItem("meme_to_cto", JSON.stringify(memebid));
+        }}
+      >
+        <div class="i-mdi:alert" />
+        <span class="text-xs"> Relaunch </span>
+      </button>
+    {/if}
+  </div>
   <button
     on:click={() => {
       openBottomSheet(StakeSheet, { meme: memebid });

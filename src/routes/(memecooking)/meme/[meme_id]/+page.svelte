@@ -5,6 +5,7 @@
 
   import { page } from "$app/stores";
   import { client } from "$lib/api/client";
+  import TokenDetailCarousel from "$lib/components/memecooking/Board/TokenDetailCarousel.svelte";
   import { MemeCooking, wallet } from "$lib/near";
 
   // page data
@@ -63,7 +64,12 @@
     <div class="w-full text-center text-2xl">Loading...</div>
   {:then [detail, required_stake]}
     {#if detail}
-      <MemeDetail meme={detail.meme} {required_stake} />
+      <div class="desktop">
+        <MemeDetail meme={detail.meme} {required_stake} />
+      </div>
+      <div class="mobile">
+        <TokenDetailCarousel focused={true} memebid={detail.meme} />
+      </div>
     {:else}
       <div>Meme not found</div>
     {/if}
@@ -71,3 +77,14 @@
     <div>Error: {error.message}</div>
   {/await}
 </div>
+
+<style lang="scss">
+  @include breakpoint(mobile, max) {
+    .mobile {
+      display: contents;
+    }
+    .desktop {
+      display: none;
+    }
+  }
+</style>

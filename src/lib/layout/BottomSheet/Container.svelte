@@ -30,7 +30,7 @@
 </script>
 
 <div
-  class="fixed bg-black bottom-0 left-0 right-0 w-full max-w-[min(30rem,100%)] mx-auto h-[90svh] z-1000 transform {$open
+  class="fixed bg-black bottom-0 left-0 right-0 w-full max-w-[min(30rem,100%)] mx-auto h-[90svh] z-40 transform {$open
     ? 'translate-y-0'
     : 'translate-y-full'} duration-500 rounded-t-xl border-3 border-b-0 {variant ===
   'lime'

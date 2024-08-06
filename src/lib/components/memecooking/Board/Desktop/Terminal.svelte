@@ -42,7 +42,7 @@
 
 {#await initialMemebidsPromise}
   <div
-    class="w-full flex items-center justify-start flex-wrap mt-10 gap-6 px-4 mb-10"
+    class="w-full flex items-center justify-around flex-wrap mt-10 gap-6 px-4 mb-10"
   >
     <!-- eslint-disable-next-line -->
     {#each { length: 10 } as _, i (i)}
@@ -67,7 +67,7 @@
   </div>
 {:then}
   <div
-    class="w-full flex items-center justify-start flex-wrap mt-10 gap-6 px-4 mb-10"
+    class="w-full flex items-center justify-around flex-wrap mt-10 gap-6 px-4 mb-10"
   >
     {#if displayedMemebids[0]}
       {#key displayedMemebids[0].meme_id}
