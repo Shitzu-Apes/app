@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createTabs, melt } from "@melt-ui/svelte";
+  import { onDestroy } from "svelte";
   import { writable } from "svelte/store";
 
   import { addToast } from "../Toast.svelte";
@@ -45,6 +46,21 @@
     states: { value },
   } = createTabs({
     defaultValue: "stake",
+  });
+
+  $: finished =
+    $value === "stake" &&
+    meme.end_timestamp_ms != null &&
+    meme.end_timestamp_ms < Date.now();
+  const timer = setInterval(() => {
+    finished =
+      $value === "stake" &&
+      meme.end_timestamp_ms != null &&
+      meme.end_timestamp_ms < Date.now();
+  }, 1_000);
+
+  onDestroy(() => {
+    clearInterval(timer);
   });
 
   let totalNearBalance$ = writable($nearBalance);
@@ -354,14 +370,19 @@
         updateMcAccount($accountId$);
       }}
       type="custom"
-      disabled={$input$ == null || $input$.toNumber() == 0}
+      disabled={$input$ == null || $input$.toNumber() == 0 || finished}
       class="{$value === 'stake'
         ? 'bg-shitzu-3'
         : 'bg-rose-4'} w-full py-2 rounded-full text-xl tracking-wider text-black border-b-4 {$value ===
       'stake'
         ? 'border-shitzu-4'
         : 'border-rose-5'} active:translate-y-1 my-12"
-      >[{$value}]
+    >
+      {#if finished}
+        [finished]
+      {:else}
+        [{$value}]
+      {/if}
     </Button>
   </div>
 </div>
