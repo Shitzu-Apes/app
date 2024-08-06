@@ -79,6 +79,13 @@
 </div>
 
 <style lang="scss">
+  .mobile {
+    display: none;
+  }
+  .desktop {
+    display: contents;
+  }
+
   @include breakpoint(mobile, max) {
     .mobile {
       display: contents;
