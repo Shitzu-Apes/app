@@ -47,4 +47,7 @@ export default defineConfig({
       "@jsquash/resize",
     ],
   },
+  worker: {
+    format: "es",
+  },
 });
