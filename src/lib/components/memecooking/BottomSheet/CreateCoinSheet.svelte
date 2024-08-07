@@ -1,23 +1,15 @@
 <script lang="ts">
-  // export let name,
-  //   ticker,
-  //   description,
-  //   image,
-  //   icon,
-  //   twitterLink,
-  //   telegramLink,
-  //   website,
-  //   durationMs,
-  //   totalSupply,
-  //   storageCost;
-
   import { onMount } from "svelte";
   import { slide } from "svelte/transition";
 
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
+  import { close } from "$lib/layout/BottomSheet/Container.svelte";
 
-  let status: "Uploading Meme" | "Preparing the Ingredient" | "Cooking" =
-    "Uploading Meme";
+  let status:
+    | "Uploading Meme"
+    | "Preparing the Ingredient"
+    | "Cooking"
+    | "Error" = "Uploading Meme";
 
   export let uploadPromise: Promise<{
     imageCID: string;
@@ -38,7 +30,16 @@
 
     status = "Preparing the Ingredient";
 
-    await createTransactionPromise({ referenceCID, referenceHash, imageCID });
+    try {
+      await createTransactionPromise({ referenceCID, referenceHash, imageCID });
+    } catch (err) {
+      console.error(err);
+      status = "Error";
+      setTimeout(() => {
+        close();
+      }, 5_000);
+      return;
+    }
 
     status = "Cooking";
   });
@@ -77,6 +78,14 @@
       >
         <div class="i-line-md:confirm-circle size-20 bg-shitzu-4" />
         <h1 class="text-xl">Cooking</h1>
+      </div>
+    {:else if status === "Error"}
+      <div
+        transition:slide
+        class="w-full h-full flex flex-col justify-center items-center gap-10 text-red-4"
+      >
+        <div class="i-line-md:close-circle size-20 bg-red-4" />
+        <h1 class="text-xl">Something went wrong. Please retry...</h1>
       </div>
     {/if}
   </div>
