@@ -5,7 +5,7 @@
   import { cubicIn, cubicOut } from "svelte/easing";
   import { blur } from "svelte/transition";
 
-  import MEMECOOKING_LOGO from "$lib/assets/logo/memecooking.svg";
+  import MEMECOOKING_LOGO from "$lib/assets/logo/meme-cooking.webp";
 </script>
 
 {#key "memecooking"}
