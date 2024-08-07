@@ -3,9 +3,11 @@
     FinalExecutionStatus,
     FinalExecutionStatusBasic,
   } from "near-api-js/lib/providers";
+  import { writable } from "svelte/store";
   import DropZone from "svelte-file-dropzone";
 
   import { goto } from "$app/navigation";
+  import { TokenInput } from "$lib/components";
   import SelectBox from "$lib/components/SelectBox.svelte";
   import CreateCoinSheet from "$lib/components/memecooking/BottomSheet/CreateCoinSheet.svelte";
   import InputField from "$lib/components/memecooking/InputField.svelte";
@@ -24,8 +26,6 @@
   } from "$lib/util";
   import { calculateReferenceHash } from "$lib/util/cid";
 
-  const totalSupply = "1000000000000000000000000000000000";
-
   // add default from `meme_to_cto` local storage
 
   let name: string = "";
@@ -38,6 +38,11 @@
   let twitterLink: string = "";
   let telegramLink: string = "";
   let website: string = "";
+  let decimals = 18;
+  let totalSupply: TokenInput;
+  let totalSupplyValue$ = writable<string | undefined>("1000000000");
+  $: totalSupply$ = totalSupply?.u128$;
+
   let durationOptions = [
     { label: "5 minutes", value: (1000 * 60 * 5).toString() },
     { label: "1 hour", value: (1000 * 60 * 60).toString() },
@@ -81,10 +86,10 @@
     ticker,
     icon || "",
     24,
-    totalSupply,
+    $totalSupply$?.toU128() ?? "",
     "ipfs://bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",
     "EiC+qKUoJBa3iRpHrsBFrbUqe6rLgGfpRm7L6tfCz5sSjA==",
-    "wrap.near",
+    import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
   ).then((cost) => {
     // Add dust to the cost
     return ((BigInt(cost) * BigInt(105)) / BigInt(100)).toString();
@@ -192,10 +197,10 @@
         {
           name,
           symbol: ticker,
-          decimals: 24,
-          depositTokenId: "wrap.testnet",
+          decimals,
+          depositTokenId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
           durationMs: durationMs.value,
-          totalSupply,
+          totalSupply: $totalSupply$!.toU128(),
           icon: icon!,
           reference: referenceCID,
           referenceHash,
@@ -283,7 +288,7 @@
       />
     </div>
     <div class="space-y-2">
-      <label for="name" class="block text-sm text-shitzu-4 font-600">
+      <label for="ticker" class="block text-sm text-shitzu-4 font-600">
         ticker
       </label>
       <input
@@ -295,7 +300,7 @@
       />
     </div>
     <div class="space-y-2">
-      <label for="name" class="block text-sm text-shitzu-4 font-600">
+      <label for="description" class="block text-sm text-shitzu-4 font-600">
         description
       </label>
       <textarea
@@ -306,7 +311,6 @@
     </div>
     <div class="space-y-2">
       <label
-        for="name"
         class="block text-sm text-shitzu-4 font-600 inline-flex items-center gap-2"
       >
         image
@@ -344,6 +348,17 @@
           </div>
         </div>
       {/if}
+
+      {#if icon}
+        <div
+          class="block text-sm text-shitzu-4 font-600 inline-flex items-center gap-2"
+        >
+          on-chain icon preview
+        </div>
+        <div class="w-full max-h-60 flex justify-center items-center">
+          <img src={icon} alt="token icon" class="border-rd-full" />
+        </div>
+      {/if}
     </div>
     <div class="space-y-2">
       <label for="name" class="block text-sm text-shitzu-4 font-600">
@@ -355,7 +370,7 @@
         sameWidth
       />
     </div>
-    <details class="space-y-2">
+    <details class="space-y-4">
       <summary class="text-sm text-shitzu-4 cursor-pointer">
         Show more options
       </summary>
@@ -365,7 +380,7 @@
           bind:value={twitterLink}
           placeholder="(optional)"
           validate={(value) => {
-            if (!value) {
+            if (!value || typeof value === "number") {
               return "";
             }
 
@@ -382,7 +397,7 @@
           bind:value={telegramLink}
           placeholder="(optional)"
           validate={(value) => {
-            if (!value) {
+            if (!value || typeof value === "number") {
               return "";
             }
 
@@ -399,7 +414,7 @@
           bind:value={website}
           placeholder="(optional)"
           validate={(value) => {
-            if (!value) {
+            if (!value || typeof value === "number") {
               return "";
             }
 
@@ -408,6 +423,39 @@
               : "website should start with http:// or https://";
             return error;
           }}
+        />
+      </div>
+      <div class="space-y-2">
+        <InputField
+          label="decimals"
+          type="number"
+          bind:value={decimals}
+          min={0}
+          max={24}
+          step={1}
+          validate={(value) => {
+            if (!value || typeof value === "string") {
+              return "";
+            }
+
+            if (value < 0) {
+              return "must be at least 0";
+            } else if (value > 24) {
+              return "must be at most 24";
+            }
+            return "";
+          }}
+        />
+      </div>
+      <div class="space-y-2">
+        <label for="description" class="block text-sm text-shitzu-4 font-600">
+          total supply
+        </label>
+        <TokenInput
+          class="w-full p-2 bg-gray-700 rounded text-white border border-white"
+          {decimals}
+          bind:this={totalSupply}
+          bind:value={$totalSupplyValue$}
         />
       </div>
     </details>
