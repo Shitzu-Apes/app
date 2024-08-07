@@ -73,6 +73,10 @@ export const handle: Handle = async ({ event, resolve }) => {
         search: /<title>.*?<\/title>/g,
         replace: `<title>Meme Cooking</title>`,
       },
+      {
+        search: /app\.shitzuapes\.xyz/g,
+        replace: "meme.cooking",
+      },
     ];
 
     faviconReplacements.forEach(({ search, replace }) => {
