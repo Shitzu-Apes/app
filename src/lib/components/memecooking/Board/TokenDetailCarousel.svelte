@@ -17,9 +17,13 @@
   import { client } from "$lib/api/client";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
+  import { FixedNumber } from "$lib/util";
   import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
 
   export let memebid: Meme;
+  export let requiredStake: FixedNumber;
+
+  $: reachedMcap = new FixedNumber(memebid.total_deposit, 24) >= requiredStake;
 
   let emblaApi: EmblaCarouselType | undefined = undefined;
   let options: EmblaOptionsType = {
@@ -168,11 +172,19 @@
         live on ref <div class="i-mdi:open-in-new" />
       </a>
     {:else if memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now()}
-      <div
-        class="text-xs px-1 tracking-tight bg-rose-4 rounded-full text-black"
-      >
-        didn&apos;t make it
-      </div>
+      {#if reachedMcap}
+        <div
+          class="text-xs px-1 tracking-tight bg-amber-4 rounded-full text-black"
+        >
+          pending launch
+        </div>
+      {:else}
+        <div
+          class="text-xs px-1 tracking-tight bg-rose-4 rounded-full text-black"
+        >
+          didn&apos;t make it
+        </div>
+      {/if}
       <button
         class="border-2 border-black font-mono bg-memecooking-5 px-2 rounded text-black hover:bg-memecooking-6 flex items-center"
         on:click={(e) => {

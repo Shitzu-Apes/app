@@ -6,6 +6,7 @@
   import SelectBox from "$lib/components/SelectBox.svelte";
   import Toggle from "$lib/components/Toggle.svelte";
   import type { Meme } from "$lib/models/memecooking";
+  import { requiredStake } from "$lib/near";
   import {
     orderOptions,
     filterAndSortMeme,
@@ -40,7 +41,7 @@
   <Toggle bind:isOn={liveOnly}>live only:{" "}</Toggle>
 </div>
 
-{#await initialMemebidsPromise}
+{#await Promise.all([requiredStake, initialMemebidsPromise])}
   <div
     class="w-full flex items-center justify-around flex-wrap mt-10 gap-6 px-4 mb-10"
   >
@@ -65,7 +66,7 @@
       </div>
     {/each}
   </div>
-{:then}
+{:then [requiredStake]}
   <div
     class="w-full flex items-center justify-around flex-wrap mt-10 gap-6 px-4 mb-10"
   >
@@ -74,13 +75,13 @@
         <div
           class="flex-grow basis-[30%] min-w-[300px] max-w-[30%] border-3 border-transparent animate-shake-and-border"
         >
-          <MemePreview memebid={displayedMemebids[0]} />
+          <MemePreview memebid={displayedMemebids[0]} {requiredStake} />
         </div>
       {/key}
     {/if}
     {#each displayedMemebids.slice(1) as memebid (memebid.meme_id)}
       <div class="flex-grow basis-[30%] min-w-[300px] max-w-[30%]" in:fly>
-        <MemePreview {memebid} />
+        <MemePreview {memebid} {requiredStake} />
       </div>
     {/each}
   </div>

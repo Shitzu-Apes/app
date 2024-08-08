@@ -11,6 +11,7 @@
 
   import { page } from "$app/stores";
   import type { Meme } from "$lib/models/memecooking";
+  import { requiredStake } from "$lib/near";
 
   let emblaApi: EmblaCarouselType | undefined = undefined;
   let options: EmblaOptionsType = {
@@ -82,7 +83,7 @@
   }}
 />
 
-{#await initialMemebidsPromise}
+{#await Promise.all([requiredStake, initialMemebidsPromise])}
   <section>
     <div class="flex flex-col h-screen">
       <div class="flex-[0_0_100%] min-h-0">
@@ -130,7 +131,7 @@
       </div>
     </div>
   </section>
-{:then}
+{:then [requiredStake]}
   <div class="w-full max-w-lg mx-auto">
     <div
       class="overflow-hidden relative focus-element"
@@ -181,7 +182,11 @@
       <div class="flex flex-col h-screen">
         {#each memebids as memebid, i (memebid.meme_id)}
           <div class="flex-[0_0_100%] min-h-0">
-            <TokenDetailCarousel focused={currentMemebidsIdx === i} {memebid} />
+            <TokenDetailCarousel
+              focused={currentMemebidsIdx === i}
+              {memebid}
+              {requiredStake}
+            />
           </div>
         {/each}
       </div>

@@ -11,6 +11,7 @@ import type {
   MCReference,
   MemeInfoWithReference,
 } from "$lib/models/memecooking";
+import { FixedNumber } from "$lib/util";
 
 const _mcAccount$ = writable<MCAccountInfo | null>();
 export const mcAccount$ = derived(_mcAccount$, (a) => a);
@@ -369,3 +370,7 @@ export abstract class MemeCooking {
     );
   }
 }
+
+export const requiredStake = MemeCooking.requiredStake(
+  import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
+).then((requiredStake) => new FixedNumber(requiredStake, 24));

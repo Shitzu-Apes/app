@@ -15,7 +15,7 @@
   import { FixedNumber } from "$lib/util";
 
   export let meme: Meme;
-  export let required_stake: string;
+  export let requiredStake: FixedNumber;
 
   const MCSymbol = Symbol();
   onMount(() => {
@@ -38,7 +38,7 @@
 <div class="w-120 mx-auto mb-10">
   <ProgressBar
     progress={new FixedNumber(meme.total_deposit, 24)
-      .div(new FixedNumber(required_stake, 24))
+      .div(requiredStake)
       .toNumber()}
   />
 </div>

@@ -6,7 +6,7 @@
   import { page } from "$app/stores";
   import { client } from "$lib/api/client";
   import TokenDetailCarousel from "$lib/components/memecooking/Board/TokenDetailCarousel.svelte";
-  import { MemeCooking, wallet } from "$lib/near";
+  import { requiredStake, wallet } from "$lib/near";
 
   // page data
   let { meme_id } = $page.params as { meme_id: string };
@@ -51,24 +51,25 @@
         }),
     20,
   );
-  let required_stake = MemeCooking.requiredStake(
-    import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
-  );
 </script>
 
 <div class="mt-10 w-full p-2">
   <div class="mx-auto flex">
     <a href="/board" class="text-white text-2xl mx-auto mb-10">[go back]</a>
   </div>
-  {#await Promise.all([meme, required_stake])}
+  {#await Promise.all([meme, requiredStake])}
     <div class="w-full text-center text-2xl">Loading...</div>
-  {:then [detail, required_stake]}
+  {:then [detail, requiredStake]}
     {#if detail}
       <div class="desktop">
-        <MemeDetail meme={detail.meme} {required_stake} />
+        <MemeDetail meme={detail.meme} {requiredStake} />
       </div>
       <div class="mobile">
-        <TokenDetailCarousel focused={true} memebid={detail.meme} />
+        <TokenDetailCarousel
+          focused={true}
+          memebid={detail.meme}
+          {requiredStake}
+        />
       </div>
     {:else}
       <div>Meme not found</div>

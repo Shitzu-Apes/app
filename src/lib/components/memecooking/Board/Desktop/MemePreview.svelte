@@ -8,6 +8,9 @@
   import { FixedNumber } from "$lib/util";
 
   export let memebid: Meme;
+  export let requiredStake: FixedNumber;
+
+  $: reachedMcap = new FixedNumber(memebid.total_deposit, 24) >= requiredStake;
 </script>
 
 <div class="w-full">
@@ -49,11 +52,19 @@
           live on ref <div class="i-mdi:open-in-new" />
         </a>
       {:else if memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now()}
-        <div
-          class="text-xs self-end px-1 tracking-tight bg-rose-4 rounded-full text-black"
-        >
-          didn&apos;t make it
-        </div>
+        {#if reachedMcap}
+          <div
+            class="text-xs self-end px-1 tracking-tight bg-amber-4 rounded-full text-black"
+          >
+            pending launch
+          </div>
+        {:else}
+          <div
+            class="text-xs self-end px-1 tracking-tight bg-rose-4 rounded-full text-black"
+          >
+            didn&apos;t make it
+          </div>
+        {/if}
       {/if}
       <div class="text-xs flex items-center gap-1">
         created by <Chef account={memebid.owner} />
