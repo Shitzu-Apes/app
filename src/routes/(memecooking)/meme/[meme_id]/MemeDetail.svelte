@@ -4,7 +4,7 @@
   import type { Meme } from "$lib/api/client";
   import Near from "$lib/assets/Near.svelte";
   import TradeTabs from "$lib/components/memecooking/Board/Desktop/TradeTabs.svelte";
-  import McStake from "$lib/components/memecooking/Board/MCStake.svelte";
+  import McActionBox from "$lib/components/memecooking/Board/MCActionBox.svelte";
   import SocialLink from "$lib/components/memecooking/Board/SocialLink.svelte";
   import TokenChart from "$lib/components/memecooking/Board/TokenChart.svelte";
   import TokenHolder from "$lib/components/memecooking/Board/TokenHolder.svelte";
@@ -81,7 +81,7 @@
 
   <div class="w-90 p-2 flex flex-col gap-5">
     <div class="w-full min-h-74 border-2 border-shitzu-4 rounded-xl p-2">
-      <McStake {meme} />
+      <McActionBox {meme} />
     </div>
 
     <!-- Link -->
