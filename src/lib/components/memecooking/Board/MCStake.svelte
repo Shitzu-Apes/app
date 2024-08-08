@@ -44,14 +44,25 @@
 
   let expected: number;
   $: {
-    const amount = (
-      BigInt($input$?.toString() || "0") * BigInt(10 ** 24)
-    ).toString();
-    expected = predictedTokenAmount({
-      amount,
-      total_deposit: (BigInt(meme.total_deposit) + BigInt(amount)).toString(),
-      total_supply: meme.total_supply ?? undefined,
-    });
+    if (
+      $value === "unstake" &&
+      $input$ &&
+      $input$.toBigInt() > BigInt(meme.total_deposit)
+    ) {
+      expected = 0;
+    } else {
+      let amount = (
+        ($value === "stake" ? BigInt(1) : BigInt(-1)) *
+        BigInt($input$?.toString() || "0") *
+        BigInt(10 ** 24)
+      ).toString();
+
+      expected = predictedTokenAmount({
+        amount,
+        total_deposit: (BigInt(meme.total_deposit) + BigInt(amount)).toString(),
+        total_supply: meme.total_supply ?? undefined,
+      });
+    }
   }
 
   const {
