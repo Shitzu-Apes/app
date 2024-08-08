@@ -1,12 +1,19 @@
 import { FixedNumber } from "./FixedNumber";
 
-import type { Meme, Trade } from "$lib/api/client";
-
-export function predictedTokenAmount(trade: Trade & Meme): number {
-  const amount = BigInt(trade.amount);
-  const totalDeposit = BigInt(trade.total_deposit);
-  const totalSupply = BigInt(trade.total_supply ?? "10000000000");
+export function predictedTokenAmount(data: {
+  amount: string;
+  total_deposit: string;
+  total_supply?: string;
+  decimals?: number;
+}): number {
+  const decimals = data.decimals ?? 18;
+  console.log(data);
+  const amount = BigInt(data.amount);
+  const totalDeposit = BigInt(data.total_deposit);
+  const totalSupply = BigInt(
+    data.total_supply ?? "1000000000000000000000000000",
+  );
 
   const result = (amount * totalSupply) / (totalDeposit * 2n);
-  return new FixedNumber(result, 24).toNumber();
+  return new FixedNumber(result, decimals).toNumber();
 }

@@ -29,7 +29,11 @@
 
       const trades = trade.data.map((trade) => ({
         ...trade,
-        tokenAmount: predictedTokenAmount({ ...trade, ...meme }),
+        tokenAmount: predictedTokenAmount({
+          amount: trade.amount,
+          total_deposit: meme.total_deposit,
+          total_supply: meme.total_supply || undefined,
+        }),
       }));
 
       return trades.sort((a, b) => b.timestamp_ms - a.timestamp_ms);

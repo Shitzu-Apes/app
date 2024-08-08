@@ -43,7 +43,11 @@
         return;
       }
 
-      const tokenAmount = predictedTokenAmount(newTrade);
+      const tokenAmount = predictedTokenAmount({
+        amount: newTrade.amount,
+        total_deposit: newTrade.total_deposit,
+        total_supply: newTrade.total_supply || undefined,
+      });
 
       const newTradeWithTokenAmount = { ...newTrade, tokenAmount };
 
