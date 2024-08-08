@@ -302,7 +302,9 @@ export abstract class MemeCooking {
           type: "FunctionCall",
           params: {
             methodName: "claim",
-            args,
+            args: {
+              meme_ids: args.meme_ids,
+            },
             gas: 300_000_000_000_000n.toString(),
             deposit: "1",
           },

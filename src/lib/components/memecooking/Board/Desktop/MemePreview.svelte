@@ -1,22 +1,84 @@
 <script lang="ts">
+  import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
+
   import Chef from "../../Chef.svelte";
   import Countdown from "../../Countdown.svelte";
 
   import { goto } from "$app/navigation";
   import Near from "$lib/assets/Near.svelte";
   import type { Meme } from "$lib/models/memecooking";
+  import { MemeCooking, wallet } from "$lib/near";
   import { FixedNumber } from "$lib/util";
+  import { getTokenId } from "$lib/util/getTokenId";
 
   export let memebid: Meme;
   export let requiredStake: FixedNumber;
+  export let showCook = true;
+  export let depositAmount: string | undefined = undefined;
+  export let claimAmount: string | undefined = undefined;
+  export let update:
+    | ((
+        outcome: FinalExecutionOutcome | FinalExecutionOutcome[] | undefined,
+      ) => void)
+    | undefined = undefined;
 
   $: reachedMcap = new FixedNumber(memebid.total_deposit, 24) >= requiredStake;
+
+  async function withdraw(ev: Event) {
+    ev.preventDefault();
+    if (memebid.end_timestamp_ms == null || depositAmount == null) return;
+    try {
+      if (memebid.end_timestamp_ms < Date.now()) {
+        await MemeCooking.claim(
+          wallet,
+          {
+            meme_ids: [memebid.meme_id],
+            token_ids: [],
+          },
+          {
+            onSuccess: update,
+          },
+        );
+      } else {
+        await MemeCooking.withdraw(
+          wallet,
+          {
+            memeId: memebid.meme_id,
+            amount: depositAmount,
+          },
+          {
+            onSuccess: update,
+          },
+        );
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function claim(ev: Event) {
+    ev.preventDefault();
+    try {
+      await MemeCooking.claim(
+        wallet,
+        {
+          meme_ids: [memebid.meme_id],
+          token_ids: [getTokenId(memebid.symbol, memebid.meme_id)],
+        },
+        {
+          onSuccess: update,
+        },
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }
 </script>
 
 <div class="w-full">
   <a
     href={`/meme/${memebid.meme_id}`}
-    class="w-full flex items-center justify-start gap-3 p-2 border border-transparent hover:border-white cursor-pointer relative"
+    class="w-full grid grid-cols-[auto_1fr] items-center justify-start gap-3 p-2 border border-transparent hover:border-white cursor-pointer relative"
   >
     <div class="w-24 flex flex-col items-center">
       <img
@@ -66,12 +128,14 @@
           </div>
         {/if}
       {/if}
-      <div class="text-xs flex items-center gap-1">
-        created by <Chef account={memebid.owner} />
-      </div>
+      {#if showCook}
+        <div class="text-xs flex items-center gap-1">
+          created by <Chef account={memebid.owner} />
+        </div>
+      {/if}
       <div class="text-sm">
         {memebid.name}
-        <span class="font-bold text-shitzu-4">{memebid.symbol}</span>
+        <span class="font-semibold text-shitzu-4">${memebid.symbol}</span>
       </div>
       <div class="text-xs">{memebid.description}</div>
 
@@ -91,6 +155,31 @@
           {new FixedNumber(memebid.total_deposit, 24).format()}
         </span>
       </div>
+    </div>
+
+    <div class="grid-col-start-2 ml-auto flex flex-col justify-end items-end">
+      {#if depositAmount != null}
+        <button class="hover:underline" on:click={withdraw}>
+          [withdraw all]
+        </button>
+      {/if}
+      {#if claimAmount != null}
+        <button class="hover:underline" on:click={claim}>
+          [claim {new FixedNumber(claimAmount, memebid.decimals).format({
+            compactDisplay: "short",
+            notation: "compact",
+          })}
+          {#if memebid.image}
+            <img
+              src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
+              alt="icon"
+              class="size-4 inline"
+            />
+          {:else}
+            <div class="size-4 bg-gray-200 inline"></div>
+          {/if}]
+        </button>
+      {/if}
     </div>
   </a>
 </div>

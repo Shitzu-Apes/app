@@ -1,13 +1,20 @@
 <script lang="ts">
-  import Deposit from "./Deposit.svelte";
+  import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
+  import { slide } from "svelte/transition";
+
+  import MemePreview from "../Board/Desktop/MemePreview.svelte";
 
   import type { Meme } from "$lib/api/client";
+  import { requiredStake } from "$lib/near";
 
   export let deposits: {
-    meme_id: string;
+    meme_id: number;
     amount: string;
-    meme: Meme | undefined;
+    meme: Meme;
   }[];
+  export let update: (
+    outcome: FinalExecutionOutcome | FinalExecutionOutcome[] | undefined,
+  ) => void;
 
   deposits.sort((a, b) => {
     // ended_timestamp_ms doesn't exist or ended_timestamp_ms has already passed then it should be at the end of the list
@@ -29,11 +36,18 @@
 <div class="my-6 w-full">
   {#if deposits.length > 0}
     <ul class="w-full flex flex-col gap-4 justify-center items-center">
-      {#each deposits as deposit, index (deposit.meme_id || `index-${index}`)}
-        <li class="w-full">
-          <Deposit {deposit} />
-        </li>
-      {/each}
+      {#await requiredStake}
+        <div transition:slide class="i-svg-spinners:pulse-3 size-40" />
+      {:then requiredStake}
+        {#each deposits as deposit, index (deposit.meme_id || `index-${index}`)}
+          <MemePreview
+            memebid={deposit.meme}
+            {requiredStake}
+            depositAmount={deposit.amount}
+            {update}
+          />
+        {/each}
+      {/await}
     </ul>
   {:else}
     <div>No Coin Held</div>

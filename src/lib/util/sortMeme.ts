@@ -17,6 +17,7 @@ export function filterAndSortMeme<T extends Meme>(
     sort: string;
     order: string;
   },
+  searchQuery: string,
   liveOnly: boolean,
 ): T[] {
   console.log("[filterAndSortMeme] memes", memes);
@@ -24,6 +25,15 @@ export function filterAndSortMeme<T extends Meme>(
     memes = memes.filter(
       (meme) => meme.end_timestamp_ms && meme.end_timestamp_ms > Date.now(),
     );
+  }
+  if (searchQuery) {
+    memes = memes.filter((meme) => {
+      return (
+        meme.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        meme.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        meme.owner.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    });
   }
 
   switch (sort.sort) {

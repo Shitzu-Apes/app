@@ -48,8 +48,8 @@
       <span>
         {meme.name}
       </span>
-      <span class="uppercase">
-        {meme.symbol}
+      <span class="font-semibold">
+        ${meme.symbol}
       </span>
       <span class="text-green-400 flex items-center">
         Market cap:{" "}
@@ -100,7 +100,7 @@
           class="w-30 object-contain"
         />
         <div>
-          <h2>{meme.name} <b>{meme.symbol}</b></h2>
+          <h2>{meme.name} <b>${meme.symbol}</b></h2>
           <div class="text-sm">{meme.description}</div>
         </div>
       </div>

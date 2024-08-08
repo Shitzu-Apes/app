@@ -17,17 +17,17 @@
     snackbar$,
     snackbarComponent$,
   } from "$lib/snackbar";
+  import {
+    indexer_last_block_height$,
+    node_last_block_height$,
+  } from "$lib/store/indexer";
   import { initializeWebsocket, ws } from "$lib/store/memebids";
-
-  let indexer_last_block_height: number | null = null;
-  let node_last_block_height: number | null = null;
 
   onMount(() => {
     initializeWebsocket($ws);
 
     const fetchLastBlockHeight = async () => {
       const res = await client.GET("/info");
-      indexer_last_block_height = res.data?.last_block_height ?? null;
 
       const nodeUrl = import.meta.env.VITE_NODE_URL;
       const response = await fetch(nodeUrl, {
@@ -41,7 +41,9 @@
         }),
       });
       const data = await response.json();
-      node_last_block_height = data.result.sync_info.latest_block_height;
+
+      $indexer_last_block_height$ = res.data?.last_block_height ?? null;
+      $node_last_block_height$ = data.result.sync_info.latest_block_height;
     };
 
     fetchLastBlockHeight(); // Fetch once immediately
@@ -110,26 +112,26 @@
           commit: {import.meta.env.VITE_COMMIT_HASH}
         </div>
         <div>
-          {#if indexer_last_block_height}
-            {#if indexer_last_block_height && node_last_block_height}
-              {#if node_last_block_height - indexer_last_block_height > 100}
-                <span class="inline-flex relative mr-1">
-                  <span class="w-2 h-2 bg-red-500 rounded-full"></span>
-                  <span
-                    class="w-2 h-2 bg-red-500 rounded-full absolute animate-ping"
-                  ></span>
-                </span>
-              {:else}
-                <span class="inline-flex relative mr-1">
-                  <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span
-                    class="w-2 h-2 bg-green-500 rounded-full absolute animate-ping"
-                  ></span>
-                </span>
-              {/if}
+          {#if $indexer_last_block_height$ && $node_last_block_height$}
+            {#if $node_last_block_height$ - $indexer_last_block_height$ > 105}
+              <span class="inline-flex relative mr-1">
+                <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                <span
+                  class="w-2 h-2 bg-red-500 rounded-full absolute animate-ping"
+                ></span>
+              </span>
+            {:else}
+              <span class="inline-flex relative mr-1">
+                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                <span
+                  class="w-2 h-2 bg-green-500 rounded-full absolute animate-ping"
+                ></span>
+              </span>
             {/if}
-            last indexed block:
-            <span class="font-mono">{indexer_last_block_height}</span>
+            <span class="font-mono"
+              >{$indexer_last_block_height$} ({$node_last_block_height$ -
+                $indexer_last_block_height$})</span
+            >
           {/if}
         </div>
       </div>

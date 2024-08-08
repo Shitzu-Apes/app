@@ -10,16 +10,14 @@
   import TokenDetailCarousel from "./TokenDetailCarousel.svelte";
 
   import { page } from "$app/stores";
-  import type { Meme } from "$lib/models/memecooking";
   import { requiredStake } from "$lib/near";
+  import { memebids$ } from "$lib/store/memebids";
 
   let emblaApi: EmblaCarouselType | undefined = undefined;
   let options: EmblaOptionsType = {
     axis: "y",
   };
 
-  export let memebids: Meme[];
-  export let initialMemebidsPromise: Promise<void>;
   export let currentMemebidsIdx: number;
 
   const dispatch = createEventDispatcher();
@@ -83,7 +81,7 @@
   }}
 />
 
-{#await Promise.all([requiredStake, initialMemebidsPromise])}
+{#await Promise.all([requiredStake, $memebids$])}
   <section>
     <div class="flex flex-col h-screen">
       <div class="flex-[0_0_100%] min-h-0">
@@ -131,7 +129,7 @@
       </div>
     </div>
   </section>
-{:then [requiredStake]}
+{:then [requiredStake, memebids]}
   <div class="w-full max-w-lg mx-auto">
     <div
       class="overflow-hidden relative focus-element"

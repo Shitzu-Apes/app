@@ -1,24 +1,37 @@
 <script lang="ts">
   import { createTabs, melt } from "@melt-ui/svelte";
+  import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
+  import { slide } from "svelte/transition";
 
   import { page } from "$app/stores";
   import { client } from "$lib/api/client";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import Tooltip from "$lib/components/Tooltip.svelte";
-  import Claim from "$lib/components/memecooking/Profile/Claim.svelte";
   import ClaimList from "$lib/components/memecooking/Profile/ClaimList.svelte";
   import CoinCreated from "$lib/components/memecooking/Profile/CoinCreated.svelte";
   import DepositList from "$lib/components/memecooking/Profile/DepositList.svelte";
   import { MemeCooking } from "$lib/near";
+  import { fetchBlockHeight } from "$lib/near/rpc";
+  import { awaitRpcBlockHeight } from "$lib/store/indexer";
   import { getTokenId } from "$lib/util/getTokenId";
 
   const { accountId } = $page.params;
 
-  const fullAccount = MemeCooking.getAccount(accountId).then(
-    async (account) => {
-      if (!account) return;
-      const unclaimed = (await MemeCooking.getUnclaimed(accountId)) || [];
-      const data = await client.POST("/profile", {
+  let fullAccount: ReturnType<typeof fetchFullAccount> = new Promise<never>(
+    () => {},
+  );
+
+  fetchFullAccount();
+  function fetchFullAccount(blockHeight?: number) {
+    const res = Promise.all([
+      MemeCooking.getAccount(accountId),
+      MemeCooking.getUnclaimed(accountId),
+      blockHeight != null
+        ? awaitRpcBlockHeight(blockHeight)
+        : Promise.resolve(),
+    ]).then(async ([account, unclaimed]) => {
+      if (!account || !unclaimed) return;
+      const { data } = await client.POST("/profile", {
         body: {
           meme_id: account
             ? [
@@ -29,16 +42,33 @@
           account_id: accountId,
           token_id: account.income.map((income) => income[0].toString()),
         },
+        headers:
+          blockHeight != null
+            ? {
+                "X-Block-Height": String(blockHeight),
+              }
+            : {},
       });
-      const deposits = account.deposits.map((deposit) => ({
-        meme_id: deposit[0].toString(),
-        amount: deposit[1].toString(),
-        meme: data.data?.meme_info[deposit[0].toString()],
-      }));
+      if (!data) {
+        throw new Error(`Account ${accountId} not found`);
+      }
+      const deposits = account.deposits
+        .map((deposit) => {
+          const meme = data.meme_info[deposit[0].toString()];
+          if (!meme) return null;
+          return {
+            meme_id: deposit[0],
+            amount: deposit[1].toString(),
+            meme,
+          };
+        })
+        .filter(
+          (deposit): deposit is NonNullable<typeof deposit> => deposit != null,
+        );
       let claims = await Promise.all(
         unclaimed.map(async (meme_id) => {
           // find meme id from data
-          const meme = data.data?.meme_info[meme_id.toString()];
+          const meme = data.meme_info[meme_id.toString()];
           if (!meme) return null;
           const token_id = getTokenId(meme.symbol, meme.meme_id);
           const amount = await MemeCooking.getClaimable(
@@ -53,19 +83,19 @@
           };
         }),
       ).then((claims) =>
-        claims.filter(
-          (claim): claim is NonNullable<typeof claim> => claim !== null,
-        ),
+        claims.filter((claim): claim is NonNullable<typeof claim> => {
+          return (
+            claim != null &&
+            +claim.amount > 0 &&
+            unclaimed.find((memeId) => memeId === claim.meme.meme_id) != null
+          );
+        }),
       );
-
-      // claims = claims.filter(
-      //   (claim): claim is NonNullable<typeof claim> => claim !== null,
-      // );
 
       const revenue = account.income.map((income) => ({
         token_id: income[0].toString(),
         amount: income[1].toString(),
-        meme: data.data?.token_info[income[0].toString()],
+        meme: data.token_info[income[0].toString()],
       }));
 
       console.log("[claims]", claims);
@@ -75,11 +105,13 @@
         account,
         deposits,
         claims,
-        created: data.data?.coinsCreated,
+        created: data.coinsCreated,
         revenue,
       };
-    },
-  );
+    });
+    fullAccount = res;
+    return res;
+  }
 
   fullAccount.then((account) => {
     console.log("[fullAccount]", account);
@@ -89,7 +121,7 @@
     {
       id: "not-finalized",
       label: "withdraw Stake",
-      info: "All ongoing staking and unsucsesful launches",
+      info: "All ongoing staking and unsuccesful launches",
     },
     {
       id: "finalized",
@@ -109,6 +141,20 @@
   } = createTabs({
     defaultValue: tabs[0].id,
   });
+
+  async function update(
+    outcome: FinalExecutionOutcome | FinalExecutionOutcome[] | undefined,
+  ) {
+    // TODO
+    if (outcome == null) return;
+    let blockHeight: number;
+    if (Array.isArray(outcome)) {
+      blockHeight = await fetchBlockHeight(outcome[outcome.length - 1]);
+    } else {
+      blockHeight = await fetchBlockHeight(outcome);
+    }
+    fetchFullAccount(blockHeight);
+  }
 </script>
 
 <section class="w-full flex flex-col items-center justify-center">
@@ -132,10 +178,7 @@
   </div>
   {#await fullAccount then info}
     {#if info && info.revenue}
-      <div class="max-w-xs my-10 w-full">
-        <h3 class="mb-6 font-semibold text-lg">Revenue</h3>
-        <Claim claim={info.revenue[0]} />
-      </div>
+      <!-- TODO -->
     {/if}
   {/await}
 
@@ -157,18 +200,17 @@
   </div>
 
   {#await fullAccount}
-    <div class="i-svg-spinners:pulse-3 size-20 mt-[80px]" />
+    <div transition:slide class="i-svg-spinners:pulse-3 size-20 mt-[80px]" />
   {:then info}
     {#if info}
       <section class="w-full max-w-xs" use:melt={$content(tabs[0].id)}>
-        <DepositList deposits={info.deposits} />
+        <DepositList deposits={info.deposits} {update} />
       </section>
       <section class="w-full max-w-xs" use:melt={$content(tabs[1].id)}>
-        <!-- @ts-expect-error not null -->
-        <ClaimList claims={info.claims} />
+        <ClaimList claims={info.claims} {update} />
       </section>
       <section class="w-full max-w-xs" use:melt={$content(tabs[2].id)}>
-        <CoinCreated coins={info.created} />
+        <CoinCreated coins={info.created} {update} />
       </section>
     {/if}
   {/await}

@@ -1,31 +1,9 @@
 <script lang="ts">
-  import { client, type Meme } from "$lib/api/client";
+  import { client } from "$lib/api/client";
   import SHITZU_KING from "$lib/assets/shitzu_saiya.webp";
   import Board from "$lib/components/memecooking/Board/Board.svelte";
   import King from "$lib/components/memecooking/Board/King.svelte";
-  // import { MemeCooking } from "$lib/near";
-  import { memebids } from "$lib/store/memebids";
-  import { search } from "$lib/util/search";
-
-  let cacheMemebids: Meme[] = [];
-
-  let initialMemebidsPromise: Promise<void> = client
-    .GET("/meme")
-    .then((res) => {
-      if (!res.data) return;
-      console.log("[+page] memebids", res.data);
-      $memebids = res.data;
-      cacheMemebids = $memebids;
-    });
-  let query = "";
-
-  $: {
-    if (query.length > 0) {
-      $memebids = search(cacheMemebids, query);
-    } else {
-      $memebids = cacheMemebids;
-    }
-  }
+  import { searchQuery$ } from "$lib/store/memebids";
 
   let currentKing = client.GET("/meme/king");
   let currentMemebidsIdx = 0;
@@ -67,11 +45,11 @@
       type="text"
       class="w-full max-w-sm h-10 border bg-shitzu-2 border-shitzu-4 rounded-lg px-4"
       placeholder="search for token"
-      bind:value={query}
+      bind:value={$searchQuery$}
     />
     <button class="bg-shitzu-5 px-4 py-2 rounded-lg">Search</button>
   </div>
   <section class="w-full">
-    <Board {initialMemebidsPromise} {currentMemebidsIdx} />
+    <Board {currentMemebidsIdx} />
   </section>
 </div>
