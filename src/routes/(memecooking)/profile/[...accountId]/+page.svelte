@@ -147,12 +147,7 @@
   ) {
     // TODO
     if (outcome == null) return;
-    let blockHeight: number;
-    if (Array.isArray(outcome)) {
-      blockHeight = await fetchBlockHeight(outcome[outcome.length - 1]);
-    } else {
-      blockHeight = await fetchBlockHeight(outcome);
-    }
+    const blockHeight = await fetchBlockHeight(outcome);
     // adding +5 here becauce of receipts being delayed
     fetchFullAccount(blockHeight + 5);
   }

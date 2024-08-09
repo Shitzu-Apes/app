@@ -1,6 +1,8 @@
 <script lang="ts">
   import { createTabs, melt } from "@melt-ui/svelte";
+  import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
   import { writable } from "svelte/store";
+  import { slide } from "svelte/transition";
 
   import { addToast } from "../Toast.svelte";
 
@@ -15,8 +17,14 @@
     refreshNearBalance,
     updateMcAccount,
     wallet,
+    type TransactionCallbacks,
   } from "$lib/near";
+  import { fetchBlockHeight } from "$lib/near/rpc";
   import { handleBuy, handleSell } from "$lib/near/swap";
+  import {
+    awaitIndexerBlockHeight,
+    awaitRpcBlockHeight,
+  } from "$lib/store/indexer";
   import { FixedNumber } from "$lib/util";
   import { getTokenId } from "$lib/util/getTokenId";
 
@@ -44,34 +52,38 @@
     });
   }
 
-  let expected: FixedNumber = new FixedNumber(0n, 24);
+  let expected: FixedNumber | undefined = undefined;
   $: {
     if (meme.pool_id) {
-      const decimals = $value === "buy" ? 24 : 18;
+      const decimals = $value === "buy" ? 24 : meme.decimals;
       console.log("[$input$?.toString()]: ", $input$?.toU128());
       let amount = ($input$?.toBigInt() || 0n).toString();
 
       console.log("[amount]: ", amount);
+      const amountIn = new FixedNumber(amount, decimals);
+      if (amountIn.valueOf() > 0n) {
+        let tokenIn, tokenOut;
+        if ($value === "buy") {
+          tokenIn = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
+          tokenOut = getTokenId(meme.symbol, meme.meme_id);
+        } else {
+          tokenIn = getTokenId(meme.symbol, meme.meme_id);
+          tokenOut = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
+        }
 
-      let tokenIn, tokenOut;
-      if ($value === "buy") {
-        tokenIn = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
-        tokenOut = getTokenId(meme.symbol, meme.meme_id);
+        Ref.getReturn({
+          amountIn,
+          tokenOut,
+          tokenIn,
+          poolId: meme.pool_id,
+          decimals: $value === "buy" ? meme.decimals : 24,
+        }).then((value) => {
+          console.log("[getReturn]: ", value);
+          expected = value;
+        });
       } else {
-        tokenIn = getTokenId(meme.symbol, meme.meme_id);
-        tokenOut = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
+        expected = undefined;
       }
-
-      Ref.getReturn({
-        amountIn: new FixedNumber(amount, decimals),
-        tokenOut,
-        tokenIn,
-        poolId: meme.pool_id,
-        decimals: $value === "buy" ? 18 : 24,
-      }).then((value) => {
-        console.log("[getReturn]: ", value);
-        expected = value;
-      });
     }
   }
 
@@ -96,6 +108,8 @@
   }
 
   async function action() {
+    if (expected == null) return;
+
     if (!$accountId$) {
       console.error("No input or account id");
       addToast({
@@ -124,10 +138,28 @@
       return;
     }
 
+    const callback: TransactionCallbacks<FinalExecutionOutcome[]> = {
+      onSuccess: async (outcome) => {
+        if (!outcome || !$accountId$) return;
+        const blockHeight = await fetchBlockHeight(outcome);
+        await Promise.all([
+          awaitIndexerBlockHeight(blockHeight),
+          awaitRpcBlockHeight(blockHeight),
+        ]);
+        refreshNearBalance($accountId$);
+        Ft.balanceOf(
+          getTokenId(meme.symbol, meme.meme_id),
+          $accountId$,
+          meme.decimals,
+        ).then((balance) => {
+          $tokenBalance = balance;
+        });
+      },
+    };
     if ($value === "buy") {
-      return await handleBuy($input$, $accountId$, expected, meme);
+      return handleBuy($input$, $accountId$, expected, meme, callback);
     } else {
-      return await handleSell($input$, $accountId$, expected, meme);
+      return handleSell($input$, $accountId$, expected, meme, callback);
     }
   }
 
@@ -216,7 +248,7 @@
         'buy'
           ? 'text-shitzu-4'
           : 'text-rose-5'}"
-        decimals={$value === "buy" ? 24 : 18}
+        decimals={$value === "buy" ? 24 : meme.decimals}
         bind:this={input}
         bind:value={$inputValue$}
       />
@@ -282,10 +314,25 @@
         </li>
       {/each}
     </ul>
-    <div class="text-sm text-white my-3">
-      {expected.format()}
-      {meme.symbol}
-    </div>
+    {#if expected != null && expected.valueOf() > 0n}
+      <div transition:slide class="text-sm text-white my-3">
+        {expected.format({
+          notation: "compact",
+          compactDisplay: "short",
+        })}
+        {#if $value === "buy"}
+          {meme.symbol}
+          <img
+            src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
+            alt={meme.name}
+            class="inline size-5 rounded-full"
+          />
+        {:else}
+          NEAR
+          <Near className="inline size-5 bg-white text-black rounded-full" />
+        {/if}
+      </div>
+    {/if}
     <Button
       onClick={async () => {
         await action();

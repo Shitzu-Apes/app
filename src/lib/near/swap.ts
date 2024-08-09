@@ -1,7 +1,8 @@
 import type { HereCall } from "@here-wallet/core";
+import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
 
 import type { Meme } from "$lib/models/memecooking";
-import { Ft, refreshNearBalance, wallet } from "$lib/near";
+import { Ft, wallet, type TransactionCallbacks } from "$lib/near";
 import { FixedNumber } from "$lib/util";
 import { getTokenId } from "$lib/util/getTokenId";
 
@@ -10,6 +11,7 @@ export async function handleBuy(
   accountId: string,
   expected: FixedNumber,
   meme: Meme,
+  callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
 ) {
   if (!input || !accountId) return;
   const tokenId = getTokenId(meme.symbol, meme.meme_id);
@@ -79,15 +81,7 @@ export async function handleBuy(
     ],
   });
 
-  await wallet.signAndSendTransactions(
-    { transactions },
-    {
-      onSuccess: () => {
-        refreshNearBalance(accountId);
-      },
-      onFinally: () => {},
-    },
-  );
+  await wallet.signAndSendTransactions({ transactions }, callback);
 }
 
 export async function handleSell(
@@ -95,6 +89,7 @@ export async function handleSell(
   accountId: string,
   expected: FixedNumber,
   meme: Meme,
+  callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
 ) {
   if (!input || !accountId) return;
   const tokenId = getTokenId(meme.symbol, meme.meme_id);
@@ -157,13 +152,5 @@ export async function handleSell(
     ],
   });
 
-  await wallet.signAndSendTransactions(
-    { transactions },
-    {
-      onSuccess: () => {
-        refreshNearBalance(accountId);
-      },
-      onFinally: () => {},
-    },
-  );
+  await wallet.signAndSendTransactions({ transactions }, callback);
 }

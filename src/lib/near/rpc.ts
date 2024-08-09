@@ -2,7 +2,15 @@ import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
 
 // TODO this should fetch block height based on receipt,
 // but we don't know which receipt so...
-export async function fetchBlockHeight(outcome: FinalExecutionOutcome) {
+export async function fetchBlockHeight(
+  outcomes: FinalExecutionOutcome | FinalExecutionOutcome[],
+) {
+  let outcome: FinalExecutionOutcome;
+  if (Array.isArray(outcomes)) {
+    outcome = outcomes[outcomes.length - 1];
+  } else {
+    outcome = outcomes;
+  }
   const res = await fetch(import.meta.env.VITE_NODE_URL, {
     method: "POST",
     headers: {
