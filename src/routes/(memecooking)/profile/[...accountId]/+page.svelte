@@ -153,7 +153,8 @@
     } else {
       blockHeight = await fetchBlockHeight(outcome);
     }
-    fetchFullAccount(blockHeight);
+    // adding +5 here becauce of receipts being delayed
+    fetchFullAccount(blockHeight + 5);
   }
 </script>
 
@@ -176,32 +177,48 @@
       </div>
     </div>
   </div>
-  {#await fullAccount then info}
-    {#if info && info.revenue}
-      <!-- TODO -->
-    {/if}
-  {/await}
-
-  <div use:melt={$root}>
-    <div use:melt={$list} class="flex gap-1">
-      {#each tabs as tab}
-        <button
-          use:melt={$trigger(tab.id)}
-          class="{tab.id !== $value
-            ? 'text-shitzu-4 bg-transparent'
-            : 'text-dark bg-shitzu-4'} font-400 px-2 rounded"
-        >
-          <Tooltip info={tab.info}>
-            {tab.label}
-          </Tooltip>
-        </button>
-      {/each}
-    </div>
-  </div>
 
   {#await fullAccount}
     <div transition:slide class="i-svg-spinners:pulse-3 size-20 mt-[80px]" />
   {:then info}
+    {#if info && info.revenue}
+      <!-- TODO -->
+    {/if}
+
+    <div use:melt={$root}>
+      <div use:melt={$list} class="flex gap-1">
+        {#each tabs as tab, index}
+          <Tooltip info={tab.info}>
+            <button
+              use:melt={$trigger(tab.id)}
+              class="flex items-center {tab.id !== $value
+                ? 'text-shitzu-4 bg-transparent'
+                : 'text-dark bg-shitzu-4'} font-400 px-2 rounded"
+            >
+              {tab.label}
+              {#if info != null}
+                {#if index === 0 && info.deposits.filter((deposit) => deposit.meme.end_timestamp_ms != null && deposit.meme.end_timestamp_ms < Date.now()).length > 0}
+                  <div class="ml-1 flex items-center text-sm text-red-4">
+                    <div class="i-line-md:bell-twotone-alert-loop size-4" />
+                    {info.deposits.filter(
+                      (deposit) =>
+                        deposit.meme.end_timestamp_ms != null &&
+                        deposit.meme.end_timestamp_ms < Date.now(),
+                    ).length}
+                  </div>
+                {:else if index === 1 && info.claims.length > 0}
+                  <div class="ml-1 flex items-center text-sm text-red-4">
+                    <div class="i-line-md:bell-twotone-alert-loop size-4" />
+                    {info.claims.length}
+                  </div>
+                {/if}
+              {/if}
+            </button>
+          </Tooltip>
+        {/each}
+      </div>
+    </div>
+
     {#if info}
       <section class="w-full max-w-xs" use:melt={$content(tabs[0].id)}>
         <DepositList deposits={info.deposits} {update} />

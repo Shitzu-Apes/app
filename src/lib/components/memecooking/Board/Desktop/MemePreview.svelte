@@ -159,8 +159,12 @@
 
     <div class="grid-col-start-2 ml-auto flex flex-col justify-end items-end">
       {#if depositAmount != null}
-        <button class="hover:underline" on:click={withdraw}>
-          [withdraw all]
+        <button class="hover:underline flex items-center" on:click={withdraw}>
+          [withdraw {new FixedNumber(depositAmount, 24).format({
+            compactDisplay: "short",
+            notation: "compact",
+          })}
+          <Near className="size-4 inline" />]
         </button>
       {/if}
       {#if claimAmount != null}
