@@ -10,7 +10,6 @@
   import type { Meme } from "$lib/models/memecooking";
   import {
     Ft,
-    mcAccount$,
     MemeCooking,
     nearBalance,
     Ref,
@@ -35,46 +34,45 @@
 
   export let meme: Meme;
 
-  const depositAmount$ = writable<FixedNumber | undefined>();
-  $: if ($mcAccount$) {
-    const deposit = $mcAccount$.deposits.find(
-      ([memeId]) => memeId === meme.meme_id,
-    );
-    $depositAmount$ = new FixedNumber(deposit?.[1] ?? "0", 24);
+  const tokenBalance = writable<FixedNumber | undefined>();
+  $: if ($accountId$) {
+    Ft.balanceOf(
+      getTokenId(meme.symbol, meme.meme_id),
+      $accountId$,
+      meme.decimals,
+    ).then((balance) => {
+      $tokenBalance = balance;
+    });
   }
 
   let expected: FixedNumber = new FixedNumber(0n, 24);
   $: {
-    if (
-      $value === "sell" &&
-      $input$ &&
-      $input$.toBigInt() > BigInt(meme.total_deposit)
-    ) {
-      expected = new FixedNumber(0n, 24);
-    } else {
-      if (meme.pool_id) {
-        let amount = (
-          BigInt($input$?.toString() || "0") * BigInt(10 ** 24)
-        ).toString();
+    if (meme.pool_id) {
+      const decimals = $value === "buy" ? 24 : 18;
+      console.log("[$input$?.toString()]: ", $input$?.toU128());
+      let amount = ($input$?.toBigInt() || 0n).toString();
 
-        let tokenIn, tokenOut;
-        if ($value === "buy") {
-          tokenIn = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
-          tokenOut = getTokenId(meme.symbol, meme.meme_id);
-        } else {
-          tokenIn = getTokenId(meme.symbol, meme.meme_id);
-          tokenOut = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
-        }
+      console.log("[amount]: ", amount);
 
-        Ref.getReturn({
-          amountIn: new FixedNumber(amount, 24),
-          tokenOut,
-          tokenIn,
-          poolId: meme.pool_id,
-        }).then((value) => {
-          expected = value;
-        });
+      let tokenIn, tokenOut;
+      if ($value === "buy") {
+        tokenIn = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
+        tokenOut = getTokenId(meme.symbol, meme.meme_id);
+      } else {
+        tokenIn = getTokenId(meme.symbol, meme.meme_id);
+        tokenOut = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
       }
+
+      Ref.getReturn({
+        amountIn: new FixedNumber(amount, decimals),
+        tokenOut,
+        tokenIn,
+        poolId: meme.pool_id,
+        decimals: $value === "buy" ? 18 : 24,
+      }).then((value) => {
+        console.log("[getReturn]: ", value);
+        expected = value;
+      });
     }
   }
 
@@ -164,10 +162,10 @@
         $inputValue$ = input.toString();
       }
     } else {
-      if (!$depositAmount$) {
+      if (!$tokenBalance) {
         return;
       }
-      $inputValue$ = $depositAmount$.toString();
+      $inputValue$ = $tokenBalance.toString();
     }
   }
 
@@ -239,7 +237,7 @@
         'buy'
           ? 'text-shitzu-4'
           : 'text-rose-5'}"
-        decimals={24}
+        decimals={$value === "buy" ? 24 : 18}
         bind:this={input}
         bind:value={$inputValue$}
       />
@@ -262,8 +260,8 @@
             : 'text-rose-4'} flex-grow basis-0"
         >
           {#if $value === "sell"}
-            {#if $depositAmount$ != null}
-              {$depositAmount$.format()}
+            {#if $tokenBalance != null}
+              {$tokenBalance.format()}
             {:else}
               -
             {/if}
@@ -291,9 +289,9 @@
                   24,
                 ).toString();
               } else {
-                if ($depositAmount$ == null) return;
+                if ($tokenBalance == null) return;
                 const bps = new FixedNumber(defaultValue[$value].value, 2);
-                $inputValue$ = $depositAmount$.mul(bps).toString();
+                $inputValue$ = $tokenBalance.mul(bps).toString();
               }
             }}
           >

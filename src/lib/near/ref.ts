@@ -36,11 +36,13 @@ export abstract class Ref {
     tokenIn,
     amountIn,
     tokenOut,
+    decimals,
   }: {
     poolId: number;
     tokenIn: string;
     amountIn: FixedNumber;
     tokenOut: string;
+    decimals: number;
   }) {
     const args = {
       pool_id: poolId,
@@ -54,7 +56,7 @@ export abstract class Ref {
       args,
     );
 
-    return new FixedNumber(out, 18);
+    return new FixedNumber(out, decimals);
   }
 
   public static async calculateShitzuOut(
