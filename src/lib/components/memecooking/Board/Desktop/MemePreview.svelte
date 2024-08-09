@@ -137,7 +137,7 @@
         {memebid.name}
         <span class="font-semibold text-shitzu-4">${memebid.symbol}</span>
       </div>
-      <div class="text-xs">{memebid.description}</div>
+      <div class="text-xs line-clamp-12">{memebid.description}</div>
 
       <div class="flex flex-col gap-1">
         <span class="text-xs text-shitzu-4">

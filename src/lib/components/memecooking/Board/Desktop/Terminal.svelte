@@ -30,6 +30,9 @@
       liveOnly,
     ),
   ]);
+
+  let page = 1;
+  let perPage = 20;
 </script>
 
 <div class="flex gap-3 mt-6 px-4">
@@ -76,11 +79,30 @@
         </div>
       {/key}
     {/if}
-    {#each displayedMemebids.slice(1) as memebid (memebid.meme_id)}
+    {#each displayedMemebids.slice(1 + (page - 1) * perPage, page * perPage) as memebid (memebid.meme_id)}
       <div class="flex-grow basis-[30%] min-w-[300px] max-w-[30%]" in:fly>
         <MemePreview {memebid} {requiredStake} />
       </div>
     {/each}
+    <div class="flex items-center justify-center w-full gap-10">
+      <button
+        on:click={() => {
+          page = Math.max(1, page - 1);
+        }}
+      >
+        prev
+      </button>
+      <button
+        on:click={() => {
+          page = Math.min(
+            page + 1,
+            Math.ceil(displayedMemebids.length / perPage),
+          );
+        }}
+      >
+        next
+      </button>
+    </div>
   </div>
 {/await}
 
