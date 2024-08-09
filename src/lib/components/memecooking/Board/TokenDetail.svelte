@@ -11,7 +11,9 @@
 
 {#if memebid}
   <div class="flex flex-col w-full h-full items-center">
-    <h2 class="flex text-2xl my-4 justify-between items-center w-full px-2">
+    <h2
+      class="flex gap-4 text-2xl my-4 justify-between items-center w-full px-2"
+    >
       <div>
         {#if memebid.end_timestamp_ms}
           <Countdown to={memebid.end_timestamp_ms} class="text-shitzu-4" />
@@ -25,21 +27,19 @@
           ).format()}
         </div>
       </div>
-      <div>
-        <div class="flex flex-col items-end">
-          <h4 class="text-base font-medium">
-            {memebid.name}
-            <span class="font-semibold">
-              ${memebid.symbol}
-            </span>
-          </h4>
-          <div class="flex items-center text-xs">
-            created by
-            <Chef
-              account={memebid.owner}
-              class="text-sm overflow-hidden text-ellipsis"
-            />
-          </div>
+      <div class="flex flex-col items-end">
+        <h4 class="text-base font-medium">
+          {memebid.name}
+          <span class="font-semibold">
+            ${memebid.symbol}
+          </span>
+        </h4>
+        <div class="flex items-center text-xs">
+          created by
+          <Chef
+            account={memebid.owner}
+            class="text-sm overflow-hidden text-ellipsis"
+          />
         </div>
       </div>
     </h2>
