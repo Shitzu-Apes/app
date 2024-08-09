@@ -18,6 +18,7 @@
     updateMcAccount,
     wallet,
   } from "$lib/near";
+  import { handleSwap } from "$lib/near/swap";
   import { FixedNumber } from "$lib/util";
   import { getTokenId } from "$lib/util/getTokenId";
 
@@ -42,27 +43,36 @@
     $depositAmount$ = new FixedNumber(deposit?.[1] ?? "0", 24);
   }
 
-  let expected: number;
+  let expected: FixedNumber = new FixedNumber(0n, 24);
   $: {
     if (
       $value === "sell" &&
       $input$ &&
       $input$.toBigInt() > BigInt(meme.total_deposit)
     ) {
-      expected = 0;
+      expected = new FixedNumber(0n, 24);
     } else {
       if (meme.pool_id) {
         let amount = (
           BigInt($input$?.toString() || "0") * BigInt(10 ** 24)
         ).toString();
 
-        Ref.caclulateTokenOut({
+        let tokenIn, tokenOut;
+        if ($value === "buy") {
+          tokenIn = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
+          tokenOut = getTokenId(meme.symbol, meme.meme_id);
+        } else {
+          tokenIn = getTokenId(meme.symbol, meme.meme_id);
+          tokenOut = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
+        }
+
+        Ref.getReturn({
           amountIn: new FixedNumber(amount, 24),
-          tokenOut: getTokenId(meme.symbol, meme.meme_id),
-          tokenIn: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
+          tokenOut,
+          tokenIn,
           poolId: meme.pool_id,
         }).then((value) => {
-          expected = value.toNumber();
+          expected = value;
         });
       }
     }
@@ -76,14 +86,14 @@
   });
 
   let totalNearBalance$ = writable($nearBalance);
-  let wrapNearBalance: FixedNumber | null = null;
+  // let wrapNearBalance: FixedNumber | null = null;
   $: if ($accountId$ && $nearBalance) {
     Ft.balanceOf(
       import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
       $accountId$,
       24,
     ).then((balance) => {
-      wrapNearBalance = balance;
+      // wrapNearBalance = balance;
       $totalNearBalance$ = $nearBalance.add(balance);
     });
   }
@@ -118,85 +128,7 @@
     }
 
     if ($value === "buy") {
-      // Check storage balance before staking
-      const [
-        storageBalance,
-        { account: accountCost, perMemeDeposit },
-        wrapNearRegistered,
-        wrapNearMinDeposit,
-      ] = await Promise.all([
-        MemeCooking.storageBalanceOf($accountId$),
-        MemeCooking.storageCosts(),
-        Ft.isUserRegistered(
-          import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
-          $accountId$,
-        ),
-        Ft.storageRequirement(import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!),
-      ]);
-
-      let needStorageDeposit = null;
-      if (
-        // no storage balance or
-        // storage balance is less than min storage balance
-
-        storageBalance === null ||
-        (storageBalance !== null &&
-          new FixedNumber(storageBalance.available).toBigInt() <
-            new FixedNumber(accountCost).toBigInt())
-      ) {
-        needStorageDeposit = {
-          depositAmount: (
-            BigInt(accountCost) +
-            5n * BigInt(perMemeDeposit)
-          ).toString(),
-        };
-      } else if (BigInt(storageBalance.available) < BigInt(perMemeDeposit)) {
-        needStorageDeposit = {
-          depositAmount: (5n * BigInt(perMemeDeposit)).toString(),
-        };
-      }
-
-      let wrapNearDeposit = null;
-      if (!wrapNearRegistered) {
-        wrapNearDeposit = {
-          depositAmount: wrapNearMinDeposit,
-        };
-      }
-
-      const extraNearDeposit =
-        $input$.toBigInt() > (wrapNearBalance?.toBigInt() ?? 0n)
-          ? $input$.toBigInt() - (wrapNearBalance?.toBigInt() ?? 0n)
-          : 0n;
-
-      if ($nearBalance && extraNearDeposit > $nearBalance.toBigInt()) {
-        console.error("Not enough NEAR balance");
-        return;
-      }
-
-      return MemeCooking.deposit(
-        wallet,
-        {
-          amount: $input$.toU128(),
-          extraNearDeposit: extraNearDeposit.toString(),
-          memeId: meme.meme_id,
-        },
-        {
-          onSuccess: () => {
-            $inputValue$ = "";
-            addToast({
-              data: {
-                type: "simple",
-                data: {
-                  title: "Deposit Success",
-                  description: `You successfully deposited ${$input$.format()} NEAR`,
-                },
-              },
-            });
-          },
-        },
-        needStorageDeposit,
-        wrapNearDeposit,
-      );
+      await handleSwap($input$, $accountId$, expected, meme);
     } else {
       return MemeCooking.withdraw(
         wallet,
@@ -374,7 +306,7 @@
       {/each}
     </ul>
     <div class="text-sm text-white my-3">
-      {new Intl.NumberFormat("en-US").format(expected)}
+      {expected.format()}
       {meme.symbol}
     </div>
     <Button

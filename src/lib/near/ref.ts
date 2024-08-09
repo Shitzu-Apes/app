@@ -31,7 +31,7 @@ export abstract class Ref {
     });
   }
 
-  public static async caclulateTokenOut({
+  public static async getReturn({
     poolId,
     tokenIn,
     amountIn,
@@ -48,9 +48,8 @@ export abstract class Ref {
       amount_in: amountIn.toU128(),
       token_out: tokenOut,
     };
-    console.log(args);
     const out = await view<string>(
-      "ref-finance-101.testnet",
+      import.meta.env.VITE_REF_CONTRACT_ID,
       "get_return",
       args,
     );
