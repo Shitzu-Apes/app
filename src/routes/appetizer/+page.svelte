@@ -53,7 +53,7 @@
       </div>
 
       <div class="w-full px-2 py-3 text-white">
-        <div class="flex justify-center items-center max-w-lg">
+        <div class="flex flex-col justify-center items-center max-w-lg gap-2">
           <div class="flex items-center gap-4">
             <a
               href="https://twitter.com/memedotcooking"
@@ -68,6 +68,16 @@
               rel="noopener noreferrer"
             >
               [ telegram ]
+            </a>
+          </div>
+
+          <div class="flex justify-center items-center max-w-lg">
+            <a
+              href="https://slimething.gitbook.io/memedotcooking-preview"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              [ docs (preview) ]
             </a>
           </div>
         </div>
