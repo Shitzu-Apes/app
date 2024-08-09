@@ -8,11 +8,15 @@ export const searchQuery$ = writable("");
 const _memebids$ = writable<Promise<Meme[]>>(new Promise<never>(() => {}));
 export const memebids$ = derived(_memebids$, (m) => m);
 
-client.GET("/meme").then((res) => {
-  if (!res.data) return;
-  console.log("[+page] memebids", res.data);
-  _memebids$.set(Promise.resolve(res.data));
-});
+function udpateMemebids() {
+  return client.GET("/meme").then((res) => {
+    if (!res.data) return;
+    console.log("[+page] memebids", res.data);
+    _memebids$.set(Promise.resolve(res.data));
+    return res.data;
+  });
+}
+udpateMemebids();
 
 const callbacks: Map<string | symbol, (data: Meme & Trade) => void> = new Map();
 export function initializeWebsocket(ws: WebSocket) {
@@ -42,9 +46,16 @@ export function MCunsubscribe(id: string | symbol) {
 
 const symbol = Symbol("main_feed");
 MCsubscribe(symbol, async (newMemeInfo) => {
-  const memebids = await get(memebids$);
+  let memebids = await get(memebids$);
   const idx = memebids.findIndex((b) => b.meme_id === newMemeInfo.meme_id);
-  const meme = memebids[idx];
+  let meme = memebids[idx];
+  if (meme == null) {
+    const update = await udpateMemebids();
+    if (update != null) {
+      memebids = update;
+      meme = memebids[idx];
+    }
+  }
   meme.total_deposit = newMemeInfo.total_deposit;
   meme.total_deposit_fees = newMemeInfo.total_deposit_fees;
   meme.last_change_ms = Date.now();
