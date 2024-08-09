@@ -43,7 +43,7 @@
 
       <div class="flex flex-col items-center justify-center gap-3">
         <a
-          href="http://shard.dog/memecooking"
+          href="https://shard.dog/memedotcooking"
           target="_blank"
           rel="noopener noreferrer"
           class="text-white text-xl"
