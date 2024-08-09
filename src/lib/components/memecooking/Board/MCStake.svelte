@@ -19,7 +19,6 @@
     wallet,
   } from "$lib/near";
   import { FixedNumber } from "$lib/util";
-  import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
 
   const tabs = [
     { id: "stake", label: "stake" },
@@ -40,29 +39,6 @@
       ([memeId]) => memeId === meme.meme_id,
     );
     $depositAmount$ = new FixedNumber(deposit?.[1] ?? "0", 24);
-  }
-
-  let expected: number;
-  $: {
-    if (
-      $value === "unstake" &&
-      $input$ &&
-      $input$.toBigInt() > BigInt(meme.total_deposit)
-    ) {
-      expected = 0;
-    } else {
-      let amount = (
-        ($value === "stake" ? BigInt(1) : BigInt(-1)) *
-        BigInt($input$?.toString() || "0") *
-        BigInt(10 ** 24)
-      ).toString();
-
-      expected = predictedTokenAmount({
-        amount,
-        total_deposit: (BigInt(meme.total_deposit) + BigInt(amount)).toString(),
-        total_supply: meme.total_supply ?? undefined,
-      });
-    }
   }
 
   const {
@@ -385,10 +361,6 @@
         </li>
       {/each}
     </ul>
-    <div class="text-sm text-white my-3">
-      {new Intl.NumberFormat("en-US").format(expected)}
-      {meme.symbol}
-    </div>
     <Button
       onClick={async () => {
         await action();
