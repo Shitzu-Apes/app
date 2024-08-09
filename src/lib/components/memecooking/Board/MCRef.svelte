@@ -10,14 +10,13 @@
   import type { Meme } from "$lib/models/memecooking";
   import {
     Ft,
-    MemeCooking,
     nearBalance,
     Ref,
     refreshNearBalance,
     updateMcAccount,
     wallet,
   } from "$lib/near";
-  import { handleSwap } from "$lib/near/swap";
+  import { handleBuy, handleSell } from "$lib/near/swap";
   import { FixedNumber } from "$lib/util";
   import { getTokenId } from "$lib/util/getTokenId";
 
@@ -126,29 +125,9 @@
     }
 
     if ($value === "buy") {
-      await handleSwap($input$, $accountId$, expected, meme);
+      return await handleBuy($input$, $accountId$, expected, meme);
     } else {
-      return MemeCooking.withdraw(
-        wallet,
-        {
-          amount: $input$.toU128(),
-          memeId: meme.meme_id,
-        },
-        {
-          onSuccess: () => {
-            $inputValue$ = "";
-            addToast({
-              data: {
-                type: "simple",
-                data: {
-                  title: "Withdraw Success",
-                  description: `You have successfully withdrawn ${$input$.format()} NEAR`,
-                },
-              },
-            });
-          },
-        },
-      );
+      return await handleSell($input$, $accountId$, expected, meme);
     }
   }
 
