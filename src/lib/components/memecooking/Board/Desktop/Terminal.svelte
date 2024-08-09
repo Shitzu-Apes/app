@@ -32,7 +32,7 @@
   ]);
 
   let page = 1;
-  let perPage = 20;
+  let perPage = 21;
 </script>
 
 <div class="flex gap-3 mt-6 px-4">
