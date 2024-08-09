@@ -5,6 +5,12 @@ import * as png from "@jsquash/png";
 import resize from "@jsquash/resize";
 import * as webp from "@jsquash/webp";
 
+export async function imageUrlToBase64(imageUrl: string): Promise<string> {
+  const response = await fetch(imageUrl);
+  const blob = await response.blob();
+  return blobToBase64(blob);
+}
+
 export function imageFileToBase64(imageFile: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

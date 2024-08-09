@@ -24,6 +24,8 @@
     imageFileToBase64,
     FixedNumber,
     isMobile,
+    imageUrlToBase64,
+    base64ToIcon,
   } from "$lib/util";
   import { calculateReferenceHash } from "$lib/util/cid";
 
@@ -62,14 +64,11 @@
     ticker = savedMeme.symbol;
     description = savedMeme.description || "";
     image = `${import.meta.env.VITE_IPFS_GATEWAY}/${savedMeme.image}` || null;
-    if (savedMeme.meme_id) {
-      console.log("savedMeme.meme_id", savedMeme.meme_id);
-      MemeCooking.getMeme(savedMeme.meme_id).then((meme) => {
-        console.log("meme", meme);
-        if (meme) {
-          icon = meme.icon || null;
-          console.log("icon", icon);
-        }
+    if (image) {
+      imageUrlToBase64(image).then((base64) => {
+        base64ToIcon(base64).then((newIcon) => {
+          icon = newIcon;
+        });
       });
     }
     imageCID = image?.split("/").pop() || null;
