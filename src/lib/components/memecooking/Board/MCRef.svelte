@@ -13,11 +13,13 @@
     mcAccount$,
     MemeCooking,
     nearBalance,
+    Ref,
     refreshNearBalance,
     updateMcAccount,
     wallet,
   } from "$lib/near";
   import { FixedNumber } from "$lib/util";
+  import { getTokenId } from "$lib/util/getTokenId";
 
   const tabs = [
     { id: "buy", label: "buy" },
@@ -38,6 +40,32 @@
       ([memeId]) => memeId === meme.meme_id,
     );
     $depositAmount$ = new FixedNumber(deposit?.[1] ?? "0", 24);
+  }
+
+  let expected: number;
+  $: {
+    if (
+      $value === "sell" &&
+      $input$ &&
+      $input$.toBigInt() > BigInt(meme.total_deposit)
+    ) {
+      expected = 0;
+    } else {
+      if (meme.pool_id) {
+        let amount = (
+          BigInt($input$?.toString() || "0") * BigInt(10 ** 24)
+        ).toString();
+
+        Ref.caclulateTokenOut({
+          amountIn: new FixedNumber(amount, 24),
+          tokenOut: getTokenId(meme.symbol, meme.meme_id),
+          tokenIn: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
+          poolId: meme.pool_id,
+        }).then((value) => {
+          expected = value.toNumber();
+        });
+      }
+    }
   }
 
   const {
@@ -345,6 +373,10 @@
         </li>
       {/each}
     </ul>
+    <div class="text-sm text-white my-3">
+      {new Intl.NumberFormat("en-US").format(expected)}
+      {meme.symbol}
+    </div>
     <Button
       onClick={async () => {
         await action();

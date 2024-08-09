@@ -31,6 +31,33 @@ export abstract class Ref {
     });
   }
 
+  public static async caclulateTokenOut({
+    poolId,
+    tokenIn,
+    amountIn,
+    tokenOut,
+  }: {
+    poolId: number;
+    tokenIn: string;
+    amountIn: FixedNumber;
+    tokenOut: string;
+  }) {
+    const args = {
+      pool_id: poolId,
+      token_in: tokenIn,
+      amount_in: amountIn.toU128(),
+      token_out: tokenOut,
+    };
+    console.log(args);
+    const out = await view<string>(
+      "ref-finance-101.testnet",
+      "get_return",
+      args,
+    );
+
+    return new FixedNumber(out, 18);
+  }
+
   public static async calculateShitzuOut(
     nearIn: FixedNumber,
   ): Promise<FixedNumber> {
