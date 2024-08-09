@@ -85,7 +85,11 @@ export const handle: Handle = async ({ event, resolve }) => {
 
     return new Response(html, {
       status: response.status,
-      headers: response.headers,
+      headers: {
+        ...response.headers,
+        "Content-Length": Buffer.byteLength(html).toString(),
+        "Content-Type": "text/html; charset=utf-8",
+      },
     });
   }
 
