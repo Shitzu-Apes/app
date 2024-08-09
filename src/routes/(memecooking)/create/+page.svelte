@@ -3,6 +3,7 @@
     FinalExecutionStatus,
     FinalExecutionStatusBasic,
   } from "near-api-js/lib/providers";
+  import { debounce } from "perfect-debounce";
   import { writable } from "svelte/store";
   import DropZone from "svelte-file-dropzone";
 
@@ -79,21 +80,48 @@
 
   const { accountId$ } = wallet;
 
-  $: storageCost = MemeCooking.createMemeStorageCost(
+  const storageCost$ = writable<ReturnType<typeof fetchStorageCost>>(
+    new Promise<never>(() => {}),
+  );
+  const fetchStorageCost = debounce(
+    (
+      accountId: string,
+      durationMs: string,
+      name: string,
+      ticker: string,
+      icon: string,
+      decimals: number,
+      totalSupply: string,
+    ) =>
+      MemeCooking.createMemeStorageCost(
+        accountId,
+        durationMs,
+        name,
+        ticker,
+        icon || "",
+        decimals,
+        totalSupply,
+        // TODO remove hardcoded reference
+        "ipfs://bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",
+        "EiC+qKUoJBa3iRpHrsBFrbUqe6rLgGfpRm7L6tfCz5sSjA==",
+        import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
+      ).then((cost) => {
+        // Add dust to the cost
+        const res = ((BigInt(cost) * BigInt(105)) / BigInt(100)).toString();
+        $storageCost$ = Promise.resolve(res);
+        return res;
+      }),
+    500,
+  );
+  $: fetchStorageCost(
     $accountId$ || "",
     durationMs.value,
     name,
     ticker,
     icon || "",
-    24,
+    decimals,
     $totalSupply$?.toU128() ?? "",
-    "ipfs://bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",
-    "EiC+qKUoJBa3iRpHrsBFrbUqe6rLgGfpRm7L6tfCz5sSjA==",
-    import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
-  ).then((cost) => {
-    // Add dust to the cost
-    return ((BigInt(cost) * BigInt(105)) / BigInt(100)).toString();
-  });
+  );
 
   async function handleFilesSelect(
     e: CustomEvent<{
@@ -205,7 +233,7 @@
           reference: referenceCID,
           referenceHash,
         },
-        await storageCost,
+        await $storageCost$,
         {
           onSuccess: async (outcome) => {
             function isFinalExecutionStatus(
@@ -466,7 +494,7 @@
     >
       Create coin
     </button>
-    {#await storageCost}
+    {#await $storageCost$}
       <div class="flex justify-center items-center">
         <div class="i-svg-spinners:6-dots-rotate w-12 h-12 bg-gray-7 m-a" />
       </div>
