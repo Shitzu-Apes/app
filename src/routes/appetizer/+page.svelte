@@ -25,7 +25,7 @@
           alt="memecooking logo"
           class="size-34 md:size-50"
         />
-        Coming <br />Soon
+        Testnet <br />Live
       </h1>
 
       <ul class="text-white">
@@ -38,13 +38,17 @@
       </ul>
 
       <div class="flex flex-col items-center justify-center gap-3">
+        <a href="/board" class="text-white text-xl"> [ Open (testnet) ] </a>
+      </div>
+
+      <div class="flex flex-col items-center justify-center gap-3">
         <a
           href="http://shard.dog/memecooking"
           target="_blank"
           rel="noopener noreferrer"
           class="text-white text-xl"
         >
-          [ Join waitlist ]
+          [ Claim ShardDog ]
         </a>
       </div>
 
