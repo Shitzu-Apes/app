@@ -1,4 +1,5 @@
 import type { Handle } from "@sveltejs/kit";
+import { parse as parseHtml } from "node-html-parser";
 
 import { client } from "$lib/api/client";
 import MEMECOOKING_LOGO from "$lib/assets/logo/meme-cooking.webp";
@@ -32,15 +33,37 @@ export const handle: Handle = async ({ event, resolve }) => {
 
         if (response.data && response.data.meme.image) {
           // Add Open Graph meta tags for the meme
-          const ogTags = `
-            <meta property="og:title" content="${response.data.meme.name || "Meme Cooking"}">
-            <meta property="og:description" content="${response.data.meme.description || "Check out this meme on Meme Cooking!"}">
-            <meta property="og:image" content="${import.meta.env.VITE_IPFS_GATEWAY}/${response.data.meme.image}">
-            <meta property="og:url" content="${event.url.href}">
-            <meta property="og:type" content="website">
-            <meta name="twitter:card" content="summary_large_image">
-          `;
-          html = html.replace("</head>", `${ogTags}\n</head>`);
+          const ogTagsArray = [
+            {
+              property: "og:title",
+              content: response.data.meme.name
+                ? `${response.data.meme.name} | Meme Cooking`
+                : "Meme Cooking",
+            },
+            {
+              property: "og:description",
+              content:
+                response.data.meme.description ||
+                "Check out this meme on Meme Cooking!",
+            },
+            {
+              property: "og:image",
+              content: `${import.meta.env.VITE_IPFS_GATEWAY}/${response.data.meme.image}`,
+            },
+            { property: "og:url", content: event.url.href },
+            { property: "og:type", content: "website" },
+            { name: "twitter:card", content: "summary_large_image" },
+          ];
+
+          const ogTags = ogTagsArray
+            .map((tag) => {
+              const attributes = Object.entries(tag)
+                .map(([key, value]) => `${key}="${value}"`)
+                .join(" ");
+              return `<meta ${attributes}>`;
+            })
+            .join("\n");
+          html = html.replace("</head>", `${parseHtml(ogTags)}\n</head>`);
         }
       } catch (error) {
         console.error("Error fetching meme info:", error);
