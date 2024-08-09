@@ -9,7 +9,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   if (
     response.headers.get("content-type")?.startsWith("text/html") &&
-    /^(\/|\/account|\/shitstars\/|\/stake)$/.test(event.url.pathname) === false
+    /^(\/|\/account|\/shitstars($|\/\d+)|\/stake)$/.test(event.url.pathname) ===
+      false
   ) {
     let html = await response.text();
 
