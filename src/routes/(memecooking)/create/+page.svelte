@@ -134,7 +134,26 @@
     if (file) {
       imageFile = file;
       image = await imageFileToBase64(file);
-      icon = await imageFileToIcon(file);
+      if (file.type === "image/svg+xml") {
+        if (file.size > 10240) {
+          addToast({
+            data: {
+              type: "simple",
+              data: {
+                title: "Error",
+                description: "Image size should be less than 10KB",
+                color: "red",
+              },
+            },
+          });
+          image = null;
+          imageFile = null;
+          return;
+        }
+        icon = image;
+      } else {
+        icon = await imageFileToIcon(file);
+      }
     }
   }
 
