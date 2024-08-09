@@ -296,6 +296,7 @@
           ? 'text-shitzu-4'
           : 'text-rose-5'}"
         decimals={24}
+        readonly={finished}
         bind:this={input}
         bind:value={$inputValue$}
       />
