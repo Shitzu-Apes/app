@@ -1,0 +1,90 @@
+<script lang="ts">
+  import { openBottomSheet } from "../BottomSheet/Container.svelte";
+
+  import MEMECOOKING_LOGO from "$lib/assets/logo/meme-cooking.webp";
+  import { showWalletSelector } from "$lib/auth";
+  import BridgeSheet from "$lib/components/memecooking/BottomSheet/BridgeSheet.svelte";
+  import HowItWorkSheet from "$lib/components/memecooking/BottomSheet/HowItWorkSheet.svelte";
+  import Chef from "$lib/components/memecooking/Chef.svelte";
+  import Notification from "$lib/components/memecooking/Notification/Notification.svelte";
+  import { wallet } from "$lib/near";
+
+  const { accountId$ } = wallet;
+</script>
+
+<nav class="py-2 px-2 w-full flex flex-wrap justify-between">
+  <div class="flex gap-4 items-center">
+    <a href="/board">
+      <img src={MEMECOOKING_LOGO} class="size-8" alt="Shitzu face" />
+    </a>
+    <ul class="text-sm">
+      <div class="flex gap-2">
+        <li class="mr-2">
+          <a
+            href="https://twitter.com/memedotcooking"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            [twitter]
+          </a>
+        </li>
+        <li>
+          <button
+            on:click={() => {
+              openBottomSheet(BridgeSheet);
+            }}
+          >
+            [bridge]
+          </button>
+        </li>
+      </div>
+      <div class="flex gap-2">
+        <li>
+          <a
+            href="https://t.me/+wIFBaPQJmAcwYTc0"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            [telegram]
+          </a>
+        </li>
+        <li>
+          <button
+            on:click={() => {
+              openBottomSheet(HowItWorkSheet);
+            }}
+          >
+            [how it works]</button
+          >
+        </li>
+      </div>
+    </ul>
+  </div>
+
+  <div class="order-last sm:order-none mx-auto mt-3 sm:mt-0">
+    <Notification />
+  </div>
+
+  {#if $accountId$}
+    <div class="flex flex-col items-end">
+      <a
+        href="/profile/{$accountId$}"
+        class="text-sm inline-flex items-center h-fit"
+      >
+        [
+        <Chef account={$accountId$} class="mr-1 text-shitzu-4 w-fit" />
+        ]
+      </a>
+      <button class="text-xs w-fit" on:click={wallet.signOut}>[logout]</button>
+    </div>
+  {:else}
+    <button
+      class="text-sm"
+      on:click={wallet.isTG
+        ? wallet.loginViaHere
+        : () => showWalletSelector("shitzu")}
+    >
+      [connect]
+    </button>
+  {/if}
+</nav>

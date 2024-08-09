@@ -18,4 +18,36 @@ export default defineConfig({
       "@": path.resolve("src"),
     },
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: '@use "src/mixins.scss" as *;',
+      },
+    },
+  },
+  // build: {
+  //   rollupOptions: {
+  //     external: [
+  //       "@jsquash/png",
+  //       "@jsquash/jpeg",
+  //       "@jsquash/webp",
+  //       "@jsquash/jxl",
+  //       "@jsquash/avif",
+  //       "@jsquash/resize",
+  //     ],
+  //   },
+  // },
+  optimizeDeps: {
+    exclude: [
+      "@jsquash/png",
+      "@jsquash/jpeg",
+      "@jsquash/webp",
+      "@jsquash/jxl",
+      "@jsquash/avif",
+      "@jsquash/resize",
+    ],
+  },
+  worker: {
+    format: "es",
+  },
 });

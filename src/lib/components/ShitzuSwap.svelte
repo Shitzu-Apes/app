@@ -9,7 +9,6 @@
   import { Ft, Ref, nearBalance, refreshNearBalance, wallet } from "$lib/near";
   import {
     shitzuBalance,
-    refreshShitzuBalance,
     shitzuPriceHistory,
     type ShitzuPriceHistory,
     currentShitzuPrice,
@@ -55,9 +54,6 @@
   }
 
   const { accountId$ } = wallet;
-
-  $: refreshNearBalance($accountId$);
-  $: refreshShitzuBalance($accountId$);
 
   let shitzuOut:
     | {

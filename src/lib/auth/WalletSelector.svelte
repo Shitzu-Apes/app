@@ -2,8 +2,11 @@
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
   import { close } from "$lib/layout/BottomSheet/Container.svelte";
   import type { UnionModuleState } from "$lib/models";
+  import type { colorVariant } from "$lib/models/variant";
   import { NEAR_WALLETS, wallet } from "$lib/near";
   import { isMobile } from "$lib/util";
+
+  export let variant: colorVariant = "lime";
 
   const modules$ = wallet.modules$;
 
@@ -13,12 +16,21 @@
   }
 </script>
 
-<BottomSheetContent>
+<BottomSheetContent {variant}>
   <slot slot="header">
-    <h1 class="text-lime text-2xl">Select Wallet</h1>
+    <h1
+      class="ml-3 {variant === 'lime' ? 'text-lime' : 'text-shitzu-4'} text-2xl"
+    >
+      Select Wallet
+    </h1>
   </slot>
   <slot>
-    <div class="mx-auto flex flex-col gap-4 w-full max-w-xs mt-3">
+    <div
+      class="mx-auto flex flex-col gap-4 w-full max-w-xs mt-3 {variant ===
+      'lime'
+        ? 'text-lime'
+        : 'text-shitzu-4'}"
+    >
       {#await $modules$ then modules}
         {#each modules as mod}
           <div class="flex gap-2 items-center">
@@ -32,7 +44,7 @@
                 alt={mod.metadata.name}
                 class={`w-10 h-10 object-contain mr-5 ${mod.metadata.name.replaceAll(" ", "-").toLowerCase()}`}
               />
-              <div class="flex flex-col text-left text-lime uppercase mr-auto">
+              <div class="flex flex-col text-left uppercase mr-auto">
                 <span>{mod.metadata.name}</span>
                 {#if mod.metadata.description != null}
                   <span class="text-sm text-coolgray">
@@ -47,7 +59,7 @@
                   href={NEAR_WALLETS[mod.id].extensionUrl}
                   target="_blank"
                   rel="noopener"
-                  class="text-lime hover:bg-lime/15 p-2 rounded-xl"
+                  class=" hover:bg-lime/15 p-2 rounded-xl"
                   on:click|stopPropagation
                 >
                   <div class="i-mdi:download w-8 h-8" />
@@ -57,7 +69,7 @@
                   href={mod.metadata.downloadUrl}
                   target="_blank"
                   rel="noopener"
-                  class="text-lime hover:bg-lime/15 p-2 rounded-xl"
+                  class=" hover:bg-lime/15 p-2 rounded-xl"
                   on:click|stopPropagation
                 >
                   <div class="i-mdi:download w-8 h-8" />

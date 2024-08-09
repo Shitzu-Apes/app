@@ -31,6 +31,34 @@ export abstract class Ref {
     });
   }
 
+  public static async getReturn({
+    poolId,
+    tokenIn,
+    amountIn,
+    tokenOut,
+    decimals,
+  }: {
+    poolId: number;
+    tokenIn: string;
+    amountIn: FixedNumber;
+    tokenOut: string;
+    decimals: number;
+  }) {
+    const args = {
+      pool_id: poolId,
+      token_in: tokenIn,
+      amount_in: amountIn.toU128(),
+      token_out: tokenOut,
+    };
+    const out = await view<string>(
+      import.meta.env.VITE_REF_CONTRACT_ID,
+      "get_return",
+      args,
+    );
+
+    return new FixedNumber(out, decimals);
+  }
+
   public static async calculateShitzuOut(
     nearIn: FixedNumber,
   ): Promise<FixedNumber> {

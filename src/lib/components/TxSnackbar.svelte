@@ -1,13 +1,11 @@
 <script lang="ts">
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
-  import type { ExecutionStatus } from "near-api-js/lib/providers/provider";
 
   import { FixedNumber } from "$lib/util";
 
   export let txPromise: Promise<
     void | FinalExecutionOutcome | FinalExecutionOutcome[]
   >;
-  export let setClass: (className: string) => void;
 
   const TGAS_DECIMALS = 12;
 
@@ -30,7 +28,6 @@
       return [mapOutcome(outcome)];
     })
     .catch((err) => {
-      setClass("snackbar-error");
       if (err instanceof Error) {
         return {
           status: "error" as const,
@@ -42,16 +39,8 @@
     });
 
   function mapOutcome(outcome: FinalExecutionOutcome): TxOutcome {
-    const outcomeStatus = outcome.transaction_outcome.outcome
-      .status as ExecutionStatus;
     let status: "success" | "error" = "success";
     let errorMessage;
-    if (outcomeStatus.SuccessValue || outcomeStatus.SuccessReceiptId) {
-      setClass("snackbar-success");
-    } else {
-      status = "error";
-      setClass("snackbar-error");
-    }
 
     let tokensBurnt = new FixedNumber(
       String(outcome.transaction_outcome.outcome.gas_burnt),
@@ -68,7 +57,6 @@
       const receiptStatus = receiptsOutcome.outcome.status as any;
       if (receiptStatus.Failure) {
         status = "error";
-        setClass("snackbar-error");
         errorMessage =
           receiptStatus.Failure.ActionError?.kind?.FunctionCallError
             ?.ExecutionError;
@@ -95,11 +83,11 @@
 </script>
 
 <div
-  class="flex flex-col justify-between [&>*]:flex [&>*]:items-center [&>*]:p-3 [&>*]:gap-2 bg-gradient-to-r bg-gradient-from-cyan bg-gradient-to-blue text-gray-8 font-size-[1.1rem] font-bold"
+  class="flex flex-col justify-between [&>*]:flex [&>*]:items-center [&>*]:gap-2 bg-gradient-to-r font-size-[1.1rem] font-bold"
 >
   {#await outcome}
     <div>
-      <div class="i-svg-spinners:6-dots-rotate w-6 h-6 bg-gray-8" />
+      <div class="i-svg-spinners:6-dots-rotate w-6 h-6" />
       <div>Awaiting confirmation</div>
     </div>
   {:then res}
@@ -112,9 +100,9 @@
       {#each res as { status, id, functionCalls, tokensBurnt, receiptError }}
         <div class="tx-status">
           {#if status === "success"}
-            <div class="w-6 h-6 text-green-8 i-mdi-check-circle" />
+            <div class="w-6 h-6 text-green-2 i-mdi-check-circle" />
           {:else}
-            <div class="w-6 h-6 text-red-8 i-mdi-cancel" />
+            <div class="w-6 h-6 text-red-2 i-mdi-cancel" />
           {/if}
           <div>
             <div>
@@ -133,7 +121,7 @@
             </div>
             <div>
               <a
-                class="text-gray-9 visited:text-gray-9"
+                class="text-blue-2 visited:text-blue-3"
                 href="{import.meta.env.VITE_EXPLORER_URL}/transactions/{id}"
                 target="_blank"
                 rel="noopener"
@@ -155,7 +143,7 @@
       {/each}
     {:else if res.status === "error"}
       <div>
-        <div class="w-6 h-6 text-red-8 i-mdi-cancel" />
+        <div class="w-6 h-6 text-red-2 i-mdi-cancel" />
         <div>
           <div>An error occured:</div>
           <div>{res.message}</div>

@@ -20,6 +20,12 @@
         <img class="w-8 h-8" src="/assets/favicon.ico" alt="logo" />
       </a>
 
+      <a
+        href="/appetizer"
+        class="bg-lime mr-2 px-3 py-0.5 rounded text-black decoration-none animate-shaking"
+      >
+        meme.cooking
+      </a>
       {#await import("$lib/auth") then { Login }}
         <Login />
       {/await}
@@ -40,3 +46,35 @@
     </nav>
   </div>
 </div>
+
+<style scoped>
+  .animate-shaking {
+    animation: shake 750ms linear infinite;
+  }
+
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    10%,
+    30% {
+      transform: translate3d(-10px, 0, 0);
+    }
+    20%,
+    40% {
+      transform: translate3d(10px, 0, 0);
+    }
+    50%,
+    60% {
+      transform: translate3d(0, 0, 0);
+    }
+    70%,
+    90% {
+      transform: translate3d(-10px, 0, 0);
+    }
+    80% {
+      transform: translate3d(10px, 0, 0);
+    }
+  }
+</style>

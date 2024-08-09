@@ -29,7 +29,12 @@
         () =>
           'font-bold border-2 border-lime flex justify-center items-center decoration-none px-4 py-2 relative disabled:bg-gray-5 disabled:border-gray-5 disabled:cursor-not-allowed',
       )
-      .otherwise(() => '')}"
+      .with(
+        'custom',
+        () =>
+          'relative disabled:bg-gray-5 disabled:border-gray-5 disabled:cursor-not-allowed',
+      )
+      .exhaustive()}"
   >
     <slot />
   </a>
@@ -58,7 +63,12 @@
         () =>
           'font-bold border-2 border-lime flex justify-center items-center decoration-none px-4 py-2 relative disabled:bg-gray-5 disabled:border-gray-5 disabled:cursor-not-allowed',
       )
-      .otherwise(() => '')}"
+      .with(
+        'custom',
+        () =>
+          'relative disabled:bg-gray-5 disabled:border-gray-5 disabled:cursor-not-allowed',
+      )
+      .exhaustive()}"
   >
     <slot />
     {#if loading}

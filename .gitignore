@@ -8,3 +8,7 @@ abi-gen
 /src/lib/models/api.d.ts
 
 .env.local
+
+src/lib/charting_library
+src/lib/datafeeds
+static/charting_library

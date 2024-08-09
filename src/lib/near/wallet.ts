@@ -5,6 +5,7 @@ import {
 } from "@here-wallet/core";
 import type {
   BrowserWalletMetadata,
+  FinalExecutionOutcome,
   InjectedWalletMetadata,
   ModuleState,
   Wallet as NearWallet,
@@ -13,8 +14,14 @@ import { derived, get, readable, writable } from "svelte/store";
 import { P, match } from "ts-pattern";
 
 import { browser } from "$app/environment";
+import { addTxToast, addToast } from "$lib/components/memecooking/Toast.svelte";
 import type { UnionModuleState, WalletAccount } from "$lib/models";
-import { showSnackbar, showTxSnackbar } from "$lib/snackbar";
+
+export type TransactionCallbacks<T> = {
+  onSuccess?: (outcome: T | undefined) => Promise<void> | void;
+  onError?: () => Promise<void> | void;
+  onFinally?: () => Promise<void> | void;
+};
 
 export class Wallet {
   private hereWallet?: HereWallet;
@@ -30,20 +37,20 @@ export class Wallet {
           import("@near-wallet-selector/core"),
           import("@near-wallet-selector/here-wallet"),
           import("@near-wallet-selector/meteor-wallet"),
-          import("@near-wallet-selector/my-near-wallet"),
+          // import("@near-wallet-selector/my-near-wallet"),
         ]).then(
           ([
             { setupWalletSelector },
             { setupHereWallet },
             { setupMeteorWallet },
-            { setupMyNearWallet },
+            // { setupMyNearWallet },
           ]) =>
             setupWalletSelector({
               network: import.meta.env.VITE_NETWORK_ID,
               modules: [
                 setupHereWallet(),
                 setupMeteorWallet(),
-                setupMyNearWallet(),
+                // setupMyNearWallet(),
               ],
             }),
         )
@@ -180,7 +187,7 @@ export class Wallet {
     return match(wallet)
       .with({ type: P.union("browser", "injected") }, async (wallet) => {
         const accounts = await wallet.signIn({
-          contractId: import.meta.env.VITE_DOGSHIT_CONTRACT_ID,
+          contractId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
         });
         const account = accounts.pop();
         if (!account) return;
@@ -188,9 +195,15 @@ export class Wallet {
           type: "wallet-selector",
           account,
         });
-        showSnackbar(
-          `Connected Near account ${account.accountId} via ${wallet.metadata.name}`,
-        );
+        addToast({
+          data: {
+            type: "simple",
+            data: {
+              title: "Connect",
+              description: `Successfully connected Near account ${account.accountId} via ${wallet.metadata.name}`,
+            },
+          },
+        });
       })
       .otherwise(() => {
         throw new Error("unimplemented");
@@ -220,7 +233,15 @@ export class Wallet {
           const selector = await get(this.selector$);
           const wallet = await selector.wallet();
           await wallet.signOut();
-          showSnackbar(`Disconnected Near account ${account.accountId}`);
+          addToast({
+            data: {
+              type: "simple",
+              data: {
+                title: "Disconnect",
+                description: `Disconnected Near account ${account.accountId}`,
+              },
+            },
+          });
           this._account$.set(undefined);
         },
       )
@@ -234,7 +255,15 @@ export class Wallet {
             throw new Error("HereWallet not yet initialized");
           }
           await this.hereWallet.signOut();
-          showSnackbar(`Disconnected Near account ${account}`);
+          addToast({
+            data: {
+              type: "simple",
+              data: {
+                title: "Disconnect",
+                description: `Disconnected Near account ${account}`,
+              },
+            },
+          });
           this._account$.set(undefined);
         },
       )
@@ -247,11 +276,7 @@ export class Wallet {
       onSuccess,
       onError,
       onFinally,
-    }: {
-      onSuccess?: () => Promise<void> | void;
-      onError?: () => Promise<void> | void;
-      onFinally?: () => Promise<void> | void;
-    },
+    }: TransactionCallbacks<FinalExecutionOutcome[]>,
   ) {
     const txPromise = match(get(this._account$))
       .with(undefined, () => undefined)
@@ -281,10 +306,15 @@ export class Wallet {
       )
       .exhaustive();
     if (!txPromise) return;
-    // FIXME type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    showTxSnackbar(txPromise as any);
-    return txPromise.then(onSuccess).catch(onError).finally(onFinally);
+    addTxToast(txPromise);
+    return txPromise
+      .then((outcome) => {
+        if (onSuccess) {
+          onSuccess(outcome || undefined);
+        }
+      })
+      .catch(onError)
+      .finally(onFinally);
   }
 
   public async signAndSendTransaction(
@@ -293,11 +323,7 @@ export class Wallet {
       onSuccess,
       onError,
       onFinally,
-    }: {
-      onSuccess?: () => Promise<void> | void;
-      onError?: () => Promise<void> | void;
-      onFinally?: () => Promise<void> | void;
-    },
+    }: TransactionCallbacks<FinalExecutionOutcome>,
   ) {
     const txPromise = match(get(this._account$))
       .with(undefined, () => undefined)
@@ -327,10 +353,15 @@ export class Wallet {
       )
       .exhaustive();
     if (!txPromise) return;
-    // FIXME type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    showTxSnackbar(txPromise as any);
-    return txPromise.then(onSuccess).catch(onError).finally(onFinally);
+    addTxToast(txPromise);
+    return txPromise
+      .then((outcome) => {
+        if (onSuccess) {
+          onSuccess(outcome || undefined);
+        }
+      })
+      .catch(onError)
+      .finally(onFinally);
   }
 }
 
@@ -355,9 +386,9 @@ export const NEAR_WALLETS: Record<string, WalletMetadata> = {
       "https://chrome.google.com/webstore/detail/meteor-wallet/pcndjhkinnkaohffealmlmhaepkpmgkb",
     twitter: "https://twitter.com/MeteorWallet",
   },
-  "my-near-wallet": {
-    url: "https://app.mynearwallet.com/",
-    twitter: "https://twitter.com/MyNearWallet",
-    telegram: "https://t.me/mnw_chat",
-  },
+  // "my-near-wallet": {
+  //   url: "https://app.mynearwallet.com/",
+  //   twitter: "https://twitter.com/MyNearWallet",
+  //   telegram: "https://t.me/mnw_chat",
+  // },
 };
