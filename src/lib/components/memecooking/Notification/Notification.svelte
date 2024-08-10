@@ -6,6 +6,7 @@
 
   let notification: {
     id: string;
+    meme_id: number;
     amount: string;
     is_deposit: boolean;
     party: string;
@@ -18,6 +19,7 @@
   MCsubscribe(Symbol("notification"), (newMemeInfo) => {
     notification = {
       id: newMemeInfo.receipt_id,
+      meme_id: newMemeInfo.meme_id,
       amount: newMemeInfo.amount,
       is_deposit: newMemeInfo.is_deposit,
       party: newMemeInfo.account_id,
@@ -54,7 +56,7 @@
       maximumSignificantDigits: 4,
     })} for
     <a
-      href={`/meme/${notification.id}`}
+      href={`/meme/${notification.meme_id}`}
       class="text-shitzu-7 flex items-center ml-1"
     >
       {notification.ticker}
