@@ -118,6 +118,7 @@
           meme_id={memebid.meme_id}
           symbol={memebid.symbol}
           {trades}
+          touchToStart
         />
       </div>
       <div class="flex-[0_0_100%] min-w-0">
