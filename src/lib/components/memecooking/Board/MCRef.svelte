@@ -15,10 +15,10 @@
     nearBalance,
     Ref,
     refreshNearBalance,
-    updateMcAccount,
     wallet,
     type TransactionCallbacks,
   } from "$lib/near";
+  import { updateMcAccount } from "$lib/near/memecooking";
   import { fetchBlockHeight } from "$lib/near/rpc";
   import { handleBuy, handleSell } from "$lib/near/swap";
   import {

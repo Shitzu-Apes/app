@@ -7,7 +7,8 @@
   import { goto } from "$app/navigation";
   import Near from "$lib/assets/Near.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { MemeCooking, wallet } from "$lib/near";
+  import { wallet } from "$lib/near";
+  import { MemeCooking } from "$lib/near/memecooking";
   import { FixedNumber } from "$lib/util";
   import { getTokenId } from "$lib/util/getTokenId";
 

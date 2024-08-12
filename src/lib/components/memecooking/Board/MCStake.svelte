@@ -9,15 +9,12 @@
   import { Button } from "$lib/components";
   import TokenInput from "$lib/components/TokenInput.svelte";
   import type { Meme } from "$lib/models/memecooking";
+  import { Ft, nearBalance, refreshNearBalance, wallet } from "$lib/near";
   import {
-    Ft,
     mcAccount$,
     MemeCooking,
-    nearBalance,
-    refreshNearBalance,
     updateMcAccount,
-    wallet,
-  } from "$lib/near";
+  } from "$lib/near/memecooking";
   import { FixedNumber } from "$lib/util";
 
   const tabs = [

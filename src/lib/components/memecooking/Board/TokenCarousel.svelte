@@ -10,7 +10,7 @@
   import TokenDetailCarousel from "./TokenDetailCarousel.svelte";
 
   import { page } from "$app/stores";
-  import { requiredStake } from "$lib/near";
+  import { requiredStake } from "$lib/near/memecooking";
   import { memebids$ } from "$lib/store/memebids";
 
   let emblaApi: EmblaCarouselType | undefined = undefined;

@@ -5,7 +5,7 @@
   import MemePreview from "../Board/Desktop/MemePreview.svelte";
 
   import type { Meme } from "$lib/api/client";
-  import { requiredStake } from "$lib/near";
+  import { requiredStake } from "$lib/near/memecooking";
 
   export let deposits: {
     meme_id: number;

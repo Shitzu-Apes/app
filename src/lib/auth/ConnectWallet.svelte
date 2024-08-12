@@ -7,7 +7,7 @@
 
 <Button
   class="w-full py-3"
-  onClick={wallet.isTG ? wallet.loginViaHere : showWalletSelector}
+  onClick={wallet.isTG ? wallet.loginViaHere : () => showWalletSelector()}
 >
   Connect Wallet
 </Button>

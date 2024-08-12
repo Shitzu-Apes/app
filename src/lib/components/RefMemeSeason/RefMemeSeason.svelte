@@ -10,8 +10,8 @@
     LPFarm,
     Ref,
     MemeSeason,
+    wallet,
   } from "$lib/near";
-  import { wallet } from "$lib/near";
   import { FixedNumber } from "$lib/util";
 
   const { accountId$ } = wallet;

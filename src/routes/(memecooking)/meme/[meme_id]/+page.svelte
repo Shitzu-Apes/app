@@ -6,7 +6,8 @@
   import { page } from "$app/stores";
   import { client } from "$lib/api/client";
   import TokenDetailCarousel from "$lib/components/memecooking/Board/TokenDetailCarousel.svelte";
-  import { requiredStake, wallet } from "$lib/near";
+  import { wallet } from "$lib/near";
+  import { requiredStake } from "$lib/near/memecooking";
 
   // page data
   let { meme_id } = $page.params as { meme_id: string };

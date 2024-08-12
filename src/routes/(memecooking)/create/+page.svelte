@@ -18,7 +18,8 @@
     openBottomSheet,
   } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { MemeCooking, wallet } from "$lib/near";
+  import { wallet } from "$lib/near";
+  import { MemeCooking } from "$lib/near/memecooking";
   import {
     imageFileToIcon,
     imageFileToBase64,

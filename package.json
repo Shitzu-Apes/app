@@ -8,7 +8,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "vite dev",
+    "dev": "vite dev --mode testnet",
+    "dev:prod": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
     "preview:deno": "deno run --allow-env --allow-read --allow-net build/mod.ts",

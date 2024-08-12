@@ -10,7 +10,7 @@
   import ClaimList from "$lib/components/memecooking/Profile/ClaimList.svelte";
   import CoinCreated from "$lib/components/memecooking/Profile/CoinCreated.svelte";
   import DepositList from "$lib/components/memecooking/Profile/DepositList.svelte";
-  import { MemeCooking } from "$lib/near";
+  import { MemeCooking } from "$lib/near/memecooking";
   import { fetchBlockHeight } from "$lib/near/rpc";
   import { awaitRpcBlockHeight } from "$lib/store/indexer";
   import { getTokenId } from "$lib/util/getTokenId";

@@ -5,7 +5,7 @@
 
   import SelectBox from "$lib/components/SelectBox.svelte";
   import Toggle from "$lib/components/Toggle.svelte";
-  import { requiredStake } from "$lib/near";
+  import { requiredStake } from "$lib/near/memecooking";
   import { memebids$, searchQuery$ } from "$lib/store/memebids";
   import {
     orderOptions,

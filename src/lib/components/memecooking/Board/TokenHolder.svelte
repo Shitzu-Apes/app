@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
 
   import type { Meme } from "$lib/models/memecooking";
-  import { MemeCooking } from "$lib/near";
+  import { MemeCooking } from "$lib/near/memecooking";
   import { MCsubscribe, MCunsubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
 

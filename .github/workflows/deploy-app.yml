@@ -1,0 +1,51 @@
+name: Deploy Shitzu App
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write # Needed for auth with Deno Deploy
+      contents: read # Needed to clone the repository
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Add commit hash to .env
+        run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> .env
+
+      - name: Add contract connect ID to .env
+        run: echo "VITE_CONNECT_ID=shit.0xshitzu.near" >> .env
+
+      - name: Install step
+        run: "yarn install"
+
+      - name: Lint
+        run: "yarn lint"
+
+      - name: Build step
+        run: "yarn build"
+
+      - name: Upload to Deno Deploy
+        uses: denoland/deployctl@v1
+        with:
+          project: "shitzu-app"
+          entrypoint: "mod.ts"
+          root: "build"
