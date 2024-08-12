@@ -11,11 +11,14 @@
   import Chef from "$lib/components/memecooking/Chef.svelte";
   import Countdown from "$lib/components/memecooking/Countdown.svelte";
   import ProgressBar from "$lib/components/memecooking/ProgressBar.svelte";
+  import { addToast } from "$lib/components/memecooking/Toast.svelte";
+  import { wallet } from "$lib/near";
   import { MCsubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
 
   export let meme: Meme;
   export let requiredStake: FixedNumber;
+  const { accountId$ } = wallet;
 
   const MCSymbol = Symbol();
   onMount(() => {
@@ -80,6 +83,44 @@
   </div>
 
   <div class="w-90 max-w-1/3 p-2 flex flex-col gap-5">
+    <button
+      class="self-end"
+      on:click={async () => {
+        const shareUrl = new URL(window.location.href);
+        if ($accountId$) {
+          shareUrl.searchParams.set("referral", $accountId$);
+        }
+
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: document.title,
+              url: shareUrl.toString(),
+            });
+          } catch (error) {
+            console.error("Error sharing:", error);
+          }
+        } else {
+          try {
+            await navigator.clipboard.writeText(shareUrl.toString());
+            addToast({
+              data: {
+                type: "simple",
+                data: {
+                  title: "Success",
+                  description: "Link copied to clipboard!",
+                  color: "green",
+                },
+              },
+            });
+          } catch (error) {
+            console.error("Error copying to clipboard:", error);
+          }
+        }
+      }}
+    >
+      [share]
+    </button>
     <div class="w-full min-h-74 border-2 border-shitzu-4 rounded-xl p-2">
       <McActionBox {meme} />
     </div>
@@ -99,7 +140,7 @@
           alt={meme.name}
           class="w-30 object-contain"
         />
-        <div>
+        <div class="flex flex-col items-start">
           <h2>{meme.name} <b>${meme.symbol}</b></h2>
           <div class="text-sm">{meme.description}</div>
         </div>
