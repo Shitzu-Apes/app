@@ -10,6 +10,7 @@
   import ClaimList from "$lib/components/memecooking/Profile/ClaimList.svelte";
   import CoinCreated from "$lib/components/memecooking/Profile/CoinCreated.svelte";
   import DepositList from "$lib/components/memecooking/Profile/DepositList.svelte";
+  import Revenue from "$lib/components/memecooking/Profile/Revenue.svelte";
   import { MemeCooking } from "$lib/near/memecooking";
   import { fetchBlockHeight } from "$lib/near/rpc";
   import { awaitRpcBlockHeight } from "$lib/store/indexer";
@@ -178,6 +179,7 @@
   {:then info}
     {#if info && info.revenue}
       <!-- TODO -->
+      <Revenue revenue={info.revenue} {update} />
     {/if}
 
     <div use:melt={$root}>
