@@ -7,6 +7,7 @@
 
   import StakeSheet from "../BottomSheet/StakeSheet.svelte";
   import TokenCommentSheet from "../BottomSheet/TokenCommentSheet.svelte";
+  import { addToast } from "../Toast.svelte";
 
   import TokenChart from "./TokenChart.svelte";
   import TokenDetail from "./TokenDetail.svelte";
@@ -17,11 +18,14 @@
   import { client } from "$lib/api/client";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
+  import { wallet } from "$lib/near";
   import { FixedNumber } from "$lib/util";
   import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
 
   export let memebid: Meme;
   export let requiredStake: FixedNumber;
+
+  const { accountId$ } = wallet;
 
   $: reachedMcap = new FixedNumber(memebid.total_deposit, 24) >= requiredStake;
 
@@ -139,7 +143,45 @@
           [discuss]
         </button>
       </li>
-      <li>[share]</li>
+      <li>
+        <button
+          on:click={async () => {
+            const shareUrl = new URL(window.location.href);
+            if ($accountId$) {
+              shareUrl.searchParams.set("referral", $accountId$);
+            }
+
+            if (navigator.share) {
+              try {
+                await navigator.share({
+                  title: document.title,
+                  url: shareUrl.toString(),
+                });
+              } catch (error) {
+                console.error("Error sharing:", error);
+              }
+            } else {
+              try {
+                await navigator.clipboard.writeText(shareUrl.toString());
+                addToast({
+                  data: {
+                    type: "simple",
+                    data: {
+                      title: "Success",
+                      description: "Link copied to clipboard!",
+                      color: "green",
+                    },
+                  },
+                });
+              } catch (error) {
+                console.error("Error copying to clipboard:", error);
+              }
+            }
+          }}
+        >
+          [share]
+        </button>
+      </li>
     </ul>
   </div>
 </div>

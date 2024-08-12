@@ -167,7 +167,12 @@ export abstract class MemeCooking {
 
   public static deposit(
     wallet: Wallet,
-    args: { memeId: number; amount: string; extraNearDeposit: string },
+    args: {
+      memeId: number;
+      amount: string;
+      extraNearDeposit: string;
+      referrer?: string;
+    },
     callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
     needStorageDeposit: { depositAmount: string } | null = null,
     wrapNearDeposit: { depositAmount: string } | null = null,
@@ -227,6 +232,7 @@ export abstract class MemeCooking {
           msg: JSON.stringify({
             Deposit: {
               meme_id: args.memeId,
+              referrer: args.referrer,
             },
           }),
         },

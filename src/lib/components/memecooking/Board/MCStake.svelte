@@ -16,6 +16,7 @@
     updateMcAccount,
   } from "$lib/near/memecooking";
   import { FixedNumber } from "$lib/util";
+  import { getReferral } from "$lib/util/referral";
 
   const tabs = [
     { id: "stake", label: "stake" },
@@ -158,12 +159,29 @@
         return;
       }
 
+      let referrer = getReferral() || undefined;
+
+      if (referrer === $accountId$) {
+        referrer = undefined;
+        addToast({
+          data: {
+            type: "simple",
+            data: {
+              title: "Invalid Referral",
+              description: "Referral cannot be the same as staker",
+              color: "red",
+            },
+          },
+        });
+      }
+
       return MemeCooking.deposit(
         wallet,
         {
           amount: $input$.toU128(),
           extraNearDeposit: extraNearDeposit.toString(),
           memeId: meme.meme_id,
+          referrer: referrer,
         },
         {
           onSuccess: () => {

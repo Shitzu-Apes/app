@@ -22,9 +22,12 @@
     node_last_block_height$,
   } from "$lib/store/indexer";
   import { initializeWebsocket, ws } from "$lib/store/memebids";
+  import { readAndSetReferral } from "$lib/util/referral";
 
   onMount(() => {
     initializeWebsocket($ws);
+
+    readAndSetReferral();
 
     const fetchLastBlockHeight = async () => {
       const res = await client.GET("/info");
