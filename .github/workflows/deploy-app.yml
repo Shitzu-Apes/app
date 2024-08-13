@@ -17,6 +17,9 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+          submodules: recursive
 
       - name: Install Deno
         uses: denoland/setup-deno@v1
