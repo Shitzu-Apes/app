@@ -21,7 +21,9 @@
       </a>
 
       <a
-        href="/appetizer"
+        href="https://meme.cooking"
+        target="_blank"
+        rel="noopener"
         class="bg-lime mr-2 px-3 py-0.5 rounded text-black decoration-none animate-shaking"
       >
         meme.cooking
