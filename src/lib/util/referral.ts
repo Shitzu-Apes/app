@@ -27,5 +27,8 @@ export function readAndSetReferral() {
     const expiry = now + REFERRAL_EXPIRY_TIME;
     localStorage.setItem(REFERRAL_LOCALSTORAGE_KEY, referral);
     localStorage.setItem(REFERRAL_EXPIRY_KEY, expiry.toString());
+    // Remove the referral search parameter from the URL
+    url.searchParams.delete("referral");
+    window.history.replaceState({}, document.title, url.toString());
   }
 }
