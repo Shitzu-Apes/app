@@ -146,7 +146,6 @@
   async function update(
     outcome: FinalExecutionOutcome | FinalExecutionOutcome[] | undefined,
   ) {
-    // TODO
     if (outcome == null) return;
     const blockHeight = await fetchBlockHeight(outcome);
     // adding +5 here becauce of receipts being delayed
@@ -178,7 +177,6 @@
     <div transition:slide class="i-svg-spinners:pulse-3 size-20 mt-[80px]" />
   {:then info}
     {#if info && info.revenue}
-      <!-- TODO -->
       <Revenue revenue={info.revenue} {update} />
     {/if}
 

@@ -39,9 +39,9 @@
             {new FixedNumber(r.amount, 24).format()}
           </div>
         </div>
-        <button class="text-white text-sm font-semibold" on:click={claim}
-          >Claim</button
-        >
+        <button class="text-white text-sm font-semibold" on:click={claim}>
+          Claim
+        </button>
       </div>
     </div>
   {/if}

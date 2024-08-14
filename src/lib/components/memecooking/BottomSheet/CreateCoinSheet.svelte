@@ -24,13 +24,12 @@
   }) => Promise<void>;
 
   onMount(async () => {
-    const { imageCID, referenceCID, referenceHash } = await uploadPromise;
-
-    console.log("[CreateCoinSheet] referenceCID", referenceCID);
-
-    status = "Preparing the Ingredient";
-
     try {
+      const { imageCID, referenceCID, referenceHash } = await uploadPromise;
+
+      console.log("[CreateCoinSheet] referenceCID", referenceCID);
+      status = "Preparing the Ingredient";
+
       await createTransactionPromise({ referenceCID, referenceHash, imageCID });
     } catch (err) {
       console.error(err);

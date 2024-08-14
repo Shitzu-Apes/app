@@ -17,6 +17,13 @@ export default abstract class Pinata {
     });
 
     const json = await res.json();
+    if (
+      json.error &&
+      json.error.details &&
+      typeof json.error.details === "string"
+    ) {
+      throw new Error(json.error.details);
+    }
     return json;
   }
 
@@ -35,6 +42,13 @@ export default abstract class Pinata {
     });
 
     const jsonRes = await res.json();
+    if (
+      jsonRes.error &&
+      jsonRes.error.details &&
+      typeof jsonRes.error.details === "string"
+    ) {
+      throw new Error(jsonRes.error.details);
+    }
     return jsonRes;
   }
 }

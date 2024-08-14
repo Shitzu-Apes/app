@@ -239,7 +239,7 @@
       referenceCID: string;
       referenceHash: string;
     }) => {
-      return await MemeCooking.createMeme(
+      return MemeCooking.createMeme(
         wallet,
         {
           name,
