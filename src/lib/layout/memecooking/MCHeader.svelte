@@ -79,7 +79,7 @@
     </div>
   {:else}
     <button
-      class="text-sm"
+      class="text-sm flex-1 sm:flex-none"
       on:click={wallet.isTG
         ? wallet.loginViaHere
         : () => showWalletSelector("shitzu")}
