@@ -13,22 +13,6 @@ import type {
 } from "$lib/models/memecooking";
 import { FixedNumber } from "$lib/util";
 
-const _mcAccount$ = writable<MCAccountInfo | null>();
-export const mcAccount$ = derived(_mcAccount$, (a) => a);
-
-export async function updateMcAccount(accountId: string) {
-  const account = await MemeCooking.getAccount(accountId);
-  _mcAccount$.set(account);
-}
-
-wallet.accountId$.subscribe((accountId) => {
-  if (accountId) {
-    updateMcAccount(accountId);
-  } else {
-    _mcAccount$.set(null);
-  }
-});
-
 export abstract class MemeCooking {
   public static getLatestMeme(
     firstMemeId?: number,
@@ -408,3 +392,19 @@ export abstract class MemeCooking {
 export const requiredStake = MemeCooking.requiredStake(
   import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
 ).then((requiredStake) => new FixedNumber(requiredStake, 24));
+
+const _mcAccount$ = writable<MCAccountInfo | null>();
+export const mcAccount$ = derived(_mcAccount$, (a) => a);
+
+export async function updateMcAccount(accountId: string) {
+  const account = await MemeCooking.getAccount(accountId);
+  _mcAccount$.set(account);
+}
+
+wallet.accountId$.subscribe((accountId) => {
+  if (accountId) {
+    updateMcAccount(accountId);
+  } else {
+    _mcAccount$.set(null);
+  }
+});
