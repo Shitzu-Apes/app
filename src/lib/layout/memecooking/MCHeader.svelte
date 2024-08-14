@@ -66,7 +66,7 @@
   </div>
 
   {#if $accountId$}
-    <div class="flex flex-col items-end">
+    <div class="flex flex-col items-end flex-1 sm:flex-none">
       <a
         href="/profile/{$accountId$}"
         class="text-sm inline-flex items-center h-fit"
