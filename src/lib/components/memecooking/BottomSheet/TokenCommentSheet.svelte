@@ -2,14 +2,14 @@
   import TokenCommentSection from "../Board/TokenCommentSection.svelte";
 
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
+  import type { Meme } from "$lib/models/memecooking";
 
-  export let id: number;
-  export let creator: string;
+  export let meme: Meme;
 </script>
 
 <BottomSheetContent variant="shitzu">
   <slot slot="header">
     <h2 class="prose prose-invert prose-shitzu px-4 text-2xl">Comment</h2>
   </slot>
-  <TokenCommentSection {id} {creator} />
+  <TokenCommentSection {meme} />
 </BottomSheetContent>

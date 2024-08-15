@@ -1,17 +1,19 @@
 <script lang="ts">
+  import Chef from "../Chef.svelte";
+
   import TokenComment from "./TokenComment.svelte";
 
   import { client } from "$lib/api/client";
+  import type { Meme } from "$lib/models/memecooking";
 
   let reply: string = "";
-  export let id: number;
-  export let creator: string;
+  export let meme: Meme;
 
   let replies = client
     .GET("/get-replies/replies/{memeId}", {
       params: {
         path: {
-          memeId: id.toString(),
+          memeId: meme.meme_id.toString(),
         },
       },
       credentials: "include",
@@ -26,7 +28,7 @@
       .GET("/get-replies/replies/{memeId}", {
         params: {
           path: {
-            memeId: id.toString(),
+            memeId: meme.meme_id.toString(),
           },
         },
         credentials: "include",
@@ -42,7 +44,7 @@
       .POST("/post-reply/replies", {
         method: "POST",
         body: {
-          memeId: id.toString(),
+          memeId: meme.meme_id.toString(),
           content: reply,
         },
         credentials: "include",
@@ -59,6 +61,26 @@
     <div class="loader size-24" />
   {:then data}
     <div class="w-full flex flex-col gap-2">
+      <div
+        class="w-full flex flex-col gap-2 bg-gray-5 p-2 rounded-md text-shitzu-1"
+      >
+        <div class="flex items-center gap-1 text-xs text-shitzu-3">
+          <Chef
+            account={`${meme.owner} (dev)`}
+            class="bg-shitzu-4 text-gray-8 rounded px-1"
+          />
+          <div class="text-xs text-shitzu-3">
+            {new Date((meme.created_timestamp_ms ?? 0) * 1000).toLocaleString()}
+          </div>
+        </div>
+        <div class="flex items-start gap-1">
+          <img src={meme.image} class="w-30 rounded-md" alt={meme.name} />
+          <div class="flex flex-col items-start">
+            <div class="text-sm font-bold">{meme.name} ({meme.symbol})</div>
+            <div class="text-sm text-white">{meme.description}</div>
+          </div>
+        </div>
+      </div>
       {#each data.data?.replies ?? [] as reply}
         <TokenComment
           reply={{
@@ -69,7 +91,7 @@
             is_liked_by_user: reply.is_liked_by_user,
             likes_count: reply.likes_count,
           }}
-          isDev={reply.account_id === creator}
+          isDev={reply.account_id === meme.owner}
           onLike={async (id) => {
             await client.POST("/post-reply/like", {
               body: {
