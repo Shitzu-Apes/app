@@ -3,6 +3,7 @@
   import SHITZU_KING from "$lib/assets/shitzu_saiya.webp";
   import Board from "$lib/components/memecooking/Board/Board.svelte";
   import King from "$lib/components/memecooking/Board/King.svelte";
+  import { requiredStake } from "$lib/near/memecooking";
   import { searchQuery$ } from "$lib/store/memebids";
 
   let currentKing = client.GET("/meme/king");
@@ -21,7 +22,7 @@
     </h2>
     <img src={SHITZU_KING} alt="shitzu king" class="size-24" />
   </div>
-  {#await currentKing}
+  {#await Promise.all([currentKing, requiredStake])}
     <div class="flex gap-4 items-center">
       <div class="loader size-24" />
       <div class="flex flex-col gap-2">
@@ -35,8 +36,8 @@
         <div class="loader w-50 h-5" />
       </div>
     </div>
-  {:then data}
-    <King king={data.data} />
+  {:then [data, requiredStake]}
+    <King king={data.data} {requiredStake} />
   {/await}
 
   <!-- Search box -->

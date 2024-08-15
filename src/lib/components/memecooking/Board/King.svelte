@@ -5,8 +5,10 @@
 
   import type { Meme } from "$lib/api/client";
   import { MCsubscribe, MCunsubscribe } from "$lib/store/memebids";
+  import type { FixedNumber } from "$lib/util";
 
   export let king: Meme | undefined;
+  export let requiredStake: FixedNumber;
 
   let MCSymbol = Symbol();
   onMount(() => {
@@ -28,7 +30,7 @@
 
 {#if king}
   <div class="max-w-lg">
-    <MemePreview memebid={king} />
+    <MemePreview memebid={king} {requiredStake} />
   </div>
 {:else}
   <div class="flex gap-4 items-center">
