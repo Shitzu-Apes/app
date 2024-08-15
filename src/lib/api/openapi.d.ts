@@ -770,6 +770,7 @@ export interface paths {
           "application/json": {
             memeId: string;
             content: string;
+            replyToId?: string;
           };
         };
       };
@@ -881,8 +882,19 @@ export interface paths {
                 content: string;
                 account_id: string;
                 created_at_ms?: number;
+                reply_to_id?: number;
                 is_liked_by_user: boolean;
                 likes_count: number;
+                child_replies?: {
+                  id?: number;
+                  meme_id: number;
+                  content: string;
+                  account_id: string;
+                  created_at_ms?: number;
+                  reply_to_id?: number;
+                  is_liked_by_user: boolean;
+                  likes_count: number;
+                }[];
               }[];
             };
           };

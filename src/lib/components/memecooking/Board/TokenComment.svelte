@@ -8,15 +8,28 @@
     created_at_ms: number;
     is_liked_by_user: boolean;
     likes_count: number;
+    reply_to_id?: number;
+    child_replies:
+      | {
+          account_id: string;
+          id: number;
+          content: string;
+          created_at_ms: number;
+          is_liked_by_user: boolean;
+          likes_count: number;
+          reply_to_id?: number;
+        }[]
+      | undefined;
   };
-  export let isDev: boolean;
+  export let owner: string;
   export let onLike: (id: number) => Promise<void>;
+  export let onReplyTo: (id: string) => void;
 
   let localLikes: number = reply.likes_count;
   let localIsLiked: boolean = reply.is_liked_by_user;
 
   function getColorFromAccountId(accountId: string): string {
-    if (isDev) {
+    if (accountId === owner) {
       return "bg-shitzu-4";
     }
     const colors = [
@@ -39,10 +52,10 @@
   const accountColor = getColorFromAccountId(reply.account_id);
 </script>
 
-<div class="w-full flex flex-col gap-2 bg-gray-5 p-2 rounded-md text-shitzu-1">
+<div class="w-full flex flex-col bg-gray-5 p-2 rounded-md text-shitzu-1">
   <div class="flex items-center gap-1 text-xs text-shitzu-3">
     <Chef
-      account={`${reply.account_id}${isDev ? " (dev)" : ""}`}
+      account={`${reply.account_id}${reply.account_id === owner ? " (dev)" : ""}`}
       class={`${accountColor} text-gray-8 rounded px-1`}
     />
     <button
@@ -68,5 +81,28 @@
       {new Date((reply.created_at_ms ?? 0) * 1000).toLocaleString()}
     </div>
   </div>
-  <div class="text-white">{reply.content}</div>
+  <div class="text-white mt-1 pl-4">{reply.content}</div>
+  {#if !reply.reply_to_id}
+    <button
+      on:click={() => onReplyTo(reply.id.toString())}
+      class="flex text-xs text-shitzu-3 pl-4 mt-1 mb-2"
+    >
+      reply
+    </button>
+  {/if}
+  {#if reply.child_replies}
+    {#each reply.child_replies as child, index}
+      <div class="pl-2 flex">
+        <div
+          class="w-0.25 bg-shitzu-4 relative {index ===
+            reply.child_replies.length - 1 && 'h-4'}"
+        >
+          <div class="absolute top-4 w-2 h-0.25 bg-shitzu-4"></div>
+        </div>
+        {#if !reply.reply_to_id}
+          <svelte:self reply={child} {owner} {onLike} />
+        {/if}
+      </div>
+    {/each}
+  {/if}
 </div>

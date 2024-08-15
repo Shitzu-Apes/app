@@ -7,6 +7,7 @@
   import type { Meme } from "$lib/models/memecooking";
 
   let reply: string = "";
+  let replyToId: string | undefined;
   export let meme: Meme;
 
   let replies = client
@@ -46,11 +47,13 @@
         body: {
           memeId: meme.meme_id.toString(),
           content: reply,
+          replyToId,
         },
         credentials: "include",
       })
       .then(() => {
         reply = "";
+        replyToId = undefined;
         refreshReplies();
       });
   }
@@ -90,8 +93,21 @@
             created_at_ms: reply.created_at_ms ?? 0,
             is_liked_by_user: reply.is_liked_by_user,
             likes_count: reply.likes_count,
+            reply_to_id: reply.reply_to_id,
+            child_replies: reply.child_replies?.map((child) => ({
+              account_id: child.account_id,
+              id: child.id ?? 0,
+              content: child.content,
+              created_at_ms: child.created_at_ms ?? 0,
+              is_liked_by_user: child.is_liked_by_user ?? false,
+              likes_count: child.likes_count ?? 0,
+              reply_to_id: child.reply_to_id,
+            })),
           }}
-          isDev={reply.account_id === meme.owner}
+          owner={meme.owner}
+          onReplyTo={async (id) => {
+            replyToId = id;
+          }}
           onLike={async (id) => {
             await client.POST("/post-reply/like", {
               body: {
@@ -106,23 +122,32 @@
   {/await}
 
   <div class="w-full flex flex-row gap-2 mt-6">
-    <input
-      type="text"
-      bind:value={reply}
-      class="w-full max-w-md p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shitzu-4 text-black"
-      on:keydown={(e) => {
-        if (e.key === "Enter") {
-          handleReply();
-        }
-      }}
-    />
-    <button
-      class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
-      on:click={() => {
-        handleReply();
-      }}
-    >
-      Reply
-    </button>
+    <div class="w-full flex flex-col">
+      {#if replyToId}
+        <div class="text-xs text-shitzu-3 mt-1 mb-2">
+          replying to reply #{replyToId}
+        </div>
+      {/if}
+      <div class="flex flex-row">
+        <input
+          type="text"
+          bind:value={reply}
+          class="flex-grow max-w-md p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shitzu-4 text-black"
+          on:keydown={(e) => {
+            if (e.key === "Enter") {
+              handleReply();
+            }
+          }}
+        />
+        <button
+          class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
+          on:click={() => {
+            handleReply();
+          }}
+        >
+          Reply
+        </button>
+      </div>
+    </div>
   </div>
 </div>
