@@ -20,7 +20,7 @@
 
     if (!id) return;
 
-    replaceState(`/${id}`, $page.state);
+    replaceState(`/meme/${id}`, $page.state);
   }
 </script>
 
