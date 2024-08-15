@@ -95,7 +95,6 @@ export interface paths {
               website?: string | null;
               image?: string | null;
               coronated_at_ms?: number | null;
-              telegram_discussion_id: string;
             };
           };
         };
@@ -173,7 +172,6 @@ export interface paths {
               website?: string | null;
               image?: string | null;
               coronated_at_ms?: number | null;
-              telegram_discussion_id: string;
             }[];
           };
         };
@@ -245,7 +243,6 @@ export interface paths {
                 website?: string | null;
                 image?: string | null;
                 coronated_at_ms?: number | null;
-                telegram_discussion_id: string;
               };
               account?: {
                 id: string;
@@ -434,7 +431,6 @@ export interface paths {
                 website?: string | null;
                 image?: string | null;
                 coronated_at_ms?: number | null;
-                telegram_discussion_id: string;
               }[];
               coins_held: {
                 id: string;
@@ -470,7 +466,6 @@ export interface paths {
                 website?: string | null;
                 image?: string | null;
                 coronated_at_ms?: number | null;
-                telegram_discussion_id: string;
               }[];
               coin_created: {
                 meme_id: number;
@@ -502,7 +497,6 @@ export interface paths {
                 website?: string | null;
                 image?: string | null;
                 coronated_at_ms?: number | null;
-                telegram_discussion_id: string;
               }[];
             };
           };
@@ -583,7 +577,6 @@ export interface paths {
                       website?: string | null;
                       image?: string | null;
                       coronated_at_ms?: number | null;
-                      telegram_discussion_id: string;
                     }
                   | undefined;
               };
@@ -619,7 +612,6 @@ export interface paths {
                       website?: string | null;
                       image?: string | null;
                       coronated_at_ms?: number | null;
-                      telegram_discussion_id: string;
                     }
                   | undefined;
               };
@@ -653,13 +645,252 @@ export interface paths {
                 website?: string | null;
                 image?: string | null;
                 coronated_at_ms?: number | null;
-                telegram_discussion_id: string;
               }[];
             };
           };
         };
       };
     };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/callback": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Callback
+     * @description Callback to the system
+     */
+    get: {
+      parameters: {
+        query: {
+          accountId: string;
+          signature: string;
+          publicKey: string;
+          state?: string;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Login successful */
+        200: {
+          headers: {
+            /** @description The session cookie */
+            "Set-Cookie"?: unknown;
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/logout": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Logout
+     * @description Logs out the user by clearing the session cookie
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Logout successful */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/post-reply/replies": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Create a reply
+     * @description Create a reply to a meme
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": {
+            memeId: string;
+            content: string;
+          };
+        };
+      };
+      responses: {
+        /** @description Reply created successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/post-reply/like": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Like a reply
+     * @description Like a reply
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": {
+            replyId: string;
+          };
+        };
+      };
+      responses: {
+        /** @description Reply liked successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/get-replies/replies/{memeId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get replies
+     * @description Get replies
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          memeId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              replies: {
+                id?: number;
+                meme_id: number;
+                content: string;
+                account_id: string;
+                created_at_ms?: number;
+                is_liked_by_user: boolean;
+                likes_count: number;
+              }[];
+            };
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;

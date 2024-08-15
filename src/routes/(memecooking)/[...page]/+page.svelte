@@ -3,6 +3,8 @@
   import SHITZU_KING from "$lib/assets/shitzu_saiya.webp";
   import Board from "$lib/components/memecooking/Board/Board.svelte";
   import King from "$lib/components/memecooking/Board/King.svelte";
+  import TokenCommentSection from "$lib/components/memecooking/Board/TokenCommentSection.svelte";
+  import { wallet } from "$lib/near";
   import { searchQuery$ } from "$lib/store/memebids";
 
   let currentKing = client.GET("/meme/king");
@@ -10,6 +12,15 @@
 </script>
 
 <div class="flex flex-col items-center gap-4 mt-2 min-h-screen">
+  <button
+    on:click={() => {
+      wallet.login();
+    }}
+  >
+    Login
+  </button>
+  <TokenCommentSection id={1} creator="spareemail6210.testnet" />
+
   <a href="/create">
     <h1 class="text-2xl font-500">[start a new coin]</h1>
   </a>

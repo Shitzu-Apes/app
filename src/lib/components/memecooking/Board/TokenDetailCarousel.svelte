@@ -136,7 +136,8 @@
         <button
           on:click={() => {
             openBottomSheet(TokenCommentSheet, {
-              id: memebid.telegram_discussion_id,
+              id: memebid.meme_id,
+              creator: memebid.owner,
             });
           }}
         >

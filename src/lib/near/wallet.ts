@@ -14,6 +14,7 @@ import { derived, get, readable, writable } from "svelte/store";
 import { P, match } from "ts-pattern";
 
 import { browser } from "$app/environment";
+import { client } from "$lib/api/client";
 import { addTxToast, addToast } from "$lib/components/memecooking/Toast.svelte";
 import type { UnionModuleState, WalletAccount } from "$lib/models";
 
@@ -168,6 +169,61 @@ export class Wallet {
     this.loginViaWalletSelector = this.loginViaWalletSelector.bind(this);
     this.loginViaHere = this.loginViaHere.bind(this);
     this.signOut = this.signOut.bind(this);
+  }
+
+  public async login() {
+    const walletPromise = match(get(this._account$))
+      .with(undefined, () => undefined)
+      .with(
+        {
+          type: "wallet-selector",
+          account: P.any,
+        },
+        async () => {
+          const selector = await get(this.selector$);
+          return selector.wallet();
+        },
+      )
+      .with(
+        {
+          type: "here",
+          account: P.any,
+        },
+        async () => {
+          if (!this.hereWallet) {
+            throw new Error("HereWallet not yet initialized");
+          }
+          return this.hereWallet;
+        },
+      )
+      .exhaustive();
+
+    const wallet = await walletPromise;
+    if (!wallet) return;
+
+    const nonce = Buffer.from("0".repeat(32));
+    const signedMessage = await wallet.signMessage({
+      message: "Login to Meme Cooking",
+      nonce,
+      recipient: "factory.v9.meme-cooking.testnet",
+      callbackUrl: "http://localhost:8787/auth/callback",
+    });
+    console.log("[signedMessage]", signedMessage);
+
+    const res = await client.GET("/auth/callback", {
+      params: {
+        query: {
+          // @ts-expect-error have to use any here
+          accountId: signedMessage.accountId,
+          // @ts-expect-error have to use any here
+          signature: signedMessage.signature,
+          // @ts-expect-error have to use any here
+          publicKey: signedMessage.publicKey,
+        },
+      },
+      credentials: "include",
+    });
+    console.log("[res]", res);
   }
 
   private connectHere() {
