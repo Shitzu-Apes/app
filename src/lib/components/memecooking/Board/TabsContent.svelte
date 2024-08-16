@@ -2,33 +2,20 @@
   import Terminal from "./Desktop/Terminal.svelte";
   import TokenCarousel from "./TokenCarousel.svelte";
 
-  import { replaceState } from "$app/navigation";
-  import { page } from "$app/stores";
-  import { memebids$ } from "$lib/store/memebids";
-
-  export let currentMemebidsIdx: number;
-
-  async function onSelect(event: CustomEvent<number>) {
-    const idx = event.detail;
-    currentMemebidsIdx = idx;
-    if (idx === -1) {
-      replaceState("/board", $page.state);
-      return;
-    }
-    const memebids = await $memebids$;
-    const id = memebids[idx].meme_id;
-
-    if (!id) return;
-
-    replaceState(`/meme/${id}`, $page.state);
-  }
+  let width: number;
 </script>
 
+<svelte:window bind:innerWidth={width} />
+
 <div class="mobile">
-  <TokenCarousel {currentMemebidsIdx} on:select={onSelect} />
+  {#if width <= 768}
+    <TokenCarousel />
+  {/if}
 </div>
 <div class="desktop">
-  <Terminal />
+  {#if width > 768}
+    <Terminal />
+  {/if}
 </div>
 
 <style lang="scss">

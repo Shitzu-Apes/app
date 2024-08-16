@@ -7,7 +7,6 @@
   import { searchQuery$ } from "$lib/store/memebids";
 
   let currentKing = client.GET("/meme/king");
-  let currentMemebidsIdx = 0;
 </script>
 
 <div class="flex flex-col items-center gap-4 mt-2 min-h-screen">
@@ -51,6 +50,6 @@
     <button class="bg-shitzu-5 px-4 py-2 rounded-lg">Search</button>
   </div>
   <section class="w-full">
-    <Board {currentMemebidsIdx} />
+    <Board />
   </section>
 </div>
