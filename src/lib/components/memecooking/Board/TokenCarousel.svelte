@@ -60,8 +60,12 @@
     <div class="relative focus-element">
       <div class="flex flex-col h-screen">
         {#each memebids as memebid (memebid.meme_id)}
-          <div class="flex-[0_0_100%] min-h-0">
-            <TokenDetailCarousel {memebid} {requiredStake} />
+          <div class="px-3 my-3">
+            <div
+              class="flex flex-col border border-shitzu-4 rounded-xl bg-dark-8"
+            >
+              <TokenDetailCarousel {memebid} {requiredStake} />
+            </div>
           </div>
         {/each}
       </div>

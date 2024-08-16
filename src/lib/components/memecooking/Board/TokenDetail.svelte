@@ -43,7 +43,7 @@
         </div>
       </div>
     </h2>
-    <div class="w-full h-[calc(100%-100px)]">
+    <div class="w-full h-auto">
       <img
         src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
         alt="{memebid.name} icon"

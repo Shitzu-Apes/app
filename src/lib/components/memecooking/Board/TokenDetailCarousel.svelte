@@ -109,7 +109,7 @@
   }}
 />
 
-<div class="relative h-[calc(100dvh-200px)]" bind:this={chartElement}>
+<div class="relative h-fit" bind:this={chartElement}>
   <div
     class="overflow-hidden h-full relative"
     use:embalaCarousel={{ options, plugins: [] }}
