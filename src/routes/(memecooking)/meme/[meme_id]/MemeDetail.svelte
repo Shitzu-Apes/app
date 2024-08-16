@@ -15,6 +15,7 @@
   import { wallet } from "$lib/near";
   import { MCsubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
+  import { getTokenId } from "$lib/util/getTokenId";
 
   export let meme: Meme;
   export let requiredStake: FixedNumber;
@@ -59,6 +60,38 @@
         <Near className="size-4" />
         {new FixedNumber(BigInt(meme.total_deposit) * BigInt(2), 24).format()}
       </span>
+      {#if meme.pool_id}
+        <div class="flex items-center justify-end text-right">
+          <span>CA:</span>
+          <div
+            class="flex items-center justify-end text-right border border-white/25 rounded overflow-hidden ml-2 text-xs"
+          >
+            <span class="bg-dark-8 text-white px-1 py-1">
+              {getTokenId(meme.symbol, meme.meme_id)}
+            </span>
+            <button
+              class="bg-dark-6 text-white px-2 py-1"
+              on:click={() => {
+                navigator.clipboard.writeText(
+                  getTokenId(meme.symbol, meme.meme_id),
+                );
+                addToast({
+                  data: {
+                    type: "simple",
+                    data: {
+                      title: "Copied",
+                      description: "CA copied to clipboard!",
+                      color: "green",
+                    },
+                  },
+                });
+              }}
+            >
+              copy
+            </button>
+          </div>
+        </div>
+      {/if}
       <span class="ml-auto flex items-center justify-end text-right gap-1">
         created by
         <a
