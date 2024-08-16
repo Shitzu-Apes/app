@@ -24,13 +24,14 @@
   }
 
   onMount(() => {
+    if (!width || !height) return;
     const now = Date.now();
     const to = Math.min(now, memebid.end_timestamp_ms!);
 
     let interval: ResolutionString;
     const duration = to - memebid.created_timestamp_ms;
 
-    const aspectRatio = width / height;
+    const aspectRatio = width / height || 1;
     const bars = Math.round(aspectRatio * 48);
     let from;
     if (duration < 10 * 60 * 1000) {
@@ -89,7 +90,7 @@
           format: (price: number) => {
             if (!price) return "0";
             if (price < 0.0001) {
-              return price.toFixed(12);
+              return price.toExponential(2);
             }
             return price.toFixed(4);
           },
@@ -105,11 +106,13 @@
         .getPanes()[0]
         .getRightPriceScales()[0];
       const DEFAULT_PRICE = 1e-8;
+      const hightestDeposit = memebid.total_deposit_fees_num * 100;
       const price =
         (memebid.total_supply && parseFloat(memebid.total_supply) !== 0
-          ? +memebid.total_deposit / (+memebid.total_supply / 2)
+          ? hightestDeposit / (+memebid.total_supply / 2)
           : DEFAULT_PRICE) || DEFAULT_PRICE;
-      priceScale.setVisiblePriceRange({ from: 0, to: price * 1.5 });
+
+      priceScale.setVisiblePriceRange({ from: 0, to: price * 1.25 });
     });
   });
 
