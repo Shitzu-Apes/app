@@ -657,17 +657,14 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/auth/callback": {
+  "/auth/login": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /**
-     * Callback
-     * @description Callback to the system
-     */
+    /** Login */
     get: {
       parameters: {
         query: {

@@ -9,6 +9,7 @@ import type {
   InjectedWalletMetadata,
   ModuleState,
   Wallet as NearWallet,
+  SignedMessage,
 } from "@near-wallet-selector/core";
 import { derived, get, readable, writable } from "svelte/store";
 import { P, match } from "ts-pattern";
@@ -202,24 +203,18 @@ export class Wallet {
     if (!wallet) return;
 
     const nonce = Buffer.from("0".repeat(32));
-    const signedMessage = await wallet.signMessage({
+    const message = {
       message: "Login to Meme Cooking",
       nonce,
-      recipient: "factory.v9.meme-cooking.testnet",
-      callbackUrl: "http://localhost:8787/auth/callback",
-    });
-    console.log("[signedMessage]", signedMessage);
+      recipient: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+      callbackUrl: window.location.href,
+    };
+    console.log("[signMessage]", message);
+    const signedMessage = (await wallet.signMessage(message)) as SignedMessage;
 
-    const res = await client.GET("/auth/callback", {
+    const res = await client.GET("/auth/login", {
       params: {
-        query: {
-          // @ts-expect-error have to use any here
-          accountId: signedMessage.accountId,
-          // @ts-expect-error have to use any here
-          signature: signedMessage.signature,
-          // @ts-expect-error have to use any here
-          publicKey: signedMessage.publicKey,
-        },
+        query: signedMessage,
       },
       credentials: "include",
     });
