@@ -122,7 +122,7 @@
     {
       id: "not-finalized",
       label: "withdraw Stake",
-      info: "All ongoing staking and unsuccesful launches",
+      info: "All ongoing staking and unsuccessful launches",
     },
     {
       id: "finalized",
