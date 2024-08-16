@@ -6,6 +6,9 @@
   import { debounce } from "perfect-debounce";
   import { writable } from "svelte/store";
   import DropZone from "svelte-file-dropzone";
+  import { z } from "zod";
+
+  import TextInputField from "./TextInputField.svelte";
 
   import { goto } from "$app/navigation";
   import { TokenInput } from "$lib/components";
@@ -32,19 +35,51 @@
 
   // add default from `meme_to_cto` local storage
 
-  let name: string = "";
-  let ticker: string = "";
-  let description: string = "";
-  let image: string | null = null; // for preview
-  let icon: string | null = null; // 96x96 version of image
-  let imageFile: File | null = null;
-  let imageCID: string | null = null;
-  let twitterLink: string = "";
-  let telegramLink: string = "";
-  let website: string = "";
-  let decimals = 18;
-  let totalSupply: TokenInput;
-  let totalSupplyValue$ = writable<string | undefined>("1000000000");
+  const nameSchema = z
+    .string({})
+    .min(1, "Name is required")
+    .max(50, "Name should be less than 50 characters")
+    .regex(
+      /^[a-zA-Z0-9-_]+$/,
+      "Name should only contain alphanumeric characters, '-', and '_'",
+    );
+  const tickerSchema = z
+    .string({})
+    .min(1, "Ticker is required")
+    .max(10, "Ticker should be less than 10 characters")
+    .regex(
+      /^[a-zA-Z0-9-_]+$/,
+      "Ticker should only contain alphanumeric characters, '-', and '_'",
+    );
+  const descriptionSchema = z
+    .string()
+    .min(1, "Description is required")
+    .max(100, "Description should be less than 100 characters");
+  const imageSchema = z.string().nullable();
+  const iconSchema = z.string().nullable();
+  const imageFileSchema = z.instanceof(File).nullable();
+  const imageCIDSchema = z.string().nullable();
+  const twitterLinkSchema = z.string().regex(/^(https:\/\/(twitter|x)\.com\/)/);
+  const telegramLinkSchema = z.string().regex(/^(https:\/\/t\.me\/)/);
+  const websiteSchema = z.string().regex(/^(https:\/\/)/);
+  const decimalsSchema = z.number().int().min(0);
+  const totalSupplySchema = z.instanceof(TokenInput);
+  const totalSupplyValueSchema = z.string().optional();
+
+  let name: z.infer<typeof nameSchema> = "";
+  let ticker: z.infer<typeof tickerSchema> = "";
+  let description: z.infer<typeof descriptionSchema> = "";
+  let image: z.infer<typeof imageSchema> = null; // for preview
+  let icon: z.infer<typeof iconSchema> = null; // 96x96 version of image
+  let imageFile: z.infer<typeof imageFileSchema> = null;
+  let imageCID: z.infer<typeof imageCIDSchema> = null;
+  let twitterLink: z.infer<typeof twitterLinkSchema> = "";
+  let telegramLink: z.infer<typeof telegramLinkSchema> = "";
+  let website: z.infer<typeof websiteSchema> = "";
+  let decimals: z.infer<typeof decimalsSchema> = 18;
+  let totalSupply: z.infer<typeof totalSupplySchema>;
+  let totalSupplyValue$ =
+    writable<z.infer<typeof totalSupplyValueSchema>>("1000000000");
   $: totalSupply$ = totalSupply?.u128$;
 
   let durationOptions = [
@@ -192,9 +227,9 @@
       ctoFrom?: number;
     } = {
       description,
-      twitterLink,
-      telegramLink,
-      website,
+      twitterLink: twitterLink || "",
+      telegramLink: telegramLink || "",
+      website: website || "",
     };
     if (ctoFrom) {
       reference.ctoFrom = ctoFrom;
@@ -322,30 +357,19 @@
       <a href="/board" class="text-2xl font-500">[go back]</a>
     </div>
 
-    <div class="space-y-2">
-      <label for="name" class="block text-sm text-shitzu-4 font-600">
-        name
-      </label>
-      <input
-        id="name"
-        type="text"
-        bind:value={name}
-        autocomplete="off"
-        class="w-full p-2 bg-gray-700 rounded text-white border border-white"
-      />
-    </div>
-    <div class="space-y-2">
-      <label for="ticker" class="block text-sm text-shitzu-4 font-600">
-        ticker
-      </label>
-      <input
-        id="ticker"
-        type="text"
-        bind:value={ticker}
-        autocomplete="off"
-        class="w-full p-2 bg-gray-700 rounded text-white border border-white"
-      />
-    </div>
+    <TextInputField
+      label="name"
+      bind:value={name}
+      schema={nameSchema}
+      validateOnInput={true}
+    />
+
+    <TextInputField
+      label="ticker"
+      bind:value={ticker}
+      schema={tickerSchema}
+      validateOnInput={true}
+    />
     <div class="space-y-2">
       <label for="description" class="block text-sm text-shitzu-4 font-600">
         description
@@ -421,57 +445,27 @@
       <summary class="text-sm text-shitzu-4 cursor-pointer">
         Show more options
       </summary>
-      <div class="space-y-2">
-        <InputField
-          label="twitter link"
-          bind:value={twitterLink}
-          placeholder="(optional)"
-          validate={(value) => {
-            if (!value || typeof value === "number") {
-              return "";
-            }
-
-            const error = /^(https:\/\/(twitter|x)\.com\/)/.test(value)
-              ? ""
-              : "website should start with https://twitter.com/ or https://x.com/";
-            return error;
-          }}
-        />
-      </div>
-      <div class="space-y-2">
-        <InputField
-          label="telegram link"
-          bind:value={telegramLink}
-          placeholder="(optional)"
-          validate={(value) => {
-            if (!value || typeof value === "number") {
-              return "";
-            }
-
-            const error = /^(https:\/\/t\.me\/)/.test(value)
-              ? ""
-              : "website should start with https://t.me/";
-            return error;
-          }}
-        />
-      </div>
-      <div class="space-y-2">
-        <InputField
-          label="website"
-          bind:value={website}
-          placeholder="(optional)"
-          validate={(value) => {
-            if (!value || typeof value === "number") {
-              return "";
-            }
-
-            const error = /^(https?:\/\/)/.test(value)
-              ? ""
-              : "website should start with http:// or https://";
-            return error;
-          }}
-        />
-      </div>
+      <TextInputField
+        label="twitter link"
+        bind:value={twitterLink}
+        placeholder="(optional)"
+        schema={twitterLinkSchema}
+        validateOnInput={true}
+      />
+      <TextInputField
+        label="telegram link"
+        bind:value={telegramLink}
+        placeholder="(optional)"
+        schema={telegramLinkSchema}
+        validateOnInput={true}
+      />
+      <TextInputField
+        label="website"
+        bind:value={website}
+        placeholder="(optional)"
+        schema={websiteSchema}
+        validateOnInput={true}
+      />
       <div class="space-y-2">
         <InputField
           label="decimals"
@@ -509,7 +503,29 @@
     <button
       on:click={createCoin}
       class="w-full p-2 bg-shitzu-4 text-white rounded flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
-      disabled={!name || !ticker || !description || !imageReady || !icon}
+      disabled={(() => {
+        const schema = z.object({
+          name: nameSchema,
+          ticker: tickerSchema,
+          description: descriptionSchema,
+          icon: z.string(),
+          twitterLink: twitterLinkSchema.optional(),
+          telegramLink: telegramLinkSchema.optional(),
+          website: websiteSchema.optional(),
+        });
+
+        const result = schema.safeParse({
+          name,
+          ticker,
+          description,
+          icon,
+          twitterLink: twitterLink || undefined,
+          telegramLink: telegramLink || undefined,
+          website: website || undefined,
+        });
+        console.log(result);
+        return !result.success;
+      })()}
     >
       Create coin
     </button>
