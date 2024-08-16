@@ -7,7 +7,7 @@
   export { className as class };
 
   let started = false;
-  let [days, hours, minutes, seconds] = [0, 0, 0, 0];
+  let [hours, minutes, seconds] = [0, 0, 0, 0];
   onMount(() => {
     const interval = setInterval(() => {
       started = true;
@@ -18,7 +18,6 @@
         return;
       }
 
-      days = Math.floor(diff / (1000 * 60 * 60 * 24));
       hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       seconds = Math.floor((diff % (1000 * 60)) / 1000);
@@ -28,25 +27,35 @@
   });
 </script>
 
-<span class={className}>
-  {#if started}
-    {#if days === 0 && hours === 0 && minutes === 0 && seconds === 0}
-      0h 0m 0s
-    {:else}
-      {#if days > 0}
-        {days}d
+<div class="flex gap-2 text-6xl justify-center items-start {className}">
+  <div class="flex flex-col justify-center items-center">
+    <div>
+      {#if started}
+        {hours}
+      {:else}
+        -
       {/if}
-      {#if hours > 0 || days > 0}
-        {hours}h
+    </div>
+    <div class="text-xs">{hours > 1 ? "Hours" : "Hour"}</div>
+  </div>
+  <div class="flex flex-col justify-center items-center">
+    <div>
+      {#if started}
+        {minutes}
+      {:else}
+        -
       {/if}
-      {#if minutes > 0 || hours > 0 || days > 0}
-        {minutes}m
+    </div>
+    <div class="text-xs">{minutes > 1 ? "Minutes" : "Minute"}</div>
+  </div>
+  <div class="flex flex-col justify-center items-center">
+    <div>
+      {#if started}
+        {seconds}
+      {:else}
+        -
       {/if}
-      {#if seconds > 0 || minutes > 0 || hours > 0 || days > 0}
-        {seconds}s
-      {/if}
-    {/if}
-  {:else}
-    <slot name="loading">Loading...</slot>
-  {/if}
-</span>
+    </div>
+    <div class="text-xs">{seconds > 1 ? "Seconds" : "Second"}</div>
+  </div>
+</div>

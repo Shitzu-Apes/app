@@ -28,8 +28,6 @@
 
   const { accountId$ } = wallet;
 
-  $: reachedMcap = new FixedNumber(memebid.total_deposit, 24) >= requiredStake;
-
   let emblaApi: EmblaCarouselType | undefined = undefined;
   let options: EmblaOptionsType = {
     axis: "x",
@@ -127,7 +125,7 @@
       <div
         class="flex-[0_0_100%] min-w-0 flex flex-col justify-center items-center h-full text-shitzu-4 gap-4"
       >
-        <TokenDetail {memebid} />
+        <TokenDetail {memebid} {requiredStake} />
       </div>
       {#if focused}
         <div class="flex-[0_0_100%] min-w-0">
@@ -220,53 +218,34 @@
   {/each}
 </div>
 
-<div
-  class="h-[168px] w-full flex flex-col justify-center items-center pb-2 px-2"
->
-  <div class="flex gap-4 mb-2">
-    {#if memebid.pool_id}
-      <a
-        href={`https://testnet.ref.finance/pool/${memebid.pool_id}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-xs self-end px-1 tracking-tight bg-shitzu-3 rounded-full text-black flex items-center"
-      >
-        live on ref <div class="i-mdi:open-in-new" />
-      </a>
-    {:else if memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now()}
-      {#if reachedMcap}
-        <div
-          class="text-xs px-1 tracking-tight bg-amber-4 rounded-full text-black"
-        >
-          pending launch
-        </div>
-      {:else}
-        <div
-          class="text-xs px-1 tracking-tight bg-rose-4 rounded-full text-black"
-        >
-          didn&apos;t make it
-        </div>
-      {/if}
-      <button
-        class="border-2 border-black font-mono bg-memecooking-5 px-2 rounded text-black hover:bg-memecooking-6 flex items-center"
-        on:click={(e) => {
-          e.preventDefault();
-          goto(`/create`);
-
-          localStorage.setItem("meme_to_cto", JSON.stringify(memebid));
-        }}
-      >
-        <div class="i-mdi:alert" />
-        <span class="text-xs"> Relaunch </span>
-      </button>
-    {/if}
-  </div>
+<div class="w-full flex flex-col justify-center items-center pb-2 px-2 mt-3">
   <button
-    on:click={() => {
-      openBottomSheet(StakeSheet, { meme: memebid });
+    on:click={(e) => {
+      e.preventDefault();
+      if (
+        !memebid.pool_id &&
+        memebid.end_timestamp_ms &&
+        memebid.end_timestamp_ms < Date.now()
+      ) {
+        goto(`/create`);
+
+        localStorage.setItem("meme_to_cto", JSON.stringify(memebid));
+      } else {
+        openBottomSheet(StakeSheet, { meme: memebid });
+      }
     }}
-    class="bg-shitzu-3 w-full py-2 rounded-full text-xl tracking-wider text-black border-b-4 border-shitzu-4 active:translate-y-1"
+    class="{!memebid.pool_id &&
+    memebid.end_timestamp_ms &&
+    memebid.end_timestamp_ms < Date.now()
+      ? 'bg-memecooking-5 border-memecooking-6'
+      : 'bg-shitzu-4 border-shitzu-6'} w-full py-2 rounded-lg text-xl tracking-wider text-black border-b-4 active:translate-y-1"
   >
-    [stake]
+    {#if memebid.pool_id}
+      [buy]
+    {:else if memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now()}
+      [relaunch]
+    {:else}
+      [stake]
+    {/if}
   </button>
 </div>

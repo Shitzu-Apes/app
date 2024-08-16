@@ -2,6 +2,7 @@
   import { fade } from "svelte/transition";
 
   export let progress: number;
+  export let textVisible = true;
   $: animatedWidth = Math.min(progress, 1.2);
 
   const explosionDelay = 2_000 / Math.min(progress, 1.2) - 300;
@@ -21,16 +22,18 @@
   }, explosionDelay);
 </script>
 
-<div class="mb-2">Staking progress: {(progress * 100).toFixed(2)}%</div>
+{#if textVisible}
+  <div class="mb-2">Staking progress: {(progress * 100).toFixed(2)}%</div>
+{/if}
 <div
   class="w-full h-5 bg-gray-3 {progress > 0.5
     ? progress > 1
       ? 'text-shitzu-4'
       : 'text-amber-5'
-    : 'text-red-5'} rounded-lg relative border-2 border-current"
+    : 'text-red-5'} relative border-2 border-current"
 >
   <div
-    class="h-3 bg-current rounded-lg absolute top-0.5 left-0.5 transition-width duration-2000 animate-ease-linear"
+    class="h-3 bg-current absolute top-0.5 left-0.5 transition-width duration-2000 animate-ease-linear"
     style={`width: ${animatedWidth * 100}%`}
   ></div>
   {#if progress > 1 && explode}

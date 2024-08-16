@@ -1,45 +1,107 @@
 <script lang="ts">
   import Chef from "../Chef.svelte";
   import Countdown from "../Countdown.svelte";
+  import ProgressBar from "../ProgressBar.svelte";
 
   import Near from "$lib/assets/Near.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { FixedNumber } from "$lib/util";
+  import { timesAgo } from "$lib/util/timesAgo";
 
   export let memebid: Meme;
+  export let requiredStake: FixedNumber;
   let showDescription = false;
+
+  $: reachedMcap = new FixedNumber(memebid.total_deposit, 24) >= requiredStake;
 </script>
 
 {#if memebid}
   <div class="flex flex-col w-full h-full items-center">
-    <h2 class="flex text-2xl my-4 justify-between items-center w-full px-2">
-      <div class="flex flex-col">
-        {#if memebid.end_timestamp_ms}
-          <Countdown to={memebid.end_timestamp_ms} class="text-shitzu-4" />
-        {/if}
-        <div
-          class="flex items-center bg-amber text-white px-2 text-2xl rounded mb-4"
+    <div class="w-full flex gap-4">
+      {#if memebid.pool_id}
+        <a
+          href={`https://testnet.ref.finance/pool/${memebid.pool_id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full text-xs self-end px-1 tracking-tight bg-shitzu-3 py-1 text-black flex items-center justify-center"
         >
-          <Near className="size-6 -ml-1" />
-          {new FixedNumber(memebid.total_deposit, 24).format()}
-        </div>
-      </div>
-      <div class="flex flex-col items-end">
-        <h4 class="text-base font-medium">
-          {memebid.name}
-          <span class="font-semibold">
-            ${memebid.symbol}
-          </span>
-        </h4>
-        <div class="flex items-center justify-end text-xs">
-          created by
-          <div class="w-1/2">
-            <Chef
-              account={memebid.owner}
-              class="text-sm overflow-hidden text-ellipsis"
-            />
+          live on ref <div class="i-mdi:open-in-new" />
+        </a>
+      {:else if memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now()}
+        {#if reachedMcap}
+          <div
+            class="w-full text-xs p-1 tracking-tight bg-amber-4 text-white text-center"
+          >
+            pending launch
+          </div>
+        {:else}
+          <div
+            class="w-full text-xs p-1 tracking-tight bg-rose-4 text-white text-center"
+          >
+            didn&apos;t make it
+          </div>
+        {/if}
+      {/if}
+    </div>
+    <h2
+      class="flex flex-col text-2xl mt-4 justify-start items-start w-full px-2"
+    >
+      <div class="flex items-start w-full">
+        <div class="w-full flex items-center gap-2 mb-4">
+          <img
+            src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
+            alt="{memebid.name} icon"
+            class="size-12 rounded-full"
+          />
+          <div class="flex-1 flex flex-col">
+            <h4 class="text-base font-medium flex items-center gap-1">
+              {memebid.name}
+              <span class="font-semibold">
+                ({memebid.symbol})
+              </span>
+              <div
+                class="ml-auto flex items-center text-shitzu-2 text-sm rounded"
+              >
+                MCap:
+                <Near className="size-6 ml-1" />
+                {new FixedNumber(
+                  BigInt(memebid.total_deposit) * 2n,
+                  24,
+                ).format()}
+              </div>
+            </h4>
+            <div class="w-full flex items-center text-xs gap-1 text-shitzu-6">
+              <div class="whitespace-nowrap">created by</div>
+              <div class="">
+                <Chef
+                  account={memebid.owner}
+                  class="text-sm overflow-hidden text-ellipsis"
+                />
+              </div>
+              <div class="i-mdi:circle-medium size-4" />
+              <div class="text-xs">
+                {timesAgo(new Date(memebid.created_timestamp_ms))}
+              </div>
+            </div>
           </div>
         </div>
+      </div>
+
+      <div class="flex flex-col w-full">
+        {#if memebid.end_timestamp_ms}
+          <div class="my-2">
+            <Countdown
+              to={memebid.end_timestamp_ms}
+              class="text-shitzu-4 justify-evenly"
+            />
+          </div>
+        {/if}
+        <ProgressBar
+          progress={new FixedNumber(memebid.total_deposit, 24)
+            .div(requiredStake)
+            .toNumber()}
+          textVisible={false}
+        />
       </div>
     </h2>
     <div class="w-full">
