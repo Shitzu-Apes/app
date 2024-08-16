@@ -3,8 +3,6 @@
   import SHITZU_KING from "$lib/assets/shitzu_saiya.webp";
   import Board from "$lib/components/memecooking/Board/Board.svelte";
   import King from "$lib/components/memecooking/Board/King.svelte";
-  import TokenCommentSection from "$lib/components/memecooking/Board/TokenCommentSection.svelte";
-  import { wallet } from "$lib/near";
   import { requiredStake } from "$lib/near/memecooking";
   import { searchQuery$ } from "$lib/store/memebids";
 
@@ -12,48 +10,6 @@
 </script>
 
 <div class="flex flex-col items-center gap-4 mt-2 min-h-screen">
-  <button
-    on:click={() => {
-      wallet.login();
-    }}
-  >
-    Login
-  </button>
-  <TokenCommentSection
-    meme={{
-      meme_id: 1,
-      owner: "spareemail6210.testnet",
-      end_timestamp_ms: 1715136000000,
-      name: "SHITZU",
-      symbol: "SHITZU",
-      decimals: 8,
-      reference: "https://shitzu.ai",
-      reference_hash: "0x0",
-      deposit_token_id: "0x0",
-      last_change_ms: 1715136000000,
-      total_supply_num: 9000,
-      created_blockheight: 1,
-      created_timestamp_ms: 1715136000000,
-      total_deposit: "9000",
-      total_deposit_fees: "0",
-      coronated_at_ms: 1715136000000,
-      total_withdraw_fees: "0",
-      total_deposit_fees_num: 0,
-      total_withdraw_fees_num: 0,
-      total_deposit_num: 9000,
-      description: "SHITZU",
-      image:
-        "https://plum-necessary-chameleon-942.mypinata.cloud/ipfs/QmdjWJmYMrHvfk8MF7Q4QqzrbvTBTEDgmsSZcZBBb2KbrA",
-      is_finalized: true,
-      pool_id: 4369,
-      telegramLink: "",
-      twitterLink: "",
-      website: "",
-      token_id: "",
-      total_supply: "1000000",
-    }}
-  />
-
   <a href="/create">
     <h1 class="text-2xl font-500">[start a new coin]</h1>
   </a>

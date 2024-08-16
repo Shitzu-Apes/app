@@ -12,7 +12,7 @@
   let className: string = "";
   export { className as class };
 
-  let loading = false;
+  export let loading = false;
 </script>
 
 {#if href != null}

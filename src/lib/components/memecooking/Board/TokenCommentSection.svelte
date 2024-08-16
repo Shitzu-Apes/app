@@ -4,11 +4,27 @@
   import TokenComment from "./TokenComment.svelte";
 
   import { client } from "$lib/api/client";
+  import { Button } from "$lib/components";
   import type { Meme } from "$lib/models/memecooking";
+  import { wallet } from "$lib/near";
 
   let reply: string = "";
   let replyToId: string | undefined;
   export let meme: Meme;
+
+  let isLoggedIn = fetchIsLoggedIn();
+
+  function fetchIsLoggedIn() {
+    const res = client
+      .GET("/auth/check", {
+        credentials: "include",
+      })
+      .then(({ response }) => response.json())
+      .then((json) => !!json.isLoggedIn)
+      .catch(() => false);
+    isLoggedIn = res;
+    return res;
+  }
 
   let replies = client
     .GET("/get-replies/replies/{memeId}", {
@@ -59,7 +75,7 @@
   }
 </script>
 
-<div class="h-full w-full max-w-[500px]">
+<div class="h-full w-full">
   {#await replies}
     <div class="loader size-24" />
   {:then data}
@@ -67,7 +83,9 @@
       <div
         class="w-full flex flex-col gap-2 bg-gray-5 p-2 rounded-md text-shitzu-1"
       >
-        <div class="flex items-center gap-1 text-xs text-shitzu-3">
+        <div
+          class="flex items-center justify-between gap-1 text-xs text-shitzu-3"
+        >
           <Chef
             account={`${meme.owner} (dev)`}
             class="bg-shitzu-4 text-gray-8 rounded px-1"
@@ -77,7 +95,11 @@
           </div>
         </div>
         <div class="flex items-start gap-1">
-          <img src={meme.image} class="w-30 rounded-md" alt={meme.name} />
+          <img
+            src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
+            class="w-30 rounded-md"
+            alt={meme.name}
+          />
           <div class="flex flex-col items-start">
             <div class="text-sm font-bold">{meme.name} ({meme.symbol})</div>
             <div class="text-sm text-white">{meme.description}</div>
@@ -138,21 +160,41 @@
         <input
           type="text"
           bind:value={reply}
-          class="flex-grow max-w-md p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shitzu-4 text-black"
+          class="flex-grow max-w-md p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shitzu-4 text-black max-w-none"
           on:keydown={(e) => {
             if (e.key === "Enter") {
               handleReply();
             }
           }}
         />
-        <button
-          class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
-          on:click={() => {
-            handleReply();
-          }}
-        >
-          Reply
-        </button>
+        {#await isLoggedIn}
+          <Button
+            class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
+            loading={true}
+            type="custom"
+          >
+            Reply
+          </Button>
+        {:then isLoggedIn}
+          <Button
+            class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
+            onClick={async () => {
+              if (isLoggedIn) {
+                handleReply();
+              } else {
+                await wallet.login();
+                await fetchIsLoggedIn();
+              }
+            }}
+            type="custom"
+          >
+            {#if isLoggedIn}
+              Reply
+            {:else}
+              Login
+            {/if}
+          </Button>
+        {/await}
       </div>
     </div>
   </div>
