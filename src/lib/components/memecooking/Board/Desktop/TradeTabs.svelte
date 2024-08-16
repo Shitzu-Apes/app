@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createTabs, melt } from "@melt-ui/svelte";
 
-  import TokenComment from "../TokenComment.svelte";
+  import TokenCommentSection from "../TokenCommentSection.svelte";
   import TokenTrade from "../TokenTrade.svelte";
 
   import { client } from "$lib/api/client";
@@ -63,7 +63,7 @@
 </div>
 
 <section use:melt={$content(tabs[0].id)}>
-  <TokenComment id={meme.telegram_discussion_id} />
+  <TokenCommentSection {meme} />
 </section>
 <section use:melt={$content(tabs[1].id)}>
   <TokenTrade meme_id={meme.meme_id} symbol={meme.symbol} {trades} />

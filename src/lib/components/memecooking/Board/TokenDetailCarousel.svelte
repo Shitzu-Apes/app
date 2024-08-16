@@ -153,7 +153,7 @@
         <button
           on:click={() => {
             openBottomSheet(TokenCommentSheet, {
-              id: memebid.telegram_discussion_id,
+              meme: memebid,
             });
           }}
         >
