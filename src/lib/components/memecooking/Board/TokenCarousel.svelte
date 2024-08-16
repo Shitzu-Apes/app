@@ -1,10 +1,8 @@
 <script lang="ts">
-  import TokenDetailCarousel from "./TokenDetailCarousel.svelte";
+  import TokenCarouselPaginate from "./TokenCarouselPaginate.svelte";
 
   import { requiredStake } from "$lib/near/memecooking";
   import { memebids$ } from "$lib/store/memebids";
-
-  $: console.log($memebids$.then((memebids) => console.log(memebids)));
 </script>
 
 {#await Promise.all([requiredStake, $memebids$])}
@@ -56,19 +54,5 @@
     </div>
   </section>
 {:then [requiredStake, memebids]}
-  <div class="w-full max-w-lg mx-auto">
-    <div class="relative focus-element">
-      <div class="flex flex-col h-screen">
-        {#each memebids as memebid (memebid.meme_id)}
-          <div class="px-3 my-3">
-            <div
-              class="flex flex-col border border-shitzu-4 rounded-xl bg-dark-8 overflow-hidden"
-            >
-              <TokenDetailCarousel {memebid} {requiredStake} />
-            </div>
-          </div>
-        {/each}
-      </div>
-    </div>
-  </div>
+  <TokenCarouselPaginate {memebids} {requiredStake} />
 {/await}
