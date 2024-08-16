@@ -104,15 +104,11 @@
       const priceScale = chart
         .activeChart()
         .getPanes()[0]
-        .getRightPriceScales()[0];
-      const DEFAULT_PRICE = 1e-8;
-      const hightestDeposit = memebid.total_deposit_fees_num * 100;
-      const price =
-        (memebid.total_supply && parseFloat(memebid.total_supply) !== 0
-          ? hightestDeposit / (+memebid.total_supply / 2)
-          : DEFAULT_PRICE) || DEFAULT_PRICE;
+        .getMainSourcePriceScale();
 
-      priceScale.setVisiblePriceRange({ from: 0, to: price * 1.25 });
+      if (priceScale) {
+        priceScale.setAutoScale(true);
+      }
     });
   });
 

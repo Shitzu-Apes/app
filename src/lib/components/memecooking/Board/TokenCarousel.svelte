@@ -62,7 +62,7 @@
         {#each memebids as memebid (memebid.meme_id)}
           <div class="px-3 my-3">
             <div
-              class="flex flex-col border border-shitzu-4 rounded-xl bg-dark-8"
+              class="flex flex-col border border-shitzu-4 rounded-xl bg-dark-8 overflow-hidden"
             >
               <TokenDetailCarousel {memebid} {requiredStake} />
             </div>
