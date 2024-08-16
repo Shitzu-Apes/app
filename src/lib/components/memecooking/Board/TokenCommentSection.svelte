@@ -122,13 +122,19 @@
   {/await}
 
   <div class="w-full flex flex-row gap-2 mt-6">
-    <div class="w-full flex flex-col">
+    <div class="w-full flex flex-col items-start">
       {#if replyToId}
-        <div class="text-xs text-shitzu-3 mt-1 mb-2">
+        <button
+          class="text-xs bg-shitzu-3 text-gray-7 mt-1 mb-2 w-fit flex items-start gap-1 px-2 rounded-full"
+          on:click={() => {
+            replyToId = undefined;
+          }}
+        >
           replying to reply #{replyToId}
-        </div>
+          <div>x</div>
+        </button>
       {/if}
-      <div class="flex flex-row">
+      <div class="w-full flex flex-row">
         <input
           type="text"
           bind:value={reply}

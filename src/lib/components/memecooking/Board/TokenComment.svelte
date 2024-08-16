@@ -85,7 +85,7 @@
   {#if !reply.reply_to_id}
     <button
       on:click={() => onReplyTo(reply.id.toString())}
-      class="flex text-xs text-shitzu-3 pl-4 mt-1 mb-2"
+      class="flex text-xs text-shitzu-3 pl-4 mt-1 mb-2 w-fit"
     >
       reply
     </button>
