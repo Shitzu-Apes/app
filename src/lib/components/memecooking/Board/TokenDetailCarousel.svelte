@@ -4,6 +4,7 @@
     type EmblaOptionsType,
   } from "embla-carousel";
   import embalaCarousel from "embla-carousel-svelte";
+  import { onMount } from "svelte";
 
   import StakeSheet from "../BottomSheet/StakeSheet.svelte";
   import TokenCommentSheet from "../BottomSheet/TokenCommentSheet.svelte";
@@ -14,7 +15,7 @@
   import TokenHolder from "./TokenHolder.svelte";
   import TokenTrade from "./TokenTrade.svelte";
 
-  import { goto } from "$app/navigation";
+  import { goto, replaceState } from "$app/navigation";
   import { client } from "$lib/api/client";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
@@ -47,15 +48,31 @@
 
   export let focused = false;
 
-  let renderChart = false;
-
-  $: {
-    setTimeout(() => {
-      if (focused && !renderChart) {
-        renderChart = true;
+  function handleIntersection(entries: IntersectionObserverEntry[]) {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        focused = true;
+        replaceState(`/meme/${memebid.meme_id}`, {});
       }
-    }, 1000);
+    });
   }
+
+  let observer: IntersectionObserver | undefined;
+  let chartElement: HTMLElement | undefined;
+
+  onMount(() => {
+    observer = new IntersectionObserver(handleIntersection, {
+      threshold: 0.1,
+    });
+    if (chartElement) {
+      observer.observe(chartElement);
+    }
+    return () => {
+      if (observer && chartElement) {
+        observer.unobserve(chartElement);
+      }
+    };
+  });
 
   const trades = client
     .GET("/trades", {
@@ -92,7 +109,7 @@
   }}
 />
 
-<div class="relative h-[calc(100dvh-200px)]">
+<div class="relative h-[calc(100dvh-200px)]" bind:this={chartElement}>
   <div
     class="overflow-hidden h-full relative"
     use:embalaCarousel={{ options, plugins: [] }}
@@ -112,22 +129,22 @@
       >
         <TokenDetail {memebid} />
       </div>
-      <div class="flex-[0_0_100%] min-w-0">
-        {#if focused && renderChart}
+      {#if focused}
+        <div class="flex-[0_0_100%] min-w-0">
           <TokenChart {memebid} touchToStart />
-        {/if}
-      </div>
-      <div class="flex-[0_0_100%] min-w-0">
-        <TokenTrade
-          meme_id={memebid.meme_id}
-          symbol={memebid.symbol}
-          {trades}
-          touchToStart
-        />
-      </div>
-      <div class="flex-[0_0_100%] min-w-0">
-        <TokenHolder meme={memebid} />
-      </div>
+        </div>
+        <div class="flex-[0_0_100%] min-w-0">
+          <TokenTrade
+            meme_id={memebid.meme_id}
+            symbol={memebid.symbol}
+            {trades}
+            touchToStart
+          />
+        </div>
+        <div class="flex-[0_0_100%] min-w-0">
+          <TokenHolder meme={memebid} />
+        </div>
+      {/if}
     </div>
   </div>
   <div class="absolute right-0 bottom-0 p-2 mb-5 flex bg-black/25 rounded-t">
