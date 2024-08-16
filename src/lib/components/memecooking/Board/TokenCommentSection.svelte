@@ -19,10 +19,11 @@
       .GET("/auth/check", {
         credentials: "include",
       })
-      .then(({ response }) => response.json())
-      .then((json) => !!json.isLoggedIn)
-      .catch(() => false);
-    isLoggedIn = res;
+      .then(({ data }) => data?.isLoggedIn)
+      .catch((err) => {
+        console.error("[fetchIsLoggedIn]", err);
+        return false;
+      });
     return res;
   }
 
@@ -175,20 +176,20 @@
           >
             Reply
           </Button>
-        {:then isLoggedIn}
+        {:then isLoggedInResult}
           <Button
             class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
             onClick={async () => {
-              if (isLoggedIn) {
+              if (isLoggedInResult) {
                 handleReply();
               } else {
                 await wallet.login();
-                await fetchIsLoggedIn();
+                isLoggedIn = fetchIsLoggedIn();
               }
             }}
             type="custom"
           >
-            {#if isLoggedIn}
+            {#if isLoggedInResult}
               Reply
             {:else}
               Login
