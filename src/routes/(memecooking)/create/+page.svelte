@@ -38,11 +38,7 @@
   const nameSchema = z
     .string({})
     .min(1, "Name is required")
-    .max(50, "Name should be less than 50 characters")
-    .regex(
-      /^[a-zA-Z0-9-_]+$/,
-      "Name should only contain alphanumeric characters, '-', and '_'",
-    );
+    .max(50, "Name should be less than 50 characters");
   const tickerSchema = z
     .string({})
     .min(1, "Ticker is required")
