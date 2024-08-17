@@ -20,6 +20,7 @@
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
+  import { MCsubscribe, MCunsubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
   import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
 
@@ -46,11 +47,21 @@
 
   export let focused = false;
 
+  const MCSymbol = Symbol();
   function handleIntersection(entries: IntersectionObserverEntry[]) {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
         focused = true;
         replaceState(`/meme/${memebid.meme_id}`, {});
+        MCsubscribe(MCSymbol, (newMemebid) => {
+          if (newMemebid.meme_id === memebid.meme_id) {
+            memebid = newMemebid;
+          }
+        });
+      }
+      // when not in viewport, unsubscribe
+      if (!entry.isIntersecting) {
+        MCunsubscribe(MCSymbol);
       }
     });
   }
