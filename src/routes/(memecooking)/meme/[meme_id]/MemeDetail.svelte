@@ -34,7 +34,7 @@
 <div class="w-full flex">
   {#if meme.end_timestamp_ms}
     <Countdown
-      class="mx-auto text-4xl text-shitzu-4 mb-10"
+      class="mx-auto text-shitzu-4 mb-10 justify-evenly w-full max-w-xl"
       to={meme.end_timestamp_ms}
     />
   {/if}
