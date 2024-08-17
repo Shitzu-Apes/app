@@ -1,11 +1,40 @@
 <script lang="ts">
   import TokenCarouselPaginate from "./TokenCarouselPaginate.svelte";
 
+  import SelectBox from "$lib/components/SelectBox.svelte";
+  import Toggle from "$lib/components/Toggle.svelte";
   import { requiredStake } from "$lib/near/memecooking";
-  import { memebids$ } from "$lib/store/memebids";
+  import { memebids$, searchQuery$ } from "$lib/store/memebids";
+  import {
+    filterAndSortMeme,
+    orderOptions,
+    sortOptions,
+  } from "$lib/util/sortMeme";
+  let selectedSort = sortOptions[0];
+
+  let selectedDirection = orderOptions[0];
+
+  let liveOnly = false;
+
+  $: displayedMemebids = $memebids$.then((memebids) => [
+    ...filterAndSortMeme(
+      memebids,
+      {
+        sort: selectedSort.value,
+        order: selectedDirection.value,
+      },
+      $searchQuery$,
+      liveOnly,
+    ),
+  ]);
 </script>
 
-{#await Promise.all([requiredStake, $memebids$])}
+<div class="flex flex-wrap justify-center gap-3 mt-6 px-4">
+  <SelectBox options={sortOptions} bind:selected={selectedSort} />
+  <SelectBox options={orderOptions} bind:selected={selectedDirection} />
+  <Toggle bind:isOn={liveOnly}>live only:{" "}</Toggle>
+</div>
+{#await Promise.all([requiredStake, displayedMemebids])}
   <section>
     <div class="flex flex-col h-screen">
       <div class="flex-[0_0_100%] min-h-0">
