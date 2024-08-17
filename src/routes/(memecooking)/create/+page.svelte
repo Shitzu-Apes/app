@@ -166,6 +166,7 @@
     if (file) {
       imageFile = file;
       image = await imageFileToBase64(file);
+
       if (file.type === "image/svg+xml") {
         if (file.size > 10240) {
           addToast({

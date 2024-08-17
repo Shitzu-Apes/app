@@ -28,8 +28,50 @@ const UploadResizeWidth = 96;
 const UploadResizeHeight = 96;
 
 export async function imageFileToIcon(imageFile: File): Promise<string> {
-  const base64Image = await imageFileToBase64(imageFile);
+  let base64Image = await imageFileToBase64(imageFile);
+  if (imageFile.type === "image/gif") {
+    base64Image = await base64ToPng(base64Image);
+  }
   return base64ToIcon(base64Image);
+}
+
+export function base64ToPng(base64Image: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.src = base64Image;
+
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      const aspect = image.naturalWidth / image.naturalHeight;
+      const width = Math.round(UploadResizeWidth * Math.max(1, aspect));
+      const height = Math.round(UploadResizeHeight * Math.max(1, 1 / aspect));
+      canvas.width = UploadResizeWidth;
+      canvas.height = UploadResizeHeight;
+      const ctx = canvas.getContext("2d")!;
+
+      // Scale and draw the source image to the canvas
+      ctx.imageSmoothingQuality = "high";
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, UploadResizeWidth, UploadResizeHeight);
+      ctx.drawImage(
+        image,
+        (UploadResizeWidth - width) / 2,
+        (UploadResizeHeight - height) / 2,
+        width,
+        height,
+      );
+
+      // Convert the canvas to a data URL in PNG format
+      const options = [
+        canvas.toDataURL("image/jpeg", 0.92),
+        canvas.toDataURL("image/png"),
+      ];
+      options.sort((a, b) => a.length - b.length);
+      resolve(canvas.toDataURL("image/png"));
+    };
+
+    image.onerror = reject;
+  });
 }
 
 export async function base64ToIcon(base64Image: string): Promise<string> {
