@@ -65,7 +65,23 @@
         })
         .filter(
           (deposit): deposit is NonNullable<typeof deposit> => deposit != null,
-        );
+        )
+        .sort((a, b) => {
+          if (
+            a.meme.end_timestamp_ms != null &&
+            b.meme.end_timestamp_ms == null
+          ) {
+            return -1;
+          }
+          if (
+            a.meme.end_timestamp_ms == null &&
+            b.meme.end_timestamp_ms != null
+          ) {
+            return 1;
+          }
+
+          return a.meme.end_timestamp_ms! - b.meme.end_timestamp_ms!;
+        });
       let claims = await Promise.all(
         unclaimed.map(async (meme_id) => {
           // find meme id from data
