@@ -54,7 +54,7 @@
   );
 </script>
 
-<div class="mt-10 w-full p-2">
+<div class="mt-10 w-full p-2 pb-25">
   <div class="mx-auto flex">
     <a href="/board" class="text-white text-2xl mx-auto mb-10">[go back]</a>
   </div>
