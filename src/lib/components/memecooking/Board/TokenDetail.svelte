@@ -1,7 +1,7 @@
 <script lang="ts">
   import Chef from "../Chef.svelte";
   import Countdown from "../Countdown.svelte";
-  import ProgressBar from "../ProgressBar.svelte";
+  import ProgressBarMobile from "../ProgressBarMobile.svelte";
 
   import Near from "$lib/assets/Near.svelte";
   import type { Meme } from "$lib/models/memecooking";
@@ -41,6 +41,13 @@
             didn&apos;t make it
           </div>
         {/if}
+      {:else}
+        <ProgressBarMobile
+          progress={new FixedNumber(memebid.total_deposit, 24)
+            .div(requiredStake)
+            .toNumber()}
+          textVisible={false}
+        />
       {/if}
     </div>
     <h2
@@ -64,20 +71,22 @@
               >
                 MCap:
                 <Near className="size-6 ml-1" />
-                {new FixedNumber(
-                  BigInt(memebid.total_deposit) * 2n,
-                  24,
-                ).format()}
+                {new FixedNumber(BigInt(memebid.total_deposit) * 2n, 24).format(
+                  {
+                    maximumFractionDigits: 2,
+                    maximumSignificantDigits: 2,
+                  },
+                )}
               </div>
             </h4>
             <div class="w-full flex items-center text-xs gap-1 text-shitzu-6">
               <div class="whitespace-nowrap">created by</div>
-              <div class="">
+              <a href={`/profile/${memebid.owner}`}>
                 <Chef
                   account={memebid.owner}
                   class="text-sm overflow-hidden text-ellipsis"
                 />
-              </div>
+              </a>
               <div class="i-mdi:circle-medium size-4" />
               <div class="text-xs">
                 {timesAgo(new Date(memebid.created_timestamp_ms))}
@@ -96,12 +105,6 @@
             />
           </div>
         {/if}
-        <ProgressBar
-          progress={new FixedNumber(memebid.total_deposit, 24)
-            .div(requiredStake)
-            .toNumber()}
-          textVisible={false}
-        />
       </div>
     </h2>
     <div class="w-full">
