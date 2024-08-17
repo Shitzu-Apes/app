@@ -43,19 +43,24 @@
   <label for={label} class="block text-sm text-shitzu-4 font-600">
     {label}
   </label>
-  <input
-    id={label}
-    type="text"
-    bind:value
-    bind:this={inputElement}
-    on:input={handleInput}
-    on:blur={handleBlur}
-    {placeholder}
-    autocomplete="off"
-    class="w-full p-2 bg-gray-700 rounded text-white border {error
+  <div
+    class="w-full flex items-center gap-3 px-2 relative bg-gray-700 rounded border {error
       ? 'border-red-500'
       : 'border-white'}"
-  />
+  >
+    <slot name="icon"></slot>
+    <input
+      id={label}
+      type="text"
+      bind:value
+      bind:this={inputElement}
+      on:input={handleInput}
+      on:blur={handleBlur}
+      {placeholder}
+      autocomplete="off"
+      class="flex-1 py-2 bg-transparent text-white outline-none"
+    />
+  </div>
   {#if error}
     <div
       class="bg-red-300 text-black text-xs px-2 rounded-full w-fit flex items-center gap-1 py-0.5"

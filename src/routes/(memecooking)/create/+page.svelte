@@ -368,29 +368,6 @@
       <a href="/board" class="text-2xl font-500">[go back]</a>
     </div>
 
-    <TextInputField
-      label="name"
-      bind:value={name}
-      schema={nameSchema}
-      validateOnInput={true}
-    />
-
-    <TextInputField
-      label="ticker"
-      bind:value={ticker}
-      schema={tickerSchema}
-      validateOnInput={true}
-    />
-    <div class="space-y-2">
-      <label for="description" class="block text-sm text-shitzu-4 font-600">
-        description
-      </label>
-      <textarea
-        id="description"
-        bind:value={description}
-        class="w-full p-2 bg-gray-700 rounded text-white border border-white"
-      />
-    </div>
     <div class="space-y-2">
       <label
         class="block text-sm text-shitzu-4 font-600 inline-flex items-center gap-2"
@@ -430,18 +407,39 @@
           </div>
         </div>
       {/if}
-
-      {#if icon}
-        <div
-          class="block text-sm text-shitzu-4 font-600 inline-flex items-center gap-2"
-        >
-          on-chain icon preview
-        </div>
-        <div class="w-full max-h-60 flex justify-center items-center">
-          <img src={icon} alt="token icon" class="border-rd-full" />
-        </div>
-      {/if}
     </div>
+    <TextInputField
+      label="name"
+      bind:value={name}
+      schema={nameSchema}
+      validateOnInput={true}
+    />
+
+    <TextInputField
+      label="ticker"
+      bind:value={ticker}
+      schema={tickerSchema}
+      validateOnInput={true}
+    >
+      <slot slot="icon">
+        {#if icon}
+          <div class="size-6 flex justify-center items-center">
+            <img src={icon} alt="token icon" class="rounded-full" />
+          </div>
+        {/if}
+      </slot>
+    </TextInputField>
+    <div class="space-y-2">
+      <label for="description" class="block text-sm text-shitzu-4 font-600">
+        description
+      </label>
+      <textarea
+        id="description"
+        bind:value={description}
+        class="w-full p-2 bg-gray-700 rounded text-white border border-white"
+      />
+    </div>
+
     <div class="space-y-2">
       <label for="name" class="block text-sm text-shitzu-4 font-600">
         duration
