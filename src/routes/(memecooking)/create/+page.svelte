@@ -184,7 +184,22 @@
         }
         icon = image;
       } else {
-        icon = await imageFileToIcon(file);
+        try {
+          icon = await imageFileToIcon(file);
+        } catch (e) {
+          addToast({
+            data: {
+              type: "simple",
+              data: {
+                title: "Error",
+                description: "Image is not a valid icon",
+                color: "red",
+              },
+            },
+          });
+          image = null;
+          imageFile = null;
+        }
       }
     }
   }
