@@ -140,7 +140,7 @@
       </div>
       <div class="text-xs line-clamp-12">{memebid.description}</div>
 
-      <div class="flex flex-col gap-1">
+      <div class="w-full flex justify-center">
         <span class="text-xs text-shitzu-4">
           {#if memebid.end_timestamp_ms}
             <Countdown
@@ -149,12 +149,33 @@
             />
           {/if}
         </span>
-        <span
-          class="text-xs bg-amber text-black px-2 rounded self-start flex items-center"
-        >
-          <Near className="size-4 -ml-1" />
-          {new FixedNumber(memebid.total_deposit, 24).format()}
+      </div>
+      <div class="w-full flex justify-between items-center self-stretch">
+        <span class="text-xs text-shitzu-2 px-2 flex items-center">
+          MCap:
+          <Near className="size-4 ml-1" />
+          {new FixedNumber(BigInt(memebid.total_deposit) * 2n, 24).format({
+            maximumFractionDigits: 2,
+            maximumSignificantDigits: 2,
+          })}
         </span>
+
+        <div>
+          <div class="flex items-center gap-3 text-shitzu-2">
+            <div class="text-sm flex items-center gap-1">
+              <div class="i-mdi:account-multiple size-5" />
+              <span class="font-bold">
+                {memebid.staker_count}
+              </span>
+            </div>
+            <div class="text-sm flex items-center gap-1">
+              <div class="i-mdi:chat size-5" />
+              <span class="font-bold">
+                {memebid.replies_count}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
