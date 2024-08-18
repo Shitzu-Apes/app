@@ -42,6 +42,58 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/info/stats": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Returns statistics about memes */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Statistics about memes */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              total_memes: number;
+              total_finalized_memes: number;
+              tvl: string;
+              tvl_num: number;
+              total_volume: string;
+              total_volume_num: number;
+              total_deposits: string;
+              total_deposits_num: number;
+              total_withdrawals: string;
+              total_withdrawals_num: number;
+              total_deposit_fees: string;
+              total_deposit_fees_num: number;
+              total_withdraw_fees: string;
+              total_withdraw_fees_num: number;
+              last_change_ms: number;
+            };
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/meme/king": {
     parameters: {
       query?: never;
@@ -172,6 +224,8 @@ export interface paths {
               website?: string | null;
               image?: string | null;
               coronated_at_ms?: number | null;
+              replies_count: number;
+              staker_count: number;
             }[];
           };
         };

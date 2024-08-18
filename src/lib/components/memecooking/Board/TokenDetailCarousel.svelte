@@ -259,4 +259,20 @@
       [stake]
     {/if}
   </button>
+  <div class="w-full flex justify-end items-center mt-4 px-2">
+    <ul class="flex items-center gap-3 text-shitzu-2">
+      <li class="text-sm flex items-center gap-1">
+        <div class="i-mdi:account-multiple size-5" />
+        <span class="font-bold">
+          {memebid.staker_count}
+        </span>
+      </li>
+      <li class="text-sm flex items-center gap-1">
+        <div class="i-mdi:chat size-5" />
+        <span class="font-bold">
+          {memebid.replies_count}
+        </span>
+      </li>
+    </ul>
+  </div>
 </div>
