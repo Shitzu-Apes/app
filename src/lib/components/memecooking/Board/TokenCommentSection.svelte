@@ -92,7 +92,7 @@
             class="bg-shitzu-4 text-gray-8 rounded px-1"
           />
           <div class="text-xs text-shitzu-3">
-            {new Date((meme.created_timestamp_ms ?? 0) * 1000).toLocaleString()}
+            {new Date(meme.created_timestamp_ms ?? 0).toLocaleString()}
           </div>
         </div>
         <div class="flex items-start gap-1">

@@ -260,19 +260,31 @@
     {/if}
   </button>
   <div class="w-full flex justify-end items-center mt-4 px-2">
-    <ul class="flex items-center gap-3 text-shitzu-2">
-      <li class="text-sm flex items-center gap-1">
+    <div class="flex items-center gap-3 text-shitzu-2">
+      <button
+        class="text-sm flex items-center gap-1"
+        on:click={() => {
+          emblaApi?.scrollTo(3);
+        }}
+      >
         <div class="i-mdi:account-multiple size-5" />
         <span class="font-bold">
           {memebid.staker_count}
         </span>
-      </li>
-      <li class="text-sm flex items-center gap-1">
+      </button>
+      <button
+        class="text-sm flex items-center gap-1"
+        on:click={() => {
+          openBottomSheet(TokenCommentSheet, {
+            meme: memebid,
+          });
+        }}
+      >
         <div class="i-mdi:chat size-5" />
         <span class="font-bold">
           {memebid.replies_count}
         </span>
-      </li>
-    </ul>
+      </button>
+    </div>
   </div>
 </div>
