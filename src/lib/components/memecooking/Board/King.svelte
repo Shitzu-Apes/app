@@ -4,7 +4,7 @@
   import MemePreview from "./Desktop/MemePreview.svelte";
 
   import type { Meme } from "$lib/api/client";
-  import { MCsubscribe, MCunsubscribe } from "$lib/store/memebids";
+  import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
   import type { FixedNumber } from "$lib/util";
 
   export let king: Meme | undefined;
@@ -12,7 +12,7 @@
 
   let MCSymbol = Symbol();
   onMount(() => {
-    MCsubscribe(MCSymbol, (meme) => {
+    MCTradeSubscribe(MCSymbol, (meme) => {
       if (
         meme.coronated_at_ms &&
         king?.coronated_at_ms &&

@@ -1,7 +1,7 @@
 <script lang="ts">
   import Near from "$lib/assets/Near.svelte";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
-  import { MCsubscribe } from "$lib/store/memebids";
+  import { MCTradeSubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
 
   let notification: {
@@ -16,7 +16,7 @@
 
   let shake = false;
 
-  MCsubscribe(Symbol("notification"), (newMemeInfo) => {
+  MCTradeSubscribe(Symbol("notification"), (newMemeInfo) => {
     notification = {
       id: newMemeInfo.receipt_id,
       meme_id: newMemeInfo.meme_id,

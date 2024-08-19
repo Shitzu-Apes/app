@@ -5,7 +5,7 @@
   import Chef from "../Chef.svelte";
 
   import type { Trade } from "$lib/api/client";
-  import { MCsubscribe, MCunsubscribe } from "$lib/store/memebids";
+  import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
   import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
   import { timesAgo } from "$lib/util/timesAgo";
@@ -38,7 +38,7 @@
   }
 
   onMount(() => {
-    MCsubscribe(MCsymbol, (newTrade) => {
+    MCTradeSubscribe(MCsymbol, (newTrade) => {
       if (newTrade.meme_id !== meme_id) {
         return;
       }

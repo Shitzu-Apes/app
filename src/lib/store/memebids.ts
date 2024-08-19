@@ -18,7 +18,16 @@ function udpateMemebids() {
 }
 udpateMemebids();
 
-const callbacks: Map<string | symbol, (data: Meme & Trade) => void> = new Map();
+type LiveData =
+  | {
+      action: "new_trade";
+      data: Meme & Trade;
+    }
+  | {
+      action: "new_meme";
+      data: Meme;
+    };
+const callbacks: Map<string | symbol, (data: LiveData) => void> = new Map();
 export function initializeWebsocket(ws: WebSocket) {
   ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
@@ -33,9 +42,33 @@ export function initializeWebsocket(ws: WebSocket) {
   };
 }
 
-export function MCsubscribe(
+export function MCTradeSubscribe(
   id: string | symbol,
   callback: (data: Meme & Trade) => void,
+) {
+  const cb = (data: LiveData) => {
+    if (data.action === "new_trade") {
+      callback(data.data);
+    }
+  };
+  callbacks.set(id, cb);
+}
+
+export function MCMemeSubscribe(
+  id: string | symbol,
+  callback: (data: Meme) => void,
+) {
+  const cb = (data: LiveData) => {
+    if (data.action === "new_meme") {
+      callback(data.data);
+    }
+  };
+  callbacks.set(id, cb);
+}
+
+export function MCSubscribe(
+  id: string | symbol,
+  callback: (data: LiveData) => void,
 ) {
   callbacks.set(id, callback);
 }
@@ -45,7 +78,7 @@ export function MCunsubscribe(id: string | symbol) {
 }
 
 const symbol = Symbol("main_feed");
-MCsubscribe(symbol, async (newMemeInfo) => {
+MCTradeSubscribe(symbol, async (newMemeInfo) => {
   let memebids = await get(memebids$);
   const idx = memebids.findIndex((b) => b.meme_id === newMemeInfo.meme_id);
   let meme = memebids[idx];

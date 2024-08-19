@@ -6,7 +6,7 @@ import type {
   LibrarySymbolInfo,
   ResolutionString,
 } from "$lib/charting_library/charting_library";
-import { MCsubscribe, MCunsubscribe } from "$lib/store/memebids";
+import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
 
 const lastBarsCache: Map<
   string,
@@ -162,8 +162,8 @@ const MemeCookingDataFeed: IBasicDataFeed = {
 
     let lastBar = lastBarsCache.get(symbolInfo.ticker);
 
-    MCsubscribe(subscriberUID, (data) => {
-      console.log("[MCsubscribe]: Data", data.symbol, symbolInfo.ticker);
+    MCTradeSubscribe(subscriberUID, (data) => {
+      console.log("[MCTradeSubscribe]: Data", data.symbol, symbolInfo.ticker);
       if (data.symbol !== symbolInfo.ticker) {
         return;
       }

@@ -20,7 +20,7 @@
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
-  import { MCsubscribe, MCunsubscribe } from "$lib/store/memebids";
+  import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
   import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
 
@@ -53,7 +53,7 @@
       if (entry.isIntersecting) {
         focused = true;
         replaceState(`/meme/${memebid.meme_id}`, {});
-        MCsubscribe(MCSymbol, (newMemebid) => {
+        MCTradeSubscribe(MCSymbol, (newMemebid) => {
           if (newMemebid.meme_id === memebid.meme_id) {
             memebid = newMemebid;
           }

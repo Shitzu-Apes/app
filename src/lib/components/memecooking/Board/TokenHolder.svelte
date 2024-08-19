@@ -3,7 +3,7 @@
 
   import type { Meme } from "$lib/models/memecooking";
   import { MemeCooking } from "$lib/near/memecooking";
-  import { MCsubscribe, MCunsubscribe } from "$lib/store/memebids";
+  import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
 
   const percentFormatter = new Intl.NumberFormat("en-US", {
@@ -67,7 +67,7 @@
 
   const MCsymbol = Symbol();
   onMount(() => {
-    MCsubscribe(MCsymbol, (newTrade) => {
+    MCTradeSubscribe(MCsymbol, (newTrade) => {
       if (newTrade.meme_id !== meme.meme_id) {
         return;
       }

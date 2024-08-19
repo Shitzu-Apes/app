@@ -13,7 +13,7 @@
   import ProgressBar from "$lib/components/memecooking/ProgressBar.svelte";
   import { addToast } from "$lib/components/memecooking/Toast.svelte";
   import { wallet } from "$lib/near";
-  import { MCsubscribe } from "$lib/store/memebids";
+  import { MCTradeSubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
   import { getTokenId } from "$lib/util/getTokenId";
   import { projectedMCap } from "$lib/util/projectedMCap";
@@ -25,7 +25,7 @@
 
   const MCSymbol = Symbol();
   onMount(() => {
-    MCsubscribe(MCSymbol, (data) => {
+    MCTradeSubscribe(MCSymbol, (data) => {
       if (data.meme_id === meme.meme_id) {
         meme = data;
       }
