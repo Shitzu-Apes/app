@@ -27,6 +27,7 @@
         console.error("[fetchIsLoggedIn]", err);
         return false;
       });
+    isLoggedIn = res;
     return res;
   }
 
