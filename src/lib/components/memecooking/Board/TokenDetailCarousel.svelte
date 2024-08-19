@@ -261,7 +261,7 @@
   </button>
   <div class="w-full flex justify-end items-center mt-4 px-2">
     <div class="flex items-center gap-3 text-shitzu-2">
-      {#if memebid.staker_count}
+      {#if typeof memebid.staker_count === "number"}
         <button
           class="text-sm flex items-center gap-1"
           on:click={() => {
@@ -274,7 +274,7 @@
           </span>
         </button>
       {/if}
-      {#if memebid.replies_count}
+      {#if typeof memebid.replies_count === "number"}
         <button
           class="text-sm flex items-center gap-1"
           on:click={() => {

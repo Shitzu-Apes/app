@@ -166,7 +166,7 @@
 
         <div>
           <div class="flex items-center gap-3 text-shitzu-2">
-            {#if memebid.staker_count}
+            {#if typeof memebid.staker_count === "number"}
               <div class="text-sm flex items-center gap-1">
                 <div class="i-mdi:account-multiple size-5" />
                 <span class="font-bold">
@@ -174,7 +174,7 @@
                 </span>
               </div>
             {/if}
-            {#if memebid.replies_count}
+            {#if typeof memebid.replies_count === "number"}
               <div class="text-sm flex items-center gap-1">
                 <div class="i-mdi:chat size-5" />
                 <span class="font-bold">
