@@ -32,7 +32,14 @@ export async function imageFileToIcon(imageFile: File): Promise<string> {
   if (imageFile.type === "image/gif") {
     base64Image = await base64ToPng(base64Image);
   }
-  return base64ToIcon(base64Image);
+  try {
+    const icon = await base64ToIcon(base64Image);
+    console.log("imageFileToIcon", icon);
+    return icon;
+  } catch (e) {
+    console.error(e);
+    return await base64ToPng(base64Image);
+  }
 }
 
 export function base64ToPng(base64Image: string): Promise<string> {

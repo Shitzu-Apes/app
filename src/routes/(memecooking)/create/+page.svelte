@@ -188,6 +188,7 @@
         try {
           icon = await imageFileToIcon(file);
         } catch (e) {
+          console.error(e);
           addToast({
             data: {
               type: "simple",
