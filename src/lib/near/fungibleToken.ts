@@ -15,7 +15,6 @@ export abstract class Ft {
       account_id: accountId,
     });
 
-    console.log(balance, decimals);
     return new FixedNumber(balance, decimals);
   }
 

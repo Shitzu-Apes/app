@@ -2,6 +2,7 @@
   import { createTabs, melt } from "@melt-ui/svelte";
   import { onDestroy } from "svelte";
   import { writable } from "svelte/store";
+  import { match, P } from "ts-pattern";
 
   import { addToast } from "../Toast.svelte";
 
@@ -73,6 +74,23 @@
       $totalNearBalance$ = $nearBalance.add(balance);
     });
   }
+
+  $: hasEnoughTokens = match([
+    $value,
+    [$input$, $depositAmount$, $totalNearBalance$],
+  ])
+    .with(
+      ["deposit", P.select()],
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      ([input, _, amount]) =>
+        amount != null && input != null && input.valueOf() <= amount.valueOf(),
+    )
+    .with(
+      ["withdraw", P.select()],
+      ([input, amount]) =>
+        amount != null && input != null && input.valueOf() <= amount.valueOf(),
+    )
+    .otherwise(() => false);
 
   async function action() {
     if (!$accountId$) {
@@ -378,7 +396,10 @@
         updateMcAccount($accountId$);
       }}
       type="custom"
-      disabled={$input$ == null || $input$.toNumber() == 0 || finished}
+      disabled={$input$ == null ||
+        $input$.toNumber() == 0 ||
+        finished ||
+        !hasEnoughTokens}
       class="{$value === 'deposit'
         ? 'bg-shitzu-3'
         : 'bg-rose-4'} w-full py-2 rounded-full text-xl tracking-wider text-black border-b-4 {$value ===
