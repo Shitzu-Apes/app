@@ -3,9 +3,9 @@
   import Countdown from "../Countdown.svelte";
   import ProgressBarMobile from "../ProgressBarMobile.svelte";
 
-  import Near from "$lib/assets/Near.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { FixedNumber } from "$lib/util";
+  import { projectedMCap } from "$lib/util/projectedMCap";
   import { timesAgo } from "$lib/util/timesAgo";
 
   export let memebid: Meme;
@@ -13,6 +13,7 @@
   let showDescription = false;
 
   $: reachedMcap = new FixedNumber(memebid.total_deposit, 24) >= requiredStake;
+  $: mcap = projectedMCap(memebid);
 </script>
 
 {#if memebid}
@@ -69,14 +70,11 @@
               <div
                 class="ml-auto flex items-center text-shitzu-2 text-sm rounded"
               >
-                MCap:
-                <Near className="size-6 ml-1" />
-                {new FixedNumber(BigInt(memebid.total_deposit) * 2n, 24).format(
-                  {
-                    maximumFractionDigits: 2,
-                    maximumSignificantDigits: 2,
-                  },
-                )}
+                MCap: $
+                {$mcap.format({
+                  maximumFractionDigits: 2,
+                  maximumSignificantDigits: 2,
+                })}
               </div>
             </h4>
             <div class="w-full flex items-center text-xs gap-1 text-shitzu-6">

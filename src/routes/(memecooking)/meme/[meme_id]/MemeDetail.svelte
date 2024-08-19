@@ -16,7 +16,9 @@
   import { MCsubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
   import { getTokenId } from "$lib/util/getTokenId";
+  import { projectedMCap } from "$lib/util/projectedMCap";
 
+  $: mcap = projectedMCap(meme);
   export let meme: Meme;
   export let requiredStake: FixedNumber;
   const { accountId$ } = wallet;
@@ -58,7 +60,7 @@
       <span class="text-green-400 flex items-center">
         Market cap:{" "}
         <Near className="size-4" />
-        {new FixedNumber(BigInt(meme.total_deposit) * BigInt(2), 24).format()}
+        {$mcap.format()}
       </span>
       {#if meme.pool_id}
         <div class="flex items-center justify-end text-right">
