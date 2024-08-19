@@ -4,7 +4,6 @@
   import type { paths } from "$lib/api/openapi";
 
   export let meme_id: number;
-  export let symbol: string;
   export let trades: Promise<
     Array<
       paths["/trades"]["get"]["responses"]["200"]["content"]["application/json"][number] & {
@@ -31,7 +30,6 @@
         <span class="flex-[0.5_1_5rem] text-start">account</span>
         <span class="flex-[0_0_3rem] text-start">type</span>
         <span class="flex-[0.1_0_5rem] text-start">NEAR</span>
-        <span class="flex-[0.1_0_5rem] text-start">{symbol}</span>
         <span class="flex-[0.1_0_5rem] text-start">date</span>
         <span class="flex-[0.2_0_5rem] text-start">transaction</span>
       </li>

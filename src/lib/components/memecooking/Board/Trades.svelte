@@ -82,13 +82,6 @@
       {new FixedNumber(trade.amount, 24).format()}
     </span>
     <span class="flex-[0.1_0_5rem] text-start">
-      {new Intl.NumberFormat("en-US", {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-        notation: "compact",
-      }).format(trade.tokenAmount)}
-    </span>
-    <span class="flex-[0.1_0_5rem] text-start">
       {timesAgo(new Date(trade.timestamp_ms))} ago
     </span>
     {#await fetchTxIdViaReceiptId(trade.receipt_id) then txId}
