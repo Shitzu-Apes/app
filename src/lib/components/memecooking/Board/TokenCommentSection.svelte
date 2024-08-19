@@ -12,8 +12,11 @@
   let replyToId: string | undefined;
   export let meme: Meme;
 
-  let isLoggedIn = fetchIsLoggedIn();
+  let isLoggedIn: ReturnType<typeof fetchIsLoggedIn> = new Promise<never>(
+    () => {},
+  );
 
+  fetchIsLoggedIn();
   function fetchIsLoggedIn() {
     const res = client
       .GET("/auth/check", {
