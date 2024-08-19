@@ -39,20 +39,20 @@ export class Wallet {
           import("@near-wallet-selector/core"),
           import("@near-wallet-selector/here-wallet"),
           import("@near-wallet-selector/meteor-wallet"),
-          // import("@near-wallet-selector/my-near-wallet"),
+          import("@near-wallet-selector/my-near-wallet"),
         ]).then(
           ([
             { setupWalletSelector },
             { setupHereWallet },
             { setupMeteorWallet },
-            // { setupMyNearWallet },
+            { setupMyNearWallet },
           ]) =>
             setupWalletSelector({
               network: import.meta.env.VITE_NETWORK_ID,
               modules: [
                 setupHereWallet(),
                 setupMeteorWallet(),
-                // setupMyNearWallet(),
+                setupMyNearWallet(),
               ],
             }),
         )
@@ -439,9 +439,9 @@ export const NEAR_WALLETS: Record<string, WalletMetadata> = {
       "https://chrome.google.com/webstore/detail/meteor-wallet/pcndjhkinnkaohffealmlmhaepkpmgkb",
     twitter: "https://twitter.com/MeteorWallet",
   },
-  // "my-near-wallet": {
-  //   url: "https://app.mynearwallet.com/",
-  //   twitter: "https://twitter.com/MyNearWallet",
-  //   telegram: "https://t.me/mnw_chat",
-  // },
+  "my-near-wallet": {
+    url: "https://app.mynearwallet.com/",
+    twitter: "https://twitter.com/MyNearWallet",
+    telegram: "https://t.me/mnw_chat",
+  },
 };
