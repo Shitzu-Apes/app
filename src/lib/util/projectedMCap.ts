@@ -7,9 +7,8 @@ import type { Meme } from "$lib/api/client";
 export function projectedMCap(meme: Meme): Readable<FixedNumber> {
   return derived(nearPrice, (price) => {
     getNearPrice();
-    return new FixedNumber(
-      (BigInt(meme.total_deposit) * price) / BigInt(1e24),
-      24,
+    return new FixedNumber(BigInt(meme.total_deposit), 24).mul(
+      new FixedNumber(price, 24),
     );
   });
 }

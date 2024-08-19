@@ -26,6 +26,7 @@ export class FixedNumber {
       maximumSignificantDigits: 6,
       minimumFractionDigits: 0,
       maximumFractionDigits: Math.min(this._decimals, 20),
+      roundingPriority: "lessPrecision",
     };
   }
 

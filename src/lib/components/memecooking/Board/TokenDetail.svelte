@@ -72,8 +72,7 @@
               >
                 MCap: $
                 {$mcap.format({
-                  maximumFractionDigits: 2,
-                  maximumSignificantDigits: 2,
+                  maximumFractionDigits: 1,
                 })}
               </div>
             </h4>

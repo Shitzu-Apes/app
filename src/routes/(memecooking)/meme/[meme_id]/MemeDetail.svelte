@@ -2,7 +2,6 @@
   import { onMount } from "svelte";
 
   import type { Meme } from "$lib/api/client";
-  import Near from "$lib/assets/Near.svelte";
   import TradeTabs from "$lib/components/memecooking/Board/Desktop/TradeTabs.svelte";
   import McActionBox from "$lib/components/memecooking/Board/MCActionBox.svelte";
   import SocialLink from "$lib/components/memecooking/Board/SocialLink.svelte";
@@ -59,8 +58,9 @@
       </span>
       <span class="text-green-400 flex items-center">
         Market cap:{" "}
-        <Near className="size-4" />
-        {$mcap.format()}
+        ${$mcap.format({
+          maximumFractionDigits: 1,
+        })}
       </span>
       {#if meme.pool_id}
         <div class="flex items-center justify-end text-right">

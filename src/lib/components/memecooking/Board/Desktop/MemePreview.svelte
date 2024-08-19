@@ -159,8 +159,7 @@
       <div class="w-full flex justify-between items-center self-stretch">
         <span class="text-xs text-shitzu-2 px-2 flex items-center">
           MCap: ${$mcap.format({
-            maximumFractionDigits: 2,
-            maximumSignificantDigits: 2,
+            maximumFractionDigits: 1,
           })}
         </span>
 
