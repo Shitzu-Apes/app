@@ -78,7 +78,18 @@ export function MCunsubscribe(id: string | symbol) {
 }
 
 const symbol = Symbol("main_feed");
-MCTradeSubscribe(symbol, async (newMemeInfo) => {
+MCSubscribe(symbol, async (data) => {
+  let newMemeInfo: Meme & { total_deposit: string; total_deposit_fees: string };
+  if (data.action === "new_trade") {
+    newMemeInfo = data.data;
+  } else {
+    newMemeInfo = {
+      ...data.data,
+      total_deposit: "0",
+      total_deposit_fees: "0",
+    };
+  }
+
   let memebids = await get(memebids$);
   const idx = memebids.findIndex((b) => b.meme_id === newMemeInfo.meme_id);
   let meme = memebids[idx];
