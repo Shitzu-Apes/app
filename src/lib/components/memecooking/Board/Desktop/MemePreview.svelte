@@ -166,18 +166,22 @@
 
         <div>
           <div class="flex items-center gap-3 text-shitzu-2">
-            <div class="text-sm flex items-center gap-1">
-              <div class="i-mdi:account-multiple size-5" />
-              <span class="font-bold">
-                {memebid.staker_count}
-              </span>
-            </div>
-            <div class="text-sm flex items-center gap-1">
-              <div class="i-mdi:chat size-5" />
-              <span class="font-bold">
-                {memebid.replies_count}
-              </span>
-            </div>
+            {#if memebid.staker_count}
+              <div class="text-sm flex items-center gap-1">
+                <div class="i-mdi:account-multiple size-5" />
+                <span class="font-bold">
+                  {memebid.staker_count}
+                </span>
+              </div>
+            {/if}
+            {#if memebid.replies_count}
+              <div class="text-sm flex items-center gap-1">
+                <div class="i-mdi:chat size-5" />
+                <span class="font-bold">
+                  {memebid.replies_count}
+                </span>
+              </div>
+            {/if}
           </div>
         </div>
       </div>
