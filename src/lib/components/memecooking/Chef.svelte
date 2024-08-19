@@ -15,7 +15,7 @@
   export { className as class };
 </script>
 
-<div class="flex items-center gap-1">
+<div class="flex items-center gap-1 flex-1">
   {#if !hideAvatar}
     <img src={SHITZU_POCKET} alt="Shitzu Pocket" class="size-4" />
   {/if}

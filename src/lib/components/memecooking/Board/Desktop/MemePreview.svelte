@@ -106,7 +106,7 @@
       {/if}
     </div>
     <div
-      class="flex flex-col items-start justify-start h-full gap-1 flex-1 relative"
+      class="flex flex-col items-start justify-start h-full gap-1 flex-1 relative overflow-hidden"
     >
       {#if memebid.pool_id}
         <a
@@ -133,8 +133,11 @@
         {/if}
       {/if}
       {#if showCook}
-        <div class="text-xs flex items-center gap-1">
-          created by <Chef account={memebid.owner} />
+        <div class="text-xs flex items-center gap-1 w-full">
+          created by <Chef
+            account={memebid.owner}
+            class="flex-1 w-0 overflow-hidden text-ellipsis"
+          />
         </div>
       {/if}
       <div class="text-sm">

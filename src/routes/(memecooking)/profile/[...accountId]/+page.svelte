@@ -231,13 +231,13 @@
     </div>
 
     {#if info}
-      <section class="w-full max-w-xs" use:melt={$content(tabs[0].id)}>
+      <section class="w-full max-w-sm" use:melt={$content(tabs[0].id)}>
         <DepositList deposits={info.deposits} {update} />
       </section>
-      <section class="w-full max-w-xs" use:melt={$content(tabs[1].id)}>
+      <section class="w-full max-w-sm" use:melt={$content(tabs[1].id)}>
         <ClaimList claims={info.claims} {update} />
       </section>
-      <section class="w-full max-w-xs" use:melt={$content(tabs[2].id)}>
+      <section class="w-full max-w-sm" use:melt={$content(tabs[2].id)}>
         <CoinCreated coins={info.created} {update} />
       </section>
     {/if}
