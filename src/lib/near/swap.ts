@@ -63,6 +63,10 @@ export async function handleBuy(
             receiver_id: import.meta.env.VITE_REF_CONTRACT_ID,
             amount: input.toU128(),
             msg: JSON.stringify({
+              referral_id:
+                import.meta.env.VITE_NETWORK_ID === "mainnet"
+                  ? "shitzu.sputnik-dao.near"
+                  : undefined,
               actions: [
                 {
                   pool_id: meme.pool_id,
@@ -134,6 +138,10 @@ export async function handleSell(
             receiver_id: import.meta.env.VITE_REF_CONTRACT_ID,
             amount: input.toU128(),
             msg: JSON.stringify({
+              referral_id:
+                import.meta.env.VITE_NETWORK_ID === "mainnet"
+                  ? "shitzu.sputnik-dao.near"
+                  : undefined,
               actions: [
                 {
                   pool_id: meme.pool_id,
