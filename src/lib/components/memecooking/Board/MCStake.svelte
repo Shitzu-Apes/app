@@ -19,8 +19,8 @@
   import { getReferral } from "$lib/util/referral";
 
   const tabs = [
-    { id: "stake", label: "stake" },
-    { id: "unstake", label: "unstake" },
+    { id: "deposit", label: "deposit" },
+    { id: "withdraw", label: "withdraw" },
   ];
 
   const { accountId$ } = wallet;
@@ -43,16 +43,16 @@
     elements: { root, list, trigger },
     states: { value },
   } = createTabs({
-    defaultValue: "stake",
+    defaultValue: "deposit",
   });
 
   $: finished =
-    $value === "stake" &&
+    $value === "deposit" &&
     meme.end_timestamp_ms != null &&
     meme.end_timestamp_ms < Date.now();
   const timer = setInterval(() => {
     finished =
-      $value === "stake" &&
+      $value === "deposit" &&
       meme.end_timestamp_ms != null &&
       meme.end_timestamp_ms < Date.now();
   }, 1_000);
@@ -103,7 +103,7 @@
       return;
     }
 
-    if ($value === "stake") {
+    if ($value === "deposit") {
       // Check storage balance before staking
       const [
         storageBalance,
@@ -168,7 +168,7 @@
             type: "simple",
             data: {
               title: "Invalid Referral",
-              description: "Referral cannot be the same as staker",
+              description: "Referral cannot be the same as depositor",
               color: "red",
             },
           },
@@ -226,7 +226,7 @@
   }
 
   function setMax() {
-    if ($value === "stake") {
+    if ($value === "deposit") {
       if ($totalNearBalance$) {
         let input = $totalNearBalance$.sub(new FixedNumber(5n, 1));
 
@@ -246,29 +246,29 @@
     [key: string]: { value: string; label: string };
   }[] = [
     {
-      stake: { value: "0", label: "reset" },
-      unstake: { value: "0", label: "reset" },
+      deposit: { value: "0", label: "reset" },
+      withdraw: { value: "0", label: "reset" },
     },
     {
-      stake: {
+      deposit: {
         value: 10_000_000_000_000_000_000_000_000n.toString(),
         label: "10",
       },
-      unstake: { value: "25", label: "25%" },
+      withdraw: { value: "25", label: "25%" },
     },
     {
-      stake: {
+      deposit: {
         value: 50_000_000_000_000_000_000_000_000n.toString(),
         label: "50",
       },
-      unstake: { value: "50", label: "50%" },
+      withdraw: { value: "50", label: "50%" },
     },
     {
-      stake: {
+      deposit: {
         value: 100_000_000_000_000_000_000_000_000n.toString(),
         label: "100",
       },
-      unstake: { value: "100", label: "100%" },
+      withdraw: { value: "100", label: "100%" },
     },
   ];
 </script>
@@ -295,19 +295,11 @@
   <div class="px-3">
     <div class="relative my-6">
       <div class="absolute inset-y-0 left-0 flex items-center pl-2">
-        <!-- {#if $value === "stake"} -->
         <Near className="w-6 h-6 bg-white text-black rounded-full" />
-        <!-- {:else}
-          <img
-            src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
-            alt={meme.name}
-            class="w-6 h-6 rounded-full"
-          />
-        {/if} -->
       </div>
       <TokenInput
         class="bg-transparent rounded-xl w-full py-6 text-center text-2xl px-14 appearance-none outline-none {$value ===
-        'stake'
+        'deposit'
           ? 'text-shitzu-4'
           : 'text-rose-5'}"
         decimals={24}
@@ -321,7 +313,7 @@
         <div class="flex-grow basis-0" />
         <button
           class="text-sm cursor-pointer bg-gray-3 px-2 rounded-full border border-gray-6 {$value ===
-          'stake'
+          'deposit'
             ? 'text-shitzu-7'
             : 'text-rose-5'}"
           on:click={setMax}
@@ -329,11 +321,11 @@
           <div class="">Max</div>
         </button>
         <div
-          class="{$value === 'stake'
+          class="{$value === 'deposit'
             ? 'text-shitzu-4'
             : 'text-rose-4'} flex-grow basis-0"
         >
-          {#if $value === "unstake"}
+          {#if $value === "withdraw"}
             {#if $depositAmount$ != null}
               {$depositAmount$.format()}
             {:else}
@@ -348,16 +340,16 @@
     <ul class="flex items-center w-full gap-2">
       {#each defaultValues as defaultValue}
         <li
-          class="text-sm {$value === 'stake'
+          class="text-sm {$value === 'deposit'
             ? 'bg-shitzu-8'
             : 'bg-rose-5'} px-1 rounded"
         >
           <button
-            class="{$value === 'stake'
+            class="{$value === 'deposit'
               ? 'hover:text-shitzu-4'
               : 'hover:text-rose-2'} flex items-center gap-1"
             on:click={() => {
-              if ($value === "stake") {
+              if ($value === "deposit") {
                 $inputValue$ = new FixedNumber(
                   defaultValue[$value].value,
                   24,
@@ -369,7 +361,7 @@
               }
             }}
           >
-            {#if defaultValue[$value].value !== "0" && $value === "stake"}
+            {#if defaultValue[$value].value !== "0" && $value === "deposit"}
               <Near className="size-4" />
             {/if}
             {defaultValue[$value].label}
@@ -387,10 +379,10 @@
       }}
       type="custom"
       disabled={$input$ == null || $input$.toNumber() == 0 || finished}
-      class="{$value === 'stake'
+      class="{$value === 'deposit'
         ? 'bg-shitzu-3'
         : 'bg-rose-4'} w-full py-2 rounded-full text-xl tracking-wider text-black border-b-4 {$value ===
-      'stake'
+      'deposit'
         ? 'border-shitzu-4'
         : 'border-rose-5'} active:translate-y-1 my-4"
     >
