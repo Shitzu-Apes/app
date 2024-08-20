@@ -5,7 +5,7 @@
 <BottomSheetContent variant="shitzu">
   <slot slot="header">
     <h2 class="prose prose-invert prose-shitzu px-4 text-2xl">
-      How meme.cooking Works?
+      How meme.cooking Works
     </h2>
   </slot>
   <section class="prose prose-shitzu prose-invert px-3">
@@ -19,8 +19,8 @@
         the auction period.
       </li>
       <li>
-        <strong>Reach the Goal:</strong> If the virtual market cap reaches $69k by
-        the end of the auction, the coin is created.
+        <strong>Reach the Goal:</strong> If at least 4k NEAR have been deposited
+        by the end of the auction, the coin is created.
       </li>
       <li>
         <strong>Fair Distribution:</strong> The coin is distributed among buyers

@@ -7,7 +7,6 @@ export function predictedTokenAmount(data: {
   decimals?: number;
 }): number {
   const decimals = data.decimals ?? 18;
-  console.log(data);
   const amount = BigInt(data.amount);
   const totalDeposit = BigInt(data.total_deposit);
   if (totalDeposit === 0n) {
