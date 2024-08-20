@@ -7,6 +7,7 @@ import type {
   ResolutionString,
 } from "$lib/charting_library/charting_library";
 import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
+import { FixedNumber } from "$lib/util";
 
 const lastBarsCache: Map<
   string,
@@ -193,13 +194,12 @@ const MemeCookingDataFeed: IBasicDataFeed = {
         return;
       }
 
-      const total_supply = parseFloat(
-        `${data.total_supply.slice(0, -24)}.${data.total_supply.slice(-24)}`,
-      );
-      const total_deposit = parseFloat(
-        `${data.total_deposit.slice(0, -24)}.${data.total_deposit.slice(-24)}`,
-      );
-      const price = total_deposit / total_supply;
+      const total_supply = BigInt(data.total_supply);
+      const total_deposit = BigInt(data.total_deposit);
+      const price = new FixedNumber(
+        (total_deposit * 2n * BigInt(1e24)) / total_supply,
+        24,
+      ).toNumber();
 
       if (data.timestamp_ms >= nextBarTime) {
         console.log("[subscribeBars]: Create new bar");
