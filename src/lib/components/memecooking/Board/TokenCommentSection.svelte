@@ -1,5 +1,6 @@
 <script lang="ts">
   import Chef from "../Chef.svelte";
+  import { addToast } from "../Toast.svelte";
 
   import TokenComment from "./TokenComment.svelte";
 
@@ -62,6 +63,19 @@
   }
 
   function handleReply() {
+    if (reply.length > 255) {
+      addToast({
+        data: {
+          type: "simple",
+          data: {
+            title: "Reply too long",
+            description: "Reply must be less than 255 characters",
+            color: "red",
+          },
+        },
+      });
+      return;
+    }
     client
       .POST("/post-reply/replies", {
         method: "POST",
