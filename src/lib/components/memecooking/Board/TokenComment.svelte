@@ -57,6 +57,7 @@
     <Chef
       account={`${reply.account_id}${reply.account_id === owner ? " (dev)" : ""}`}
       class={`${accountColor} text-gray-8 rounded px-1`}
+      asLink
     />
     <button
       on:click={() => {

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
+  import Tooltip from "$lib/components/Tooltip.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { MemeCooking } from "$lib/near/memecooking";
   import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
@@ -82,7 +83,21 @@
 </script>
 
 <div class="w-full px-4">
-  <h2 class="text-xl my-3">Holders</h2>
+  <h2 class="text-xl my-3 flex items-center gap-1">
+    Holders
+
+    <Tooltip>
+      <slot slot="info">
+        <div class="px-4 py-1">
+          Prelaunch: staking distribution
+          <br />
+          Successfully launched: actual list of current holders
+        </div>
+      </slot>
+      <div class="i-mdi:information-outline" />
+    </Tooltip>
+  </h2>
+
   {#await holders}
     <div class="loader w-40 h-4" />
   {:then holders}

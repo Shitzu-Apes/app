@@ -2,7 +2,7 @@
   import { createTooltip, melt } from "@melt-ui/svelte";
   import { fade } from "svelte/transition";
 
-  export let info: string;
+  export let info: string | undefined = undefined;
 
   const {
     elements: { trigger, content, arrow },
@@ -29,6 +29,10 @@
     class=" z-10 rounded-lg bg-white shadow"
   >
     <div use:melt={$arrow} />
-    <p class="px-4 py-1 text-magnum-700">{info}</p>
+    {#if info}
+      <p class="px-4 py-1 text-magnum-700">{info}</p>
+    {:else}
+      <slot name="info" />
+    {/if}
   </div>
 {/if}
