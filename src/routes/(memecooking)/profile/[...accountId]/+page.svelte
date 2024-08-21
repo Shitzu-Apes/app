@@ -192,9 +192,7 @@
   {#await fullAccount}
     <div transition:slide class="i-svg-spinners:pulse-3 size-20 mt-[80px]" />
   {:then info}
-    {#if info && info.revenue}
-      <Revenue revenue={info.revenue} {update} />
-    {/if}
+    <Revenue revenue={info?.revenue} {update} />
 
     <div use:melt={$root}>
       <div use:melt={$list} class="flex gap-1">
