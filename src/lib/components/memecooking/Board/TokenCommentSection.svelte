@@ -5,6 +5,7 @@
   import TokenComment from "./TokenComment.svelte";
 
   import { client } from "$lib/api/client";
+  import { showWalletSelector } from "$lib/auth";
   import { Button } from "$lib/components";
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
@@ -12,6 +13,8 @@
   let reply: string = "";
   let replyToId: string | undefined;
   export let meme: Meme;
+
+  const { accountId$ } = wallet;
 
   let isLoggedIn: ReturnType<typeof fetchIsLoggedIn> = new Promise<never>(
     () => {},
@@ -63,6 +66,10 @@
   }
 
   function handleReply() {
+    if (!accountId$) {
+      showWalletSelector("shitzu");
+      return;
+    }
     if (reply.length > 255) {
       addToast({
         data: {
@@ -198,7 +205,10 @@
           <Button
             class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
             onClick={async () => {
-              if (isLoggedInResult) {
+              if (!$accountId$) {
+                showWalletSelector("shitzu");
+                return;
+              } else if (isLoggedInResult) {
                 handleReply();
               } else {
                 await wallet.login();
@@ -207,7 +217,9 @@
             }}
             type="custom"
           >
-            {#if isLoggedInResult}
+            {#if !$accountId$}
+              Connect
+            {:else if isLoggedInResult}
               Reply
             {:else}
               Login
