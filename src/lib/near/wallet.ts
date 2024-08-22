@@ -202,14 +202,29 @@ export class Wallet {
     const wallet = await walletPromise;
     if (!wallet) return;
 
-    const nonce = Buffer.from("0".repeat(32));
+    const response = await client.GET("/auth/get_nonce", {
+      credentials: "include",
+    });
+
+    if (!response.data?.nonce) {
+      return addToast({
+        data: {
+          type: "simple",
+          data: {
+            title: "Error",
+            description: "Failed to get nonce",
+            color: "red",
+          },
+        },
+      });
+    }
+    const nonce = Buffer.from(response.data?.nonce, "hex");
     const message = {
       message: "Login to Meme Cooking",
       nonce,
       recipient: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
       callbackUrl: window.location.href,
     };
-    console.log("[signMessage]", message);
     const signedMessage = (await wallet.signMessage(message)) as SignedMessage;
 
     const res = await client.GET("/auth/login", {

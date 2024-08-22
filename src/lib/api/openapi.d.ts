@@ -147,6 +147,8 @@ export interface paths {
               website?: string | null;
               image?: string | null;
               coronated_at_ms?: number | null;
+              replies_count: number;
+              staker_count: number;
             };
           };
         };
@@ -297,6 +299,8 @@ export interface paths {
                 website?: string | null;
                 image?: string | null;
                 coronated_at_ms?: number | null;
+                replies_count: number;
+                staker_count: number;
               };
               account?: {
                 id: string;
@@ -705,6 +709,49 @@ export interface paths {
         };
       };
     };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/get_nonce": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get nonce
+     * @description Get a nonce for authentication
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Nonce */
+        200: {
+          headers: {
+            /** @description The nonce cookie */
+            "Set-Cookie"?: unknown;
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              nonce: string;
+            };
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
