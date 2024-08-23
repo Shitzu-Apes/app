@@ -1,9 +1,12 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+
   import Chef from "../Chef.svelte";
   import { addToast } from "../Toast.svelte";
 
   import TokenComment from "./TokenComment.svelte";
 
+  import { replaceState } from "$app/navigation";
   import { client } from "$lib/api/client";
   import { showWalletSelector } from "$lib/auth";
   import { Button } from "$lib/components";
@@ -19,6 +22,46 @@
   let isLoggedIn: ReturnType<typeof fetchIsLoggedIn> = new Promise<never>(
     () => {},
   );
+
+  onMount(() => {
+    let signedMessage: {
+      accountId: string;
+      signature: string;
+      publicKey: string;
+    } | null = null;
+    try {
+      const url = new URL(window.location.href);
+      const accountId = decodeURIComponent(
+        url.hash.split("accountId=")[1].split("&")[0],
+      );
+      const signature = decodeURIComponent(
+        url.hash.split("signature=")[1].split("&")[0],
+      );
+      const publicKey = decodeURIComponent(
+        url.hash.split("publicKey=")[1].split("&")[0],
+      );
+      signedMessage = {
+        accountId,
+        signature,
+        publicKey,
+      };
+
+      client
+        .GET("/auth/login", {
+          params: {
+            query: signedMessage,
+          },
+          credentials: "include",
+        })
+        .then(() => {
+          url.hash = "";
+          replaceState(url.toString(), {});
+          fetchIsLoggedIn();
+        });
+    } catch (err) {
+      console.error("[TokenCommentSection] Error in login process:", err);
+    }
+  });
 
   fetchIsLoggedIn();
   function fetchIsLoggedIn() {
