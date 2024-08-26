@@ -188,7 +188,10 @@
 
     <div class="grid-col-start-2 ml-auto flex flex-col justify-end items-end">
       {#if depositAmount != null}
-        <button class="hover:underline flex items-center" on:click={withdraw}>
+        <button
+          class="hover:underline flex items-center gap-1"
+          on:click={withdraw}
+        >
           [withdraw {new FixedNumber(depositAmount, 24).format({
             compactDisplay: "short",
             notation: "compact",
@@ -197,7 +200,10 @@
         </button>
       {/if}
       {#if claimAmount != null}
-        <button class="hover:underline" on:click={claim}>
+        <button
+          class="hover:underline flex items-center gap-1"
+          on:click={claim}
+        >
           [claim {new FixedNumber(claimAmount, memebid.decimals).format({
             compactDisplay: "short",
             notation: "compact",

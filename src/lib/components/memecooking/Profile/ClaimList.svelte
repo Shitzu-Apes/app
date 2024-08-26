@@ -15,17 +15,6 @@
   export let update: (
     outcome: FinalExecutionOutcome | FinalExecutionOutcome[] | undefined,
   ) => void;
-
-  claims.sort((a, b) => {
-    if (!a.meme?.created_timestamp_ms || !b.meme?.created_timestamp_ms) {
-      return 0;
-    }
-
-    return (
-      new Date(b.meme?.created_timestamp_ms).getTime() -
-      new Date(a.meme?.created_timestamp_ms).getTime()
-    );
-  });
 </script>
 
 <div class="my-6 w-full">

@@ -11,10 +11,15 @@
   import CoinCreated from "$lib/components/memecooking/Profile/CoinCreated.svelte";
   import DepositList from "$lib/components/memecooking/Profile/DepositList.svelte";
   import Revenue from "$lib/components/memecooking/Profile/Revenue.svelte";
+  import type { Meme } from "$lib/models/memecooking";
   import { MemeCooking } from "$lib/near/memecooking";
   import { fetchBlockHeight } from "$lib/near/rpc";
   import { awaitRpcBlockHeight } from "$lib/store/indexer";
   import { getTokenId } from "$lib/util/getTokenId";
+  import {
+    sortMemeByEndtimestamp,
+    sortMemeByUnclaimedThenEndTimestamp,
+  } from "$lib/util/sortMemeByCreatedAt";
 
   const { accountId } = $page.params;
 
@@ -27,35 +32,57 @@
     const res = Promise.all([
       MemeCooking.getAccount(accountId),
       MemeCooking.getUnclaimed(accountId),
+      client
+        .GET(`/profile/{accountId}`, {
+          params: {
+            path: {
+              accountId,
+            },
+            headers:
+              blockHeight != null
+                ? {
+                    "X-Block-Height": String(blockHeight),
+                  }
+                : {},
+          },
+        })
+        .then((res) => {
+          console.log("[Profile] fetching full account", res);
+          if (!res.data) {
+            throw new Error(`[Profile] Account ${accountId} not found`);
+          }
+
+          return res.data;
+        })
+        .catch((err) => {
+          console.error("[Profile] fetching full account", err);
+          return null;
+        }),
       blockHeight != null
         ? awaitRpcBlockHeight(blockHeight)
         : Promise.resolve(),
-    ]).then(async ([account, unclaimed]) => {
-      if (!account || !unclaimed) return;
-      const { data } = await client.POST("/profile", {
-        body: {
-          meme_id: account
-            ? [
-                ...account.deposits.map((deposit) => deposit[0].toString()),
-                ...(unclaimed || []).map((claim) => claim.toString()),
-              ]
-            : [],
-          account_id: accountId,
-          token_id: account.income.map((income) => income[0].toString()),
-        },
-        headers:
-          blockHeight != null
-            ? {
-                "X-Block-Height": String(blockHeight),
-              }
-            : {},
+    ]).then(async ([account, unclaimed, profile]) => {
+      console.log("[Profile] fetching full account", {
+        account,
+        unclaimed,
+        profile,
       });
-      if (!data) {
-        throw new Error(`Account ${accountId} not found`);
-      }
+      if (!account || !unclaimed || !profile) return;
+
+      const meme_map = new Map<string, Meme>([
+        ...(profile.virtual_coins.map((coin) => [
+          coin.meme_id.toString(),
+          coin,
+        ]) as [string, Meme][]),
+        ...(profile.coin_created.map((coin) => [
+          coin.meme_id.toString(),
+          coin,
+        ]) as [string, Meme][]),
+      ]);
+
       const deposits = account.deposits
         .map((deposit) => {
-          const meme = data.meme_info[deposit[0].toString()];
+          const meme = meme_map.get(deposit[0].toString());
           if (!meme) return null;
           return {
             meme_id: deposit[0],
@@ -66,26 +93,11 @@
         .filter(
           (deposit): deposit is NonNullable<typeof deposit> => deposit != null,
         )
-        .sort((a, b) => {
-          if (
-            a.meme.end_timestamp_ms != null &&
-            b.meme.end_timestamp_ms == null
-          ) {
-            return -1;
-          }
-          if (
-            a.meme.end_timestamp_ms == null &&
-            b.meme.end_timestamp_ms != null
-          ) {
-            return 1;
-          }
-
-          return a.meme.end_timestamp_ms! - b.meme.end_timestamp_ms!;
-        });
-      let claims = await Promise.all(
+        .sort((a, b) => sortMemeByEndtimestamp(a.meme, b.meme));
+      let unclaimedInfo = await Promise.all(
         unclaimed.map(async (meme_id) => {
           // find meme id from data
-          const meme = data.meme_info[meme_id.toString()];
+          const meme = meme_map.get(meme_id.toString());
           if (!meme) return null;
           const token_id = getTokenId(meme.symbol, meme.meme_id);
           const amount = await MemeCooking.getClaimable(
@@ -99,20 +111,50 @@
             meme,
           };
         }),
-      ).then((claims) =>
-        claims.filter((claim): claim is NonNullable<typeof claim> => {
-          return (
-            claim != null &&
-            +claim.amount > 0 &&
-            unclaimed.find((memeId) => memeId === claim.meme.meme_id) != null
-          );
-        }),
       );
+
+      const claims = Array.from(
+        new Set([
+          ...unclaimedInfo,
+          ...profile.coins_held.map((m) => m.meme_id),
+        ]),
+      )
+        .map((meme_id) => {
+          // try to get meme from unclaimedInfo
+          const unclaimed = unclaimedInfo.find(
+            (m) => m && m.meme.meme_id === meme_id,
+          );
+          if (unclaimed) return unclaimed;
+          // try to get meme from profile.coins_held
+          const meme = profile.coins_held.find((m) => m.meme_id === meme_id);
+          if (meme)
+            return {
+              token_id: getTokenId(meme.symbol, meme.meme_id),
+              amount: "0",
+              meme,
+            };
+          return null;
+        })
+        .filter((claim): claim is NonNullable<typeof claim> => {
+          return claim != null;
+        })
+        .sort((a, b) =>
+          sortMemeByUnclaimedThenEndTimestamp(
+            {
+              unclaimed: BigInt(a.amount) > 0n,
+              end_timestamp_ms: a.meme.end_timestamp_ms ?? 0,
+            },
+            {
+              unclaimed: BigInt(b.amount) > 0n,
+              end_timestamp_ms: b.meme.end_timestamp_ms ?? 0,
+            },
+          ),
+        );
 
       const revenue = account.income.map((income) => ({
         token_id: income[0].toString(),
         amount: income[1].toString(),
-        meme: data.token_info[income[0].toString()],
+        meme: meme_map.get(income[0].toString()),
       }));
 
       console.log("[claims]", claims);
@@ -122,7 +164,7 @@
         account,
         deposits,
         claims,
-        created: data.coinsCreated,
+        created: profile.coin_created,
         revenue,
       };
     });
