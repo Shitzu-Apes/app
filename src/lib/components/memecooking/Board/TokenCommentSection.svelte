@@ -23,6 +23,8 @@
     () => {},
   );
 
+  const { walletName$ } = wallet;
+
   onMount(() => {
     let signedMessage: {
       accountId: string;
@@ -62,6 +64,14 @@
       console.error("[TokenCommentSection] Error in login process:", err);
     }
   });
+
+  $: {
+    if ($walletName$) {
+      $walletName$.then((name) => {
+        console.log("[walletName$]", name);
+      });
+    }
+  }
 
   fetchIsLoggedIn();
   function fetchIsLoggedIn() {
@@ -254,6 +264,18 @@
               } else if (isLoggedInResult) {
                 handleReply();
               } else {
+                if ((await $walletName$) === "MyNearWallet") {
+                  return addToast({
+                    data: {
+                      type: "simple",
+                      data: {
+                        title: "Login",
+                        description: "Reply from MyNearWallet is not supported",
+                        color: "red",
+                      },
+                    },
+                  });
+                }
                 await wallet.login();
                 isLoggedIn = fetchIsLoggedIn();
               }

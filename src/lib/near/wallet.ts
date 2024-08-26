@@ -83,6 +83,33 @@ export class Wallet {
       .exhaustive();
   });
 
+  public walletName$ = derived(this._account$, (account) => {
+    return match(account)
+      .with(undefined, () => undefined)
+      .with(
+        {
+          type: "wallet-selector",
+          account: P.any,
+        },
+        async () => {
+          const selector = await get(this.selector$);
+          const wallet = await selector.wallet();
+          console.log("[wallet]", wallet);
+          return wallet.metadata.name;
+        },
+      )
+      .with(
+        {
+          type: "here",
+          account: P.any,
+        },
+        async () => {
+          return "Here Wallet";
+        },
+      )
+      .exhaustive();
+  });
+
   public iconUrl$ = derived(this._account$, (account) => {
     return match(account)
       .with(undefined, () => undefined)
