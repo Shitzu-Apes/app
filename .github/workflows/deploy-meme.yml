@@ -44,7 +44,7 @@ jobs:
         run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> .env
 
       - name: Add contract connect ID to .env
-        run: echo "VITE_CONNECT_ID=factory.v9.meme-cooking.testnet" >> .env
+        run: echo "VITE_CONNECT_ID=factory.v10.meme-cooking.testnet" >> .env
 
       - name: Add Pinate JWT to .env
         run: echo "VITE_PINATA_JWT=$VITE_PINATA_JWT" >> .env

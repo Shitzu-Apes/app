@@ -168,7 +168,7 @@
         <button
           on:click={async () => {
             const shareUrl = new URL(
-              `https://${import.meta.env.VITE_MEMECOOKING_HOSTNAME}/meme/${memebid.meme_id}`,
+              `${window.location.origin}/meme/${memebid.meme_id}`,
             );
             if ($accountId$) {
               shareUrl.searchParams.set("referral", $accountId$);

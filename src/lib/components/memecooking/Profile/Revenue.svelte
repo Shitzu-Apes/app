@@ -2,6 +2,7 @@
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
 
   import HowItWorkSheet from "../BottomSheet/HowItWorkSheet.svelte";
+  import RevenueShare from "../BottomSheet/RevenueShare.svelte";
   import { addToast } from "../Toast.svelte";
 
   import Near from "$lib/assets/Near.svelte";
@@ -26,6 +27,8 @@
   let hasRevenue = revenue && revenue.length > 0;
 
   let amount = hasRevenue ? revenue![0].amount : "0";
+
+  const { accountId$ } = wallet;
 
   async function claim() {
     if (!hasRevenue) {
@@ -63,6 +66,50 @@
       <br />
       <button class="text-sm" on:click={howToEarn}>[How to]</button>
     {/if}
+
+    <button
+      class="i-mdi:information-outline"
+      on:click={() => openBottomSheet(RevenueShare)}
+    />
+
+    <button
+      class="self-end"
+      on:click={async () => {
+        const shareUrl = new URL(`${window.location.origin}/board`);
+        if ($accountId$) {
+          shareUrl.searchParams.set("referral", $accountId$);
+        }
+
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: document.title,
+              url: shareUrl.toString(),
+            });
+          } catch (error) {
+            console.error("Error sharing:", error);
+          }
+        } else {
+          try {
+            await navigator.clipboard.writeText(shareUrl.toString());
+            addToast({
+              data: {
+                type: "simple",
+                data: {
+                  title: "Success",
+                  description: "Link copied to clipboard!",
+                  color: "green",
+                },
+              },
+            });
+          } catch (error) {
+            console.error("Error copying to clipboard:", error);
+          }
+        }
+      }}
+    >
+      [copy link]
+    </button>
   </h2>
   <div class="flex justify-between items-end">
     <div class="flex items-center gap-2">

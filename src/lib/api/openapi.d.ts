@@ -556,6 +556,8 @@ export interface paths {
                 image?: string | null;
                 coronated_at_ms?: number | null;
               }[];
+              referral_fees: string;
+              withdraw_fees: string;
             };
           };
         };
@@ -1036,6 +1038,90 @@ export interface paths {
                 }[];
               }[];
             };
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/leaderboard/referral": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get referral fee leaderboard
+     * @description Get referral fee leaderboard
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description return data related to accountId */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              account_id: string;
+              referral_fees: string;
+            }[];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/leaderboard/withdraw": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get withdraw fee leaderboard
+     * @description Get withdraw fee leaderboard
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description return data related to accountId */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              account_id: string;
+              withdraw_fees: string;
+            }[];
           };
         };
       };
