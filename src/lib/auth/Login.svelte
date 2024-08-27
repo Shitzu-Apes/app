@@ -42,11 +42,7 @@
   {:else}
     <Button
       onClick={() => {
-        if (wallet.isTG) {
-          wallet.loginViaHere();
-        } else {
-          showWalletSelector();
-        }
+        showWalletSelector();
       }}
       type="secondary"
     >
