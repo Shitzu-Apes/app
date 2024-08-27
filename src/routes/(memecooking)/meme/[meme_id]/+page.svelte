@@ -59,7 +59,7 @@
 </script>
 
 <div class="w-full p-2 pb-25">
-  <div class="mx-auto flex">
+  <div class="mx-auto flex mb-5">
     <a href="/board" class="text-white text-2xl mx-auto hover:font-bold"
       >[go back]</a
     >

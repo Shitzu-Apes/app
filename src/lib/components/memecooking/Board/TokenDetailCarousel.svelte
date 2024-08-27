@@ -187,24 +187,6 @@
       {/if}
     </div>
   </div>
-  <div class="absolute right-0 bottom-0 p-2 mb-5 flex bg-black/25 rounded-t">
-    <ul class="flex flex-col items-end gap-3">
-      <li>
-        <button
-          on:click={() => {
-            openBottomSheet(TokenCommentSheet, {
-              meme: memebid,
-            });
-          }}
-        >
-          [discuss]
-        </button>
-      </li>
-      <li>
-        <button on:click={share} class="hover:font-bold"> [share] </button>
-      </li>
-    </ul>
-  </div>
 </div>
 <div
   class="w-full h-8 flex justify-evenly border-b bg-shitzu-4 text-black items-center"
@@ -260,36 +242,35 @@
       <span class="flex items-center justify-center"> [share] </span>
     </button>
   </div>
-  <div class="w-full flex justify-end items-center mt-4 px-2">
-    <div class="flex items-center gap-3 text-shitzu-2">
-      {#if typeof memebid.staker_count === "number"}
-        <button
-          class="text-sm flex items-center gap-1"
-          on:click={() => {
-            emblaApi?.scrollTo(3);
-          }}
-        >
-          <div class="i-mdi:account-multiple size-5" />
-          <span class="font-bold">
-            {memebid.staker_count}
-          </span>
-        </button>
-      {/if}
-      {#if typeof memebid.replies_count === "number"}
-        <button
-          class="text-sm flex items-center gap-1"
-          on:click={() => {
-            openBottomSheet(TokenCommentSheet, {
-              meme: memebid,
-            });
-          }}
-        >
-          <div class="i-mdi:chat size-5" />
-          <span class="font-bold">
-            {memebid.replies_count}
-          </span>
-        </button>
-      {/if}
-    </div>
+  <div class="w-full flex items-center mt-2 px-2">
+    {#if typeof memebid.staker_count === "number"}
+      <button
+        class="text-base flex justify-center items-center gap-1 flex-grow basis-0 py-2"
+        on:click={() => {
+          emblaApi?.scrollTo(3);
+        }}
+      >
+        <span class="hover:font-bold">
+          [{memebid.staker_count}
+          {memebid.staker_count <= 1 ? "staker" : "stakers"}]
+        </span>
+      </button>
+    {/if}
+    <div class="w-px h-6 bg-white" />
+    {#if typeof memebid.replies_count === "number"}
+      <button
+        class="text-base flex justify-center items-center gap-1 flex-grow basis-0 py-2"
+        on:click={() => {
+          openBottomSheet(TokenCommentSheet, {
+            meme: memebid,
+          });
+        }}
+      >
+        <span class="hover:font-bold">
+          [{memebid.replies_count}
+          {memebid.replies_count <= 1 ? "comment" : "comments"}]
+        </span>
+      </button>
+    {/if}
   </div>
 </div>

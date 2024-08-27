@@ -45,9 +45,9 @@
         : 'bg-gradient-to-r from-red-500 to-rose-600'}"
     ></div>
     <div
-      class="absolute -top-6 -right-2 transform translate-x-1/2 -translate-y-full w-fit animate-bounce animate-duration-300"
+      class="absolute -top-7 -right-3 transform translate-x-1/2 -translate-y-full w-fit animate-bounce animate-duration-300"
     >
-      <div class="i-mdi:arrow-down-bold size-4" />
+      <div class="i-mdi:arrow-down-bold size-6" />
     </div>
   </div>
   {#if progress >= 1 && explode}
