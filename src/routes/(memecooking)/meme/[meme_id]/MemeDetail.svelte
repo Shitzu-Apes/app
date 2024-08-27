@@ -34,7 +34,7 @@
 
 <div class="flex px-2 gap-2">
   <div class="flex-grow">
-    <div class="w-full mx-auto mb-10">
+    <div class="w-full my-8">
       <ProgressBar
         progress={new FixedNumber(meme.total_deposit, 24)
           .div(requiredStake)

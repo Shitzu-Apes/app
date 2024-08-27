@@ -23,25 +23,34 @@
 </script>
 
 {#if textVisible}
-  <div class="mb-2">Staking progress: {(progress * 100).toFixed(2)}%</div>
+  <div class="mb-2 text-shitzu-4">progress: {(progress * 100).toFixed(2)}%</div>
 {/if}
 <div
   class="w-full h-5 bg-gray-3 {progress > 0.5
-    ? progress > 1
+    ? progress >= 1
       ? 'text-shitzu-4'
       : 'text-amber-5'
     : 'text-red-5'} relative border-2 border-current"
 >
   <div
-    class="h-3 absolute top-0.5 left-0.5 transition-width duration-2000 animate-ease-linear animate-pulse animate-duration-500 {progress >
-    0.5
-      ? progress > 1
-        ? 'bg-gradient-to-r from-green-400 to-shitzu-4'
-        : 'bg-gradient-to-r from-yellow-400 to-amber-500'
-      : 'bg-gradient-to-r from-red-500 to-rose-600'}"
+    class="h-3 absolute top-0.5 left-0.5 transition-width duration-2000"
     style={`width: ${animatedWidth * 100}%`}
-  ></div>
-  {#if progress > 1 && explode}
+  >
+    <div
+      class="w-full h-full animate-ease-linear animate-pulse animate-duration-500 {progress >
+      0.5
+        ? progress >= 1
+          ? 'bg-gradient-to-r from-green-400 to-shitzu-4'
+          : 'bg-gradient-to-r from-yellow-400 to-amber-500'
+        : 'bg-gradient-to-r from-red-500 to-rose-600'}"
+    ></div>
+    <div
+      class="absolute -top-6 -right-2 transform translate-x-1/2 -translate-y-full w-fit animate-bounce animate-duration-300"
+    >
+      <div class="i-mdi:arrow-down-bold size-4" />
+    </div>
+  </div>
+  {#if progress >= 1 && explode}
     <img
       out:fade
       src="/animations/explosion.gif"
@@ -56,7 +65,7 @@
     />
   {/if}
 
-  {#if progress > 1 && mindBlown}
+  {#if progress >= 1 && mindBlown}
     <div
       transition:fade
       class="absolute top-0 mxa overflow-visible z-10 pointer-events-none w-[320px] h-[210px] opacity-50"
