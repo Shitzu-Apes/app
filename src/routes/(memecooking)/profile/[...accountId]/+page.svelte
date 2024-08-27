@@ -2,6 +2,7 @@
   import { createTabs, melt } from "@melt-ui/svelte";
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
   import { slide } from "svelte/transition";
+  import { match } from "ts-pattern";
 
   import { page } from "$app/stores";
   import { client } from "$lib/api/client";
@@ -12,9 +13,11 @@
   import DepositList from "$lib/components/memecooking/Profile/DepositList.svelte";
   import Revenue from "$lib/components/memecooking/Profile/Revenue.svelte";
   import type { Meme } from "$lib/models/memecooking";
+  import { wallet } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
   import { fetchBlockHeight } from "$lib/near/rpc";
   import { awaitRpcBlockHeight } from "$lib/store/indexer";
+  import { FixedNumber } from "$lib/util";
   import { getTokenId } from "$lib/util/getTokenId";
   import {
     sortMemeByEndtimestamp,
@@ -22,6 +25,9 @@
   } from "$lib/util/sortMemeByCreatedAt";
 
   const { accountId } = $page.params;
+  const { accountId$ } = wallet;
+
+  $: isOwnAccount = accountId === $accountId$;
 
   let fullAccount: ReturnType<typeof fetchFullAccount> = new Promise<never>(
     () => {},
@@ -166,6 +172,8 @@
         claims,
         created: profile.coin_created,
         revenue,
+        referralFees: new FixedNumber(profile.referral_fees, 24),
+        withdrawFees: new FixedNumber(profile.withdraw_fees, 24),
       };
     });
     fullAccount = res;
@@ -176,30 +184,41 @@
     console.log("[fullAccount]", account);
   });
 
-  const tabs = [
-    {
-      id: "not-finalized",
-      label: "withdraw Stake",
-      info: "All ongoing staking and unsuccessful launches",
-    },
-    {
-      id: "finalized",
-      label: "claim Token",
-      info: "Successful launches",
-    },
-    {
-      id: "created",
-      label: "created Token",
-      info: "All tokens created by this account",
-    },
-  ];
+  $: tabs = match(isOwnAccount)
+    .with(true, () => [
+      {
+        id: "not-finalized",
+        label: "withdraw Stake",
+        info: "All ongoing staking and unsuccessful launches",
+        component: DepositList,
+      },
+      {
+        id: "finalized",
+        label: "claim Token",
+        info: "Successful launches",
+        component: ClaimList,
+      },
+      {
+        id: "created",
+        label: "created Token",
+        info: "All tokens created by this account",
+        component: CoinCreated,
+      },
+    ])
+    .with(false, () => [
+      {
+        id: "created",
+        label: "created Token",
+        info: "All tokens created by this account",
+        component: CoinCreated,
+      },
+    ])
+    .exhaustive();
 
   const {
     elements: { root, list, content, trigger },
     states: { value },
-  } = createTabs({
-    defaultValue: tabs[0].id,
-  });
+  } = createTabs();
 
   async function update(
     outcome: FinalExecutionOutcome | FinalExecutionOutcome[] | undefined,
@@ -234,7 +253,13 @@
   {#await fullAccount}
     <div transition:slide class="i-svg-spinners:pulse-3 size-20 mt-[80px]" />
   {:then info}
-    <Revenue revenue={info?.revenue} {update} />
+    <Revenue
+      revenue={info?.revenue}
+      referralFees={info?.referralFees}
+      withdrawFees={info?.withdrawFees}
+      {update}
+      {isOwnAccount}
+    />
 
     <div use:melt={$root}>
       <div use:melt={$list} class="flex gap-1">
@@ -271,15 +296,17 @@
     </div>
 
     {#if info}
-      <section class="w-full max-w-sm" use:melt={$content(tabs[0].id)}>
-        <DepositList deposits={info.deposits} {update} />
-      </section>
-      <section class="w-full max-w-sm" use:melt={$content(tabs[1].id)}>
-        <ClaimList claims={info.claims} {update} />
-      </section>
-      <section class="w-full max-w-sm" use:melt={$content(tabs[2].id)}>
-        <CoinCreated coins={info.created} {update} />
-      </section>
+      {#each tabs as tab}
+        <section class="w-full max-w-sm" use:melt={$content(tab.id)}>
+          {#if tab.component === DepositList}
+            <DepositList deposits={info.deposits} {update} />
+          {:else if tab.component === ClaimList}
+            <ClaimList claims={info.claims} {update} />
+          {:else if tab.component === CoinCreated}
+            <CoinCreated coins={info.created} {update} />
+          {/if}
+        </section>
+      {/each}
     {/if}
   {/await}
 </section>
