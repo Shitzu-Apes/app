@@ -46,7 +46,7 @@
 
           const holders_with_percentage = holders.map(([holder, amount]) => {
             const total_staked = new FixedNumber(
-              meme.total_deposit,
+              BigInt(meme.total_deposit) - BigInt(meme.total_withdraw_fees),
               24,
             ).toNumber();
             const percentage =
