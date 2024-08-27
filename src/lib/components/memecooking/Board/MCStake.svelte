@@ -4,11 +4,13 @@
   import { writable } from "svelte/store";
   import { match, P } from "ts-pattern";
 
+  import ReferralSheet from "../BottomSheet/ReferralSheet.svelte";
   import { addToast } from "../Toast.svelte";
 
   import Near from "$lib/assets/Near.svelte";
   import { Button } from "$lib/components";
   import TokenInput from "$lib/components/TokenInput.svelte";
+  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { Ft, nearBalance, refreshNearBalance, wallet } from "$lib/near";
   import {
@@ -193,13 +195,14 @@
         });
       }
 
-      return MemeCooking.deposit(
+      const amount = $input$.clone();
+      await MemeCooking.deposit(
         wallet,
         {
           amount: $input$.toU128(),
           extraNearDeposit: extraNearDeposit.toString(),
           memeId: meme.meme_id,
-          referrer: referrer,
+          referrer,
         },
         {
           onSuccess: () => {
@@ -218,6 +221,11 @@
         needStorageDeposit,
         wrapNearDeposit,
       );
+
+      openBottomSheet(ReferralSheet, {
+        amount,
+        meme,
+      });
     } else {
       return MemeCooking.withdraw(
         wallet,
