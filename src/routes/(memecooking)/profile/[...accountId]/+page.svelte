@@ -130,13 +130,21 @@
           const unclaimed = unclaimedInfo.find(
             (m) => m && m.meme.meme_id === meme_id,
           );
-          if (unclaimed) return unclaimed;
+          if (unclaimed)
+            return {
+              token_id: unclaimed.token_id,
+              amount: new FixedNumber(
+                unclaimed.amount,
+                unclaimed.meme.decimals,
+              ),
+              meme: unclaimed.meme,
+            };
           // try to get meme from profile.coins_held
           const meme = profile.coins_held.find((m) => m.meme_id === meme_id);
           if (meme)
             return {
               token_id: getTokenId(meme.symbol, meme.meme_id),
-              amount: "0",
+              amount: new FixedNumber(0n, meme.decimals),
               meme,
             };
           return null;
@@ -147,11 +155,11 @@
         .sort((a, b) =>
           sortMemeByUnclaimedThenEndTimestamp(
             {
-              unclaimed: BigInt(a.amount) > 0n,
+              unclaimed: a.amount.valueOf() > 0n,
               end_timestamp_ms: a.meme.end_timestamp_ms ?? 0,
             },
             {
-              unclaimed: BigInt(b.amount) > 0n,
+              unclaimed: b.amount.valueOf() > 0n,
               end_timestamp_ms: b.meme.end_timestamp_ms ?? 0,
             },
           ),

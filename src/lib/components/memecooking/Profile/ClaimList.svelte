@@ -6,10 +6,11 @@
 
   import type { Meme } from "$lib/api/client";
   import { requiredStake } from "$lib/near/memecooking";
+  import type { FixedNumber } from "$lib/util";
 
   export let claims: {
     token_id: string;
-    amount: string;
+    amount: FixedNumber;
     meme: Meme;
   }[];
   export let update: (
