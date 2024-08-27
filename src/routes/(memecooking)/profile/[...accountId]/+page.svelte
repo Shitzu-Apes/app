@@ -291,10 +291,11 @@
                         deposit.meme.end_timestamp_ms < Date.now(),
                     ).length}
                   </div>
-                {:else if index === 1 && info.claims.length > 0}
+                {:else if index === 1 && info.claims.filter((claim) => claim.amount.valueOf() > 0n).length > 0}
                   <div class="ml-1 flex items-center text-sm text-red-4">
                     <div class="i-line-md:bell-twotone-alert-loop size-4" />
-                    {info.claims.length}
+                    {info.claims.filter((claim) => claim.amount.valueOf() > 0n)
+                      .length}
                   </div>
                 {/if}
               {/if}
