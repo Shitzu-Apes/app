@@ -65,13 +65,13 @@
           }
         }}
       >
-        [Share Referral Link]
+        [Copy Referral Link]
       </button>
       <a
         href={twitterShareLink}
         target="_blank"
         class="text-white text-lg hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white self-center"
-        >[Share on Twitter]</a
+        >[Share on 𝕏]</a
       >
 
       <span class="inline-block">
