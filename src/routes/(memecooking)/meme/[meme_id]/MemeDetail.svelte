@@ -32,23 +32,15 @@
   });
 </script>
 
-<div class="w-full flex">
-  {#if meme.end_timestamp_ms}
-    <Countdown
-      class="mx-auto text-shitzu-4 mb-10 justify-evenly w-full max-w-xl"
-      to={meme.end_timestamp_ms}
-    />
-  {/if}
-</div>
-<div class="w-120 mx-auto mb-10">
-  <ProgressBar
-    progress={new FixedNumber(meme.total_deposit, 24)
-      .div(requiredStake)
-      .toNumber()}
-  />
-</div>
 <div class="flex px-2 gap-2">
   <div class="flex-grow">
+    <div class="w-full mx-auto mb-10">
+      <ProgressBar
+        progress={new FixedNumber(meme.total_deposit, 24)
+          .div(requiredStake)
+          .toNumber()}
+      />
+    </div>
     <div class="w-full flex items-center gap-3 my-2 text-sm">
       <span>
         {meme.name}
@@ -158,6 +150,12 @@
     >
       [share]
     </button>
+    {#if meme.end_timestamp_ms}
+      <Countdown
+        class="mx-auto text-shitzu-4 mb-10 justify-evenly w-full max-w-xl"
+        to={meme.end_timestamp_ms}
+      />
+    {/if}
     <div class="w-full min-h-74 border-2 border-shitzu-4 rounded-xl p-2">
       <McActionBox {meme} />
     </div>

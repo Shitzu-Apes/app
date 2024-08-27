@@ -33,7 +33,12 @@
     : 'text-red-5'} relative border-2 border-current"
 >
   <div
-    class="h-3 bg-current absolute top-0.5 left-0.5 transition-width duration-2000 animate-ease-linear"
+    class="h-3 absolute top-0.5 left-0.5 transition-width duration-2000 animate-ease-linear animate-pulse animate-duration-500 {progress >
+    0.5
+      ? progress > 1
+        ? 'bg-gradient-to-r from-green-400 to-shitzu-4'
+        : 'bg-gradient-to-r from-yellow-400 to-amber-500'
+      : 'bg-gradient-to-r from-red-500 to-rose-600'}"
     style={`width: ${animatedWidth * 100}%`}
   ></div>
   {#if progress > 1 && explode}
