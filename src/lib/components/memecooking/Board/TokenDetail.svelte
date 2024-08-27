@@ -3,6 +3,7 @@
   import Countdown from "../Countdown.svelte";
   import ProgressBarMobile from "../ProgressBarMobile.svelte";
 
+  import Squircle from "$lib/components/Squircle.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { FixedNumber } from "$lib/util";
   import { projectedMCap } from "$lib/util/projectedMCap";
@@ -56,10 +57,10 @@
     >
       <div class="flex items-start w-full">
         <div class="w-full flex items-center gap-2 mb-4">
-          <img
+          <Squircle
             src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
-            alt="{memebid.name} icon"
             class="size-12 rounded-full"
+            stroke={false}
           />
           <div class="flex-1 flex flex-col">
             <h4 class="text-base font-medium flex items-center gap-1">

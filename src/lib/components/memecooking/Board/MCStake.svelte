@@ -363,7 +363,7 @@
             : 'bg-rose-5'} px-1 rounded"
         >
           <button
-            class="{$value === 'deposit'
+            class="text-white {$value === 'deposit'
               ? 'hover:text-shitzu-4'
               : 'hover:text-rose-2'} flex items-center gap-1"
             on:click={() => {
@@ -401,10 +401,10 @@
         finished ||
         !hasEnoughTokens}
       class="{$value === 'deposit'
-        ? 'bg-shitzu-3'
-        : 'bg-rose-4'} w-full py-2 rounded-full text-xl tracking-wider text-black border-b-4 {$value ===
+        ? 'bg-shitzu-4'
+        : 'bg-rose-4'} w-full py-2 rounded text-xl tracking-wider text-black {$value ===
       'deposit'
-        ? 'border-shitzu-4'
+        ? 'border-shitzu-5'
         : 'border-rose-5'} active:translate-y-1 my-4"
     >
       {#if finished}

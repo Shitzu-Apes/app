@@ -290,7 +290,7 @@
             : 'bg-rose-5'} px-1 rounded"
         >
           <button
-            class="{$value === 'buy'
+            class="text-white {$value === 'buy'
               ? 'hover:text-shitzu-4'
               : 'hover:text-rose-2'} flex items-center gap-1"
             on:click={() => {
@@ -344,10 +344,10 @@
       type="custom"
       disabled={$input$ == null || $input$.toNumber() == 0}
       class="{$value === 'buy'
-        ? 'bg-shitzu-3'
-        : 'bg-rose-4'} w-full py-2 rounded-full text-xl tracking-wider text-black border-b-4 
+        ? 'bg-shitzu-4'
+        : 'bg-rose-4'} w-full py-2 rounded text-xl tracking-wider text-black
         {$value === 'buy'
-        ? 'border-shitzu-4'
+        ? 'border-shitzu-5'
         : 'border-rose-5'} active:translate-y-1 my-12"
     >
       [{$value}]

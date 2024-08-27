@@ -102,6 +102,42 @@
 
       return trades.sort((a, b) => b.timestamp_ms - a.timestamp_ms);
     });
+
+  async function share() {
+    const shareUrl = new URL(
+      `${window.location.origin}/meme/${memebid.meme_id}`,
+    );
+    if ($accountId$) {
+      shareUrl.searchParams.set("referral", $accountId$);
+    }
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: document.title,
+          url: shareUrl.toString(),
+        });
+      } catch (error) {
+        console.error("Error sharing:", error);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl.toString());
+        addToast({
+          data: {
+            type: "simple",
+            data: {
+              title: "Success",
+              description: "Link copied to clipboard!",
+              color: "green",
+            },
+          },
+        });
+      } catch (error) {
+        console.error("Error copying to clipboard:", error);
+      }
+    }
+  }
 </script>
 
 <svelte:window
@@ -165,46 +201,7 @@
         </button>
       </li>
       <li>
-        <button
-          on:click={async () => {
-            const shareUrl = new URL(
-              `${window.location.origin}/meme/${memebid.meme_id}`,
-            );
-            if ($accountId$) {
-              shareUrl.searchParams.set("referral", $accountId$);
-            }
-
-            if (navigator.share) {
-              try {
-                await navigator.share({
-                  title: document.title,
-                  url: shareUrl.toString(),
-                });
-              } catch (error) {
-                console.error("Error sharing:", error);
-              }
-            } else {
-              try {
-                await navigator.clipboard.writeText(shareUrl.toString());
-                addToast({
-                  data: {
-                    type: "simple",
-                    data: {
-                      title: "Success",
-                      description: "Link copied to clipboard!",
-                      color: "green",
-                    },
-                  },
-                });
-              } catch (error) {
-                console.error("Error copying to clipboard:", error);
-              }
-            }
-          }}
-          class="hover:font-bold"
-        >
-          [share]
-        </button>
+        <button on:click={share} class="hover:font-bold"> [share] </button>
       </li>
     </ul>
   </div>
@@ -226,35 +223,43 @@
 </div>
 
 <div class="w-full flex flex-col justify-center items-center pb-2 px-2 mt-3">
-  <button
-    on:click={(e) => {
-      e.preventDefault();
-      if (
-        !memebid.pool_id &&
-        memebid.end_timestamp_ms &&
-        memebid.end_timestamp_ms < Date.now()
-      ) {
-        goto(`/create`);
+  <div class="flex w-full gap-2">
+    <button
+      on:click={(e) => {
+        e.preventDefault();
+        if (
+          !memebid.pool_id &&
+          memebid.end_timestamp_ms &&
+          memebid.end_timestamp_ms < Date.now()
+        ) {
+          goto(`/create`);
 
-        localStorage.setItem("meme_to_cto", JSON.stringify(memebid));
-      } else {
-        openBottomSheet(StakeSheet, { meme: memebid });
-      }
-    }}
-    class="{!memebid.pool_id &&
-    memebid.end_timestamp_ms &&
-    memebid.end_timestamp_ms < Date.now()
-      ? 'bg-memecooking-5 border-memecooking-6'
-      : 'bg-shitzu-4 border-shitzu-6'} w-full py-2 rounded-lg text-xl tracking-wider text-black border-b-4 active:translate-y-1"
-  >
-    {#if memebid.pool_id}
-      [buy]
-    {:else if memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now()}
-      [relaunch]
-    {:else}
-      [stake]
-    {/if}
-  </button>
+          localStorage.setItem("meme_to_cto", JSON.stringify(memebid));
+        } else {
+          openBottomSheet(StakeSheet, { meme: memebid });
+        }
+      }}
+      class="{!memebid.pool_id &&
+      memebid.end_timestamp_ms &&
+      memebid.end_timestamp_ms < Date.now()
+        ? 'bg-memecooking-5 border-memecooking-6'
+        : 'bg-shitzu-4 border-shitzu-6'} flex-grow py-2 rounded text-xl tracking-wider text-black"
+    >
+      {#if memebid.pool_id}
+        [buy]
+      {:else if memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now()}
+        [relaunch]
+      {:else}
+        [stake]
+      {/if}
+    </button>
+    <button
+      on:click={share}
+      class="text-xl tracking-wider text-shitzu-4 hover:font-bold w-[80px]"
+    >
+      <span class="flex items-center justify-center"> [share] </span>
+    </button>
+  </div>
   <div class="w-full flex justify-end items-center mt-4 px-2">
     <div class="flex items-center gap-3 text-shitzu-2">
       {#if typeof memebid.staker_count === "number"}

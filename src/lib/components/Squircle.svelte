@@ -8,6 +8,7 @@
   export { className as class };
 
   let ready = false;
+  export let stroke = true;
 
   const svgPath = getSvgPath({
     width: 200,
@@ -22,7 +23,7 @@
   viewBox="-10 -10 220 220"
   fill="none"
   stroke="currentColor"
-  stroke-width="1"
+  stroke-width={stroke ? 1 : 0}
   stroke-linecap="round"
   stroke-linejoin="round"
   width="200"
@@ -45,7 +46,7 @@
     id="squircle"
     d={svgPath}
     stroke="currentColor"
-    stroke-width="10"
+    stroke-width={stroke ? 10 : 0}
     fill={src && ready ? "transparent" : "currentColor"}
     class="transition duration-200 ease-in-out"
   />
