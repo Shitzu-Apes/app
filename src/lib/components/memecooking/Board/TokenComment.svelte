@@ -86,9 +86,9 @@
   {#if !reply.reply_to_id}
     <button
       on:click={() => onReplyTo(reply.id.toString())}
-      class="flex text-xs text-shitzu-3 pl-4 mt-1 mb-2 w-fit"
+      class="flex text-xs text-shitzu-3 pl-4 mt-1 mb-2 w-fit hover:font-bold"
     >
-      reply
+      [reply]
     </button>
   {/if}
   {#if reply.child_replies}

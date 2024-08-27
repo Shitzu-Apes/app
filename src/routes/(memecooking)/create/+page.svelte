@@ -367,7 +367,7 @@
 <div class="flex flex-col items-center min-h-screen text-white">
   <div class="w-full max-w-md p-4 space-y-4 rounded-lg">
     <div class="flex justify-center items-center">
-      <a href="/board" class="text-2xl font-500">[go back]</a>
+      <a href="/board" class="text-2xl font-500 hover:font-bold">[go back]</a>
     </div>
 
     <div class="space-y-2">

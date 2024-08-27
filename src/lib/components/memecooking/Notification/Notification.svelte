@@ -46,7 +46,7 @@
     <img src={SHITZU_POCKET} alt="shitzu pocket" class="size-6 mr-1" />
     <a
       href={`/profile/${notification.party}`}
-      class="max-w-20 overflow-hidden text-ellipsis mx-1"
+      class="max-w-20 overflow-hidden text-ellipsis mx-1 hover:font-bold"
     >
       {notification.party}
     </a>
@@ -57,7 +57,7 @@
     })} for
     <a
       href={`/meme/${notification.meme_id}`}
-      class="text-shitzu-7 flex items-center ml-1"
+      class="text-shitzu-7 flex items-center ml-1 hover:font-bold"
     >
       {notification.ticker}
       <img

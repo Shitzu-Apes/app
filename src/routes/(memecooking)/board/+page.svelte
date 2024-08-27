@@ -11,7 +11,7 @@
 
 <div class="flex flex-col items-center gap-4 mt-2 min-h-screen">
   <a href="/create">
-    <h1 class="text-2xl font-500">[start a new coin]</h1>
+    <h1 class="text-2xl font-500 hover:font-bold">[start a new coin]</h1>
   </a>
 
   <div class="flex items-center">

@@ -94,7 +94,7 @@
                       <span>
                         Directly convert your SOL from Solana to NEAR on Near
                         via <a
-                          class="text-lightblue-3"
+                          class="text-lightblue-3 hover:underline hover:font-bold"
                           href="https://app.rocketx.exchange/swap/SOLANA.solana/NEAR.near/0.0061?from=Solana&to=NEAR%20Protocol&mode=w"
                           target="_blank"
                           rel="noopener noreferrer"
@@ -124,7 +124,7 @@
                     <li class="flex justify-between">
                       <span>
                         Swap SOL.w to NEAR via <a
-                          class="text-lightblue-3"
+                          class="text-lightblue-3 hover:underline hover:font-bold"
                           href="https://app.ref.finance/#22.contract.portalbridge.near|near"
                           target="_blank"
                           rel="noopener noreferrer"
@@ -142,7 +142,7 @@
                       <span>
                         Send USDC from various LayerZero compatible EVMs to
                         Aurora via <a
-                          class="text-lightblue-3"
+                          class="text-lightblue-3 hover:underline hover:font-bold"
                           href="https://stargate.finance/bridge"
                           target="_blank"
                           rel="noopener noreferrer"
@@ -156,7 +156,7 @@
                     >
                       <span>
                         Send USDC from Aurora to Near via <a
-                          class="text-lightblue-3"
+                          class="text-lightblue-3 hover:underline hover:font-bold"
                           href="https://rainbowbridge.app/"
                           target="_blank"
                           rel="noopener noreferrer"
@@ -168,7 +168,7 @@
                     <li class="flex justify-between">
                       <span>
                         Swap USDC to NEAR via <a
-                          class="text-lightblue-3"
+                          class="text-lightblue-3 hover:underline hover:font-bold"
                           href="https://app.ref.finance/#17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1|near"
                           target="_blank"
                           rel="noopener noreferrer"
@@ -185,7 +185,7 @@
                     >
                       <span>
                         Send any ERC-20 or native ETH from Ethereum to Near via <a
-                          class="text-lightblue-3"
+                          class="text-lightblue-3 hover:underline hover:font-bold"
                           href="https://rainbowbridge.app/"
                           target="_blank"
                           rel="noopener noreferrer"
@@ -197,7 +197,7 @@
                     <li class="flex justify-between">
                       <span>
                         Swap your tokens to NEAR via <a
-                          class="text-lightblue-3"
+                          class="text-lightblue-3 hover:underline hover:font-bold"
                           href="https://app.ref.finance/#|near"
                           target="_blank"
                           rel="noopener noreferrer"

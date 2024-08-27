@@ -24,6 +24,7 @@
             href="https://twitter.com/memedotcooking"
             target="_blank"
             rel="noopener noreferrer"
+            class="hover:font-bold hover:underline"
           >
             [twitter]
           </a>
@@ -33,6 +34,7 @@
             on:click={() => {
               openBottomSheet(BridgeSheet);
             }}
+            class="hover:font-bold"
           >
             [bridge]
           </button>
@@ -44,6 +46,7 @@
             href="https://t.me/+wIFBaPQJmAcwYTc0"
             target="_blank"
             rel="noopener noreferrer"
+            class="hover:font-bold hover:underline"
           >
             [telegram]
           </a>
@@ -53,9 +56,10 @@
             on:click={() => {
               openBottomSheet(HowItWorkSheet);
             }}
+            class="hover:font-bold"
           >
-            [how it works]</button
-          >
+            [how it works]
+          </button>
         </li>
       </div>
     </ul>
@@ -67,15 +71,14 @@
 
   {#if $accountId$}
     <div class="flex flex-col items-end flex-1 sm:flex-none">
-      <a
-        href="/profile/{$accountId$}"
-        class="text-sm inline-flex items-center h-fit"
-      >
+      <div class="text-sm inline-flex items-center h-fit">
         [
-        <Chef account={$accountId$} class="mr-1 text-shitzu-4 w-fit" />
+        <Chef account={$accountId$} class="mr-1 text-shitzu-4 w-fit" asLink />
         ]
-      </a>
-      <button class="text-xs w-fit" on:click={wallet.signOut}>[logout]</button>
+      </div>
+      <button class="text-xs w-fit hover:font-bold" on:click={wallet.signOut}
+        >[logout]</button
+      >
     </div>
   {:else}
     <button

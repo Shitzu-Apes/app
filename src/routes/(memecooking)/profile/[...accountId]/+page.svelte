@@ -244,7 +244,8 @@
           href="https://pikespeak.ai/wallet-explorer/{accountId}/"
           target="_blank"
           rel="noopener noreferrer"
-          class="text-sm text-shitzu-4">[view on explorer]</a
+          class="text-sm text-shitzu-4 hover:underline hover:text-shitzu-5 hover:font-bold"
+          >[view on explorer]</a
         >
       </div>
     </div>

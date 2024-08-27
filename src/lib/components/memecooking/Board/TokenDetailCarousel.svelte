@@ -201,6 +201,7 @@
               }
             }
           }}
+          class="hover:font-bold"
         >
           [share]
         </button>

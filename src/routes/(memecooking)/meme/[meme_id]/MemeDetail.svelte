@@ -119,7 +119,7 @@
 
   <div class="w-90 max-w-1/3 p-2 flex flex-col gap-5">
     <button
-      class="self-end"
+      class="self-end hover:font-bold"
       on:click={async () => {
         const shareUrl = new URL(
           `${window.location.origin}/meme/${meme.meme_id}`,

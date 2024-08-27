@@ -56,7 +56,9 @@
 
 <div class="mt-10 w-full p-2 pb-25">
   <div class="mx-auto flex">
-    <a href="/board" class="text-white text-2xl mx-auto mb-10">[go back]</a>
+    <a href="/board" class="text-white text-2xl mx-auto mb-10 hover:font-bold"
+      >[go back]</a
+    >
   </div>
   {#await Promise.all([meme, requiredStake])}
     <div class="w-full text-center text-2xl">Loading...</div>

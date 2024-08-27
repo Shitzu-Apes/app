@@ -90,7 +90,7 @@
           href="{import.meta.env.VITE_EXPLORER_URL}/transactions/{txId}"
           target="_blank"
           rel="noopener noreferrer"
-          class="flex-[0.2_0_5rem] text-start hover:text-shitzu-4 hover:underline overflow-hidden text-ellipsis"
+          class="flex-[0.2_0_5rem] text-start hover:text-shitzu-4 hover:underline hover:font-bold overflow-hidden text-ellipsis"
         >
           {txId.slice(0, 4)}...{txId.slice(-4)}
         </a>

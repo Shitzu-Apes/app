@@ -89,8 +89,9 @@
         on:click={() => {
           page = Math.max(1, page - 1);
         }}
+        class="hover:font-bold"
       >
-        prev
+        [prev]
       </button>
       <button
         on:click={() => {
@@ -99,8 +100,9 @@
             Math.ceil(displayedMemebids.length / perPage),
           );
         }}
+        class="hover:font-bold"
       >
-        next
+        [next]
       </button>
     </div>
   </div>
