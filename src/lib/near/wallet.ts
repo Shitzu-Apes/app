@@ -39,12 +39,16 @@ export class Wallet {
           import("@near-wallet-selector/core"),
           import("@near-wallet-selector/here-wallet"),
           import("@near-wallet-selector/meteor-wallet"),
+          import("@near-wallet-selector/bitte-wallet"),
+          import("@near-wallet-selector/okx-wallet"),
           import("@near-wallet-selector/my-near-wallet"),
         ]).then(
           ([
             { setupWalletSelector },
             { setupHereWallet },
             { setupMeteorWallet },
+            { setupBitteWallet },
+            { setupOKXWallet },
             { setupMyNearWallet },
           ]) =>
             setupWalletSelector({
@@ -52,6 +56,8 @@ export class Wallet {
               modules: [
                 setupHereWallet(),
                 setupMeteorWallet(),
+                setupBitteWallet(),
+                setupOKXWallet(),
                 setupMyNearWallet(),
               ],
             }),
@@ -473,13 +479,20 @@ export interface WalletMetadata {
 export const NEAR_WALLETS: Record<string, WalletMetadata> = {
   "here-wallet": {
     url: "https://herewallet.app/",
-    twitter: "https://twitter.com/here_wallet",
+    twitter: "https://x.com/here_wallet",
   },
   "meteor-wallet": {
     url: "https://meteorwallet.app/",
-    extensionUrl:
-      "https://chrome.google.com/webstore/detail/meteor-wallet/pcndjhkinnkaohffealmlmhaepkpmgkb",
-    twitter: "https://twitter.com/MeteorWallet",
+    twitter: "https://x.com/MeteorWallet",
+  },
+  "bitte-wallet": {
+    url: "https://bitte.ai/",
+    twitter: "https://x.com/BitteProtocol",
+    telegram: "https://t.me/mintdev",
+  },
+  "okx-wallet": {
+    url: "https://okx.com/web3",
+    twitter: "https://x.com/okxweb3",
   },
   "my-near-wallet": {
     url: "https://app.mynearwallet.com/",

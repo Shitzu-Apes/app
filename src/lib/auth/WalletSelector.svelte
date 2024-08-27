@@ -86,3 +86,10 @@
     </div>
   </slot>
 </BottomSheetContent>
+
+<style lang="scss">
+  .bitte-wallet {
+    background: white;
+    border-radius: 0.25rem;
+  }
+</style>
