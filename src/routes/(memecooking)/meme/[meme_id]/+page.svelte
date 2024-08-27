@@ -58,9 +58,9 @@
   }, 20);
 </script>
 
-<div class="mt-5 w-full p-2 pb-25">
+<div class="w-full p-2 pb-25">
   <div class="mx-auto flex">
-    <a href="/board" class="text-white text-2xl mx-auto mb-5 hover:font-bold"
+    <a href="/board" class="text-white text-2xl mx-auto hover:font-bold"
       >[go back]</a
     >
   </div>

@@ -84,6 +84,12 @@
         <MemePreview {memebid} {requiredStake} />
       </div>
     {/each}
+    <!-- add empty div if not divisible by 3 -->
+    {#if displayedMemebids.slice(1 + (page - 1) * perPage, page * perPage).length % 3 !== 0}
+      {#each Array(3 - (displayedMemebids.slice(1 + (page - 1) * perPage, page * perPage).length % 3)).keys() as i (-i)}
+        <div class="flex-grow basis-[30%] min-w-[300px] max-w-[30%]"></div>
+      {/each}
+    {/if}
     <div class="flex items-center justify-center w-full gap-10">
       <button
         on:click={() => {

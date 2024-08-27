@@ -13,12 +13,7 @@
   #dexscreener-embed {
     position: relative;
     width: 100%;
-    padding-bottom: 125%;
-  }
-  @media (min-width: 1400px) {
-    #dexscreener-embed {
-      padding-bottom: 65%;
-    }
+    height: 100%;
   }
   #dexscreener-embed iframe {
     position: absolute;
