@@ -152,7 +152,7 @@
     </button>
     {#if meme.end_timestamp_ms}
       <Countdown
-        class="mx-auto text-shitzu-4 mb-10 justify-evenly w-full max-w-xl"
+        class="mx-auto text-shitzu-4 mb-10 justify-evenly w-full max-w-xl mt-10"
         to={meme.end_timestamp_ms}
       />
     {/if}

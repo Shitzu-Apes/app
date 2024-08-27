@@ -8,6 +8,7 @@
   import TokenDetailCarousel from "$lib/components/memecooking/Board/TokenDetailCarousel.svelte";
   import { wallet } from "$lib/near";
   import { requiredStake } from "$lib/near/memecooking";
+  import { memebids$ } from "$lib/store/memebids";
 
   // page data
   let { meme_id } = $page.params as { meme_id: string };
@@ -20,6 +21,7 @@
     retry: number = 10,
   ): Promise<T> {
     return new Promise((resolve) => {
+      fn().then(resolve);
       interval = setInterval(async () => {
         const result = await fn();
         retry--;
@@ -35,23 +37,25 @@
     clearInterval(interval);
   });
 
-  let meme = retryPromise(
-    () =>
-      client
-        .GET("/meme/{id}", {
-          params: {
-            query: {
-              accountId: $accountId$,
-            },
-            path: { id: meme_id },
-          },
-        })
-        .then((res) => {
-          console.log("[meme]", res.data);
-          return res.data;
-        }),
-    20,
-  );
+  let meme = retryPromise(async () => {
+    const memebids = await $memebids$;
+    const meme = memebids.find((memebids) => memebids.meme_id === +meme_id);
+
+    if (meme) {
+      return { meme };
+    }
+
+    const response = await client.GET("/meme/{id}", {
+      params: {
+        query: {
+          accountId: $accountId$,
+        },
+        path: { id: meme_id },
+      },
+    });
+
+    return response.data;
+  }, 20);
 </script>
 
 <div class="mt-5 w-full p-2 pb-25">

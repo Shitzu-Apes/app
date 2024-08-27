@@ -370,6 +370,7 @@ export abstract class MemeCooking {
   }
 
   public static requiredStake(token_id: string) {
+    return Promise.resolve("10000000000000000000000000");
     return view<string>(
       import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
       "required_stake",
