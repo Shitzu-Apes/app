@@ -24,7 +24,7 @@
     sortMemeByUnclaimedThenEndTimestamp,
   } from "$lib/util/sortMemeByCreatedAt";
 
-  const { accountId } = $page.params;
+  $: accountId = $page.params.accountId;
   const { accountId$ } = wallet;
 
   $: isOwnAccount = accountId === $accountId$;
@@ -33,7 +33,11 @@
     () => {},
   );
 
-  fetchFullAccount();
+  $: {
+    if (accountId != null) {
+      fetchFullAccount();
+    }
+  }
   function fetchFullAccount(blockHeight?: number) {
     const res = Promise.all([
       MemeCooking.getAccount(accountId),
@@ -187,10 +191,6 @@
     fullAccount = res;
     return res;
   }
-
-  fullAccount.then((account) => {
-    console.log("[fullAccount]", account);
-  });
 
   $: tabs = match(isOwnAccount)
     .with(true, () => [

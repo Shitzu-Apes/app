@@ -11,7 +11,7 @@
   import { memebids$ } from "$lib/store/memebids";
 
   // page data
-  let { meme_id } = $page.params as { meme_id: string };
+  $: meme_id = $page.params.meme_id;
 
   const { accountId$ } = wallet;
 
@@ -37,7 +37,7 @@
     clearInterval(interval);
   });
 
-  let meme = retryPromise(async () => {
+  $: meme = retryPromise(async () => {
     const memebids = await $memebids$;
     const meme = memebids.find((memebids) => memebids.meme_id === +meme_id);
 
