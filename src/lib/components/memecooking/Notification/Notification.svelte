@@ -50,7 +50,7 @@
     >
       {notification.party}
     </a>
-    {notification.is_deposit ? "staked" : "unstaked"}
+    {notification.is_deposit ? "deposited" : "withdrew"}
     <Near className="size-6 ml-1" />
     {new FixedNumber(notification.amount, 24).format({
       maximumSignificantDigits: 4,

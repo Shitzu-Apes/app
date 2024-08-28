@@ -124,7 +124,7 @@
     }
 
     if ($value === "deposit") {
-      // Check storage balance before staking
+      // Check storage balance before depositing
       const [
         storageBalance,
         { account: accountCost, perMemeDeposit },

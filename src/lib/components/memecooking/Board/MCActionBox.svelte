@@ -1,16 +1,16 @@
 <script lang="ts">
+  import McDeposit from "./MCDeposit.svelte";
   import McRef from "./MCRef.svelte";
-  import McStake from "./MCStake.svelte";
 
   import type { Meme } from "$lib/models/memecooking";
 
   export let meme: Meme;
 
-  $: isStake = !meme.pool_id;
+  $: isDeposit = !meme.pool_id;
 </script>
 
-{#if isStake}
-  <McStake {meme} />
+{#if isDeposit}
+  <McDeposit {meme} />
 {:else}
   <McRef {meme} />
 {/if}

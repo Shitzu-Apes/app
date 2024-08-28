@@ -196,8 +196,8 @@
     .with(true, () => [
       {
         id: "not-finalized",
-        label: "withdraw Stake",
-        info: "All ongoing staking and unsuccessful launches",
+        label: "withdraw",
+        info: "All ongoing deposits and unsuccessful launches",
         component: DepositList,
       },
       {

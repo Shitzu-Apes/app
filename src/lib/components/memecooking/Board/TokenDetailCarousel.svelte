@@ -232,7 +232,7 @@
       {:else if memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now()}
         [relaunch]
       {:else}
-        [stake]
+        [deposit]
       {/if}
     </button>
     <button
@@ -252,7 +252,7 @@
       >
         <span class="hover:font-bold">
           [{memebid.staker_count}
-          {memebid.staker_count <= 1 ? "staker" : "stakers"}]
+          {memebid.staker_count <= 1 ? "depositor" : "depositors"}]
         </span>
       </button>
     {/if}

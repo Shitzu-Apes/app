@@ -32,7 +32,8 @@
       </span>
       <span class="inline-block">
         step 5: <strong class="text-shitzu-4">liquidity provision:</strong> 50% of
-        token supply and 100% of staked near are deposited in ref and burned
+        token supply and 100% of deposited near will be used to provide liquidity
+        in ref.finance and burned
       </span>
       <span class="inline-block">
         step 6: <strong class="text-shitzu-4">refund if not successful:</strong>

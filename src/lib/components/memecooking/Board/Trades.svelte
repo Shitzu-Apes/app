@@ -75,7 +75,7 @@
     </span>
     <span class="flex-[0_0_3rem] text-start">
       <span class={trade.is_deposit ? "text-green-500" : "text-red-500"}>
-        {trade.is_deposit ? "stake" : "unstake"}
+        {trade.is_deposit ? "deposit" : "withdraw"}
       </span>
     </span>
     <span class="flex-[0.1_0_5rem] text-start">

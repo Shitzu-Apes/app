@@ -9,7 +9,7 @@
 
 <BottomSheetContent variant="shitzu">
   <slot slot="header">
-    <h2 class="prose prose-invert prose-shitzu px-4 text-2xl">Stake</h2>
+    <h2 class="prose prose-invert prose-shitzu px-4 text-2xl">Deposit</h2>
   </slot>
 
   <McActionBox {meme} />
