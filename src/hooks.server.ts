@@ -9,8 +9,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   if (
     response.headers.get("content-type")?.startsWith("text/html") &&
-    /^(\/|\/account|\/shitstars($|\/\d+)|\/stake)$/.test(event.url.pathname) ===
-      false
+    import.meta.env.VITE_APP_ID === "meme.cooking"
   ) {
     let html = await response.text();
 

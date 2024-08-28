@@ -40,6 +40,9 @@ jobs:
       - name: Copy Charting Library files
         run: "./copy_charting_library_files.sh"
 
+      - name: Add app ID to .env
+        run: echo "VITE_APP_ID=meme.cooking" >> .env
+
       - name: Add commit hash to .env
         run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> .env
 
