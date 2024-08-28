@@ -7,6 +7,7 @@
   import { addToast } from "../Toast.svelte";
 
   import Near from "$lib/assets/Near.svelte";
+  import { showWalletSelector } from "$lib/auth";
   import { Button } from "$lib/components";
   import TokenInput from "$lib/components/TokenInput.svelte";
   import type { Meme } from "$lib/models/memecooking";
@@ -111,17 +112,7 @@
     if (expected == null) return;
 
     if (!$accountId$) {
-      console.error("No input or account id");
-      addToast({
-        data: {
-          type: "simple",
-          data: {
-            title: "Error",
-            description: "Please Connect Wallet",
-            color: "red",
-          },
-        },
-      });
+      showWalletSelector("shitzu");
       return;
     }
     if (!$input$) {

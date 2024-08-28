@@ -11,6 +11,7 @@
   import TextInputField from "./TextInputField.svelte";
 
   import { goto } from "$app/navigation";
+  import { showWalletSelector } from "$lib/auth";
   import { TokenInput } from "$lib/components";
   import SelectBox from "$lib/components/SelectBox.svelte";
   import CreateCoinSheet from "$lib/components/memecooking/BottomSheet/CreateCoinSheet.svelte";
@@ -212,16 +213,7 @@
 
   async function createCoin() {
     if (!$accountId$) {
-      addToast({
-        data: {
-          type: "simple",
-          data: {
-            title: "Error",
-            description: "Please Connect Wallet",
-            color: "red",
-          },
-        },
-      });
+      showWalletSelector("shitzu");
       return;
     }
     // Add your logic to handle form submission here
