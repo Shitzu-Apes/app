@@ -28,7 +28,7 @@
 </script>
 
 <div class="flex gap-2 text-6xl justify-center items-start {className}">
-  <div class="flex flex-col justify-center items-center">
+  <div class="flex flex-col justify-center items-center flex-grow basis-0">
     <div>
       {#if started}
         {hours}
@@ -36,9 +36,9 @@
         -
       {/if}
     </div>
-    <div class="text-xs">{hours > 1 ? "Hours" : "Hour"}</div>
+    <div class="text-xs w-full text-center">{hours > 1 ? "Hours" : "Hour"}</div>
   </div>
-  <div class="flex flex-col justify-center items-center">
+  <div class="flex flex-col justify-center items-center flex-grow basis-0">
     <div>
       {#if started}
         {minutes}
@@ -46,9 +46,11 @@
         -
       {/if}
     </div>
-    <div class="text-xs">{minutes > 1 ? "Minutes" : "Minute"}</div>
+    <div class="text-xs w-full text-center">
+      {minutes > 1 ? "Minutes" : "Minute"}
+    </div>
   </div>
-  <div class="flex flex-col justify-center items-center">
+  <div class="flex flex-col justify-center items-center flex-grow basis-0">
     <div>
       {#if started}
         {seconds}
@@ -56,6 +58,8 @@
         -
       {/if}
     </div>
-    <div class="text-xs">{seconds > 1 ? "Seconds" : "Second"}</div>
+    <div class="text-xs w-full text-center">
+      {seconds > 1 ? "Seconds" : "Second"}
+    </div>
   </div>
 </div>
