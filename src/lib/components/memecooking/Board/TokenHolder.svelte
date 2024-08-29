@@ -89,7 +89,7 @@
     <Tooltip>
       <slot slot="info">
         <div class="px-4 py-1">
-          Prelaunch: staking distribution
+          Prelaunch: depositors distribution
           <br />
           Successfully launched: actual list of current holders
         </div>

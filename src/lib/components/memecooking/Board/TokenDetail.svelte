@@ -3,6 +3,7 @@
   import Countdown from "../Countdown.svelte";
   import ProgressBarMobile from "../ProgressBarMobile.svelte";
 
+  import ExtraDetail from "$lib/components/ExtraDetail.svelte";
   import Squircle from "$lib/components/Squircle.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { FixedNumber } from "$lib/util";
@@ -129,12 +130,20 @@
         </p>
       </div>
     </div>
-    <div class="w-full h-auto">
+    <div class="w-full h-auto relative">
       <img
         src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
         alt="{memebid.name} icon"
         class="w-full h-full object-contain"
       />
+      <div class="absolute bottom-0 w-full px-4 py-2">
+        <!-- backdrop -->
+        <div
+          class="absolute inset-0 bg-black/25 w-full h-full z-0 backdrop-blur-sm"
+        />
+        <!-- extra details -->
+        <ExtraDetail meme={memebid} class="text-white relative z-30" />
+      </div>
     </div>
   </div>
 {:else}

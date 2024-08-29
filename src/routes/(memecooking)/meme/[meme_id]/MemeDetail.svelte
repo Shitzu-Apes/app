@@ -2,6 +2,8 @@
   import { onMount } from "svelte";
 
   import type { Meme } from "$lib/api/client";
+  import ExtraDetail from "$lib/components/ExtraDetail.svelte";
+  import Tooltip from "$lib/components/Tooltip.svelte";
   import TradeTabs from "$lib/components/memecooking/Board/Desktop/TradeTabs.svelte";
   import McActionBox from "$lib/components/memecooking/Board/MCActionBox.svelte";
   import SocialLink from "$lib/components/memecooking/Board/SocialLink.svelte";
@@ -45,15 +47,25 @@
       <span>
         {meme.name}
       </span>
-      <span class="font-semibold">
-        ${meme.symbol}
+      <span class="font-semibold whitespace-nowrap">
+        ticker: {meme.symbol}
       </span>
-      <span class="text-green-400 flex items-center">
+      <div class="text-green-400 flex items-center gap-1 flex-wrap">
         Market cap:{" "}
-        ${$mcap.format({
-          maximumFractionDigits: 1,
-        })}
-      </span>
+        <span class="font-semibold flex items-center gap-1">
+          ${$mcap.format({
+            maximumFractionDigits: 1,
+          })}{" "}
+          <Tooltip
+            info="total supply {new FixedNumber(
+              meme.total_supply,
+              meme.decimals,
+            ).format()} {meme.symbol}"
+          >
+            <div class="i-mdi:information-outline size-4 text-green-4" />
+          </Tooltip>
+        </span>
+      </div>
       {#if meme.pool_id}
         <div class="flex items-center justify-end text-right">
           <span>CA:</span>
@@ -86,8 +98,10 @@
           </div>
         </div>
       {/if}
-      <span class="ml-auto flex items-center justify-end text-right gap-1">
-        created by
+      <div
+        class="ml-auto flex items-center flex-wrap justify-end text-right gap-1"
+      >
+        <span class="whitespace-nowrap">created by</span>
         <a
           href={`https://pikespeak.ai/wallet-explorer/${meme.owner}`}
           target="_blank"
@@ -99,7 +113,7 @@
             class="bg-shitzu-3 text-black px-1 rounded"
           />
         </a>
-      </span>
+      </div>
     </div>
     <div class="w-full aspect-ratio-16/9 max-h-[75vh]">
       <TokenChart memebid={meme} />
@@ -168,7 +182,7 @@
     />
 
     <!-- Token Detail -->
-    <div class="w-full text-gray-4">
+    <div class="w-full text-gray-3">
       <div class="flex gap-2">
         <img
           src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
@@ -176,10 +190,11 @@
           class="w-30 object-contain"
         />
         <div class="flex flex-col items-start">
-          <h2>{meme.name} <b>${meme.symbol}</b></h2>
+          <h2>{meme.name} <b>(ticker: ${meme.symbol})</b></h2>
           <div class="text-sm">{meme.description}</div>
         </div>
       </div>
+      <ExtraDetail class="text-sm mt-3" {meme} />
     </div>
 
     <!-- Holder -->
