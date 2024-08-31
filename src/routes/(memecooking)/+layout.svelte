@@ -25,8 +25,11 @@
   import { readAndSetReferral } from "$lib/util/referral";
 
   onMount(() => {
-    initializeWebsocket($ws);
+    const initWebSocket = () => {
+      initializeWebsocket($ws);
+    };
 
+    initWebSocket(); // Initialize WebSocket immediately
     readAndSetReferral();
 
     const fetchLastBlockHeight = async () => {
@@ -51,10 +54,24 @@
 
     fetchLastBlockHeight(); // Fetch once immediately
 
-    let interval = setInterval(fetchLastBlockHeight, 10000);
+    let blockHeightInterval = setInterval(fetchLastBlockHeight, 10000);
+
+    // Check and reestablish WebSocket connection if closed
+    let wsCheckInterval = setInterval(() => {
+      if ($ws.readyState === WebSocket.CLOSED) {
+        console.log("WebSocket connection closed. Attempting to reconnect...");
+        $ws = new WebSocket(import.meta.env.VITE_MEME_COOKING_WS_URL);
+        $ws.onopen = () => {
+          console.log("[ws.onopen]: Connection opened");
+          $ws.send(JSON.stringify({ action: "subscribe" }));
+        };
+        initWebSocket();
+      }
+    }, 5000);
 
     return () => {
-      clearInterval(interval);
+      clearInterval(blockHeightInterval);
+      clearInterval(wsCheckInterval);
     };
   });
 
