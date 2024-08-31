@@ -8,7 +8,6 @@
 
   import StakeSheet from "../BottomSheet/StakeSheet.svelte";
   import TokenCommentSheet from "../BottomSheet/TokenCommentSheet.svelte";
-  import { addToast } from "../Toast.svelte";
 
   import TokenChart from "./TokenChart.svelte";
   import TokenDetail from "./TokenDetail.svelte";
@@ -23,6 +22,7 @@
   import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
   import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
+  import { shareWithReferral } from "$lib/util/referral";
 
   export let memebid: Meme;
   export let requiredStake: FixedNumber;
@@ -102,42 +102,6 @@
 
       return trades.sort((a, b) => b.timestamp_ms - a.timestamp_ms);
     });
-
-  async function share() {
-    const shareUrl = new URL(
-      `${window.location.origin}/meme/${memebid.meme_id}`,
-    );
-    if ($accountId$) {
-      shareUrl.searchParams.set("referral", $accountId$);
-    }
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: document.title,
-          url: shareUrl.toString(),
-        });
-      } catch (error) {
-        console.error("Error sharing:", error);
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(shareUrl.toString());
-        addToast({
-          data: {
-            type: "simple",
-            data: {
-              title: "Success",
-              description: "Link copied to clipboard!",
-              color: "green",
-            },
-          },
-        });
-      } catch (error) {
-        console.error("Error copying to clipboard:", error);
-      }
-    }
-  }
 </script>
 
 <svelte:window
@@ -236,7 +200,7 @@
       {/if}
     </button>
     <button
-      on:click={share}
+      on:click={() => shareWithReferral(memebid, $accountId$)}
       class="text-xl tracking-wider text-shitzu-4 hover:font-bold w-[80px]"
     >
       <span class="flex items-center justify-center"> [share] </span>

@@ -18,6 +18,7 @@
   import { FixedNumber } from "$lib/util";
   import { getTokenId } from "$lib/util/getTokenId";
   import { projectedMCap } from "$lib/util/projectedMCap";
+  import { shareWithReferral } from "$lib/util/referral";
 
   $: mcap = projectedMCap(meme);
   export let meme: Meme;
@@ -126,41 +127,7 @@
   <div class="w-90 max-w-1/3 p-2 flex flex-col gap-5">
     <button
       class="self-end hover:font-bold"
-      on:click={async () => {
-        const shareUrl = new URL(
-          `${window.location.origin}/meme/${meme.meme_id}`,
-        );
-        if ($accountId$) {
-          shareUrl.searchParams.set("referral", $accountId$);
-        }
-
-        if (navigator.share) {
-          try {
-            await navigator.share({
-              title: document.title,
-              url: shareUrl.toString(),
-            });
-          } catch (error) {
-            console.error("Error sharing:", error);
-          }
-        } else {
-          try {
-            await navigator.clipboard.writeText(shareUrl.toString());
-            addToast({
-              data: {
-                type: "simple",
-                data: {
-                  title: "Success",
-                  description: "Link copied to clipboard!",
-                  color: "green",
-                },
-              },
-            });
-          } catch (error) {
-            console.error("Error copying to clipboard:", error);
-          }
-        }
-      }}
+      on:click={() => shareWithReferral(meme, $accountId$)}
     >
       [share]
     </button>

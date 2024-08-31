@@ -1,3 +1,7 @@
+import { addToast } from "$lib/components/memecooking/Toast.svelte";
+import type { Meme } from "$lib/models/memecooking";
+import { MemeCooking } from "$lib/near/memecooking";
+
 export const REFERRAL_LOCALSTORAGE_KEY = "memecooking_referral";
 export const REFERRAL_EXPIRY_KEY = "memecooking_referral_expiry";
 export const REFERRAL_EXPIRY_TIME = 2 * 7 * 24 * 60 * 60 * 1000; // 2 weeks
@@ -30,5 +34,48 @@ export function readAndSetReferral() {
     // Remove the referral search parameter from the URL
     url.searchParams.delete("referral");
     window.history.replaceState({}, document.title, url.toString());
+  }
+}
+
+export async function shareWithReferral(
+  meme: Meme,
+  $accountId$: string | undefined,
+) {
+  const shareUrl = new URL(`${window.location.origin}/meme/${meme.meme_id}`);
+  let isRegistered = false;
+  if ($accountId$) {
+    isRegistered = (await MemeCooking.storageBalanceOf($accountId$)) !== null;
+    if (isRegistered) {
+      shareUrl.searchParams.set("referral", $accountId$);
+    }
+  }
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: document.title,
+        url: shareUrl.toString(),
+      });
+    } catch (error) {
+      console.error("Error sharing:", error);
+    }
+  } else {
+    try {
+      await navigator.clipboard.writeText(shareUrl.toString());
+      addToast({
+        data: {
+          type: "simple",
+          data: {
+            title: "Success",
+            description: isRegistered
+              ? "Link with referral copied!"
+              : "Link copied (need to register for referrals)",
+            color: "green",
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Error copying to clipboard:", error);
+    }
   }
 }
