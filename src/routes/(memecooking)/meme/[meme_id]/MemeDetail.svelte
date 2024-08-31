@@ -190,7 +190,7 @@
           class="w-30 object-contain"
         />
         <div class="flex flex-col items-start">
-          <h2>{meme.name} <b>(ticker: ${meme.symbol})</b></h2>
+          <h2>{meme.name} <b>(ticker: {meme.symbol})</b></h2>
           <div class="text-sm">{meme.description}</div>
         </div>
       </div>

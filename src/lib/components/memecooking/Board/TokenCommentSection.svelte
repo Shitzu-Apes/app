@@ -180,7 +180,9 @@
             alt={meme.name}
           />
           <div class="flex flex-col items-start">
-            <div class="text-sm font-bold">{meme.name} ({meme.symbol})</div>
+            <div class="text-sm font-bold">
+              {meme.name} (ticker: {meme.symbol})
+            </div>
             <div class="text-sm text-white">{meme.description}</div>
           </div>
         </div>

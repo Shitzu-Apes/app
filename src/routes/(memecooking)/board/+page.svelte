@@ -43,7 +43,7 @@
   <div class="flex justify-center items-center gap-2 w-full my-10 text-black">
     <input
       type="text"
-      class="w-full max-w-sm h-10 border bg-shitzu-2 border-shitzu-4 rounded-lg px-4"
+      class="w-full max-w-sm h-10 border bg-shitzu-2 border-shitzu-4 rounded-lg px-4 placeholder:text-emerald-5"
       placeholder="search for token"
       bind:value={$searchQuery$}
     />
