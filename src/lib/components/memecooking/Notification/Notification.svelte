@@ -17,10 +17,13 @@
   let shake = false;
 
   MCTradeSubscribe(Symbol("notification"), (newMemeInfo) => {
+    const amount = (
+      BigInt(newMemeInfo.amount) + BigInt(newMemeInfo.fee)
+    ).toString();
     notification = {
       id: newMemeInfo.receipt_id,
       meme_id: newMemeInfo.meme_id,
-      amount: newMemeInfo.amount,
+      amount,
       is_deposit: newMemeInfo.is_deposit,
       party: newMemeInfo.account_id,
       ticker: newMemeInfo.symbol,
