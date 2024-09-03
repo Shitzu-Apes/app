@@ -9,7 +9,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   if (
     response.headers.get("content-type")?.startsWith("text/html") &&
-    import.meta.env.VITE_APP_ID === "meme.cooking"
+    event.url.origin.includes("meme.cooking")
   ) {
     let html = await response.text();
 
