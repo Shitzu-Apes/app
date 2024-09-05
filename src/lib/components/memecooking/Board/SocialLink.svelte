@@ -5,7 +5,7 @@
 </script>
 
 <div class="w-full flex items-center gap-2 text-gray-4">
-  {#if twitterLink.startsWith("https://twitter.com/")}
+  {#if twitterLink.startsWith("https://twitter.com/") || twitterLink.startsWith("https://x.com/")}
     <a
       href={twitterLink}
       class="hover:underline hover:font-bold"
