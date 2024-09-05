@@ -164,6 +164,7 @@ const MemeCookingDataFeed: IBasicDataFeed = {
     let lastBar = lastBarsCache.get(symbolInfo.ticker);
 
     MCTradeSubscribe(subscriberUID, (data) => {
+      console.log("[MCTradeSubscribe]: Data", data);
       console.log("[MCTradeSubscribe]: Data", data.symbol, symbolInfo.ticker);
       if (data.symbol !== symbolInfo.ticker) {
         return;
@@ -194,12 +195,12 @@ const MemeCookingDataFeed: IBasicDataFeed = {
         return;
       }
 
-      const total_supply = BigInt(data.total_supply);
-      const total_deposit = BigInt(data.total_deposit);
-      const price = new FixedNumber(
-        (total_deposit * 2n * BigInt(1e24)) / total_supply,
-        24,
+      const total_supply = new FixedNumber(
+        data.total_supply,
+        data.decimals,
       ).toNumber();
+      const total_deposit = new FixedNumber(data.total_deposit, 24).toNumber();
+      const price = total_deposit / (total_supply / 2);
 
       if (data.timestamp_ms >= nextBarTime) {
         console.log("[subscribeBars]: Create new bar");
