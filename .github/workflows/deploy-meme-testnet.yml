@@ -1,4 +1,4 @@
-name: Deploy Meme Cooking
+name: Deploy Meme Cooking Testnet
 on:
   push:
     branches: [main, develop]
@@ -40,9 +40,6 @@ jobs:
       - name: Copy Charting Library files
         run: "./copy_charting_library_files.sh"
 
-      - name: Add app ID to .env
-        run: echo "VITE_APP_ID=meme.cooking" >> .env
-
       - name: Add commit hash to .env
         run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> .env
 
@@ -60,6 +57,6 @@ jobs:
       - name: Upload to Deno Deploy
         uses: denoland/deployctl@v1
         with:
-          project: "funmeme-app"
+          project: "meme-cooking-testnet"
           entrypoint: "mod.ts"
           root: "build"
