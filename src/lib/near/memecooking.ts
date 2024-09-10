@@ -295,7 +295,7 @@ export abstract class MemeCooking {
             args: {
               meme_ids: args.meme_ids,
             },
-            gas: 300_000_000_000_000n.toString(),
+            gas: 50_000_000_000_000n.toString(),
             deposit: "1",
           },
         },
@@ -370,7 +370,6 @@ export abstract class MemeCooking {
   }
 
   public static requiredStake(token_id: string) {
-    return Promise.resolve("10000000000000000000000000");
     return view<string>(
       import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
       "required_stake",
