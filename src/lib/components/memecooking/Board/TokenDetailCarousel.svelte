@@ -143,7 +143,7 @@
           <TokenChart {memebid} touchToStart />
         </div>
         <div class="flex-[0_0_100%] min-w-0">
-          <TokenTrade meme_id={memebid.meme_id} {trades} touchToStart />
+          <TokenTrade {memebid} {trades} touchToStart />
         </div>
         <div class="flex-[0_0_100%] min-w-0">
           <TokenHolder meme={memebid} />
