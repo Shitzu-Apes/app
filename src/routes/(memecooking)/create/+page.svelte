@@ -14,6 +14,7 @@
   import { showWalletSelector } from "$lib/auth";
   import { TokenInput } from "$lib/components";
   import SelectBox from "$lib/components/SelectBox.svelte";
+  import Tooltip from "$lib/components/Tooltip.svelte";
   import CreateCoinSheet from "$lib/components/memecooking/BottomSheet/CreateCoinSheet.svelte";
   import InputField from "$lib/components/memecooking/InputField.svelte";
   import { addToast } from "$lib/components/memecooking/Toast.svelte";
@@ -364,9 +365,14 @@
 
     <div class="space-y-2">
       <label
-        class="block text-sm text-shitzu-4 font-600 inline-flex items-center gap-2"
+        class="block text-sm text-shitzu-4 font-600 inline-flex items-center gap-1"
       >
         image
+        <Tooltip
+          info="use a square image ratio for optimal display of the ticker image."
+        >
+          <div class="size-4 i-mdi:information-outline text-amber-5" />
+        </Tooltip>
         {#if imageReady}
           <button
             on:click={() => {
@@ -489,6 +495,7 @@
             }
             return "";
           }}
+          tooltip="Only change if you know what you are doing."
         />
       </div>
       <div class="space-y-2">

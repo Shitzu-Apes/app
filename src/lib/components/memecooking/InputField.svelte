@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Tooltip from "../Tooltip.svelte";
+
   export let value: string | number;
   export let placeholder: string = "(optional)";
   export let label: string;
@@ -9,11 +11,22 @@
   export let min: number | undefined = undefined;
   export let max: number | undefined = undefined;
   export let step: number | undefined = undefined;
+  export let tooltip: string | undefined = undefined;
 
   $: error = value && validate != null ? validate(value) : "";
 </script>
 
-<label for="name" class="block text-sm text-shitzu-4 font-600"> {label} </label>
+<label
+  for="name"
+  class="block text-sm text-shitzu-4 font-600 flex items-center gap-1"
+>
+  {label}
+  {#if tooltip}
+    <Tooltip info={tooltip}>
+      <div class="size-4 i-mdi:information-outline text-amber-5" />
+    </Tooltip>
+  {/if}
+</label>
 {#if type === "text"}
   <input
     type="text"
