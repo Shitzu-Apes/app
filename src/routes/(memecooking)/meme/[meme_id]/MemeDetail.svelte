@@ -131,7 +131,13 @@
     >
       [share]
     </button>
-    {#if meme.end_timestamp_ms}
+    {#if meme.pool_id}
+      <div
+        class="flex gap-3 mt-10 bg-[rgba(0,214,175,1)] text-black p-3 rounded-lg font-medium"
+      >
+        Trade on Ref via Meme.Cooking
+      </div>
+    {:else if meme.end_timestamp_ms}
       <Countdown
         class="mx-auto text-shitzu-4 mb-10 justify-evenly w-full max-w-xl mt-10"
         to={meme.end_timestamp_ms}
