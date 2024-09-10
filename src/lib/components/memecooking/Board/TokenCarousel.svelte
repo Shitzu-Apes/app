@@ -32,7 +32,7 @@
 <div class="flex flex-wrap justify-center gap-3 mt-6 px-4">
   <SelectBox options={sortOptions} bind:selected={selectedSort} />
   <SelectBox options={orderOptions} bind:selected={selectedDirection} />
-  <Toggle bind:isOn={liveOnly}>live only:{" "}</Toggle>
+  <Toggle bind:isOn={liveOnly}>live auction:{" "}</Toggle>
 </div>
 {#await Promise.all([requiredStake, displayedMemebids])}
   <section>
