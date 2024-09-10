@@ -73,11 +73,11 @@
 
           <div class="flex justify-center items-center max-w-lg">
             <a
-              href="https://slimething.gitbook.io/memedotcooking-preview"
+              href="https://docs.meme.cooking"
               target="_blank"
               rel="noopener noreferrer"
             >
-              [ docs (preview) ]
+              [ docs ]
             </a>
           </div>
         </div>
