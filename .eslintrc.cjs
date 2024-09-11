@@ -63,5 +63,14 @@ module.exports = {
         ignore: ["\\$app/.*", "\\$lib/.*", "svelte/.*", "virtual:.*"],
       },
     ],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        argsIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^_",
+        destructuredArrayIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+      },
+    ],
   },
 };
