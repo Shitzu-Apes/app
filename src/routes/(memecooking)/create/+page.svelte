@@ -8,6 +8,7 @@
   import DropZone from "svelte-file-dropzone";
   import { z } from "zod";
 
+  import TextAreaField from "./TextAreaField.svelte";
   import TextInputField from "./TextInputField.svelte";
 
   import { goto } from "$app/navigation";
@@ -429,16 +430,12 @@
         {/if}
       </slot>
     </TextInputField>
-    <div class="space-y-2">
-      <label for="description" class="block text-sm text-shitzu-4 font-600">
-        description
-      </label>
-      <textarea
-        id="description"
-        bind:value={description}
-        class="w-full p-2 bg-gray-700 rounded text-white border border-white"
-      />
-    </div>
+    <TextAreaField
+      label="description"
+      bind:value={description}
+      schema={descriptionSchema}
+      validateOnInput={true}
+    />
 
     <div class="space-y-2">
       <label for="name" class="block text-sm text-shitzu-4 font-600">
@@ -533,7 +530,6 @@
           telegramLink: telegramLink || undefined,
           website: website || undefined,
         });
-        console.log(result);
         return !result.success;
       })()}
     >
