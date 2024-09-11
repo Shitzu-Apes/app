@@ -13,7 +13,7 @@
     "moduleResolution": "Bundler",
     "noEmit": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.svelte"],
   "exclude": [".svelte-kit/**/*.ts"]
   // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
   //
