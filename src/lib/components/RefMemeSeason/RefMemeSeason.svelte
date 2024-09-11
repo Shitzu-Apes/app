@@ -110,7 +110,7 @@
       <div>
         <h3 class="flex items-center text-lg">Staked</h3>
         <a
-          href="https://app.ref.finance/meme"
+          href="{import.meta.env.VITE_REF_APP_URL}/meme"
           target="_blank"
           rel="noopener noreferrer"
           class="flex items-center text-sm text-gray-300"
@@ -149,7 +149,7 @@
         <div>
           <h3 class="flex items-center text-lg">LP</h3>
           <a
-            href="https://app.ref.finance/v2farms/4369-r"
+            href="{import.meta.env.VITE_REF_APP_URL}/v2farms/4369-r"
             target="_blank"
             rel="noopener noreferrer"
             class="flex items-center text-sm text-gray-300"

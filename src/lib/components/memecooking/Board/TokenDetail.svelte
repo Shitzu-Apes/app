@@ -23,7 +23,7 @@
     <div class="w-full flex gap-4">
       {#if memebid.pool_id}
         <a
-          href={`https://testnet.ref.finance/pool/${memebid.pool_id}`}
+          href="{import.meta.env.VITE_REF_APP_URL}/#near|{memebid.token_id}"
           target="_blank"
           rel="noopener noreferrer"
           class="w-full text-xs self-end px-1 tracking-tight bg-shitzu-3 py-1 text-black flex items-center justify-center"

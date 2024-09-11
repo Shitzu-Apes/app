@@ -311,7 +311,7 @@
         You are buying <Near className="w-5 h-5 inline-flex align-middle" />
         {$input$.format()} of SHITZU from
         <a
-          href="https://app.ref.finance/v2farms/4369-r"
+          href="https://{import.meta.env.VITE_REF_APP_URL}/v2farms/4369-r"
           target="_blank"
           rel="noopener noreferrer"
           class="decoration-none"

@@ -9,7 +9,7 @@
 
   <div class="flex justify-start items-center gap-3 mt-5">
     <a
-      href="https://app.ref.finance/meme"
+      href="{import.meta.env.VITE_REF_APP_URL}/meme"
       target="_blank"
       rel="noopener noreferrer"
       class="bg-white/20 text-white font-bold text-sm rounded-lg px-5 py-2 flex items-center"

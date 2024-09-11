@@ -125,7 +125,8 @@
                       <span>
                         Swap SOL.w to NEAR via <a
                           class="text-lightblue-3 hover:underline hover:font-bold"
-                          href="https://app.ref.finance/#22.contract.portalbridge.near|near"
+                          href="{import.meta.env
+                            .VITE_REF_APP_URL}/#22.contract.portalbridge.near|near"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
@@ -169,7 +170,8 @@
                       <span>
                         Swap USDC to NEAR via <a
                           class="text-lightblue-3 hover:underline hover:font-bold"
-                          href="https://app.ref.finance/#17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1|near"
+                          href="{import.meta.env
+                            .VITE_REF_APP_URL}/#17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1|near"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
@@ -198,7 +200,7 @@
                       <span>
                         Swap your tokens to NEAR via <a
                           class="text-lightblue-3 hover:underline hover:font-bold"
-                          href="https://app.ref.finance/#|near"
+                          href="{import.meta.env.VITE_REF_APP_URL}/#|near"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
