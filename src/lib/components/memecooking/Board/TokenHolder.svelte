@@ -7,14 +7,25 @@
   import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
 
-  const percentFormatter = new Intl.NumberFormat("en-US", {
-    maximumFractionDigits: 2,
-  });
-
   export let meme: Meme;
-  let holders: Promise<[string, number][] | null> = getHolders();
+  let holders: Promise<[string, string][] | null> = getHolders().then(
+    (holders) =>
+      holders != null
+        ? holders
+            .map(
+              ([account, percentage]) =>
+                [
+                  account,
+                  percentage.format({
+                    maximumFractionDigits: 2,
+                  }),
+                ] as [string, string],
+            )
+            .filter(([_, percentage]) => percentage !== "0")
+        : null,
+  );
 
-  function getHolders(): Promise<[string, number][] | null> {
+  function getHolders(): Promise<[string, FixedNumber][] | null> {
     if (meme.pool_id) {
       const token_id = meme.token_id;
       return fetch(`https://api.fastnear.com/v1/ft/${token_id}/top`)
@@ -27,10 +38,10 @@
             }[];
           }) => {
             return data.accounts.map((holder) => {
-              const percentage =
-                new FixedNumber(holder.balance, 24).toNumber() /
-                new FixedNumber(meme.total_supply, 24).toNumber();
-              return [holder.account_id, percentage];
+              const percentage = new FixedNumber(holder.balance, 24)
+                .div(new FixedNumber(meme.total_supply, 24))
+                .mul(new FixedNumber(100n, 0));
+              return [holder.account_id, percentage] as [string, FixedNumber];
             });
           },
         );
@@ -48,19 +59,22 @@
             const total_staked = new FixedNumber(
               BigInt(meme.total_deposit) - BigInt(meme.total_withdraw_fees),
               24,
-            ).toNumber();
+            );
             const percentage =
-              total_staked == 0
-                ? 0
-                : (new FixedNumber(amount, 24).toNumber() / total_staked) * 0.5;
+              total_staked.valueOf() === 0n
+                ? total_staked
+                : new FixedNumber(amount, 24)
+                    .div(total_staked)
+                    .div(new FixedNumber(2n, 0))
+                    .mul(new FixedNumber(100n, 0));
 
             return [holder, percentage];
           });
 
-          return [["pool", 0.5], ...holders_with_percentage] as [
-            string,
-            number,
-          ][];
+          return [
+            ["pool", new FixedNumber(50n, 0)],
+            ...holders_with_percentage,
+          ] as [string, FixedNumber][];
         },
       );
     }
@@ -72,8 +86,6 @@
       if (newTrade.meme_id !== meme.meme_id) {
         return;
       }
-
-      holders = getHolders();
     });
 
     return () => {
@@ -82,7 +94,7 @@
   });
 </script>
 
-<div class="w-full px-4">
+<div class="w-full px-4 max-h-[30rem] md:max-h-none overflow-auto">
   <h2 class="text-xl my-3 flex items-center gap-1">
     Holders
 
@@ -111,7 +123,7 @@
               {holder[0]}
             </p>
             <p class="flex items-center">
-              {percentFormatter.format(holder[1] * 100)}%
+              {holder[1]}%
             </p>
           </div>
         {/each}
