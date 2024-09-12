@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Markdown from "@magidoc/plugin-svelte-marked";
+
   import Chef from "../Chef.svelte";
 
   export let reply: {
@@ -53,36 +55,40 @@
 </script>
 
 <div class="w-full flex flex-col bg-gray-5 p-2 rounded-md text-shitzu-1">
-  <div class="flex items-center gap-1 text-xs text-shitzu-3">
+  <div class="flex items-center justify-between gap-1 text-xs text-shitzu-3">
     <Chef
       account={`${reply.account_id}${reply.account_id === owner ? " (dev)" : ""}`}
       class={`${accountColor} text-gray-8 rounded px-1`}
       asLink
     />
-    <button
-      on:click={() => {
-        if (!reply.id) return;
-        localIsLiked = !localIsLiked;
-        localLikes = localIsLiked ? localLikes + 1 : localLikes - 1;
-        onLike(reply.id);
-      }}
-      class="flex items-center gap-1"
-    >
-      <div
-        class={localIsLiked
-          ? "i-mdi:heart text-shitzu-4"
-          : "i-mdi:heart-outline text-shitzu-4"}
-      />
+    <div class="flex gap-1">
+      <button
+        on:click={() => {
+          if (!reply.id) return;
+          localIsLiked = !localIsLiked;
+          localLikes = localIsLiked ? localLikes + 1 : localLikes - 1;
+          onLike(reply.id);
+        }}
+        class="flex items-center gap-1"
+      >
+        <div
+          class={localIsLiked
+            ? "i-mdi:heart text-shitzu-4"
+            : "i-mdi:heart-outline text-shitzu-4"}
+        />
+        <div class="text-xs text-shitzu-3">
+          {localLikes}
+        </div>
+      </button>
       <div class="text-xs text-shitzu-3">
-        {localLikes}
+        #{reply.id}
+        {new Date((reply.created_at_ms ?? 0) * 1000).toLocaleString()}
       </div>
-    </button>
-    <div class="text-xs text-shitzu-3">
-      #{reply.id}
-      {new Date((reply.created_at_ms ?? 0) * 1000).toLocaleString()}
     </div>
   </div>
-  <div class="text-white mt-1 pl-4">{reply.content}</div>
+  <div class="markdown text-white mt-1 pl-4">
+    <Markdown source={reply.content} />
+  </div>
   {#if !reply.reply_to_id}
     <button
       on:click={() => onReplyTo(reply.id.toString())}

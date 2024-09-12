@@ -19,7 +19,7 @@
 <svelte:element
   this={asLink ? "a" : "div"}
   href={asLink ? `/profile/${account.replace(" (dev)", "")}` : undefined}
-  class="flex flex-1 {asLink ? 'hover:font-bold' : ''}"
+  class="flex {asLink ? 'hover:font-bold' : ''}"
 >
   <div class="flex items-center gap-1 flex-1">
     {#if !hideAvatar}

@@ -1,5 +1,7 @@
 <script lang="ts">
+  import Markdown from "@magidoc/plugin-svelte-marked";
   import { onMount } from "svelte";
+  import { slide } from "svelte/transition";
 
   import Chef from "../Chef.svelte";
   import { addToast } from "../Toast.svelte";
@@ -8,6 +10,7 @@
 
   import { replaceState } from "$app/navigation";
   import { client } from "$lib/api/client";
+  import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import { showWalletSelector } from "$lib/auth";
   import { Button } from "$lib/components";
   import type { Meme } from "$lib/models/memecooking";
@@ -168,6 +171,7 @@
           <Chef
             account={`${meme.owner} (dev)`}
             class="bg-shitzu-4 text-gray-8 rounded px-1"
+            asLink
           />
           <div class="text-xs text-shitzu-3">
             {new Date(meme.created_timestamp_ms ?? 0).toLocaleString()}
@@ -221,10 +225,37 @@
           }}
         />
       {/each}
+
+      {#if reply}
+        <div
+          transition:slide
+          class="w-full flex flex-col bg-gray-5 p-2 rounded-md text-shitzu-1"
+        >
+          <div class="flex items-center gap-1 text-xs text-shitzu-3">
+            <div class="flex flex-1">
+              <div class="flex items-center gap-1 flex-1">
+                <img src={SHITZU_POCKET} alt="Shitzu Pocket" class="size-4" />
+                <span class="bg-gray-200 text-gray-8 rounded px-1">
+                  preview (supports <a
+                    class="c-blue-700 inline-flex"
+                    href="https://github.github.com/gfm/"
+                    target="_blank"
+                  >
+                    markdown <div class="i-mdi:open-in-new" />
+                  </a>)
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="markdown mt-1 pl-4 text-white">
+            <Markdown source={reply} />
+          </div>
+        </div>
+      {/if}
     </div>
   {/await}
 
-  <div class="w-full flex flex-row gap-2 mt-6">
+  <div class="w-full flex flex-row gap-2 mt-6 pb-6">
     <div class="w-full flex flex-col items-start">
       {#if replyToId}
         <button
@@ -297,3 +328,13 @@
     </div>
   </div>
 </div>
+
+<style lang="scss">
+  :global(.markdown .markdown-image) {
+    max-height: 15rem;
+  }
+
+  :global(.markdown a) {
+    color: lightblue;
+  }
+</style>
