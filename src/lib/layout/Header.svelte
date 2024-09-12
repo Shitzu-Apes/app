@@ -14,9 +14,9 @@
 </script>
 
 <div class="border-b-2 border-lime w-full">
-  <div class="mx-auto max-w-lg">
-    <div class="flex px-4 py-3 justify-between items-center">
-      <a href={window.location.origin} class="novisit">
+  <div class="mx-auto max-w-lg w-full">
+    <div class="flex px-4 py-3 items-center w-full">
+      <a href={window.location.origin} class="novisit flex-grow basis-0">
         <img class="w-8 h-8" src="/assets/favicon.ico" alt="logo" />
       </a>
 
@@ -28,9 +28,11 @@
       >
         meme.cooking
       </a>
-      {#await import("$lib/auth") then { Login }}
-        <Login />
-      {/await}
+      <div class="flex-grow basis-0 flex justify-end">
+        {#await import("$lib/auth") then { Login }}
+          <Login />
+        {/await}
+      </div>
     </div>
 
     <nav class="flex gap-3 px-3 pb-2 overflow-x-auto">
