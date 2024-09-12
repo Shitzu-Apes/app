@@ -134,7 +134,7 @@
       <img
         src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
         alt="{memebid.name} icon"
-        class="w-full h-full object-contain"
+        class="w-full h-full max-h-[25rem] object-contain"
       />
       <div class="absolute bottom-0 w-full px-4 py-2">
         <!-- backdrop -->

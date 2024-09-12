@@ -13,18 +13,24 @@
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import { showWalletSelector } from "$lib/auth";
   import { Button } from "$lib/components";
+  import { ScreenSize } from "$lib/models";
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
+  import { screenSize$ } from "$lib/screen-size";
 
   let reply: string = "";
   let replyToId: string | undefined;
   export let meme: Meme;
+
+  let className: string = "";
+  export { className as class };
 
   const { accountId$ } = wallet;
 
   let isLoggedIn: ReturnType<typeof fetchIsLoggedIn> = new Promise<never>(
     () => {},
   );
+  let scrollContainer: HTMLDivElement;
 
   const { walletName$ } = wallet;
 
@@ -36,6 +42,7 @@
     } | null = null;
     try {
       const url = new URL(window.location.href);
+      if (!url.hash) return;
       const accountId = decodeURIComponent(
         url.hash.split("accountId=")[1].split("&")[0],
       );
@@ -157,11 +164,14 @@
   }
 </script>
 
-<div class="h-full w-full">
+<div class="h-full w-full p-2 flex flex-col max-h-full {className}">
   {#await replies}
     <div class="loader size-24" />
   {:then data}
-    <div class="w-full flex flex-col gap-2">
+    <div
+      bind:this={scrollContainer}
+      class="w-full flex flex-col gap-2 flex-1 h-0 overflow-auto noscrollbar"
+    >
       <div
         class="w-full flex flex-col gap-2 bg-gray-5 p-2 rounded-md text-shitzu-1"
       >
@@ -228,7 +238,8 @@
 
       {#if reply}
         <div
-          transition:slide
+          out:slide
+          in:slide={{ duration: $screenSize$ >= ScreenSize.Laptop ? 300 : 0 }}
           class="w-full flex flex-col bg-gray-5 p-2 rounded-md text-shitzu-1"
         >
           <div class="flex items-center gap-1 text-xs text-shitzu-3">
@@ -255,7 +266,7 @@
     </div>
   {/await}
 
-  <div class="w-full flex flex-row gap-2 mt-6 pb-6">
+  <div class="w-full flex flex-row gap-2 mt-6 pb-3">
     <div class="w-full flex flex-col items-start">
       {#if replyToId}
         <button
@@ -276,6 +287,11 @@
           on:keydown={(e) => {
             if (e.key === "Enter") {
               handleReply();
+            } else if (scrollContainer != null) {
+              scrollContainer.scrollTo({
+                top: 100_000,
+                behavior: "smooth",
+              });
             }
           }}
         />
@@ -331,7 +347,7 @@
 
 <style lang="scss">
   :global(.markdown .markdown-image) {
-    max-height: 15rem;
+    max-height: 10rem;
   }
 
   :global(.markdown a) {

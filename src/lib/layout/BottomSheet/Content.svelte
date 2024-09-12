@@ -22,14 +22,3 @@
     <slot />
   </div>
 </div>
-
-<style scoped>
-  .noscrollbar::-webkit-scrollbar {
-    display: none;
-  }
-
-  .noscrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-</style>

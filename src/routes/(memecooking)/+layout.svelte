@@ -12,6 +12,8 @@
   import Toast from "$lib/components/memecooking/Toast.svelte";
   import { BottomSheet } from "$lib/layout/BottomSheet";
   import MCHeader from "$lib/layout/memecooking/MCHeader.svelte";
+  import { ScreenSize } from "$lib/models";
+  import { screenSize$ } from "$lib/screen-size";
   import {
     handleCloseSnackbar,
     snackbar$,
@@ -77,6 +79,32 @@
 
   onDestroy(() => {
     $ws.close();
+  });
+
+  let resizeObserver: ResizeObserver;
+  onMount(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { inlineSize } = entry.contentBoxSize[0];
+        if (inlineSize <= ScreenSize.Phone) {
+          screenSize$.set(ScreenSize.Phone);
+        } else if (inlineSize <= ScreenSize.Mobile) {
+          screenSize$.set(ScreenSize.Mobile);
+        } else if (inlineSize <= ScreenSize.Laptop) {
+          screenSize$.set(ScreenSize.Laptop);
+        } else if (inlineSize <= ScreenSize.DesktopLg) {
+          screenSize$.set(ScreenSize.DesktopLg);
+        } else {
+          screenSize$.set(ScreenSize.DesktopXl);
+        }
+      }
+    });
+
+    resizeObserver.observe(window.document.body);
+  });
+  onDestroy(() => {
+    if (!resizeObserver) return;
+    resizeObserver.unobserve(window.document.body);
   });
 
   $: snackbarClass$ = $snackbarComponent$?.class$;

@@ -11,7 +11,5 @@
   <slot slot="header">
     <h2 class="prose prose-invert prose-shitzu px-4 text-2xl">Comment</h2>
   </slot>
-  <div class="p-2">
-    <TokenCommentSection {meme} />
-  </div>
+  <TokenCommentSection class="p-2" {meme} />
 </BottomSheetContent>

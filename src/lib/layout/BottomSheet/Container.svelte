@@ -1,18 +1,23 @@
 <script context="module" lang="ts">
-  import { writable } from "svelte/store";
+  import { derived, writable, type Writable } from "svelte/store";
 
   const open = writable(false);
   const component = writable<{
     component: typeof SvelteComponent<any>;
     props: Record<string, any>;
   } | null>(null);
+  const size$: Writable<"m" | "l"> = writable("m");
+
+  export const isBottomSheetOpen$ = derived(open, (a) => a);
 
   export function openBottomSheet(
     newComponent: typeof SvelteComponent<any>,
     props: Record<string, any> = {},
+    size?: "m" | "l",
   ) {
     open.set(true);
     component.set({ component: newComponent, props });
+    size$.set(size ?? "m");
   }
 
   export function close() {
@@ -36,12 +41,15 @@
 </script>
 
 {#if $open && mounted}
-  <div class="fixed inset-0 bg-black/80 z-30" on:click={close}></div>
+  <button class="fixed inset-0 bg-black/80 z-30" on:click={close} />
 {/if}
 
 {#if mounted}
   <div
-    class="fixed bg-black bottom-0 left-0 right-0 w-full max-w-[min(30rem,100%)] mx-auto h-[90svh] z-40 transform {$open
+    class="fixed bg-black bottom-0 left-0 right-0 w-full max-w-[min(30rem,100%)] mx-auto {$size$ ===
+    'm'
+      ? 'h-[90svh]'
+      : 'h-[95svh]'} z-40 transform {$open
       ? 'translate-y-0'
       : 'translate-y-full'} duration-500 rounded-t-xl border-3 border-b-0 {variant ===
     'lime'

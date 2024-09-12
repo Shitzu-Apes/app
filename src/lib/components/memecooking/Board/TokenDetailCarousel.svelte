@@ -16,9 +16,14 @@
 
   import { goto, replaceState } from "$app/navigation";
   import { client } from "$lib/api/client";
-  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
+  import {
+    isBottomSheetOpen$,
+    openBottomSheet,
+  } from "$lib/layout/BottomSheet/Container.svelte";
+  import { ScreenSize } from "$lib/models";
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
+  import { screenSize$ } from "$lib/screen-size";
   import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
   import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
@@ -106,6 +111,8 @@
 
 <svelte:window
   on:keydown={(event) => {
+    if ($screenSize$ > ScreenSize.Mobile) return;
+    if ($isBottomSheetOpen$) return;
     if (focused) {
       if (event.key === "ArrowRight") {
         event.preventDefault();
@@ -225,9 +232,13 @@
       <button
         class="text-base flex justify-center items-center gap-1 flex-grow basis-0 py-2"
         on:click={() => {
-          openBottomSheet(TokenCommentSheet, {
-            meme: memebid,
-          });
+          openBottomSheet(
+            TokenCommentSheet,
+            {
+              meme: memebid,
+            },
+            "l",
+          );
         }}
       >
         <span class="hover:font-bold">

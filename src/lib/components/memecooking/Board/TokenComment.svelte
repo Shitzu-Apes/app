@@ -25,7 +25,7 @@
   };
   export let owner: string;
   export let onLike: (id: number) => Promise<void>;
-  export let onReplyTo: (id: string) => void;
+  export let onReplyTo: ((id: string) => void) | undefined = undefined;
 
   let localLikes: number = reply.likes_count;
   let localIsLiked: boolean = reply.is_liked_by_user;
@@ -91,7 +91,7 @@
   </div>
   {#if !reply.reply_to_id}
     <button
-      on:click={() => onReplyTo(reply.id.toString())}
+      on:click={() => (onReplyTo ? onReplyTo(reply.id.toString()) : undefined)}
       class="flex text-xs text-shitzu-3 pl-4 mt-1 mb-2 w-fit hover:font-bold"
     >
       [reply]
