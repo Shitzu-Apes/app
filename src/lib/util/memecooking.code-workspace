@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "../../.."
+		},
+		{
+			"path": "../../../../meme-launchpad"
+		}
+	],
+	"settings": {
+		"rust-analyzer.showUnlinkedFileNotification": false,
+		"svelte.enable-ts-plugin": true,
+		"svelte.plugin.svelte.defaultScriptLanguage": "ts"
+	}
+}
