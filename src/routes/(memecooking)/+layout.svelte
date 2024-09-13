@@ -9,6 +9,7 @@
   import { blur } from "svelte/transition";
 
   import { client } from "$lib/api/client";
+  import Tooltip from "$lib/components/Tooltip.svelte";
   import Toast from "$lib/components/memecooking/Toast.svelte";
   import { BottomSheet } from "$lib/layout/BottomSheet";
   import MCHeader from "$lib/layout/memecooking/MCHeader.svelte";
@@ -155,32 +156,36 @@
     <div class="text-white min-h-screen">
       <MCHeader />
       <slot />
-      <div class="fixed bottom-0 right-0 p-2 text-xs text-white bg-gray-800">
-        <div>
-          commit: {import.meta.env.VITE_COMMIT_HASH}
-        </div>
-        <div>
-          {#if $indexer_last_block_height$ && $node_last_block_height$}
-            {#if $node_last_block_height$ - $indexer_last_block_height$ > 105}
-              <span class="inline-flex relative mr-1">
-                <span class="w-2 h-2 bg-red-500 rounded-full"></span>
-                <span
-                  class="w-2 h-2 bg-red-500 rounded-full absolute animate-ping"
-                ></span>
-              </span>
-            {:else}
-              <span class="inline-flex relative mr-1">
-                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                <span
-                  class="w-2 h-2 bg-green-500 rounded-full absolute animate-ping"
-                ></span>
-              </span>
+      <div class="fixed bottom-0 right-0 p-2 text-xs text-white bg-gray-800/70">
+        <div class="flex items-center gap-1">
+          <Tooltip
+            info="Red: Indexer >105 blocks behind. Green: Indexer up-to-date or slightly behind."
+          >
+            {#if $indexer_last_block_height$ && $node_last_block_height$}
+              {#if $node_last_block_height$ - $indexer_last_block_height$ > 105}
+                <span class="inline-flex relative mr-1">
+                  <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span
+                    class="w-2 h-2 bg-red-500 rounded-full absolute animate-ping"
+                  ></span>
+                </span>
+              {:else}
+                <span class="inline-flex relative mr-1">
+                  <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                  <span
+                    class="w-2 h-2 bg-green-500 rounded-full absolute animate-ping"
+                  ></span>
+                </span>
+              {/if}
+              <span class="font-mono"
+                >{$indexer_last_block_height$} ({$node_last_block_height$ -
+                  $indexer_last_block_height$})</span
+              >
             {/if}
-            <span class="font-mono"
-              >{$indexer_last_block_height$} ({$node_last_block_height$ -
-                $indexer_last_block_height$})</span
-            >
-          {/if}
+          </Tooltip>
+          <Tooltip info="commit: {import.meta.env.VITE_COMMIT_HASH}">
+            <div class="i-mdi:git" />
+          </Tooltip>
         </div>
       </div>
     </div>
