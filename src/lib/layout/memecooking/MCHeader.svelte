@@ -6,6 +6,7 @@
   import BridgeSheet from "$lib/components/memecooking/BottomSheet/BridgeSheet.svelte";
   import HowItWorkSheet from "$lib/components/memecooking/BottomSheet/HowItWorkSheet.svelte";
   import Chef from "$lib/components/memecooking/Chef.svelte";
+  import MemeCreationNotification from "$lib/components/memecooking/Notification/MemeCreationNotification.svelte";
   import Notification from "$lib/components/memecooking/Notification/Notification.svelte";
   import { wallet } from "$lib/near";
 
@@ -65,8 +66,13 @@
     </ul>
   </div>
 
-  <div class="order-last sm:order-none mx-auto mt-3 sm:mt-0">
+  <div
+    class="order-last sm:order-none ml-3 mt-3 sm:mt-0 flex-1 flex items-center gap-2 flex-wrap"
+  >
     <Notification />
+    <div class="hidden lg:block">
+      <MemeCreationNotification />
+    </div>
   </div>
 
   {#if $accountId$}
