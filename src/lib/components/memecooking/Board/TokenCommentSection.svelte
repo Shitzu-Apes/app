@@ -133,6 +133,19 @@
       showWalletSelector("shitzu");
       return;
     }
+    if (reply.trim() === "") {
+      addToast({
+        data: {
+          type: "simple",
+          data: {
+            title: "Reply cannot be empty",
+            description: "Please enter a reply",
+            color: "red",
+          },
+        },
+      });
+      return;
+    }
     if (reply.length > 255) {
       addToast({
         data: {
