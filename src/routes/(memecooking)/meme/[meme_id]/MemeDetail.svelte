@@ -125,12 +125,22 @@
   </div>
 
   <div class="w-90 max-w-1/3 p-2 flex flex-col gap-5">
-    <button
-      class="self-end hover:font-bold"
-      on:click={() => shareWithReferral(meme, $accountId$)}
-    >
-      [share]
-    </button>
+    <div class="self-end flex items-center gap-2">
+      <a
+        class="hover:font-bold"
+        href={"https://t.me/Intear_Xeon_bot"}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        [alerts]
+      </a>
+      <button
+        class="hover:font-bold"
+        on:click={() => shareWithReferral(meme, $accountId$)}
+      >
+        [share]
+      </button>
+    </div>
     {#if meme.pool_id}
       <div
         class="flex gap-3 mt-10 bg-[rgba(0,214,175,1)] text-black p-3 rounded-lg font-medium"
