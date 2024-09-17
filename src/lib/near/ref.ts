@@ -26,9 +26,13 @@ export type PoolInfo = {
 
 export abstract class Ref {
   public static getPoolByIds(poolIds: number[]) {
-    return view<PoolInfo[]>("v2.ref-finance.near", "get_pool_by_ids", {
-      pool_ids: poolIds,
-    });
+    return view<PoolInfo[]>(
+      import.meta.env.VITE_REF_CONTRACT_ID,
+      "get_pool_by_ids",
+      {
+        pool_ids: poolIds,
+      },
+    );
   }
 
   public static async getReturn({
@@ -70,7 +74,7 @@ export abstract class Ref {
     };
 
     const shitzuOut = await view<string>(
-      "v2.ref-finance.near",
+      import.meta.env.VITE_REF_CONTRACT_ID,
       "get_return",
       args,
     );
@@ -79,16 +83,20 @@ export abstract class Ref {
   }
 
   public static async getPool(poolId: number): Promise<PoolInfo> {
-    return view<PoolInfo>("v2.ref-finance.near", "get_pool", {
+    return view<PoolInfo>(import.meta.env.VITE_REF_CONTRACT_ID, "get_pool", {
       pool_id: poolId,
     });
   }
 
   public static async getPoolShares(poolId: number, accountId: string) {
-    return view<string>("v2.ref-finance.near", "get_pool_shares", {
-      pool_id: poolId,
-      account_id: accountId,
-    });
+    return view<string>(
+      import.meta.env.VITE_REF_CONTRACT_ID,
+      "get_pool_shares",
+      {
+        pool_id: poolId,
+        account_id: accountId,
+      },
+    );
   }
 }
 
