@@ -1,5 +1,5 @@
 import type { HereCall } from "@here-wallet/core";
-import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
+import type { Action, FinalExecutionOutcome } from "@near-wallet-selector/core";
 import { derived, writable } from "svelte/store";
 
 import { view } from "./utils";
@@ -308,24 +308,41 @@ export abstract class MemeCooking {
   public static async claimIncome(
     wallet: Wallet,
     args: { token_ids: string[] },
+    hasRevenue: boolean,
+    hasShitstarClaim: boolean,
     callback: TransactionCallbacks<FinalExecutionOutcome> = {},
   ) {
+    const actions: Action[] = [];
+    if (hasRevenue) {
+      actions.push({
+        type: "FunctionCall",
+        params: {
+          methodName: "claim_income",
+          args: {
+            token_ids: args.token_ids,
+          },
+          gas: 230_000_000_000_000n.toString(),
+          deposit: "1",
+        },
+      });
+    }
+
+    if (hasShitstarClaim) {
+      actions.push({
+        type: "FunctionCall",
+        params: {
+          methodName: "claim_shitstars",
+          args: {},
+          gas: 70_000_000_000_000n.toString(),
+          deposit: "1",
+        },
+      });
+    }
+
     return wallet.signAndSendTransaction(
       {
         receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
-        actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "claim_income",
-              args: {
-                token_ids: args.token_ids,
-              },
-              gas: 300_000_000_000_000n.toString(),
-              deposit: "1",
-            },
-          },
-        ],
+        actions,
       },
       callback,
     );

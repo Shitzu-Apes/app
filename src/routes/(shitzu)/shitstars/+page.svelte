@@ -67,7 +67,7 @@
         {
           question: "How are Shitstars earned?",
           answer:
-            "Shitstars can be earned in three ways: Donating $SHITZU, Participating in Shitzu Boost, and Staking with Shitzu Pool. <br /><br />In addition, helping out community members in the SHITZU Telegram group can also earn you Shitstars. Join us at <a class='text-lime' href='https://t.me/Shitzu_Community' target='_blank'>https://t.me/Shitzu_Community</a> for more information.",
+            "Shitstars can be earned in four ways: donating $SHITZU, participating in Shitzu Boost, staking with Shitzu Pool and participating on <a href='https://meme.cooking' target='_blank'>meme.cooking</a>. <br /><br />In addition, helping out community members in the SHITZU Telegram group can also earn you Shitstars. Join us at <a class='text-lime' href='https://t.me/Shitzu_Community' target='_blank'>https://t.me/Shitzu_Community</a> for more information.",
         },
         {
           question: "How do I get started with earning Shitstars?",

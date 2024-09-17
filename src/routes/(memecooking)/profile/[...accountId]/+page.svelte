@@ -184,6 +184,7 @@
         claims,
         created: profile.coin_created,
         revenue,
+        shitstarClaim: new FixedNumber(account.shitstar_claim, 18),
         referralFees: new FixedNumber(profile.referral_fees, 24),
         withdrawFees: new FixedNumber(profile.withdraw_fees, 24),
       };
@@ -264,6 +265,7 @@
   {:then info}
     <Revenue
       revenue={info?.revenue}
+      shitstarClaim={info?.shitstarClaim}
       referralFees={info?.referralFees}
       withdrawFees={info?.withdrawFees}
       {update}
