@@ -37,26 +37,31 @@ export class Wallet {
     browser
       ? Promise.all([
           import("@near-wallet-selector/core"),
-          import("@near-wallet-selector/here-wallet"),
           import("@near-wallet-selector/meteor-wallet"),
+          import("@near-wallet-selector/here-wallet"),
           import("@near-wallet-selector/bitte-wallet"),
+          import("@near-wallet-selector/near-mobile-wallet"),
           import("@near-wallet-selector/okx-wallet"),
           import("@near-wallet-selector/my-near-wallet"),
         ]).then(
           ([
             { setupWalletSelector },
-            { setupHereWallet },
             { setupMeteorWallet },
+            { setupHereWallet },
             { setupBitteWallet },
+            { setupNearMobileWallet },
             { setupOKXWallet },
             { setupMyNearWallet },
           ]) =>
             setupWalletSelector({
               network: import.meta.env.VITE_NETWORK_ID,
               modules: [
-                setupHereWallet(),
                 setupMeteorWallet(),
-                setupBitteWallet(),
+                setupHereWallet(),
+                // FIXME types
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                setupBitteWallet() as any,
+                setupNearMobileWallet(),
                 setupOKXWallet(),
                 setupMyNearWallet(),
               ],
@@ -477,18 +482,23 @@ export interface WalletMetadata {
 }
 
 export const NEAR_WALLETS: Record<string, WalletMetadata> = {
-  "here-wallet": {
-    url: "https://herewallet.app/",
-    twitter: "https://x.com/here_wallet",
-  },
   "meteor-wallet": {
     url: "https://meteorwallet.app/",
     twitter: "https://x.com/MeteorWallet",
+  },
+  "here-wallet": {
+    url: "https://herewallet.app/",
+    twitter: "https://x.com/here_wallet",
   },
   "bitte-wallet": {
     url: "https://bitte.ai/",
     twitter: "https://x.com/BitteProtocol",
     telegram: "https://t.me/mintdev",
+  },
+  "near-mobile-wallet": {
+    url: "https://nearmobile.app/",
+    twitter: "https://x.com/NEARMobile_app",
+    telegram: "https://t.me/NEARMobile",
   },
   "okx-wallet": {
     url: "https://okx.com/web3",
