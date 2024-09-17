@@ -266,6 +266,12 @@
           ...JSON.parse(referenceContent),
           image: imageCID,
         });
+        const res = await fetch(
+          `${import.meta.env.VITE_IPFS_GATEWAY}/${referenceCID}`,
+        );
+        if (!res.ok) {
+          throw new Error("not pinned");
+        }
         return { imageCID, referenceCID, referenceHash };
       })
       .catch((e) => {
