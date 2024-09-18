@@ -68,9 +68,9 @@
                 />
                 <div class="flex flex-col text-left uppercase mr-auto">
                   <span>{mod.metadata.name}</span>
-                  {#if mod.metadata.description != null}
+                  {#if NEAR_WALLETS[mod.id].url != null}
                     <span class="text-sm text-coolgray">
-                      {new URL(NEAR_WALLETS[mod.id].url).hostname}
+                      {new URL(NEAR_WALLETS[mod.id].url ?? "").hostname}
                     </span>
                   {/if}
                 </div>
@@ -86,7 +86,7 @@
                   >
                     <div class="i-mdi:download w-8 h-8" />
                   </a>
-                {:else if mod.metadata.downloadUrl != null}
+                {:else if mod.metadata.downloadUrl != null && mod.id !== "ethereum-wallets"}
                   <a
                     href={mod.metadata.downloadUrl}
                     target="_blank"

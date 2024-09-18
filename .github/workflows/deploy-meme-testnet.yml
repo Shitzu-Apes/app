@@ -40,7 +40,7 @@ jobs:
       - name: Copy Charting Library files
         run: "./copy_charting_library_files.sh"
 
-      - name: Add contract connect ID to .env
+      - name: Add app name to .env
         run: echo "VITE_APP_NAME=Meme.Cooking" >> .env
 
       - name: Add contract connect ID to .env
@@ -56,6 +56,9 @@ jobs:
         run: echo "VITE_PINATA_JWT=$VITE_PINATA_JWT" >> .env
         env:
           VITE_PINATA_JWT: ${{ secrets.VITE_PINATA_JWT }}
+
+      - name: Add WalletConnect project ID to .env
+        run: echo "VITE_WC_PROJECT_ID=44dd0ed9ce175eeb72a67532fbfb6f96" >> .env
 
       - name: Build step
         run: "yarn vite build --mode testnet"

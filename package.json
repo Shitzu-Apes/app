@@ -31,12 +31,15 @@
     "@jsquash/webp": "^1.4.0",
     "@near-wallet-selector/bitte-wallet": "^8.9.13",
     "@near-wallet-selector/core": "^8.9.13",
+    "@near-wallet-selector/ethereum-wallets": "^8.9.13",
     "@near-wallet-selector/here-wallet": "^8.9.13",
     "@near-wallet-selector/meteor-wallet": "^8.9.13",
     "@near-wallet-selector/my-near-wallet": "^8.9.13",
     "@near-wallet-selector/near-mobile-wallet": "^8.9.13",
     "@near-wallet-selector/okx-wallet": "^8.9.13",
     "@unocss/reset": "^0.60.2",
+    "@wagmi/core": "^2.13.5",
+    "@web3modal/wagmi": "^5.1.8",
     "bs58": "^5.0.0",
     "dayjs": "^1.11.11",
     "figma-squircle": "^0.3.1",
@@ -44,6 +47,7 @@
     "openapi-typescript": "^7.0.4",
     "perfect-debounce": "^1.0.0",
     "ts-pattern": "^5.1.1",
+    "wagmi": "^2.12.12",
     "zod": "^3.23.8"
   },
   "devDependencies": {

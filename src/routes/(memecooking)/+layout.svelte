@@ -4,8 +4,10 @@
   import "../../app.scss";
 
   import Snackbar, { Actions, Label } from "@smui/snackbar";
+  import { reconnect, watchAccount } from "@wagmi/core";
   import { onDestroy, onMount } from "svelte";
   import { cubicIn, cubicOut } from "svelte/easing";
+  import { get } from "svelte/store";
   import { blur } from "svelte/transition";
 
   import { client } from "$lib/api/client";
@@ -14,6 +16,7 @@
   import { BottomSheet } from "$lib/layout/BottomSheet";
   import MCHeader from "$lib/layout/memecooking/MCHeader.svelte";
   import { ScreenSize } from "$lib/models";
+  import { wagmiConfig, wallet } from "$lib/near";
   import { screenSize$ } from "$lib/screen-size";
   import {
     handleCloseSnackbar,
@@ -106,6 +109,27 @@
   onDestroy(() => {
     if (!resizeObserver) return;
     resizeObserver.unobserve(window.document.body);
+  });
+
+  onMount(() => {
+    reconnect(wagmiConfig);
+
+    watchAccount(wagmiConfig, {
+      onChange: async (data) => {
+        const selector = await get(wallet.selector$);
+        if (!data.address || selector.store.getState().selectedWalletId) {
+          return;
+        }
+        selector.wallet("ethereum-wallets").then((wallet) => {
+          wallet.signIn({
+            contractId:
+              import.meta.env.VITE_CONNECT_ID ??
+              import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+            accounts: [],
+          });
+        });
+      },
+    });
   });
 
   $: snackbarClass$ = $snackbarComponent$?.class$;

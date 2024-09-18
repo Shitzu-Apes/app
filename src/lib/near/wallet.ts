@@ -11,8 +11,11 @@ import type {
   Wallet as NearWallet,
   SignedMessage,
 } from "@near-wallet-selector/core";
+import { createConfig, http } from "@wagmi/core";
+import { createWeb3Modal } from "@web3modal/wagmi";
 import { derived, get, readable, writable } from "svelte/store";
 import { P, match } from "ts-pattern";
+import { injected, walletConnect } from "wagmi/connectors";
 
 import { browser } from "$app/environment";
 import { client } from "$lib/api/client";
@@ -25,6 +28,73 @@ export type TransactionCallbacks<T> = {
   onFinally?: () => Promise<void> | void;
 };
 
+const near = {
+  id: 397,
+  name: "Near Protocol",
+  nativeCurrency: {
+    name: "NEAR",
+    symbol: "NEAR",
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: { http: ["https://eth-rpc.mainnet.near.org"] },
+  },
+  blockExplorers: {
+    default: {
+      name: "NEAR Explorer",
+      url: "https://eth-explorer.near.org",
+    },
+  },
+};
+const nearTestnet = {
+  id: 398,
+  name: "Near Protocol Testnet",
+  nativeCurrency: {
+    name: "NEAR",
+    symbol: "NEAR",
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: { http: ["https://eth-rpc.testnet.near.org"] },
+  },
+  blockExplorers: {
+    default: {
+      name: "NEAR Explorer",
+      url: "https://eth-explorer-testnet.near.org",
+    },
+  },
+  testnet: true,
+};
+
+export const wagmiConfig = createConfig({
+  chains:
+    import.meta.env.VITE_NETWORK_ID === "mainnet" ? [near] : [nearTestnet],
+  transports: {
+    [397]: http(),
+    [398]: http(),
+  },
+  connectors: [
+    walletConnect({
+      projectId: import.meta.env.VITE_WC_PROJECT_ID,
+      metadata: {
+        name: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
+        url: window.location.hostname,
+        icons: [
+          import.meta.env.VITE_APP_LOGO ??
+            "https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/main/logo/shitzu.webp",
+        ],
+        description: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
+      },
+    }),
+    injected({ shimDisconnect: true }),
+  ],
+});
+
+const web3Modal = createWeb3Modal({
+  wagmiConfig,
+  projectId: import.meta.env.VITE_WC_PROJECT_ID,
+});
+
 export class Wallet {
   private hereWallet?: HereWallet;
 
@@ -33,7 +103,7 @@ export class Wallet {
     return this._isTG;
   }
 
-  private selector$ = readable(
+  public selector$ = readable(
     browser
       ? Promise.all([
           import("@near-wallet-selector/core"),
@@ -43,6 +113,7 @@ export class Wallet {
           import("@near-wallet-selector/near-mobile-wallet"),
           import("@near-wallet-selector/okx-wallet"),
           import("@near-wallet-selector/my-near-wallet"),
+          import("@near-wallet-selector/ethereum-wallets"),
         ]).then(
           ([
             { setupWalletSelector },
@@ -52,6 +123,7 @@ export class Wallet {
             { setupNearMobileWallet },
             { setupOKXWallet },
             { setupMyNearWallet },
+            { setupEthereumWallets },
           ]) =>
             setupWalletSelector({
               network: import.meta.env.VITE_NETWORK_ID,
@@ -71,6 +143,12 @@ export class Wallet {
                 }),
                 setupOKXWallet(),
                 setupMyNearWallet(),
+                setupEthereumWallets({
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  wagmiConfig: wagmiConfig as any,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  web3Modal: web3Modal as any,
+                }),
               ],
             }),
         )
@@ -481,7 +559,7 @@ export class Wallet {
 export const wallet = new Wallet();
 
 export interface WalletMetadata {
-  url: string;
+  url?: string;
   extensionUrl?: string;
   twitter?: string;
   telegram?: string;
@@ -516,4 +594,5 @@ export const NEAR_WALLETS: Record<string, WalletMetadata> = {
     twitter: "https://twitter.com/MyNearWallet",
     telegram: "https://t.me/mnw_chat",
   },
+  "ethereum-wallets": {},
 };
