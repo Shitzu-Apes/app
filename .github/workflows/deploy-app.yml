@@ -46,9 +46,6 @@ jobs:
       - name: Copy Charting Library files
         run: "./copy_charting_library_files.sh"
 
-      - name: Add contract connect ID to .env
-        run: echo "VITE_CONNECT_ID=shit.0xshitzu.near" >> .env
-
       - name: Build step
         run: "yarn build"
 

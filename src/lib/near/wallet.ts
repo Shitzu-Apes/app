@@ -12,7 +12,6 @@ import type {
   SignedMessage,
 } from "@near-wallet-selector/core";
 import { createConfig, http } from "@wagmi/core";
-import { createWeb3Modal } from "@web3modal/wagmi";
 import { derived, get, readable, writable } from "svelte/store";
 import { P, match } from "ts-pattern";
 import { injected, walletConnect } from "wagmi/connectors";
@@ -66,34 +65,31 @@ const nearTestnet = {
   testnet: true,
 };
 
-export const wagmiConfig = createConfig({
-  chains:
-    import.meta.env.VITE_NETWORK_ID === "mainnet" ? [near] : [nearTestnet],
-  transports: {
-    [397]: http(),
-    [398]: http(),
-  },
-  connectors: [
-    walletConnect({
-      projectId: import.meta.env.VITE_WC_PROJECT_ID,
-      metadata: {
-        name: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
-        url: window.location.hostname,
-        icons: [
-          import.meta.env.VITE_APP_LOGO ??
-            "https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/main/logo/shitzu.webp",
-        ],
-        description: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
+export const wagmiConfig = browser
+  ? createConfig({
+      chains:
+        import.meta.env.VITE_NETWORK_ID === "mainnet" ? [near] : [nearTestnet],
+      transports: {
+        [397]: http(),
+        [398]: http(),
       },
-    }),
-    injected({ shimDisconnect: true }),
-  ],
-});
-
-const web3Modal = createWeb3Modal({
-  wagmiConfig,
-  projectId: import.meta.env.VITE_WC_PROJECT_ID,
-});
+      connectors: [
+        walletConnect({
+          projectId: import.meta.env.VITE_WC_PROJECT_ID,
+          metadata: {
+            name: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
+            url: window.location.hostname,
+            icons: [
+              import.meta.env.VITE_APP_LOGO ??
+                "https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/main/logo/shitzu.webp",
+            ],
+            description: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
+          },
+        }),
+        injected({ shimDisconnect: true }),
+      ],
+    })
+  : (undefined as unknown as ReturnType<typeof createConfig>);
 
 export class Wallet {
   private hereWallet?: HereWallet;
@@ -114,6 +110,7 @@ export class Wallet {
           import("@near-wallet-selector/okx-wallet"),
           import("@near-wallet-selector/my-near-wallet"),
           import("@near-wallet-selector/ethereum-wallets"),
+          import("@web3modal/wagmi"),
         ]).then(
           ([
             { setupWalletSelector },
@@ -124,6 +121,7 @@ export class Wallet {
             { setupOKXWallet },
             { setupMyNearWallet },
             { setupEthereumWallets },
+            { createWeb3Modal },
           ]) =>
             setupWalletSelector({
               network: import.meta.env.VITE_NETWORK_ID,
@@ -146,8 +144,11 @@ export class Wallet {
                 setupEthereumWallets({
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   wagmiConfig: wagmiConfig as any,
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  web3Modal: web3Modal as any,
+                  web3Modal: createWeb3Modal({
+                    wagmiConfig,
+                    projectId: import.meta.env.VITE_WC_PROJECT_ID,
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  }) as any,
                 }),
               ],
             }),
