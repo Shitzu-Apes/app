@@ -40,6 +40,12 @@ jobs:
       - name: Copy Charting Library files
         run: "./copy_charting_library_files.sh"
 
+      - name: Add contract connect ID to .env
+        run: echo "VITE_APP_NAME=Meme.Cooking" >> .env
+
+      - name: Add contract connect ID to .env
+        run: echo "VITE_APP_LOGO=https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/main/logo/meme-cooking.webp" >> .env
+
       - name: Add commit hash to .env
         run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> .env
 

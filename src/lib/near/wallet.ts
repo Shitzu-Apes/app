@@ -61,7 +61,14 @@ export class Wallet {
                 // FIXME types
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 setupBitteWallet() as any,
-                setupNearMobileWallet(),
+                setupNearMobileWallet({
+                  dAppMetadata: {
+                    name: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
+                    logoUrl:
+                      import.meta.env.VITE_APP_LOGO ??
+                      "https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/main/logo/shitzu.webp",
+                  },
+                }),
                 setupOKXWallet(),
                 setupMyNearWallet(),
               ],
