@@ -72,7 +72,7 @@
         {
           question: "How do I get started with earning Shitstars?",
           answer:
-            "To get started, you will need to acquire SHITZU Revival NFT, staked, and then follow the instructions for one of the three methods of earning Shitstars.",
+            "To get started, you will need to acquire SHITZU Revival NFT, stake, and then follow the instructions for one of the four methods of earning Shitstars.",
         },
         {
           question: "How do I earn Shitstars through donation?",
