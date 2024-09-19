@@ -2,6 +2,7 @@
   import Markdown from "@magidoc/plugin-svelte-marked";
   import { onMount } from "svelte";
   import { slide } from "svelte/transition";
+  import { match, P } from "ts-pattern";
 
   import Chef from "../Chef.svelte";
   import { addToast } from "../Toast.svelte";
@@ -32,7 +33,7 @@
   );
   let scrollContainer: HTMLDivElement;
 
-  const { walletName$ } = wallet;
+  const { walletId$ } = wallet;
 
   onMount(() => {
     let signedMessage: {
@@ -74,14 +75,6 @@
       console.error("[TokenCommentSection] Error in login process:", err);
     }
   });
-
-  $: {
-    if ($walletName$) {
-      $walletName$.then((name) => {
-        console.log("[walletName$]", name);
-      });
-    }
-  }
 
   fetchIsLoggedIn();
   function fetchIsLoggedIn() {
@@ -326,20 +319,32 @@
               } else if (isLoggedInResult) {
                 handleReply();
               } else {
-                if ((await $walletName$) === "MyNearWallet") {
-                  return addToast({
-                    data: {
-                      type: "simple",
-                      data: {
-                        title: "Login",
-                        description: "Reply from MyNearWallet is not supported",
-                        color: "red",
-                      },
+                const walletId = await $walletId$;
+                return match(walletId)
+                  .with(
+                    P.union(
+                      "my-near-wallet",
+                      "bitte-wallet",
+                      "ethereum-wallets",
+                    ),
+                    () => {
+                      addToast({
+                        data: {
+                          type: "simple",
+                          data: {
+                            title: "Login",
+                            description:
+                              "This wallet does not yet support replying",
+                            color: "red",
+                          },
+                        },
+                      });
                     },
+                  )
+                  .otherwise(async () => {
+                    await wallet.login();
+                    isLoggedIn = fetchIsLoggedIn();
                   });
-                }
-                await wallet.login();
-                isLoggedIn = fetchIsLoggedIn();
               }
             }}
             type="custom"
