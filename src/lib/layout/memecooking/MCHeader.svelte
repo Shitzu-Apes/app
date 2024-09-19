@@ -10,7 +10,7 @@
   import Notification from "$lib/components/memecooking/Notification/Notification.svelte";
   import { wallet } from "$lib/near";
 
-  const { accountId$ } = wallet;
+  const { accountId$, iconUrl$, walletName$ } = wallet;
 </script>
 
 <nav class="py-2 px-2 w-full flex flex-wrap justify-between">
@@ -78,9 +78,17 @@
   {#if $accountId$}
     <div class="flex flex-col items-end flex-1 sm:flex-none">
       <div class="text-sm inline-flex items-center h-fit">
-        [
-        <Chef account={$accountId$} class="mr-1 text-shitzu-4 w-fit" asLink />
-        ]
+        {#await Promise.all( [$iconUrl$, $walletName$], ) then [iconUrl, walletName]}
+          [
+          <Chef account={$accountId$} class="mr-1 text-shitzu-4 w-fit" asLink>
+            <img
+              src={iconUrl}
+              alt={walletName}
+              class={`size-4 object-contain ${(walletName ?? "").replaceAll(" ", "-").toLowerCase()}`}
+            />
+          </Chef>
+          ]
+        {/await}
       </div>
       <button class="text-xs w-fit hover:font-bold" on:click={wallet.signOut}
         >[logout]</button

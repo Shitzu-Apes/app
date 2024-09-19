@@ -111,7 +111,7 @@
 </BottomSheetContent>
 
 <style lang="scss">
-  .bitte-wallet {
+  :global(.bitte-wallet) {
     background: white;
     border-radius: 0.25rem;
   }
