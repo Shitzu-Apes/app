@@ -121,12 +121,9 @@
           return;
         }
         selector.wallet("ethereum-wallets").then((wallet) => {
-          wallet.signIn({
-            contractId:
-              import.meta.env.VITE_CONNECT_ID ??
-              import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
-            accounts: [],
-          });
+          // FIXME optional access key not yet supported by wallet selector
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          wallet.signIn({} as any);
         });
       },
     });

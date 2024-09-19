@@ -376,10 +376,19 @@ export class Wallet {
 
     return match(wallet)
       .with({ type: P.union("browser", "injected") }, async (wallet) => {
+        // FIXME optional access key not yet supported by wallet selector
+        const contractId = match(wallet.id)
+          .with(
+            P.union("meteor-wallet", "ethereum-wallets"),
+            () => undefined as unknown as string,
+          )
+          .otherwise(
+            () =>
+              import.meta.env.VITE_CONNECT_ID ??
+              import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+          );
         const accounts = await wallet.signIn({
-          contractId:
-            import.meta.env.VITE_CONNECT_ID ??
-            import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+          contractId,
         });
         const account = accounts.pop();
         if (!account) return;
