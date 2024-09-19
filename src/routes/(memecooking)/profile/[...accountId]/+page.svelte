@@ -248,7 +248,11 @@
         class="size-16 mr-1 text-shitzu-4"
       />
       <div>
-        <p class="text-lg">{accountId}</p>
+        <p class="text-lg">
+          {accountId.length > 16
+            ? `${accountId.substring(0, 6)}...${accountId.slice(-4)}`
+            : accountId}
+        </p>
         <a
           href="https://pikespeak.ai/wallet-explorer/{accountId}/"
           target="_blank"

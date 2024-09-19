@@ -401,7 +401,7 @@ export class Wallet {
             type: "simple",
             data: {
               title: "Connect",
-              description: `Successfully connected Near account ${account.accountId} via ${wallet.metadata.name}`,
+              description: `Successfully connected Near account ${account.accountId.length > 16 ? `${account.accountId.substring(0, 6)}...${account.accountId.slice(-4)}` : account.accountId} via ${wallet.metadata.name}`,
             },
           },
         });
@@ -439,7 +439,7 @@ export class Wallet {
               type: "simple",
               data: {
                 title: "Disconnect",
-                description: `Disconnected Near account ${account.accountId}`,
+                description: `Disconnected Near account ${account.accountId.length > 16 ? `${account.accountId.substring(0, 6)}...${account.accountId.slice(-4)}` : account.accountId}`,
               },
             },
           });
