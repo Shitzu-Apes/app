@@ -249,7 +249,7 @@
       />
       <div>
         <p class="text-lg">
-          {accountId.length > 16
+          {accountId.length > 24
             ? `${accountId.substring(0, 6)}...${accountId.slice(-4)}`
             : accountId}
         </p>
