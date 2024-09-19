@@ -139,7 +139,7 @@ export abstract class MemeCooking {
                 reference_hash: args.referenceHash,
                 deposit_token_id: args.depositTokenId,
               },
-              gas: "300000000000000",
+              gas: 270_000_000_000_000n.toString(),
               deposit,
             },
           },
