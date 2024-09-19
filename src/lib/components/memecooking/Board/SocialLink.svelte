@@ -12,7 +12,7 @@
       target="_blank"
       rel="noopener noreferrer"
     >
-      [twitter]
+      [𝕏]
     </a>
   {/if}
   {#if telegramLink.startsWith("https://t.me/")}

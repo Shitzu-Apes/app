@@ -15,7 +15,7 @@
 
   const twitterShareText = `I just deposited into the $${meme.symbol} meme coin launch pool on @memedotcooking!\n\nGo check it out here:\n`;
   $: twitterShareUrl = `https://meme.cooking/meme/${meme.meme_id}?referral=${$accountId$ ?? ""}`;
-  $: twitterShareLink = `https://twitter.com/intent/tweet?text=${encodeURI(twitterShareText)}&url=${encodeURI(twitterShareUrl)}`;
+  $: twitterShareLink = `https://x.com/intent/tweet?text=${encodeURI(twitterShareText)}&url=${encodeURI(twitterShareUrl)}`;
 
   let copying = false;
 

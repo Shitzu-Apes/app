@@ -56,11 +56,11 @@
         <div class="flex flex-col justify-center items-center max-w-lg gap-2">
           <div class="flex items-center gap-4">
             <a
-              href="https://twitter.com/memedotcooking"
+              href="https://x.com/memedotcooking"
               target="_blank"
               rel="noopener noreferrer"
             >
-              [ twitter ]
+              [ 𝕏 ]
             </a>
             <a
               href="https://t.me/memedotcooking"

@@ -22,12 +22,22 @@
       <div class="flex gap-2">
         <li class="mr-2">
           <a
-            href="https://twitter.com/memedotcooking"
+            href="https://x.com/memedotcooking"
             target="_blank"
             rel="noopener noreferrer"
             class="hover:font-bold hover:underline"
           >
-            [twitter]
+            [𝕏]
+          </a>
+        </li>
+        <li class="mr-2">
+          <a
+            href="https://docs.meme.cooking"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hover:font-bold hover:underline"
+          >
+            [docs]
           </a>
         </li>
         <li>

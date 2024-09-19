@@ -11,11 +11,7 @@
       <a href="https://github.com/Shitzu-Apes" target="_blank" rel="noopener">
         <div class="i-simple-icons:github w-[1.1rem] h-[1.1rem]" />
       </a>
-      <a
-        href="https://twitter.com/ShitzuCommunity"
-        target="_blank"
-        rel="noopener"
-      >
+      <a href="https://x.com/ShitzuCommunity" target="_blank" rel="noopener">
         <div class="i-simple-icons:x w-[1.1rem] h-[1.1rem]" />
       </a>
       <a href="https://t.me/Shitzu_Community" target="_blank" rel="noopener">
