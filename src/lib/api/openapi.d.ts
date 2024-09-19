@@ -76,8 +76,10 @@ export interface paths {
               total_deposits_num: number;
               total_withdrawals: string;
               total_withdrawals_num: number;
-              total_deposit_fees: string;
-              total_deposit_fees_num: number;
+              total_protocol_fees: string;
+              total_protocol_fees_num: number;
+              total_referral_fees: string;
+              total_referral_fees_num: number;
               total_withdraw_fees: string;
               total_withdraw_fees_num: number;
               last_change_ms: number;
@@ -350,12 +352,12 @@ export interface paths {
           };
           content: {
             "application/json": {
+              is_deposit: boolean;
               meme_id: number;
               account_id: string;
               amount: string;
-              fee: string;
-              is_deposit: boolean;
               amount_num: number;
+              fee: string;
               fee_num: number;
               timestamp_ms: number;
               receipt_id: string;
@@ -921,7 +923,16 @@ export interface paths {
           headers: {
             [name: string]: unknown;
           };
-          content?: never;
+          content: {
+            "application/json": {
+              id?: number;
+              meme_id: number;
+              content: string;
+              account_id: string;
+              created_at_ms?: number;
+              reply_to_id?: number;
+            };
+          };
         };
         /** @description Unauthorized */
         401: {

@@ -14,3 +14,6 @@ export type Meme = Optional<
   paths["/meme"]["get"]["responses"]["200"]["content"]["application/json"][number],
   "replies_count" | "staker_count"
 >;
+
+export type Reply =
+  paths["/get-replies/replies/{memeId}"]["get"]["responses"]["200"]["content"]["application/json"]["replies"][number];

@@ -10,7 +10,7 @@
   import TokenComment from "./TokenComment.svelte";
 
   import { replaceState } from "$app/navigation";
-  import { client } from "$lib/api/client";
+  import { client, type Reply } from "$lib/api/client";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import { showWalletSelector } from "$lib/auth";
   import { Button } from "$lib/components";
@@ -32,8 +32,9 @@
     () => {},
   );
   let scrollContainer: HTMLDivElement;
+  let postingReply: boolean = false;
 
-  const { walletId$ } = wallet;
+  const { walletId$, walletName$ } = wallet;
 
   onMount(() => {
     let signedMessage: {
@@ -102,23 +103,13 @@
     })
     .then((res) => {
       console.log("[replies]", res);
-      return res;
+      return res.data?.replies ?? [];
     });
 
-  function refreshReplies() {
-    replies = client
-      .GET("/get-replies/replies/{memeId}", {
-        params: {
-          path: {
-            memeId: meme.meme_id.toString(),
-          },
-        },
-        credentials: "include",
-      })
-      .then((res) => {
-        console.log("[replies]", res);
-        return res;
-      });
+  function refreshReplies(reply: Reply) {
+    replies = replies.then((currentReplies) => {
+      return [...currentReplies, reply];
+    });
   }
 
   function handleReply() {
@@ -152,6 +143,8 @@
       });
       return;
     }
+
+    postingReply = true;
     client
       .POST("/post-reply/replies", {
         method: "POST",
@@ -162,10 +155,38 @@
         },
         credentials: "include",
       })
-      .then(() => {
+      .then((response) => {
+        // If successful, update the optimistic reply with the actual data
+        const actualReply = response.data;
+        if (actualReply) {
+          // remove the optimistic reply
+          postingReply = false;
+          refreshReplies({
+            ...actualReply,
+            id: actualReply.id,
+            is_liked_by_user: false,
+            likes_count: 0,
+          });
+        }
+      })
+      .catch(async (error) => {
+        console.error("Failed to post reply:", error);
+        // If failed, remove the optimistic reply
+        postingReply = false;
+        addToast({
+          data: {
+            type: "simple",
+            data: {
+              title: "Error",
+              description: "Failed to post reply. Please try again.",
+              color: "red",
+            },
+          },
+        });
+      })
+      .finally(() => {
         reply = "";
         replyToId = undefined;
-        refreshReplies();
       });
   }
 </script>
@@ -207,7 +228,7 @@
           </div>
         </div>
       </div>
-      {#each data.data?.replies ?? [] as reply}
+      {#each data as reply}
         <TokenComment
           reply={{
             account_id: reply.account_id,
@@ -262,6 +283,9 @@
                   </a>)
                 </span>
               </div>
+              {#if postingReply}
+                <div class="i-svg-spinners:3-dots-fade" />
+              {/if}
             </div>
           </div>
           <div class="markdown mt-1 pl-4 text-white">
@@ -270,53 +294,27 @@
         </div>
       {/if}
     </div>
-  {/await}
 
-  <div class="w-full flex flex-row gap-2 mt-6 pb-3">
-    <div class="w-full flex flex-col items-start">
-      {#if replyToId}
-        <button
-          class="text-xs bg-shitzu-3 text-gray-7 mt-1 mb-2 w-fit flex items-start gap-1 px-2 rounded-full"
-          on:click={() => {
-            replyToId = undefined;
-          }}
-        >
-          replying to reply #{replyToId}
-          <div>x</div>
-        </button>
-      {/if}
-      <div class="w-full flex flex-row">
-        <input
-          type="text"
-          bind:value={reply}
-          class="flex-grow max-w-md p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shitzu-4 text-black max-w-none"
-          on:keydown={(e) => {
-            if (e.key === "Enter") {
-              handleReply();
-            } else if (scrollContainer != null) {
-              scrollContainer.scrollTo({
-                top: 100_000,
-                behavior: "smooth",
-              });
-            }
-          }}
-        />
-        {#await isLoggedIn}
-          <Button
-            class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
-            loading={true}
-            type="custom"
+    <div class="w-full flex flex-row gap-2 mt-6 pb-3">
+      <div class="w-full flex flex-col items-start">
+        {#if replyToId}
+          <button
+            class="text-xs bg-shitzu-3 text-gray-7 mt-1 mb-2 w-fit flex items-start gap-1 px-2 rounded-full"
+            on:click={() => {
+              replyToId = undefined;
+            }}
           >
-            Reply
-          </Button>
-        {:then isLoggedInResult}
-          <Button
-            class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
-            onClick={async () => {
-              if (!$accountId$) {
-                showWalletSelector("shitzu");
-                return;
-              } else if (isLoggedInResult) {
+            replying to reply #{replyToId}
+            <div>x</div>
+          </button>
+        {/if}
+        <div class="w-full flex flex-row">
+          <input
+            type="text"
+            bind:value={reply}
+            class="flex-grow max-w-md p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shitzu-4 text-black max-w-none"
+            on:keydown={async (e) => {
+              if (e.key === "Enter") {
                 handleReply();
               } else {
                 const walletId = await $walletId$;
@@ -346,21 +344,68 @@
                     isLoggedIn = fetchIsLoggedIn();
                   });
               }
+              if (scrollContainer != null) {
+                scrollContainer.scrollTo({
+                  top: 100_000,
+                  behavior: "smooth",
+                });
+              }
             }}
-            type="custom"
-          >
-            {#if !$accountId$}
-              Connect
-            {:else if isLoggedInResult}
+          />
+          {#await isLoggedIn}
+            <Button
+              class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
+              loading={true}
+              type="custom"
+            >
               Reply
-            {:else}
-              Login
-            {/if}
-          </Button>
-        {/await}
+            </Button>
+          {:then isLoggedInResult}
+            <Button
+              class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
+              onClick={async () => {
+                if (!$accountId$) {
+                  showWalletSelector("shitzu");
+                  return;
+                } else if (isLoggedInResult) {
+                  handleReply();
+                } else {
+                  if ((await $walletName$) === "MyNearWallet") {
+                    return addToast({
+                      data: {
+                        type: "simple",
+                        data: {
+                          title: "Login",
+                          description:
+                            "Reply from MyNearWallet is not supported",
+                          color: "red",
+                        },
+                      },
+                    });
+                  }
+                  await wallet.login();
+                  isLoggedIn = fetchIsLoggedIn();
+                }
+              }}
+              type="custom"
+            >
+              {#if !$accountId$}
+                Connect
+              {:else if isLoggedInResult}
+                {#if postingReply}
+                  <div class="i-svg-spinners:3-dots-fade size-4" />
+                {:else}
+                  Reply
+                {/if}
+              {:else}
+                Login
+              {/if}
+            </Button>
+          {/await}
+        </div>
       </div>
     </div>
-  </div>
+  {/await}
 </div>
 
 <style lang="scss">
