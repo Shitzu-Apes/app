@@ -34,7 +34,7 @@
   let scrollContainer: HTMLDivElement;
   let postingReply: boolean = false;
 
-  const { walletId$, walletName$ } = wallet;
+  const { walletId$ } = wallet;
 
   onMount(() => {
     let signedMessage: {
@@ -112,10 +112,34 @@
     });
   }
 
-  function handleReply() {
+  async function handleReply() {
     if (!accountId$) {
       showWalletSelector("shitzu");
       return;
+    }
+    const isLoggedInResult = await isLoggedIn;
+    if (!isLoggedInResult) {
+      const walletId = await $walletId$;
+      return match(walletId)
+        .with(
+          P.union("my-near-wallet", "bitte-wallet", "ethereum-wallets"),
+          () => {
+            addToast({
+              data: {
+                type: "simple",
+                data: {
+                  title: "Login",
+                  description: "This wallet does not yet support replying",
+                  color: "red",
+                },
+              },
+            });
+          },
+        )
+        .otherwise(async () => {
+          await wallet.login();
+          isLoggedIn = fetchIsLoggedIn();
+        });
     }
     if (reply.trim() === "") {
       addToast({
@@ -316,33 +340,6 @@
             on:keydown={async (e) => {
               if (e.key === "Enter") {
                 handleReply();
-              } else {
-                const walletId = await $walletId$;
-                return match(walletId)
-                  .with(
-                    P.union(
-                      "my-near-wallet",
-                      "bitte-wallet",
-                      "ethereum-wallets",
-                    ),
-                    () => {
-                      addToast({
-                        data: {
-                          type: "simple",
-                          data: {
-                            title: "Login",
-                            description:
-                              "This wallet does not yet support replying",
-                            color: "red",
-                          },
-                        },
-                      });
-                    },
-                  )
-                  .otherwise(async () => {
-                    await wallet.login();
-                    isLoggedIn = fetchIsLoggedIn();
-                  });
               }
               if (scrollContainer != null) {
                 scrollContainer.scrollTo({
@@ -363,30 +360,7 @@
           {:then isLoggedInResult}
             <Button
               class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
-              onClick={async () => {
-                if (!$accountId$) {
-                  showWalletSelector("shitzu");
-                  return;
-                } else if (isLoggedInResult) {
-                  handleReply();
-                } else {
-                  if ((await $walletName$) === "MyNearWallet") {
-                    return addToast({
-                      data: {
-                        type: "simple",
-                        data: {
-                          title: "Login",
-                          description:
-                            "Reply from MyNearWallet is not supported",
-                          color: "red",
-                        },
-                      },
-                    });
-                  }
-                  await wallet.login();
-                  isLoggedIn = fetchIsLoggedIn();
-                }
-              }}
+              onClick={handleReply}
               type="custom"
             >
               {#if !$accountId$}
