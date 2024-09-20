@@ -6,7 +6,10 @@
   } from "./showWalletSelector";
 
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
-  import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
+  import {
+    closeBottomSheet,
+    openBottomSheet,
+  } from "$lib/layout/BottomSheet/Container.svelte";
   import type { UnionModuleState } from "$lib/models";
   import type { colorVariant } from "$lib/models/variant";
   import { NEAR_WALLETS, wallet } from "$lib/near";
@@ -96,14 +99,19 @@
                   >
                     <div class="i-mdi:download w-8 h-8" />
                   </a>
+                {:else if NEAR_WALLETS[mod.id].infoSheet != null}
+                  <button
+                    class="hover:bg-lime/15 p-2 rounded-xl"
+                    on:click={() => {
+                      openBottomSheet(NEAR_WALLETS[mod.id].infoSheet);
+                    }}
+                  >
+                    <div class="i-mdi:information-outline w-8 h-8" />
+                  </button>
                 {/if}
               {/if}
             </div>
           {/each}
-
-          {#if modules.length % 2 === 1}
-            <div />
-          {/if}
         {/await}
       </div>
     {/if}

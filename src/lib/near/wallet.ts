@@ -12,12 +12,14 @@ import type {
   SignedMessage,
 } from "@near-wallet-selector/core";
 import { createConfig, http } from "@wagmi/core";
+import type { SvelteComponent } from "svelte";
 import { derived, get, readable, writable } from "svelte/store";
 import { P, match } from "ts-pattern";
 import { injected, walletConnect } from "wagmi/connectors";
 
 import { browser } from "$app/environment";
 import { client } from "$lib/api/client";
+import EvmOnboardSheet from "$lib/components/memecooking/BottomSheet/EvmOnboardSheet.svelte";
 import { addTxToast, addToast } from "$lib/components/memecooking/Toast.svelte";
 import type { UnionModuleState, WalletAccount } from "$lib/models";
 
@@ -613,12 +615,14 @@ export class Wallet {
 
 export const wallet = new Wallet();
 
-export interface WalletMetadata {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface WalletMetadata<T extends SvelteComponent = any> {
   url?: string;
   extensionUrl?: string;
   twitter?: string;
   telegram?: string;
   discord?: string;
+  infoSheet?: T;
 }
 
 export const NEAR_WALLETS: Record<string, WalletMetadata> = {
@@ -649,5 +653,7 @@ export const NEAR_WALLETS: Record<string, WalletMetadata> = {
     twitter: "https://twitter.com/MyNearWallet",
     telegram: "https://t.me/mnw_chat",
   },
-  "ethereum-wallets": {},
+  "ethereum-wallets": {
+    infoSheet: EvmOnboardSheet,
+  },
 };
