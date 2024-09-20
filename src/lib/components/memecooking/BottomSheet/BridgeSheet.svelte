@@ -29,6 +29,14 @@
       feesColor: "bg-yellow-3",
     },
     {
+      id: "ref-finance",
+      title: "From EVM via Ref Finance",
+      eta: "40s - 4min",
+      etaColor: "bg-shitzu-3",
+      fees: "very low (bridge) & low (swap)",
+      feesColor: "bg-shitzu-3",
+    },
+    {
       id: "evm-stargate",
       title: "From EVM via Stargate Finance",
       eta: "40s - 4min",
@@ -135,6 +143,36 @@
                       </span>
                     </li>
                   </ul>
+                {:else if id === "ref-finance"}
+                  <ul class="flex flex-col gap-3 my-2">
+                    <li
+                      class="flex justify-between border-b border-shitzu-4 pb-2"
+                    >
+                      <span>
+                        Send USDC via <a
+                          class="text-lightblue-3 hover:underline hover:font-bold"
+                          href="https://stargate.finance/bridge"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          [Ref Finance bridge aggregator]
+                        </a> to Near (currently only supports Stargate Finance)
+                      </span>
+                    </li>
+                    <li class="flex justify-between">
+                      <span>
+                        Swap USDC to NEAR via <a
+                          class="text-lightblue-3 hover:underline hover:font-bold"
+                          href="{import.meta.env
+                            .VITE_REF_APP_URL}/#17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1|near"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          [Ref Finance]
+                        </a>
+                      </span>
+                    </li>
+                  </ul>
                 {:else if id === "evm-stargate"}
                   <ul class="flex flex-col gap-3 my-2">
                     <li
@@ -218,9 +256,3 @@
     </div>
   </section>
 </BottomSheetContent>
-
-<style>
-  a {
-    /* color: shi */
-  }
-</style>
