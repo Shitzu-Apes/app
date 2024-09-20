@@ -333,23 +333,12 @@
           </button>
         {/if}
         <div class="w-full flex flex-row">
-          <input
-            type="text"
-            bind:value={reply}
-            class="flex-grow max-w-md p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shitzu-4 text-black max-w-none"
-            on:keydown={async (e) => {
-              if (e.key === "Enter") {
-                handleReply();
-              }
-              if (scrollContainer != null) {
-                scrollContainer.scrollTo({
-                  top: 100_000,
-                  behavior: "smooth",
-                });
-              }
-            }}
-          />
           {#await isLoggedIn}
+            <input
+              type="text"
+              disabled
+              class="flex-grow max-w-md p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shitzu-4 text-black max-w-none"
+            />
             <Button
               class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
               loading={true}
@@ -358,6 +347,23 @@
               Reply
             </Button>
           {:then isLoggedInResult}
+            <input
+              type="text"
+              disabled={!$accountId$ || !isLoggedInResult}
+              bind:value={reply}
+              class="flex-grow max-w-md p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shitzu-4 text-black max-w-none"
+              on:keydown={async (e) => {
+                if (e.key === "Enter") {
+                  handleReply();
+                }
+                if (scrollContainer != null) {
+                  scrollContainer.scrollTo({
+                    top: 100_000,
+                    behavior: "smooth",
+                  });
+                }
+              }}
+            />
             <Button
               class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
               onClick={handleReply}
