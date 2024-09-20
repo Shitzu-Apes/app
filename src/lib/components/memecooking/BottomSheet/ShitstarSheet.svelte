@@ -56,11 +56,11 @@
         Shitstars can be earned in four ways: donating $SHITZU, participating in
         Shitzu Boost, staking with Shitzu Pool and participating on meme.cooking.
         <br /><br />In addition, helping out community members in the SHITZU
-        Telegram group can also earn you Shitstars. Join us at
+        Telegram group can also earn you Shitstars. Join us on
         <a
-          class="text-lime"
+          class="text-lightblue-3 hover:underline hover:font-bold"
           href="https://t.me/Shitzu_Community"
-          target="_blank">https://t.me/Shitzu_Community</a
+          target="_blank">[Telegram]</a
         > for more information.
       </span>
       <span class="inline-block">
@@ -68,9 +68,13 @@
           How do I get started with earning Shitstars?
         </strong>
         To get started, you will need to acquire SHITZU Revival NFT,
-        <a href="https://app.shitzuapes.xyz/account" target="_blank">
-          stake here
-        </a>, and then follow the instructions for one of the four methods of
+        <a
+          href="https://app.shitzuapes.xyz/account"
+          target="_blank"
+          class="text-lightblue-3 hover:underline hover:font-bold"
+        >
+          [stake here]</a
+        >, and then follow the instructions for one of the four methods of
         earning Shitstars.
       </span>
       <span class="inline-block">
