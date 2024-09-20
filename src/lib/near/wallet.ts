@@ -377,14 +377,27 @@ export class Wallet {
       callbackUrl: window.location.href,
     };
     const signedMessage = (await wallet.signMessage(message)) as SignedMessage;
+    const accountId = await get(this.accountId$);
+    if (accountId == null || signedMessage.accountId !== accountId) {
+      return addToast({
+        data: {
+          type: "simple",
+          data: {
+            title: "Error",
+            description:
+              "You can only login with the same account that is currently connected",
+            color: "red",
+          },
+        },
+      });
+    }
 
-    const res = await client.GET("/auth/login", {
+    return client.GET("/auth/login", {
       params: {
         query: signedMessage,
       },
       credentials: "include",
     });
-    console.log("[res]", res);
   }
 
   private connectHere() {
@@ -495,7 +508,12 @@ export class Wallet {
           this._account$.set(undefined);
         },
       )
-      .exhaustive();
+      .exhaustive()
+      ?.then(() =>
+        client.GET("/auth/logout", {
+          credentials: "include",
+        }),
+      );
   }
 
   public async signAndSendTransactions(

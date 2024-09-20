@@ -91,6 +91,9 @@
     isLoggedIn = res;
     return res;
   }
+  $: if ($accountId$) {
+    fetchIsLoggedIn();
+  }
 
   let replies = client
     .GET("/get-replies/replies/{memeId}", {
@@ -113,7 +116,7 @@
   }
 
   async function handleReply() {
-    if (!accountId$) {
+    if (!$accountId$) {
       showWalletSelector("shitzu");
       return;
     }
