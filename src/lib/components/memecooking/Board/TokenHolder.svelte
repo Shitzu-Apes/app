@@ -8,8 +8,11 @@
   import { FixedNumber } from "$lib/util";
 
   export let meme: Meme;
-  let holders: Promise<[string, string][] | null> = getHolders().then(
-    (holders) =>
+  let holders: ReturnType<typeof getHolders> = new Promise<never>(() => {});
+
+  getHolders();
+  function getHolders() {
+    const res = fetchHolders().then((holders) =>
       holders != null
         ? holders
             .map(
@@ -23,9 +26,12 @@
             )
             .filter(([_, percentage]) => percentage !== "0")
         : null,
-  );
+    );
+    holders = res;
+    return res;
+  }
 
-  function getHolders(): Promise<[string, FixedNumber][] | null> {
+  function fetchHolders(): Promise<[string, FixedNumber][] | null> {
     if (meme.pool_id) {
       const token_id = meme.token_id;
       return fetch(`https://api.fastnear.com/v1/ft/${token_id}/top`)
@@ -86,6 +92,7 @@
       if (newTrade.meme_id !== meme.meme_id) {
         return;
       }
+      getHolders();
     });
 
     return () => {
