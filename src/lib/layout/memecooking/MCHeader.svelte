@@ -77,7 +77,7 @@
   </div>
 
   <div
-    class="order-last sm:order-none ml-3 mt-3 sm:mt-0 flex-1 flex items-center gap-2 flex-wrap"
+    class="order-last sm:order-none min-w-[80vw] sm:min-w-unset ml-3 mt-3 sm:mt-0 flex-1 flex items-center gap-2 flex-wrap"
   >
     <Notification />
     <div class="hidden lg:block">
