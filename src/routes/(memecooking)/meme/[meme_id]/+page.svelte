@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { onDestroy, onMount } from "svelte";
+  import { onDestroy } from "svelte";
+  import { get } from "svelte/store";
 
   import MemeDetail from "./MemeDetail.svelte";
 
   import { page } from "$app/stores";
   import { client } from "$lib/api/client";
   import TokenDetailCarousel from "$lib/components/memecooking/Board/TokenDetailCarousel.svelte";
-  import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
   import { requiredStake } from "$lib/near/memecooking";
   import { memebids$ } from "$lib/store/memebids";
@@ -38,29 +38,25 @@
     clearInterval(interval);
   });
 
-  let meme: Promise<{ meme: Meme } | undefined>;
+  $: meme = retryPromise(async () => {
+    const memebids = await get(memebids$);
+    const meme = memebids.find((memebids) => memebids.meme_id === +meme_id);
 
-  onMount(() => {
-    meme = retryPromise(async () => {
-      const memebids = await $memebids$;
-      const meme = memebids.find((memebids) => memebids.meme_id === +meme_id);
+    if (meme) {
+      return { meme };
+    }
 
-      if (meme) {
-        return { meme };
-      }
-
-      const response = await client.GET("/meme/{id}", {
-        params: {
-          query: {
-            accountId: $accountId$,
-          },
-          path: { id: meme_id },
+    const response = await client.GET("/meme/{id}", {
+      params: {
+        query: {
+          accountId: $accountId$,
         },
-      });
+        path: { id: meme_id },
+      },
+    });
 
-      return response.data;
-    }, 20);
-  });
+    return response.data;
+  }, 20);
 </script>
 
 <div class="w-full p-2 pb-25">
