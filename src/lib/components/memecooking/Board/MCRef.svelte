@@ -10,6 +10,7 @@
   import { showWalletSelector } from "$lib/auth";
   import { Button } from "$lib/components";
   import TokenInput from "$lib/components/TokenInput.svelte";
+  import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import {
     Ft,
@@ -145,6 +146,7 @@
         ).then((balance) => {
           $tokenBalance = balance;
         });
+        closeBottomSheet();
       },
     };
     if ($value === "buy") {

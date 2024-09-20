@@ -1,6 +1,6 @@
 <script lang="ts">
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
-  import { close } from "$lib/layout/BottomSheet/Container.svelte";
+  import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
 </script>
 
 <BottomSheetContent variant="shitzu">
@@ -49,7 +49,10 @@
       </span>
     </div>
   </section>
-  <button class="w-full text-white hover:font-bold mb-20" on:click={close}>
+  <button
+    class="w-full text-white hover:font-bold mb-20"
+    on:click={closeBottomSheet}
+  >
     [woof woof!]
   </button>
 </BottomSheetContent>

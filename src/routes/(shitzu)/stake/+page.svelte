@@ -6,7 +6,7 @@
   import Near from "$lib/assets/Near.svelte";
   import { ConnectWallet } from "$lib/auth";
   import { Faq, Stake, MessageBox, ValidatorStatistics } from "$lib/components";
-  import { close } from "$lib/layout/BottomSheet/Container.svelte";
+  import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import {
     wallet,
     nearBalance,
@@ -167,7 +167,7 @@
           refreshNearBalance($accountId$);
           fetchStake($accountId$);
           fetchTotalStake();
-          close();
+          closeBottomSheet();
         }}
         on:claimSuccess={fetchFarm}
       ></Stake>

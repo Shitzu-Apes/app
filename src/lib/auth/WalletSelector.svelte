@@ -6,7 +6,7 @@
   } from "./showWalletSelector";
 
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
-  import { close } from "$lib/layout/BottomSheet/Container.svelte";
+  import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { UnionModuleState } from "$lib/models";
   import type { colorVariant } from "$lib/models/variant";
   import { NEAR_WALLETS, wallet } from "$lib/near";
@@ -20,7 +20,7 @@
 
   async function handleWalletClick(unionMod: UnionModuleState) {
     await wallet.loginViaWalletSelector(unionMod);
-    close();
+    closeBottomSheet();
   }
 </script>
 

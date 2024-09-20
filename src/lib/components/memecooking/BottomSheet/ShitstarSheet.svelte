@@ -4,7 +4,7 @@
   import ParasLogo from "$lib/assets/logo/Paras.png";
   import TradeportLogo from "$lib/assets/logo/Tradeport.png";
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
-  import { close } from "$lib/layout/BottomSheet/Container.svelte";
+  import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
 
   export const NFT_LINKS = [
     {
@@ -111,7 +111,10 @@
       </span>
     </div>
   </section>
-  <button class="w-full text-white hover:font-bold mb-20" on:click={close}>
+  <button
+    class="w-full text-white hover:font-bold mb-20"
+    on:click={closeBottomSheet}
+  >
     [close]
   </button>
 </BottomSheetContent>

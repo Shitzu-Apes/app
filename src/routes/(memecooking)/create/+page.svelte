@@ -20,7 +20,7 @@
   import InputField from "$lib/components/memecooking/InputField.svelte";
   import { addToast } from "$lib/components/memecooking/Toast.svelte";
   import {
-    close,
+    closeBottomSheet,
     openBottomSheet,
   } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
@@ -326,7 +326,7 @@
                 } else {
                   goto(`/meme/${decodedOutcome}`);
                 }
-                close();
+                closeBottomSheet();
               }
             }
           },

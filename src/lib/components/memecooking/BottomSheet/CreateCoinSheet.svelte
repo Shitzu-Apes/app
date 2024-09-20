@@ -3,7 +3,7 @@
   import { slide } from "svelte/transition";
 
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
-  import { close } from "$lib/layout/BottomSheet/Container.svelte";
+  import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
 
   let status:
     | "Uploading Meme"
@@ -35,7 +35,7 @@
       console.error(err);
       status = "Error";
       setTimeout(() => {
-        close();
+        closeBottomSheet();
       }, 5_000);
       return;
     }

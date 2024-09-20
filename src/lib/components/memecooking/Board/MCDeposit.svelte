@@ -11,7 +11,10 @@
   import { showWalletSelector } from "$lib/auth";
   import { Button } from "$lib/components";
   import TokenInput from "$lib/components/TokenInput.svelte";
-  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
+  import {
+    closeBottomSheet,
+    openBottomSheet,
+  } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { Ft, nearBalance, refreshNearBalance, wallet } from "$lib/near";
   import {
@@ -236,6 +239,7 @@
                 },
               },
             });
+            closeBottomSheet();
           },
         },
       );

@@ -3,7 +3,7 @@
 
   import Near from "$lib/assets/Near.svelte";
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
-  import { close } from "$lib/layout/BottomSheet/Container.svelte";
+  import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
   import type { FixedNumber } from "$lib/util";
@@ -113,7 +113,7 @@
     <div class="w-full flex justify-between space-x-4">
       <button
         class="flex-1 text-shitzu-4 py-2 px-4 rounded-full hover:font-bold transition-colors duration-200"
-        on:click={close}
+        on:click={closeBottomSheet}
       >
         [got it, woof-woof!]
       </button>

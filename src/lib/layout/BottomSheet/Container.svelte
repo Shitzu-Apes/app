@@ -20,7 +20,7 @@
     size$.set(size ?? "m");
   }
 
-  export function close() {
+  export function closeBottomSheet() {
     open.set(false);
     component.set(null);
   }
@@ -41,7 +41,7 @@
 </script>
 
 {#if $open && mounted}
-  <button class="fixed inset-0 bg-black/80 z-30" on:click={close} />
+  <button class="fixed inset-0 bg-black/80 z-30" on:click={closeBottomSheet} />
 {/if}
 
 {#if mounted}
@@ -61,7 +61,7 @@
         class="absolute top-3 right-3 {variant === 'lime'
           ? 'bg-lime'
           : 'bg-shitzu-4'} rounded-full flex justify-center items-center px-1 py-1"
-        on:click={close}
+        on:click={closeBottomSheet}
       >
         <div class=" block i-mdi:close size-6 ml-auto bg-black" />
       </button>
