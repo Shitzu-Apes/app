@@ -151,7 +151,7 @@
                       <span>
                         Send USDC via <a
                           class="text-lightblue-3 hover:underline hover:font-bold"
-                          href="https://stargate.finance/bridge"
+                          href="https://app.ref.finance/bridge"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
