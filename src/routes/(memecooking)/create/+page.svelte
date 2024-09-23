@@ -539,19 +539,20 @@
         return !result.success;
       })()}
     >
-      Create coin
+      Create token
     </button>
-    {#await $storageCost$}
-      <div class="flex justify-center items-center">
-        <div class="i-svg-spinners:6-dots-rotate w-12 h-12 bg-gray-7 m-a" />
-      </div>
-    {:then storageCost}
-      <div class="text-sm text-center">
-        Storage cost: ~{new FixedNumber(storageCost, 24).format({
-          maximumFractionDigits: 2,
-          maximumSignificantDigits: 2,
-        })} NEAR
-      </div>
-    {/await}
+    <div class="flex justify-center gap-2 text-sm text-center">
+      <span> Storage cost: </span>
+      {#await $storageCost$}
+        <div class="i-svg-spinners:3-dots-fade size-5 bg-gray-7" />
+      {:then storageCost}
+        <span>
+          ~{new FixedNumber(storageCost, 24).format({
+            maximumFractionDigits: 2,
+            maximumSignificantDigits: 2,
+          })} NEAR
+        </span>
+      {/await}
+    </div>
   </div>
 </div>
