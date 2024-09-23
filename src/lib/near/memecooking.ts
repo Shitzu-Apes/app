@@ -2,6 +2,7 @@ import type { HereCall } from "@here-wallet/core";
 import type { Action, FinalExecutionOutcome } from "@near-wallet-selector/core";
 import { derived, writable } from "svelte/store";
 
+import { Ft } from "./fungibleToken";
 import { view } from "./utils";
 import { wallet, Wallet, type TransactionCallbacks } from "./wallet";
 
@@ -403,6 +404,60 @@ export abstract class MemeCooking {
       "storage_balance_of",
       { account_id },
     );
+  }
+
+  public static async checkRegister(accountId: string) {
+    const [
+      storageBalance,
+      { account: accountCost },
+      wrapNearRegistered,
+      wrapNearMinDeposit,
+    ] = await Promise.all([
+      MemeCooking.storageBalanceOf(accountId),
+      MemeCooking.storageCosts(),
+      Ft.isUserRegistered(
+        import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
+        accountId,
+      ),
+      Ft.storageRequirement(import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!),
+    ]);
+    const isRegistered = !!storageBalance;
+
+    const transactions: HereCall[] = [];
+    if (!isRegistered) {
+      transactions.push({
+        receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "storage_deposit",
+              args: {},
+              gas: 30_000_000_000_000n.toString(),
+              deposit: accountCost,
+            },
+          },
+        ],
+      });
+    }
+    if (!wrapNearRegistered) {
+      transactions.push({
+        receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "storage_deposit",
+              args: {},
+              gas: 15_000_000_000_000n.toString(),
+              deposit: wrapNearMinDeposit,
+            },
+          },
+        ],
+      });
+    }
+
+    return transactions;
   }
 }
 

@@ -7,16 +7,19 @@
   import { reconnect, watchAccount } from "@wagmi/core";
   import { onDestroy, onMount } from "svelte";
   import { cubicIn, cubicOut } from "svelte/easing";
-  import { get } from "svelte/store";
+  import { derived, get } from "svelte/store";
   import { blur } from "svelte/transition";
 
   import { client } from "$lib/api/client";
   import Tooltip from "$lib/components/Tooltip.svelte";
+  import RegisterSheet from "$lib/components/memecooking/BottomSheet/RegisterSheet.svelte";
   import Toast from "$lib/components/memecooking/Toast.svelte";
   import { BottomSheet } from "$lib/layout/BottomSheet";
+  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import MCHeader from "$lib/layout/memecooking/MCHeader.svelte";
   import { ScreenSize } from "$lib/models";
   import { wagmiConfig, wallet } from "$lib/near";
+  import { MemeCooking } from "$lib/near/memecooking";
   import { screenSize$ } from "$lib/screen-size";
   import {
     handleCloseSnackbar,
@@ -128,6 +131,24 @@
       },
     });
   });
+
+  const { accountId$, walletId$ } = wallet;
+  derived([accountId$, walletId$], (stores) => Promise.all(stores)).subscribe(
+    async (stores) => {
+      const [accountId, walletId] = await stores;
+      if (!accountId || !walletId) return;
+      const isEvm = walletId === "ethereum-wallets";
+      if (!isEvm) return;
+
+      const transactions = await MemeCooking.checkRegister(accountId);
+      if (transactions.length === 0) return;
+
+      openBottomSheet(RegisterSheet, {
+        accountId,
+        transactions,
+      });
+    },
+  );
 
   $: snackbarClass$ = $snackbarComponent$?.class$;
   $: snackbarCanClose$ = $snackbarComponent$?.canClose$;

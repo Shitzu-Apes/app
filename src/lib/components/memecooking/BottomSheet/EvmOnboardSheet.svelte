@@ -41,14 +41,15 @@
                 rel="noopener noreferrer"
               >
                 [Stargate Finance]
-              </a>
+              </a>. It will automatically top up a short amount of ETH for gas
+              on Aurora.
             </span>
           </li>
           <li class="flex justify-between border-b border-shitzu-4 pb-2">
             <span>
               Swap USDC to wNEAR via <a
                 class="text-lightblue-3 hover:underline hover:font-bold"
-                href="https://trisolaris.io/#17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1|near"
+                href="https://trisolaris.io/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
