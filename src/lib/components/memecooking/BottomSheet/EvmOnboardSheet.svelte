@@ -1,7 +1,6 @@
 <script lang="ts">
-  import WalletSelector from "$lib/auth/WalletSelector.svelte";
+  import { showWalletSelector } from "$lib/auth";
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
-  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
 </script>
 
 <BottomSheetContent variant="shitzu">
@@ -76,7 +75,7 @@
   <button
     class="w-full text-white hover:font-bold"
     on:click={() => {
-      openBottomSheet(WalletSelector);
+      showWalletSelector("shitzu");
     }}
   >
     [Sir wtf, this is only possible on Near]
