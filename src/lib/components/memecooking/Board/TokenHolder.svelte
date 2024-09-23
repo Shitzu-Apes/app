@@ -61,11 +61,9 @@
           // sort from highest to lowest
           holders.sort((a, b) => (BigInt(b[1]) > BigInt(a[1]) ? 1 : -1));
 
+          const total_staked = new FixedNumber(BigInt(meme.total_deposit), 24);
+
           const holders_with_percentage = holders.map(([holder, amount]) => {
-            const total_staked = new FixedNumber(
-              BigInt(meme.total_deposit) - BigInt(meme.total_withdraw_fees),
-              24,
-            );
             const percentage =
               total_staked.valueOf() === 0n
                 ? total_staked
