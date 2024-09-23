@@ -4,6 +4,7 @@ build
 abi-gen
 
 .svelte-kit
+.cloudflare
 
 /src/lib/models/api.d.ts
 
