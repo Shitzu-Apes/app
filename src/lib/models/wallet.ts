@@ -2,6 +2,7 @@ import type {
   Account,
   BrowserWalletMetadata,
   InjectedWalletMetadata,
+  BridgeWalletMetadata,
 } from "@near-wallet-selector/core";
 
 export type WalletAccount =
@@ -27,5 +28,9 @@ interface InjectedWallet extends BaseWallet {
   type: "injected";
   metadata: InjectedWalletMetadata;
 }
+interface BridgeWallet extends BaseWallet {
+  type: "bridge";
+  metadata: BridgeWalletMetadata;
+}
 
-export type UnionModuleState = BrowserWallet | InjectedWallet;
+export type UnionModuleState = BrowserWallet | InjectedWallet | BridgeWallet;

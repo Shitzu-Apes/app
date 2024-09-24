@@ -111,6 +111,7 @@ export class Wallet {
           import("@near-wallet-selector/near-mobile-wallet"),
           import("@near-wallet-selector/okx-wallet"),
           import("@near-wallet-selector/my-near-wallet"),
+          import("@near-wallet-selector/wallet-connect"),
           import("@near-wallet-selector/ethereum-wallets"),
           import("@web3modal/wagmi"),
         ]).then(
@@ -122,6 +123,7 @@ export class Wallet {
             { setupNearMobileWallet },
             { setupOKXWallet },
             { setupMyNearWallet },
+            { setupWalletConnect },
             // { setupEthereumWallets },
             // { createWeb3Modal },
           ]) =>
@@ -130,9 +132,7 @@ export class Wallet {
               modules: [
                 setupMeteorWallet(),
                 setupHereWallet(),
-                // FIXME types
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                setupBitteWallet() as any,
+                setupBitteWallet(),
                 setupNearMobileWallet({
                   dAppMetadata: {
                     name: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
@@ -143,6 +143,18 @@ export class Wallet {
                 }),
                 setupOKXWallet(),
                 setupMyNearWallet(),
+                setupWalletConnect({
+                  projectId: import.meta.env.VITE_WC_PROJECT_ID,
+                  metadata: {
+                    name: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
+                    url: window.location.hostname,
+                    icons: [
+                      import.meta.env.VITE_APP_LOGO ??
+                        "https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/main/logo/shitzu.webp",
+                    ],
+                    description: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
+                  },
+                }),
                 // TODO enable once EVM rollout is live on Near Protocol
                 // setupEthereumWallets({
                 //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -279,8 +291,14 @@ export class Wallet {
             type: "browser",
             metadata: mod.metadata as BrowserWalletMetadata,
           };
+        case "bridge":
+          return {
+            ...mod,
+            type: "bridge",
+            metadata: mod.metadata as BrowserWalletMetadata,
+          };
         default:
-          throw new Error("unimplemented");
+          throw new Error(`unimplemented: ${mod.type}`);
       }
     });
   });
@@ -418,37 +436,40 @@ export class Wallet {
     const wallet = await mod.wallet();
 
     return match(wallet)
-      .with({ type: P.union("browser", "injected") }, async (wallet) => {
-        // FIXME optional access key not yet supported by wallet selector
-        const contractId = match(wallet.id)
-          .with(
-            P.union("meteor-wallet", "ethereum-wallets"),
-            () => undefined as unknown as string,
-          )
-          .otherwise(
-            () =>
-              import.meta.env.VITE_CONNECT_ID ??
-              import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
-          );
-        const accounts = await wallet.signIn({
-          contractId,
-        });
-        const account = accounts.pop();
-        if (!account) return;
-        this._account$.set({
-          type: "wallet-selector",
-          account,
-        });
-        addToast({
-          data: {
-            type: "simple",
+      .with(
+        { type: P.union("browser", "injected", "bridge") },
+        async (wallet) => {
+          // FIXME optional access key not yet supported by wallet selector
+          const contractId = match(wallet.id)
+            .with(
+              P.union("meteor-wallet", "ethereum-wallets"),
+              () => undefined as unknown as string,
+            )
+            .otherwise(
+              () =>
+                import.meta.env.VITE_CONNECT_ID ??
+                import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+            );
+          const accounts = await wallet.signIn({
+            contractId,
+          });
+          const account = accounts.pop();
+          if (!account) return;
+          this._account$.set({
+            type: "wallet-selector",
+            account,
+          });
+          addToast({
             data: {
-              title: "Connect",
-              description: `Successfully connected Near account ${account.accountId.length > 24 ? `${account.accountId.substring(0, 6)}...${account.accountId.slice(-4)}` : account.accountId} via ${wallet.metadata.name}`,
+              type: "simple",
+              data: {
+                title: "Connect",
+                description: `Successfully connected Near account ${account.accountId.length > 24 ? `${account.accountId.substring(0, 6)}...${account.accountId.slice(-4)}` : account.accountId} via ${wallet.metadata.name}`,
+              },
             },
-          },
-        });
-      })
+          });
+        },
+      )
       .otherwise(() => {
         throw new Error("unimplemented");
       });
@@ -623,6 +644,7 @@ export interface WalletMetadata<T extends SvelteComponent = any> {
   twitter?: string;
   telegram?: string;
   discord?: string;
+  name?: string;
   infoSheet?: T;
 }
 
@@ -653,6 +675,9 @@ export const NEAR_WALLETS: Record<string, WalletMetadata> = {
     url: "https://app.mynearwallet.com/",
     twitter: "https://twitter.com/MyNearWallet",
     telegram: "https://t.me/mnw_chat",
+  },
+  "wallet-connect": {
+    name: "WallletConnect (Near)",
   },
   "ethereum-wallets": {
     infoSheet: EvmOnboardSheet,

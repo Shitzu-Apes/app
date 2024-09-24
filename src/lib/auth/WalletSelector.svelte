@@ -70,7 +70,7 @@
                   class={`w-10 h-10 object-contain mr-5 ${mod.metadata.name.replaceAll(" ", "-").toLowerCase()}`}
                 />
                 <div class="flex flex-col text-left uppercase mr-auto">
-                  <span>{mod.metadata.name}</span>
+                  <span>{NEAR_WALLETS[mod.id].name ?? mod.metadata.name}</span>
                   {#if NEAR_WALLETS[mod.id].url != null}
                     <span class="text-sm text-coolgray">
                       {new URL(NEAR_WALLETS[mod.id].url ?? "").hostname}
