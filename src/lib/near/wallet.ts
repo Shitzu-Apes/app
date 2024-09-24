@@ -122,8 +122,8 @@ export class Wallet {
             { setupNearMobileWallet },
             { setupOKXWallet },
             { setupMyNearWallet },
-            { setupEthereumWallets },
-            { createWeb3Modal },
+            // { setupEthereumWallets },
+            // { createWeb3Modal },
           ]) =>
             setupWalletSelector({
               network: import.meta.env.VITE_NETWORK_ID,
@@ -143,15 +143,16 @@ export class Wallet {
                 }),
                 setupOKXWallet(),
                 setupMyNearWallet(),
-                setupEthereumWallets({
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  wagmiConfig: wagmiConfig as any,
-                  web3Modal: createWeb3Modal({
-                    wagmiConfig,
-                    projectId: import.meta.env.VITE_WC_PROJECT_ID,
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  }) as any,
-                }),
+                // TODO enable once EVM rollout is live on Near Protocol
+                // setupEthereumWallets({
+                //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                //   wagmiConfig: wagmiConfig as any,
+                //   web3Modal: createWeb3Modal({
+                //     wagmiConfig,
+                //     projectId: import.meta.env.VITE_WC_PROJECT_ID,
+                //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                //   }) as any,
+                // }),
               ],
             }),
         )
