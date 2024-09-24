@@ -49,9 +49,5 @@ jobs:
       - name: Build step
         run: "yarn build"
 
-      - name: Upload to Deno Deploy
-        uses: denoland/deployctl@v1
-        with:
-          project: "shitzu-app"
-          entrypoint: "mod.ts"
-          root: "build"
+      - name: Upload to Cloudflare Pages
+        run: yarn wrangler pages deploy .svelte-kit/cloudflare

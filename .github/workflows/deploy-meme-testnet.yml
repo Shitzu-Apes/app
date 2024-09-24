@@ -63,9 +63,5 @@ jobs:
       - name: Build step
         run: "yarn vite build --mode testnet"
 
-      - name: Upload to Deno Deploy
-        uses: denoland/deployctl@v1
-        with:
-          project: "meme-cooking-testnet"
-          entrypoint: "mod.ts"
-          root: "build"
+      - name: Upload to Cloudflare Pages
+        run: yarn wrangler pages deploy .svelte-kit/cloudflare
