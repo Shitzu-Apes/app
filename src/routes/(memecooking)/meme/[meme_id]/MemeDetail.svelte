@@ -128,7 +128,7 @@
     <div class="self-end flex items-center gap-2">
       <a
         class="hover:font-bold"
-        href={"https://t.me/Intear_Xeon_bot"}
+        href="https://t.me/bettearbot?start=ref-28757995"
         target="_blank"
         rel="noopener noreferrer"
       >
