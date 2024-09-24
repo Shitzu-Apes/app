@@ -77,7 +77,9 @@ export const wagmiConfig = browser
       },
       connectors: [
         walletConnect({
-          projectId: import.meta.env.VITE_WC_PROJECT_ID,
+          projectId:
+            import.meta.env.VITE_WC_PROJECT_ID ??
+            "dba65fff73650d32ae5157f3492c379e",
           metadata: {
             name: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
             url: window.location.hostname,
@@ -144,7 +146,9 @@ export class Wallet {
                 setupOKXWallet(),
                 setupMyNearWallet(),
                 setupWalletConnect({
-                  projectId: import.meta.env.VITE_WC_PROJECT_ID,
+                  projectId:
+                    import.meta.env.VITE_WC_PROJECT_ID ??
+                    "dba65fff73650d32ae5157f3492c379e",
                   metadata: {
                     name: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
                     url: window.location.hostname,
@@ -161,7 +165,9 @@ export class Wallet {
                 //   wagmiConfig: wagmiConfig as any,
                 //   web3Modal: createWeb3Modal({
                 //     wagmiConfig,
-                //     projectId: import.meta.env.VITE_WC_PROJECT_ID,
+                // projectId:
+                // import.meta.env.VITE_WC_PROJECT_ID ??
+                // "dba65fff73650d32ae5157f3492c379e",
                 //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 //   }) as any,
                 // }),
@@ -677,7 +683,7 @@ export const NEAR_WALLETS: Record<string, WalletMetadata> = {
     telegram: "https://t.me/mnw_chat",
   },
   "wallet-connect": {
-    name: "WallletConnect (Near)",
+    name: "WalletConnect (Near)",
   },
   "ethereum-wallets": {
     infoSheet: EvmOnboardSheet,

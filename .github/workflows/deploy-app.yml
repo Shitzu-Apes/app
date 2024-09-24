@@ -31,12 +31,6 @@ jobs:
         with:
           node-version: lts/*
 
-      - name: Add commit hash to .env
-        run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> .env
-
-      - name: Add contract connect ID to .env
-        run: echo "VITE_CONNECT_ID=shit.0xshitzu.near" >> .env
-
       - name: Install step
         run: "yarn install"
 
@@ -45,6 +39,15 @@ jobs:
 
       - name: Copy Charting Library files
         run: "./copy_charting_library_files.sh"
+
+      - name: Add commit hash to .env
+        run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> .env
+
+      - name: Add contract connect ID to .env
+        run: echo "VITE_CONNECT_ID=shit.0xshitzu.near" >> .env
+
+      - name: Add WalletConnect project ID to .env
+        run: echo "VITE_WC_PROJECT_ID=44dd0ed9ce175eeb72a67532fbfb6f96" >> .env
 
       - name: Build step
         run: "yarn build"
