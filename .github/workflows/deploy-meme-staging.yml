@@ -1,4 +1,4 @@
-name: Deploy Meme Cooking Testnet
+name: Deploy Meme Cooking Staging
 on:
   push:
     branches: [main, develop]
@@ -61,9 +61,9 @@ jobs:
         run: echo "VITE_WC_PROJECT_ID=44dd0ed9ce175eeb72a67532fbfb6f96" >> .env
 
       - name: Build step
-        run: "yarn vite build --mode testnet"
+        run: "yarn vite build --mode staging"
 
       - name: Upload to Cloudflare Pages
-        run: yarn wrangler pages deploy --project-name meme-cooking-testnet .svelte-kit/cloudflare
+        run: yarn wrangler pages deploy --project-name meme-cooking-staging .svelte-kit/cloudflare
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

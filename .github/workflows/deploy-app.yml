@@ -50,6 +50,6 @@ jobs:
         run: "yarn build"
 
       - name: Upload to Cloudflare Pages
-        run: yarn wrangler pages deploy .svelte-kit/cloudflare
+        run: yarn wrangler pages deploy --project-name shitzu-app .svelte-kit/cloudflare
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
