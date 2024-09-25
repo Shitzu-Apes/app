@@ -15,6 +15,7 @@
     {
       id: "solana-rocketx",
       title: "From Solana via RocketX",
+      gasTopup: true,
       eta: "5min",
       etaColor: "bg-yellow-3",
       fees: "low (bridge & swap)",
@@ -23,6 +24,7 @@
     {
       id: "solana-tokenbridge",
       title: "From Solana via TokenBridge",
+      gasTopup: false,
       eta: "15s",
       etaColor: "bg-shitzu-3",
       fees: "very low (bridge) & medium (swap)",
@@ -31,14 +33,25 @@
     {
       id: "ref-finance",
       title: "From EVM via Ref Finance",
+      gasTopup: false,
       eta: "40s - 4min",
       etaColor: "bg-shitzu-3",
       fees: "very low (bridge) & low (swap)",
       feesColor: "bg-shitzu-3",
     },
     {
-      id: "evm-stargate",
-      title: "From EVM via Stargate Finance",
+      id: "evm-stargate-1",
+      title: "From EVM via Stargate Finance v1",
+      gasTopup: true,
+      eta: "40s - 4min",
+      etaColor: "bg-shitzu-3",
+      fees: "very low (bridge) & low (swap)",
+      feesColor: "bg-shitzu-3",
+    },
+    {
+      id: "evm-stargate-2",
+      title: "From EVM via Stargate Finance v2",
+      gasTopup: false,
       eta: "40s - 4min",
       etaColor: "bg-shitzu-3",
       fees: "very low (bridge) & low (swap)",
@@ -47,6 +60,7 @@
     {
       id: "ethereum",
       title: "From Ethereum via Rainbow Bridge",
+      gasTopup: false,
       eta: "2min - 20min",
       etaColor: "bg-red-3",
       fees: "high (bridge) & low (swap)",
@@ -61,7 +75,7 @@
   </slot>
   <section class="px-3 py-6 text-white">
     <div class="mx-auto w-full rounded-xl bg-white shadow-lg" {...$root}>
-      {#each items as { id, title, eta, etaColor, fees, feesColor }}
+      {#each items as { id, title, gasTopup, eta, etaColor, fees, feesColor }}
         <div
           use:melt={$item(id)}
           class="overflow-hidden transition-colors first:rounded-t-xl
@@ -83,6 +97,13 @@
             >
               <div class="px-5 py-4">
                 <div class="flex flex-wrap gap-4">
+                  <span
+                    class="text-xs self-end px-1 tracking-tight {gasTopup
+                      ? 'bg-shitzu-3'
+                      : 'bg-red-3'} rounded-full text-black flex items-center gap-1"
+                  >
+                    Gas Topup: {gasTopup ? "✅" : "⛔"}
+                  </span>
                   <span
                     class="text-xs self-end px-1 tracking-tight {etaColor} rounded-full text-black flex items-center gap-1"
                   >
@@ -173,7 +194,51 @@
                       </span>
                     </li>
                   </ul>
-                {:else if id === "evm-stargate"}
+                {:else if id === "evm-stargate-1"}
+                  <ul class="flex flex-col gap-3 my-2">
+                    <li
+                      class="flex justify-between border-b border-shitzu-4 pb-2"
+                    >
+                      <span>
+                        Send USDC from various LayerZero compatible EVMs to
+                        Aurora via <a
+                          class="text-lightblue-3 hover:underline hover:font-bold"
+                          href="https://stargate.finance/bridge"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          [Stargate Finance]
+                        </a>
+                      </span>
+                    </li>
+                    <li
+                      class="flex justify-between border-b border-shitzu-4 pb-2"
+                    >
+                      <span>
+                        Swap USDC to wNEAR via <a
+                          class="text-lightblue-3 hover:underline hover:font-bold"
+                          href="https://trisolaris.io/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          [Trisolaris]
+                        </a>
+                      </span>
+                    </li>
+                    <li class="flex justify-between">
+                      <span>
+                        Send wNEAR from Aurora to Near via <a
+                          class="text-lightblue-3 hover:underline hover:font-bold"
+                          href="https://rainbowbridge.app/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          [Rainbow Bridge]
+                        </a>
+                      </span>
+                    </li>
+                  </ul>
+                {:else if id === "evm-stargate-2"}
                   <ul class="flex flex-col gap-3 my-2">
                     <li
                       class="flex justify-between border-b border-shitzu-4 pb-2"
