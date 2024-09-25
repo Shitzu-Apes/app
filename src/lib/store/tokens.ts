@@ -1,4 +1,5 @@
 import { derived, readable, type Readable } from "svelte/store";
+import { match, P } from "ts-pattern";
 
 import type { FungibleTokenMetadata } from "$lib/abi";
 import BlackDragonLogo from "$lib/assets/logo/blackdragon.png";
@@ -10,7 +11,7 @@ import ShitzuLogo from "$lib/assets/logo/shitzu.webp";
 import { Ft, Ref, type PoolInfo } from "$lib/near";
 
 export type TokenInfo = {
-  price: string;
+  price?: string;
   decimal: number;
   symbol: string;
   icon: string | null | undefined;
@@ -159,8 +160,15 @@ const refPrices$ = readable<
       const pool = tokens_pool[token_id];
       const metadata = tokens_metadata[token_id];
       const config = poolIds[token_id];
-      if (!pool || !metadata || !config) {
+      if (!metadata || !config) {
         continue;
+      }
+      if (!pool) {
+        refPrices[token_id] = {
+          decimal: metadata.decimals,
+          symbol: metadata.symbol,
+          icon: metadata.icon as string,
+        };
       }
 
       const denomIdx = pool.token_account_ids.indexOf(config.denom);
@@ -169,47 +177,29 @@ const refPrices$ = readable<
       const denomAmount = pool.amounts[denomIdx];
       const tokenAmount = pool.amounts[tokenIdx];
 
-      let denomDecimals: number;
-      if (
-        config.denom ===
-          "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1" ||
-        config.denom ===
-          "a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near"
-      ) {
-        denomDecimals = 6;
-      } else {
-        denomDecimals = tokens_metadata[config.denom]!.decimals;
-      }
       const tokenDecimals = metadata.decimals;
-
-      let price =
-        (+denomAmount * 10 ** (tokenDecimals - denomDecimals)) / +tokenAmount;
-
-      if (config.denom === "wrap.near") {
-        // wrap near price should exist by now
-        if ("wrap.near" in refPrices) {
-          price = +price * +refPrices["wrap.near"]!.price;
-        } else {
-          // add back to the queue
-          token_ids.push(token_id);
-        }
-      } else if (config.denom === "blackdragon.tkn.near") {
-        // blackdragon price should exist by now
-        if ("blackdragon.tkn.near" in refPrices) {
-          price = +price * +refPrices["blackdragon.tkn.near"]!.price;
-        } else {
-          // add back to the queue
-          token_ids.push(token_id);
-        }
-      } else if (config.denom === "ftv2.nekotoken.near") {
-        // blackdragon price should exist by now
-        if ("ftv2.nekotoken.near" in refPrices) {
-          price = +price * +refPrices["ftv2.nekotoken.near"]!.price;
-        } else {
-          // add back to the queue
-          token_ids.push(token_id);
-        }
-      }
+      const price = match(config.denom)
+        .with(
+          P.union(
+            "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+            "a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near",
+          ),
+          () => (+denomAmount * 10 ** (tokenDecimals - 6)) / +tokenAmount,
+        )
+        .otherwise((denom) => {
+          const denomDecimals =
+            tokens_metadata[config.denom as keyof PoolIdsType]!.decimals;
+          let price =
+            (+denomAmount * 10 ** (tokenDecimals - denomDecimals)) /
+            +tokenAmount;
+          if (denom in refPrices) {
+            price *= +refPrices[denom]!.price!;
+          } else {
+            // add back to the queue
+            token_ids.push(token_id);
+          }
+          return price;
+        });
 
       refPrices[token_id] = {
         price: price.toFixed(15),
@@ -238,9 +228,9 @@ const isKeyOf = <ObjectType extends Record<PropertyKey, unknown>>(
 
 export const isTokenId = (tokenId: string) => {
   if (!isKeyOf(poolIds, tokenId)) {
-    throw new Error("Invalid token id");
+    console.warn(`Invalid token id: ${tokenId}`);
   }
-  return tokenId;
+  return tokenId as keyof PoolIdsType;
 };
 
 export function getToken$(
@@ -279,7 +269,6 @@ export function getToken$(
           } satisfies TokenInfo;
         } catch (err) {
           return {
-            price: "0",
             decimal: metadata.decimals,
             symbol: metadata.symbol,
             icon: metadata.icon,
@@ -292,12 +281,8 @@ export function getToken$(
 }
 
 export function getToken(tokenId: string) {
-  if (!isKeyOf(poolIds, tokenId)) {
-    throw new Error("Invalid token id");
-  }
-
   return new Promise<TokenInfo>((resolve) => {
-    getToken$(tokenId).subscribe((token) => {
+    getToken$(isTokenId(tokenId)).subscribe((token) => {
       return resolve(token);
     });
   });

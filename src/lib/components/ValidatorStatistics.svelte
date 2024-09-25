@@ -18,7 +18,7 @@
   export let hasStakedNft: boolean;
 
   let showNftApr = false;
-  const tokenAPRs$ = writable<[number, TokenInfo][]>([]);
+  const tokenAPRs$ = writable<[number | null, TokenInfo][]>([]);
   let totalAPR: FixedNumber | null = null;
   let totalAPRDiff: FixedNumber | null = null;
 
@@ -38,11 +38,11 @@
   $: calculateTotalApr($tokenAPRs$, hasStakedNft, showNftApr);
 
   async function calculateTotalApr(
-    tokenAPRs: [number, TokenInfo][],
+    tokenAPRs: [number | null, TokenInfo][],
     hasNft: boolean,
     showNftApr: boolean,
   ) {
-    const apr = tokenAPRs.reduce((acc, cur) => acc + cur[0], 0);
+    const apr = tokenAPRs.reduce((acc, cur) => acc + (cur[0] ?? 0), 0);
     totalAPR = new FixedNumber(String(Math.round(apr * 10_000)), 2)
       .mul(
         hasNft || showNftApr ? new FixedNumber(1n, 0) : new FixedNumber(8n, 1),
@@ -92,6 +92,9 @@
       undistributedRewards.map(async ([tokenId, rewards]) => {
         const { price, decimal } = await getToken(tokenId);
 
+        if (price == null) {
+          return [null, await getToken(tokenId)] as [null, TokenInfo];
+        }
         const apr =
           (yearlyMultiplier *
             undistributedMultiplier *
@@ -165,7 +168,9 @@
           {#each $tokenAPRs$ as [apr, token]}
             <TokenStatistics
               {token}
-              apr={new FixedNumber(String(Math.round(apr * 10_000)), 2)}
+              apr={apr != null
+                ? new FixedNumber(String(Math.round(apr * 10_000)), 2)
+                : null}
               hasNft={hasStakedNft}
               {showNftApr}
             />

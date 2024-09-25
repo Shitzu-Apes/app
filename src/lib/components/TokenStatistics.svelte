@@ -6,7 +6,7 @@
 
   export let icon: string | undefined = undefined;
   export let token: TokenInfo;
-  export let apr: FixedNumber;
+  export let apr: FixedNumber | null;
   export let hasNft: boolean | undefined = undefined;
   export let showNftApr: boolean | undefined = undefined;
 </script>
@@ -23,25 +23,29 @@
     <span class="pr-10 font-semibold">${token.symbol}</span>
   </div>
   <span class="flex-1">
-    {#await hasNft then hasNft}
-      {#if hasNft}
-        {apr.format({
-          maximumFractionDigits: 2,
-        })}%
-      {:else if showNftApr}
-        {apr.format({
-          maximumFractionDigits: 2,
-        })}%
-        <span class="text-green-3" in:fade>
-          (+{apr.mul(new FixedNumber(2n, 1)).format({
+    {#if apr != null}
+      {#await hasNft then hasNft}
+        {#if hasNft}
+          {apr.format({
             maximumFractionDigits: 2,
-          })}%)</span
-        >
-      {:else}
-        {apr.mul(new FixedNumber(8n, 1)).format({
-          maximumFractionDigits: 2,
-        })}%
-      {/if}
-    {/await}
+          })}%
+        {:else if showNftApr}
+          {apr.format({
+            maximumFractionDigits: 2,
+          })}%
+          <span class="text-green-3" in:fade>
+            (+{apr.mul(new FixedNumber(2n, 1)).format({
+              maximumFractionDigits: 2,
+            })}%)</span
+          >
+        {:else}
+          {apr.mul(new FixedNumber(8n, 1)).format({
+            maximumFractionDigits: 2,
+          })}%
+        {/if}
+      {/await}
+    {:else}
+      ?
+    {/if}
   </span>
 </div>

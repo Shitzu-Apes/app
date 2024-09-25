@@ -154,10 +154,12 @@
     class="-mt-6 z-10 pb-6 border-2 border-lime rounded-xl px-3 pt-3 bg-black"
   >
     {#if $accountId$ == null}
-      <ConnectWallet />
-      <MessageBox>
-        Please login in order to stake with Shitzu validator!
-      </MessageBox>
+      <div class="flex flex-col gap-4">
+        <ConnectWallet />
+        <MessageBox>
+          Please login in order to stake with Shitzu validator!
+        </MessageBox>
+      </div>
     {:else if $nearBalance != null && $stake$ != null}
       <Stake
         walletConnected={$accountId$ != null}
