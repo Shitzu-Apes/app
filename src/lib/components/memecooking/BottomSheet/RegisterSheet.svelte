@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { HereCall } from "@here-wallet/core";
 
-  import { addToast } from "../Toast.svelte";
+  import { addToast } from "../../Toast.svelte";
 
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";

@@ -1,4 +1,4 @@
-import { addToast } from "$lib/components/memecooking/Toast.svelte";
+import { addToast } from "$lib/components/Toast.svelte";
 import type { Meme } from "$lib/models/memecooking";
 import { MemeCooking } from "$lib/near/memecooking";
 

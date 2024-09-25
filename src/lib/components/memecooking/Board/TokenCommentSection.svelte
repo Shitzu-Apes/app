@@ -3,8 +3,8 @@
   import { slide } from "svelte/transition";
   import { match, P } from "ts-pattern";
 
+  import { addToast } from "../../Toast.svelte";
   import Chef from "../Chef.svelte";
-  import { addToast } from "../Toast.svelte";
 
   import TokenComment from "./TokenComment.svelte";
 

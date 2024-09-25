@@ -3,7 +3,6 @@
   import "virtual:uno.css";
   import "../../app.scss";
 
-  import Snackbar, { Actions, Label } from "@smui/snackbar";
   import { reconnect, watchAccount } from "@wagmi/core";
   import { onDestroy, onMount } from "svelte";
   import { cubicIn, cubicOut } from "svelte/easing";
@@ -11,9 +10,9 @@
   import { blur } from "svelte/transition";
 
   import { client } from "$lib/api/client";
+  import Toast from "$lib/components/Toast.svelte";
   import Tooltip from "$lib/components/Tooltip.svelte";
   import RegisterSheet from "$lib/components/memecooking/BottomSheet/RegisterSheet.svelte";
-  import Toast from "$lib/components/memecooking/Toast.svelte";
   import { BottomSheet } from "$lib/layout/BottomSheet";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import MCHeader from "$lib/layout/memecooking/MCHeader.svelte";
@@ -21,11 +20,6 @@
   import { wagmiConfig, wallet } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
   import { screenSize$ } from "$lib/screen-size";
-  import {
-    handleCloseSnackbar,
-    snackbar$,
-    snackbarComponent$,
-  } from "$lib/snackbar";
   import {
     indexer_last_block_height$,
     node_last_block_height$,
@@ -149,43 +143,7 @@
       });
     },
   );
-
-  $: snackbarClass$ = $snackbarComponent$?.class$;
-  $: snackbarCanClose$ = $snackbarComponent$?.canClose$;
 </script>
-
-<div class="bg-gradient-to-r bg-gradient-from-cyan bg-gradient-to-blue">
-  <Snackbar
-    leading
-    bind:this={$snackbar$}
-    timeoutMs={$snackbarComponent$?.timeout ?? -1}
-    class={$snackbarClass$ ?? ""}
-    on:SMUISnackbar:closed={handleCloseSnackbar}
-  >
-    <Label>
-      {#if $snackbarComponent$}
-        {#if $snackbarComponent$.type === "text"}
-          {$snackbarComponent$.text}
-        {:else if $snackbarComponent$.type === "component"}
-          <svelte:component
-            this={$snackbarComponent$.component}
-            {...$snackbarComponent$.props}
-          />
-        {/if}
-      {/if}
-    </Label>
-    <Actions>
-      {#if $snackbarCanClose$}
-        <button
-          class="i-mdi:close text-red-3 cursor-pointer w-5 h-5 absolute top-2 right-2 cursor-pointer rounded-full hover:bg-red-3/15"
-          on:click={() => {
-            $snackbar$.close();
-          }}
-        />
-      {/if}
-    </Actions>
-  </Snackbar>
-</div>
 
 {#key "memecooking"}
   <BottomSheet variant="shitzu" />

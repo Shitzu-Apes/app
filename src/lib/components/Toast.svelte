@@ -104,7 +104,7 @@
   import type { ExecutionStatus } from "near-api-js/lib/providers/provider";
   import { fly, slide } from "svelte/transition";
 
-  import TxSnackbar from "../TxSnackbar.svelte";
+  import TxSnackbar from "./TxSnackbar.svelte";
 </script>
 
 <div

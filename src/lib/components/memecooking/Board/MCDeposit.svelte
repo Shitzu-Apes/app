@@ -4,8 +4,8 @@
   import { writable } from "svelte/store";
   import { match, P } from "ts-pattern";
 
+  import { addToast } from "../../Toast.svelte";
   import ReferralSheet from "../BottomSheet/ReferralSheet.svelte";
-  import { addToast } from "../Toast.svelte";
 
   import Near from "$lib/assets/Near.svelte";
   import { showWalletSelector } from "$lib/auth";

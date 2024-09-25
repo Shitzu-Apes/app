@@ -15,10 +15,10 @@
   import { showWalletSelector } from "$lib/auth";
   import { TokenInput } from "$lib/components";
   import SelectBox from "$lib/components/SelectBox.svelte";
+  import { addToast } from "$lib/components/Toast.svelte";
   import Tooltip from "$lib/components/Tooltip.svelte";
   import CreateCoinSheet from "$lib/components/memecooking/BottomSheet/CreateCoinSheet.svelte";
   import InputField from "$lib/components/memecooking/InputField.svelte";
-  import { addToast } from "$lib/components/memecooking/Toast.svelte";
   import {
     closeBottomSheet,
     openBottomSheet,

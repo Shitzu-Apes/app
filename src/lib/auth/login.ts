@@ -2,7 +2,7 @@ import { derived, writable, type Writable } from "svelte/store";
 
 import { replaceState } from "$app/navigation";
 import { client } from "$lib/api/client";
-import { addToast } from "$lib/components/memecooking/Toast.svelte";
+import { addToast } from "$lib/components/Toast.svelte";
 
 const isLoggedIn: Writable<ReturnType<typeof fetchIsLoggedIn>> = writable(
   new Promise<never>(() => {}),

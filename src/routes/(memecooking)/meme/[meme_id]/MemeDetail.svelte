@@ -3,6 +3,7 @@
 
   import type { Meme } from "$lib/api/client";
   import ExtraDetail from "$lib/components/ExtraDetail.svelte";
+  import { addToast } from "$lib/components/Toast.svelte";
   import Tooltip from "$lib/components/Tooltip.svelte";
   import TradeTabs from "$lib/components/memecooking/Board/Desktop/TradeTabs.svelte";
   import McActionBox from "$lib/components/memecooking/Board/MCActionBox.svelte";
@@ -12,7 +13,6 @@
   import Chef from "$lib/components/memecooking/Chef.svelte";
   import Countdown from "$lib/components/memecooking/Countdown.svelte";
   import ProgressBar from "$lib/components/memecooking/ProgressBar.svelte";
-  import { addToast } from "$lib/components/memecooking/Toast.svelte";
   import { wallet } from "$lib/near";
   import { MCTradeSubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";

@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
 
+  import { addToast } from "../../Toast.svelte";
   import RevenueShare from "../BottomSheet/RevenueShare.svelte";
   import ShitstarSheet from "../BottomSheet/ShitstarSheet.svelte";
-  import { addToast } from "../Toast.svelte";
 
   import Near from "$lib/assets/Near.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";

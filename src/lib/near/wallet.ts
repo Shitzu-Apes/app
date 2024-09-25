@@ -20,8 +20,8 @@ import { injected, walletConnect } from "wagmi/connectors";
 import { browser } from "$app/environment";
 import { client } from "$lib/api/client";
 import { fetchIsLoggedIn, webWalletLogin } from "$lib/auth/login";
+import { addTxToast, addToast } from "$lib/components/Toast.svelte";
 import EvmOnboardSheet from "$lib/components/memecooking/BottomSheet/EvmOnboardSheet.svelte";
-import { addTxToast, addToast } from "$lib/components/memecooking/Toast.svelte";
 import type { UnionModuleState, WalletAccount } from "$lib/models";
 
 export type TransactionCallbacks<T> = {

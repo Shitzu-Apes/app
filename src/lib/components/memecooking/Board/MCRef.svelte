@@ -4,7 +4,7 @@
   import { writable } from "svelte/store";
   import { slide } from "svelte/transition";
 
-  import { addToast } from "../Toast.svelte";
+  import { addToast } from "../../Toast.svelte";
 
   import Near from "$lib/assets/Near.svelte";
   import { showWalletSelector } from "$lib/auth";

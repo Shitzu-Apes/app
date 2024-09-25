@@ -4,12 +4,12 @@
 
   import Button from "./Button.svelte";
   import MessageBox from "./MessageBox.svelte";
+  import { addToast } from "./Toast.svelte";
   import TokenInput from "./TokenInput.svelte";
 
   import SHITZU from "$lib/assets/logo/shitzu.webp";
   import SHITZU_FACE from "$lib/assets/logo/shitzu_face.svg";
   import { wallet } from "$lib/near";
-  import { showSnackbar } from "$lib/snackbar";
   import {
     primaryNftTokenId,
     refreshPrimaryNftOf,
@@ -89,9 +89,15 @@
         onSuccess: () => {
           dispatch("donation", { amount: $input$ });
           refreshShitzuBalance($accountId$);
-          showSnackbar(
-            `You successfully donated ${$input$!.format()} SHITZU and received ${$input$?.mul(new FixedNumber(4n)).format({ maximumFractionDigits: 2 })} Shitstars! - Donate more to climb up the leaderboard`,
-          );
+          addToast({
+            data: {
+              type: "simple",
+              data: {
+                title: "Donation Success",
+                description: `You successfully donated ${$input$!.format()} SHITZU and received ${$input$?.mul(new FixedNumber(4n)).format({ maximumFractionDigits: 2 })} Shitstars! - Donate more to climb up the leaderboard`,
+              },
+            },
+          });
         },
       },
     );

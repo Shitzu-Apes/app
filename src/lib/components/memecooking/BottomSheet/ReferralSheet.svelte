@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { addToast } from "../Toast.svelte";
+  import { addToast } from "../../Toast.svelte";
 
   import Near from "$lib/assets/Near.svelte";
   import { BottomSheetContent } from "$lib/layout/BottomSheet";

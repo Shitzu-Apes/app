@@ -1,9 +1,10 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
 
+  import { addToast } from "../Toast.svelte";
+
   import { Button } from "$lib/components";
   import { wallet } from "$lib/near";
-  import { showSnackbar } from "$lib/snackbar";
 
   export let checkpoint: number | null;
   export let claimable: number;
@@ -65,9 +66,15 @@
       {
         onSuccess: () => {
           dispatch("claimed", {});
-          showSnackbar(
-            `You successfully claimed and received ${claimable.toFixed(2)} Shitstars! - Participate in Ref Memeseason and come back tomorrow to claim more!`,
-          );
+          addToast({
+            data: {
+              type: "simple",
+              data: {
+                title: "Shitstar Claim",
+                description: `You successfully claimed and received ${claimable.toFixed(2)} Shitstars! - Participate in Ref Memeseason and come back tomorrow to claim more!`,
+              },
+            },
+          });
         },
       },
     );
