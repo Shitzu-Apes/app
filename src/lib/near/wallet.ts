@@ -403,7 +403,6 @@ export class Wallet {
       message: "Login to Meme Cooking",
       nonce,
       recipient: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
-      callbackUrl: window.location.href,
     };
     const signedMessage = (await wallet.signMessage(message)) as SignedMessage;
     const accountId = await get(this.accountId$);

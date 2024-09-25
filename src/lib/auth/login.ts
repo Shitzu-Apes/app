@@ -14,6 +14,7 @@ export function webWalletLogin(currentAccountId: string) {
     accountId: string;
     signature: string;
     publicKey: string;
+    callbackUrl: string;
   } | null = null;
   try {
     const url = new URL(window.location.href);
@@ -27,10 +28,12 @@ export function webWalletLogin(currentAccountId: string) {
     const publicKey = decodeURIComponent(
       url.hash.split("publicKey=")[1].split("&")[0],
     );
+    url.hash = "";
     signedMessage = {
       accountId,
       signature,
       publicKey,
+      callbackUrl: url.href,
     };
 
     if (
@@ -58,7 +61,6 @@ export function webWalletLogin(currentAccountId: string) {
         credentials: "include",
       })
       .then(() => {
-        url.hash = "";
         replaceState(url.toString(), {});
         fetchIsLoggedIn();
       });

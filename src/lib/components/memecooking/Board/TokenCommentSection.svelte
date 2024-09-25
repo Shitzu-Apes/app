@@ -59,21 +59,18 @@
     if (!isLoggedIn) {
       const walletId = await $walletId$;
       return match(walletId)
-        .with(
-          P.union("my-near-wallet", "bitte-wallet", "ethereum-wallets"),
-          () => {
-            addToast({
+        .with(P.union("ethereum-wallets"), () => {
+          addToast({
+            data: {
+              type: "simple",
               data: {
-                type: "simple",
-                data: {
-                  title: "Login",
-                  description: "This wallet does not yet support replying",
-                  color: "red",
-                },
+                title: "Login",
+                description: "This wallet does not yet support replying",
+                color: "red",
               },
-            });
-          },
-        )
+            },
+          });
+        })
         .otherwise(wallet.login);
     }
     if (reply.trim() === "") {
