@@ -21,11 +21,6 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           submodules: recursive
 
-      - name: Install Deno
-        uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
-
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
