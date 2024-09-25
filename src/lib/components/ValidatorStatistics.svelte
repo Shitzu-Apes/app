@@ -8,7 +8,12 @@
   import type { AccountId } from "$lib/abi";
   import { Near } from "$lib/assets";
   import { Dogshit, type PoolFarm } from "$lib/near";
-  import { getToken, getToken$, type TokenInfo } from "$lib/store";
+  import {
+    getToken,
+    getToken$,
+    getTokenSortIndex,
+    type TokenInfo,
+  } from "$lib/store";
   import { FixedNumber } from "$lib/util";
 
   export let farm: PoolFarm | null;
@@ -89,22 +94,24 @@
       .toNumber();
 
     $tokenAPRs$ = await Promise.all(
-      undistributedRewards.map(async ([tokenId, rewards]) => {
-        const { price, decimal } = await getToken(tokenId);
+      undistributedRewards
+        .sort((a, b) => getTokenSortIndex(b[0]) - getTokenSortIndex(a[0]))
+        .map(async ([tokenId, rewards]) => {
+          const { price, decimal } = await getToken(tokenId);
 
-        if (price == null) {
-          return [null, await getToken(tokenId)] as [null, TokenInfo];
-        }
-        const apr =
-          (yearlyMultiplier *
-            undistributedMultiplier *
-            new FixedNumber(rewards, decimal).toNumber() *
-            Number(price ?? 0)) /
-          nearPrice /
-          totalStaked.toNumber();
+          if (price == null) {
+            return [null, await getToken(tokenId)] as [null, TokenInfo];
+          }
+          const apr =
+            (yearlyMultiplier *
+              undistributedMultiplier *
+              new FixedNumber(rewards, decimal).toNumber() *
+              Number(price ?? 0)) /
+            nearPrice /
+            totalStaked.toNumber();
 
-        return [apr, await getToken(tokenId)] as [number, TokenInfo];
-      }),
+          return [apr, await getToken(tokenId)] as [number, TokenInfo];
+        }),
     );
   }
 </script>

@@ -37,6 +37,8 @@ type PoolIdsType = {
   "nearnvidia.near": PoolConfig;
   "ndc.tkn.near": PoolConfig;
   "avb.tkn.near": PoolConfig;
+  "avb.tknx.near": PoolConfig;
+  "poppy-0.meme-cooking-test.near": PoolConfig;
   "pussy.laboratory.jumpfinance.near": PoolConfig;
   "babyblackdragon.tkn.near": PoolConfig;
   "bean.tkn.near": PoolConfig;
@@ -60,6 +62,8 @@ const poolIds: PoolIdsType = {
   "nearnvidia.near": { poolId: 4547, denom: "wrap.near" },
   "ndc.tkn.near": { poolId: 4353, denom: "blackdragon.tkn.near" },
   "avb.tkn.near": { poolId: 20, denom: "wrap.near" },
+  "avb.tknx.near": { poolId: 5315, denom: "wrap.near" },
+  "poppy-0.meme-cooking-test.near": { poolId: 5404, denom: "wrap.near" },
   "pussy.laboratory.jumpfinance.near": { poolId: 4829, denom: "wrap.near" },
   "babyblackdragon.tkn.near": { poolId: 4840, denom: "wrap.near" },
   "bean.tkn.near": { poolId: 4473, denom: "ftv2.nekotoken.near" },
@@ -82,15 +86,17 @@ const tokenSortIndex: Record<keyof PoolIdsType, number> = {
   "token.0xshitzu.near": 1_000,
   "blackdragon.tkn.near": 800,
   "token.lonkingnearbackto2024.near": 799,
-  "intel.tkn.near": 600,
-  "nearnvidia.near": 599,
   "ndc.tkn.near": 500,
-  "avb.tkn.near": 300,
-  "pussy.laboratory.jumpfinance.near": 299,
-  "babyblackdragon.tkn.near": 298,
-  "bean.tkn.near": 297,
-  "slush.tkn.near": 296,
-  "hat.tkn.near": 295,
+  "avb.tknx.near": 300,
+  "poppy-0.meme-cooking-test.near": 299,
+  "intel.tkn.near": 250,
+  "nearnvidia.near": 249,
+  "avb.tkn.near": 200,
+  "pussy.laboratory.jumpfinance.near": 199,
+  "babyblackdragon.tkn.near": 198,
+  "bean.tkn.near": 197,
+  "slush.tkn.near": 196,
+  "hat.tkn.near": 195,
   "ftv2.nekotoken.near": -1,
 };
 
