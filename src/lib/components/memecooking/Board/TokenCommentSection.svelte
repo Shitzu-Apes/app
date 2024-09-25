@@ -1,6 +1,5 @@
 <script lang="ts">
   import Markdown from "@magidoc/plugin-svelte-marked";
-  import { onMount } from "svelte";
   import { slide } from "svelte/transition";
   import { match, P } from "ts-pattern";
 
@@ -9,10 +8,10 @@
 
   import TokenComment from "./TokenComment.svelte";
 
-  import { replaceState } from "$app/navigation";
   import { client, type Reply } from "$lib/api/client";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import { showWalletSelector } from "$lib/auth";
+  import { isLoggedIn$ } from "$lib/auth/login";
   import { Button } from "$lib/components";
   import { ScreenSize } from "$lib/models";
   import type { Meme } from "$lib/models/memecooking";
@@ -26,74 +25,10 @@
   let className: string = "";
   export { className as class };
 
-  const { accountId$ } = wallet;
+  const { accountId$, walletId$ } = wallet;
 
-  let isLoggedIn: ReturnType<typeof fetchIsLoggedIn> = new Promise<never>(
-    () => {},
-  );
   let scrollContainer: HTMLDivElement;
   let postingReply: boolean = false;
-
-  const { walletId$ } = wallet;
-
-  onMount(() => {
-    let signedMessage: {
-      accountId: string;
-      signature: string;
-      publicKey: string;
-    } | null = null;
-    try {
-      const url = new URL(window.location.href);
-      if (!url.hash) return;
-      const accountId = decodeURIComponent(
-        url.hash.split("accountId=")[1].split("&")[0],
-      );
-      const signature = decodeURIComponent(
-        url.hash.split("signature=")[1].split("&")[0],
-      );
-      const publicKey = decodeURIComponent(
-        url.hash.split("publicKey=")[1].split("&")[0],
-      );
-      signedMessage = {
-        accountId,
-        signature,
-        publicKey,
-      };
-
-      client
-        .GET("/auth/login", {
-          params: {
-            query: signedMessage,
-          },
-          credentials: "include",
-        })
-        .then(() => {
-          url.hash = "";
-          replaceState(url.toString(), {});
-          fetchIsLoggedIn();
-        });
-    } catch (err) {
-      console.error("[TokenCommentSection] Error in login process:", err);
-    }
-  });
-
-  fetchIsLoggedIn();
-  function fetchIsLoggedIn() {
-    const res = client
-      .GET("/auth/check", {
-        credentials: "include",
-      })
-      .then(({ data }) => data?.isLoggedIn)
-      .catch((err) => {
-        console.error("[fetchIsLoggedIn]", err);
-        return false;
-      });
-    isLoggedIn = res;
-    return res;
-  }
-  $: if ($accountId$) {
-    fetchIsLoggedIn();
-  }
 
   let replies = client
     .GET("/get-replies/replies/{memeId}", {
@@ -120,8 +55,8 @@
       showWalletSelector("shitzu");
       return;
     }
-    const isLoggedInResult = await isLoggedIn;
-    if (!isLoggedInResult) {
+    const isLoggedIn = await $isLoggedIn$;
+    if (!isLoggedIn) {
       const walletId = await $walletId$;
       return match(walletId)
         .with(
@@ -139,10 +74,7 @@
             });
           },
         )
-        .otherwise(async () => {
-          await wallet.login();
-          isLoggedIn = fetchIsLoggedIn();
-        });
+        .otherwise(wallet.login);
     }
     if (reply.trim() === "") {
       addToast({
@@ -336,7 +268,7 @@
           </button>
         {/if}
         <div class="w-full flex flex-row">
-          {#await isLoggedIn}
+          {#await $isLoggedIn$}
             <input
               type="text"
               disabled

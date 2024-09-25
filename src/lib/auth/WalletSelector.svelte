@@ -51,7 +51,7 @@
       />
     {:else}
       <div
-        class="mx-auto flex flex-col gap-4 w-full max-w-xs mt-3 {variant ===
+        class="mx-auto flex flex-col gap-4 w-full max-w-xs mt-3 pb-6 {variant ===
         'lime'
           ? 'text-lime'
           : 'text-shitzu-4'}"

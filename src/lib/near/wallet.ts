@@ -19,6 +19,7 @@ import { injected, walletConnect } from "wagmi/connectors";
 
 import { browser } from "$app/environment";
 import { client } from "$lib/api/client";
+import { fetchIsLoggedIn, webWalletLogin } from "$lib/auth/login";
 import EvmOnboardSheet from "$lib/components/memecooking/BottomSheet/EvmOnboardSheet.svelte";
 import { addTxToast, addToast } from "$lib/components/memecooking/Toast.svelte";
 import type { UnionModuleState, WalletAccount } from "$lib/models";
@@ -345,6 +346,7 @@ export class Wallet {
     }
 
     this.connectHere = this.connectHere.bind(this);
+    this.login = this.login.bind(this);
     this.loginViaWalletSelector = this.loginViaWalletSelector.bind(this);
     this.loginViaHere = this.loginViaHere.bind(this);
     this.signOut = this.signOut.bind(this);
@@ -419,12 +421,14 @@ export class Wallet {
       });
     }
 
-    return client.GET("/auth/login", {
-      params: {
-        query: signedMessage,
-      },
-      credentials: "include",
-    });
+    return client
+      .GET("/auth/login", {
+        params: {
+          query: signedMessage,
+        },
+        credentials: "include",
+      })
+      .then(fetchIsLoggedIn);
   }
 
   private connectHere() {
@@ -642,6 +646,14 @@ export class Wallet {
 }
 
 export const wallet = new Wallet();
+
+if (browser) {
+  wallet.accountId$.subscribe((accountId) => {
+    if (accountId == null) return;
+    webWalletLogin(accountId);
+    fetchIsLoggedIn();
+  });
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface WalletMetadata<T extends SvelteComponent = any> {
