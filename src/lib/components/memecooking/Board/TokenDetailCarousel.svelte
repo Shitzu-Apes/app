@@ -207,7 +207,7 @@
       {/if}
     </button>
     <button
-      on:click={() => shareWithReferral(memebid, $accountId$)}
+      on:click={() => shareWithReferral($accountId$, memebid)}
       class="text-xl tracking-wider text-shitzu-4 hover:font-bold w-[80px]"
     >
       <span class="flex items-center justify-center"> [share] </span>

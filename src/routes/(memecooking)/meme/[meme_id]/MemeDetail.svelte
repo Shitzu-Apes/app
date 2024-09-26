@@ -130,7 +130,7 @@
       </a>
       <button
         class="hover:font-bold"
-        on:click={() => shareWithReferral(meme, $accountId$)}
+        on:click={() => shareWithReferral($accountId$, meme)}
       >
         [share]
       </button>

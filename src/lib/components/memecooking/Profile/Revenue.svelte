@@ -11,6 +11,7 @@
   import { Rewarder, wallet } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
   import { FixedNumber } from "$lib/util";
+  import { shareWithReferral } from "$lib/util/referral";
 
   export let revenue:
     | {
@@ -175,39 +176,7 @@
       </button>
       <button
         class="text-white text-sm hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
-        on:click={async () => {
-          const shareUrl = new URL(`${window.location.origin}/board`);
-          if ($accountId$) {
-            shareUrl.searchParams.set("referral", $accountId$);
-          }
-
-          if (navigator.share) {
-            try {
-              await navigator.share({
-                title: document.title,
-                url: shareUrl.toString(),
-              });
-            } catch (error) {
-              console.error("Error sharing:", error);
-            }
-          } else {
-            try {
-              await navigator.clipboard.writeText(shareUrl.toString());
-              addToast({
-                data: {
-                  type: "simple",
-                  data: {
-                    title: "Success",
-                    description: "Referral link copied to clipboard!",
-                    color: "green",
-                  },
-                },
-              });
-            } catch (error) {
-              console.error("Error copying to clipboard:", error);
-            }
-          }
-        }}
+        on:click={() => shareWithReferral($accountId$)}
       >
         [Share Referral Link]
       </button>

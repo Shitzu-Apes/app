@@ -1,5 +1,6 @@
 import { addToast } from "$lib/components/Toast.svelte";
 import type { Meme } from "$lib/models/memecooking";
+import { wallet } from "$lib/near";
 import { MemeCooking } from "$lib/near/memecooking";
 
 export const REFERRAL_LOCALSTORAGE_KEY = "memecooking_referral";
@@ -37,17 +38,41 @@ export function readAndSetReferral() {
   }
 }
 
-export async function shareWithReferral(
-  meme: Meme,
-  $accountId$: string | undefined,
-) {
-  const shareUrl = new URL(`${window.location.origin}/meme/${meme.meme_id}`);
-  let isRegistered = false;
+export async function shareWithReferral($accountId$?: string, meme?: Meme) {
+  const shareUrl =
+    meme != null
+      ? new URL(`${window.location.origin}/meme/${meme.meme_id}`)
+      : new URL(window.location.origin);
   if ($accountId$) {
-    isRegistered = (await MemeCooking.storageBalanceOf($accountId$)) !== null;
-    if (isRegistered) {
-      shareUrl.searchParams.set("referral", $accountId$);
+    const [storageBalance, { account: accountCost, perMemeDeposit }] =
+      await Promise.all([
+        MemeCooking.storageBalanceOf($accountId$),
+        MemeCooking.storageCosts(),
+      ]);
+    const isRegistered = storageBalance != null;
+    if (!isRegistered) {
+      await wallet.signAndSendTransaction(
+        {
+          receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+          actions: [
+            {
+              type: "FunctionCall",
+              params: {
+                methodName: "storage_deposit",
+                args: {},
+                gas: 30_000_000_000_000n.toString(),
+                deposit: (
+                  BigInt(accountCost) +
+                  5n * BigInt(perMemeDeposit)
+                ).toString(),
+              },
+            },
+          ],
+        },
+        {},
+      );
     }
+    shareUrl.searchParams.set("referral", $accountId$);
   }
 
   if (navigator.share) {
@@ -67,9 +92,10 @@ export async function shareWithReferral(
           type: "simple",
           data: {
             title: "Success",
-            description: isRegistered
-              ? "Link with referral copied!"
-              : "Link copied (need to register for referrals)",
+            description:
+              $accountId$ != null
+                ? "Link with referral copied!"
+                : "Link copied (need to register for referrals)",
             color: "green",
           },
         },
