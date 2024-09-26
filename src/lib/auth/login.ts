@@ -28,7 +28,19 @@ export function webWalletLogin(currentAccountId: string) {
     const publicKey = decodeURIComponent(
       url.hash.split("publicKey=")[1].split("&")[0],
     );
+    // TODO enable once Bitte wallet supports `state`
+    // const state = decodeURIComponent(url.hash.split("state=")[1].split("&")[0]);
+    // const previousState = window.localStorage.getItem("memecooking_state");
     url.hash = "";
+
+    // if (state !== previousState) {
+    //   console.error(
+    //     `[webWalletLogin] state ${state} != previousState ${previousState}`,
+    //   );
+    //   replaceState(url.toString(), {});
+    //   return;
+    // }
+
     signedMessage = {
       accountId,
       signature,
@@ -40,6 +52,7 @@ export function webWalletLogin(currentAccountId: string) {
       currentAccountId == null ||
       signedMessage.accountId !== currentAccountId
     ) {
+      replaceState(url.toString(), {});
       return addToast({
         data: {
           type: "simple",

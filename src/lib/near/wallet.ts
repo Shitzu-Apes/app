@@ -399,10 +399,14 @@ export class Wallet {
       });
     }
     const nonce = Buffer.from(response.data?.nonce, "hex");
+    // TODO enable once Bitte wallet supports `state`
+    // const state = window.crypto.randomUUID().split("-")[0];
+    // window.localStorage.setItem("memecooking_state", state);
     const message = {
       message: "Login to Meme Cooking",
       nonce,
       recipient: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+      // state,
     };
     const signedMessage = (await wallet.signMessage(message)) as SignedMessage;
     const accountId = await get(this.accountId$);
