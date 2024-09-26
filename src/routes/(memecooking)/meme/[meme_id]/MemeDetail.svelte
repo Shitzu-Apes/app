@@ -103,17 +103,11 @@
         class="ml-auto flex items-center flex-wrap justify-end text-right gap-1"
       >
         <span class="whitespace-nowrap">created by</span>
-        <a
-          href={`https://pikespeak.ai/wallet-explorer/${meme.owner}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-shitzu-4"
-        >
-          <Chef
-            account={meme.owner}
-            class="bg-shitzu-3 text-black px-1 rounded"
-          />
-        </a>
+        <Chef
+          account={meme.owner}
+          asLink
+          class="bg-shitzu-3 text-black px-1 rounded"
+        />
       </div>
     </div>
     <div class="w-full aspect-ratio-16/9 max-h-[75vh]">
