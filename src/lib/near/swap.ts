@@ -1,5 +1,6 @@
 import type { HereCall } from "@here-wallet/core";
 import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
+import { match } from "ts-pattern";
 
 import type { Meme } from "$lib/models/memecooking";
 import { Ft, wallet, type TransactionCallbacks } from "$lib/near";
@@ -16,8 +17,7 @@ export async function handleBuy(
   if (!input || !accountId) return;
   const tokenId = getTokenId(meme.symbol, meme.meme_id);
 
-  const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
-
+  // TODO configurable slippage
   const min_amount_out = expected
     .mul(new FixedNumber("95", 2))
     .div(new FixedNumber("100", 2))
@@ -25,6 +25,7 @@ export async function handleBuy(
 
   const transactions: HereCall[] = [];
 
+  const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
   if (!isRegistered) {
     const deposit = await Ft.storageRequirement(tokenId);
     transactions.push({
@@ -43,6 +44,19 @@ export async function handleBuy(
     });
   }
 
+  const isWnearRegistered = await Ft.isUserRegistered(
+    import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
+    accountId,
+  );
+  const deposit = await match(isWnearRegistered)
+    .with(true, () => Promise.resolve(input.clone()))
+    .with(false, () =>
+      Ft.storageRequirement(import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!).then(
+        (storageReq) => input.add(new FixedNumber(storageReq, 24)),
+      ),
+    )
+    .exhaustive();
+
   transactions.push({
     receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
     actions: [
@@ -52,7 +66,7 @@ export async function handleBuy(
           methodName: "near_deposit",
           args: {},
           gas: 30_000_000_000_000n.toString(),
-          deposit: input.toU128(),
+          deposit: deposit.toU128(),
         },
       },
       {
@@ -78,7 +92,7 @@ export async function handleBuy(
               ],
             }),
           },
-          gas: 270_000_000_000_000n.toString(),
+          gas: 150_000_000_000_000n.toString(),
           deposit: "1",
         },
       },
@@ -100,8 +114,7 @@ export async function handleSell(
   const tokenIn = tokenId;
   const tokenOut = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
 
-  const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
-
+  // TODO configurable slippage
   const min_amount_out = expected
     .mul(new FixedNumber("95", 2))
     .div(new FixedNumber("100", 2))
@@ -109,6 +122,7 @@ export async function handleSell(
 
   const transactions: HereCall[] = [];
 
+  const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
   if (!isRegistered) {
     const deposit = await Ft.storageRequirement(tokenOut);
     transactions.push({
@@ -153,7 +167,7 @@ export async function handleSell(
               ],
             }),
           },
-          gas: 270_000_000_000_000n.toString(),
+          gas: 150_000_000_000_000n.toString(),
           deposit: "1",
         },
       },

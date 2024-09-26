@@ -147,6 +147,7 @@
           $tokenBalance = balance;
         });
         closeBottomSheet();
+        $inputValue$ = "";
       },
     };
     if ($value === "buy") {
