@@ -35,6 +35,6 @@
       {/await}
     </ul>
   {:else}
-    <div>No Coin Held</div>
+    <div>No Token Held</div>
   {/if}
 </div>

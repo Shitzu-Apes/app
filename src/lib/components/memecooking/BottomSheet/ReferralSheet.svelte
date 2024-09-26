@@ -13,7 +13,7 @@
 
   const { accountId$ } = wallet;
 
-  const twitterShareText = `I just deposited into the $${meme.symbol} meme coin launch pool on @memedotcooking!\n\nGo check it out here:\n`;
+  const twitterShareText = `I just deposited into the $${meme.symbol} meme token launch pool on @memedotcooking!\n\nGo check it out here:\n`;
   $: twitterShareUrl = `https://meme.cooking/meme/${meme.meme_id}?referral=${$accountId$ ?? ""}`;
   $: twitterShareLink = `https://x.com/intent/tweet?text=${encodeURI(twitterShareText)}&url=${encodeURI(twitterShareUrl)}`;
 

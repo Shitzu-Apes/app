@@ -14,26 +14,26 @@
   <section class="text-white px-3 space-y-4 my-10">
     <div class="space-y-6">
       <span class="inline-block">
-        step 1: <strong class="text-shitzu-4">pick a coin:</strong> choose a virtual
-        coin you like
+        step 1: <strong class="text-shitzu-4">pick a token:</strong> choose a token
+        you like
       </span>
       <span class="inline-block">
         step 2: <strong class="text-shitzu-4"
           >participate in the auction:</strong
-        > buy the virtual coin during the auction period
+        > buy the token during the auction period
       </span>
       <span class="inline-block">
         step 3: <strong class="text-shitzu-4">reach the goal:</strong> if at least
-        4k near have been deposited by the end of the auction, the coin is created
+        4k NEAR have been deposited by the end of the auction, the token is created
       </span>
       <span class="inline-block">
-        step 4: <strong class="text-shitzu-4">fair distribution:</strong> the coin
+        step 4: <strong class="text-shitzu-4">fair distribution:</strong> the token
         is distributed among buyers at a fair price
       </span>
       <span class="inline-block">
         step 5: <strong class="text-shitzu-4">liquidity provision:</strong> 50% of
-        token supply and 100% of deposited near will be used to provide liquidity
-        in ref.finance and burned
+        token supply and 100% of deposited NEAR will be used to provide liquidity
+        on Ref Finance and burned
       </span>
       <span class="inline-block">
         step 6: <strong class="text-shitzu-4">refund if not successful:</strong>
