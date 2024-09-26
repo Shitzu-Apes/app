@@ -45,7 +45,7 @@ jobs:
         run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> .env
 
       - name: Add contract connect ID to .env
-        run: echo "VITE_CONNECT_ID=meme-cooking-test.near" >> .env
+        run: echo "VITE_CONNECT_ID=meme-cooking.near" >> .env
 
       - name: Add Pinate JWT to .env
         run: echo "VITE_PINATA_JWT=$VITE_PINATA_JWT" >> .env
@@ -56,9 +56,9 @@ jobs:
         run: echo "VITE_WC_PROJECT_ID=44dd0ed9ce175eeb72a67532fbfb6f96" >> .env
 
       - name: Build step
-        run: "yarn vite build --mode staging"
+        run: "yarn vite build --mode production"
 
       - name: Upload to Cloudflare Pages
-        run: yarn wrangler pages deploy --project-name meme-cooking-staging .svelte-kit/cloudflare
+        run: yarn wrangler pages deploy --project-name meme-cooking-production .svelte-kit/cloudflare
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
