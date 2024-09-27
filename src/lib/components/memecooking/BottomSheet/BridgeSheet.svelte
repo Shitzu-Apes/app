@@ -27,8 +27,8 @@
       gasTopup: false,
       eta: "15s",
       etaColor: "bg-shitzu-3",
-      fees: "very low (bridge) & medium (swap)",
-      feesColor: "bg-yellow-3",
+      fees: "very low (bridge) & low (swap)",
+      feesColor: "bg-shitzu-3",
     },
     {
       id: "ref-finance",
