@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { slide } from "svelte/transition";
 
+  import { Button } from "$lib/components";
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
 
@@ -10,6 +11,10 @@
     | "Preparing the Ingredient"
     | "Cooking"
     | "Error" = "Uploading Meme";
+
+  let imageCID: string;
+  let referenceCID: string;
+  let referenceHash: string;
 
   export let uploadPromise: Promise<{
     imageCID: string;
@@ -25,12 +30,13 @@
 
   onMount(async () => {
     try {
-      const { imageCID, referenceCID, referenceHash } = await uploadPromise;
+      const res = await uploadPromise;
+      imageCID = res.imageCID;
+      referenceCID = res.referenceCID;
+      referenceHash = res.referenceHash;
 
       console.log("[CreateCoinSheet] referenceCID", referenceCID);
       status = "Preparing the Ingredient";
-
-      await createTransactionPromise({ referenceCID, referenceHash, imageCID });
     } catch (err) {
       console.error(err);
       status = "Error";
@@ -39,9 +45,21 @@
       }, 5_000);
       return;
     }
-
-    status = "Cooking";
   });
+
+  function sendTransaction() {
+    return createTransactionPromise({ referenceCID, referenceHash, imageCID })
+      .then(() => {
+        status = "Cooking";
+      })
+      .catch((err) => {
+        console.error(err);
+        status = "Error";
+        setTimeout(() => {
+          closeBottomSheet();
+        }, 5_000);
+      });
+  }
 </script>
 
 <BottomSheetContent variant="shitzu">
@@ -68,7 +86,13 @@
         class="w-full h-full flex flex-col justify-center items-center gap-10"
       >
         <div class="i-svg-spinners:180-ring size-20" />
-        <h1 class="text-xl">Cooking Meme</h1>
+        <h1 class="text-xl">Ready to cook!</h1>
+        <Button
+          type="custom"
+          onClick={sendTransaction}
+          class="mx-a px-6 py-2 bg-shitzu-4 hover:bg-shitzu-4/85 text-white rounded flex justify-center items-center"
+          >Start Cooking</Button
+        >
       </div>
     {:else if status === "Cooking"}
       <div

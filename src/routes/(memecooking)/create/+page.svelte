@@ -209,10 +209,6 @@
     }
   }
 
-  // let isTwitterValid = true;
-  // let isTelegramValid = true;
-  // let isWebsiteValid = true;
-
   async function createCoin() {
     if (!$accountId$) {
       showWalletSelector("shitzu");
