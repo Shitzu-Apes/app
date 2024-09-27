@@ -19,7 +19,9 @@
 <svelte:element
   this={asLink ? "a" : "div"}
   href={asLink ? `/profile/${account.replace(" (dev)", "")}` : undefined}
-  class="flex flex-1 {asLink ? 'hover:font-bold' : ''}"
+  class="flex flex-1 overflow-hidden text-ellipsis {asLink
+    ? 'hover:font-bold'
+    : ''}"
 >
   <div class="flex items-center gap-1 flex-1">
     <slot>
@@ -27,6 +29,6 @@
         <img src={SHITZU_POCKET} alt="Shitzu Pocket" class="size-4" />
       {/if}
     </slot>
-    <span class={className}>{formatName}</span>
+    <span class="overflow-hidden text-ellipsis {className}">{formatName}</span>
   </div>
 </svelte:element>
