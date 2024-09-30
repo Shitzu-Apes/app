@@ -55,8 +55,8 @@
           target="_blank"
           rel="noopener noreferrer"
         >
-          Bettear Bot
-        </a>.
+          Bettear Bot</a
+        >.
       </div>
 
       <div>
