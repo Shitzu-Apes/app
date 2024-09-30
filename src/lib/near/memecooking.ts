@@ -105,6 +105,14 @@ export abstract class MemeCooking {
     );
   }
 
+  public static isRunning(): Promise<string | null> {
+    return view<string>(
+      import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+      "is_running",
+      {},
+    );
+  }
+
   public static createMeme(
     wallet: Wallet,
     args: {

@@ -12,6 +12,7 @@
   import { client } from "$lib/api/client";
   import Toast from "$lib/components/Toast.svelte";
   import Tooltip from "$lib/components/Tooltip.svelte";
+  import LaunchSheet from "$lib/components/memecooking/BottomSheet/LaunchSheet.svelte";
   import RegisterSheet from "$lib/components/memecooking/BottomSheet/RegisterSheet.svelte";
   import { BottomSheet } from "$lib/layout/BottomSheet";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
@@ -143,6 +144,18 @@
       });
     },
   );
+
+  onMount(async () => {
+    if (import.meta.env.VITE_MEME_COOKING_CONTRACT_ID !== "meme-cooking.near")
+      return;
+    const isRunning = await MemeCooking.isRunning();
+    if (
+      !isRunning &&
+      Date.now() < new Date("2024-09-30T15:01:00.000Z").valueOf()
+    ) {
+      openBottomSheet(LaunchSheet);
+    }
+  });
 </script>
 
 {#key "memecooking"}
