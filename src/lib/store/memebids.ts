@@ -1,7 +1,8 @@
 import { derived, get, writable } from "svelte/store";
 
 import { client, type Trade } from "$lib/api/client";
-import { type Meme } from "$lib/models/memecooking";
+import { type Meme, type MemeInfo } from "$lib/models/memecooking";
+import { MemeCooking } from "$lib/near/memecooking";
 
 export const searchQuery$ = writable("");
 
@@ -9,12 +10,61 @@ const _memebids$ = writable<Promise<Meme[]>>(new Promise<never>(() => {}));
 export const memebids$ = derived(_memebids$, (m) => m);
 
 function udpateMemebids() {
-  return client.GET("/meme").then((res) => {
-    if (!res.data) return;
-    console.log("[+page] memebids", res.data);
-    _memebids$.set(Promise.resolve(res.data));
-    return res.data;
-  });
+  return client
+    .GET("/meme")
+    .then((res) => {
+      if (!res.data) return;
+      console.log("[+page] memebids", res.data);
+      _memebids$.set(Promise.resolve(res.data));
+      return res.data;
+    })
+    .catch(() => {
+      console.log("[udpateMemebids]: Error");
+      MemeCooking.getLatestMeme().then((res) => {
+        // use this as a backup
+
+        console.log("fetching backup memebids");
+        const filteredMemes = res.filter(
+          (meme): meme is MemeInfo => meme !== null,
+        );
+        const adaptedMemes: Meme[] = filteredMemes.map((meme) => ({
+          meme_id: meme.id,
+          owner: meme.owner,
+          end_timestamp_ms: meme.end_timestamp_ms
+            ? parseInt(meme.end_timestamp_ms)
+            : null,
+          name: meme.name,
+          symbol: meme.symbol,
+          decimals: meme.decimals,
+          total_supply: meme.total_supply,
+          reference: meme.reference,
+          reference_hash: meme.reference_hash,
+          deposit_token_id: meme.deposit_token_id,
+          last_change_ms: Date.now(), // Placeholder, adjust as needed
+          total_supply_num: parseFloat(meme.total_supply),
+          created_blockheight: 0, // Placeholder, adjust as needed
+          created_timestamp_ms: 0, // Placeholder, adjust as needed
+          total_deposit: meme.total_staked,
+          total_deposit_num: parseFloat(meme.total_staked),
+          total_deposit_fees: "0", // Placeholder, adjust as needed
+          total_deposit_fees_num: 0, // Placeholder, adjust as needed
+          total_withdraw_fees: meme.total_withdrawal_fees,
+          total_withdraw_fees_num: parseFloat(meme.total_withdrawal_fees),
+          is_finalized: null, // Placeholder, adjust as needed
+          token_id: null, // Placeholder, adjust as needed
+          pool_id: null, // Placeholder, adjust as needed
+          description: null, // Placeholder, adjust as needed
+          twitterLink: null, // Placeholder, adjust as needed
+          telegramLink: null, // Placeholder, adjust as needed
+          website: null, // Placeholder, adjust as needed
+          image: meme.icon,
+          coronated_at_ms: null, // Placeholder, adjust as needed
+          replies_count: 0, // Placeholder, adjust as needed
+          staker_count: 0, // Placeholder, adjust as needed
+        }));
+        _memebids$.set(Promise.resolve(adaptedMemes));
+      });
+    });
 }
 udpateMemebids();
 
