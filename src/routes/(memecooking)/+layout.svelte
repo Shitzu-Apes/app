@@ -66,7 +66,7 @@
 
     fetchLastBlockHeight(); // Fetch once immediately
 
-    let blockHeightInterval = setInterval(fetchLastBlockHeight, 10000);
+    let blockHeightInterval = setInterval(fetchLastBlockHeight, 60_000);
 
     // Check and reestablish WebSocket connection if closed
     let wsCheckInterval = setInterval(() => {
