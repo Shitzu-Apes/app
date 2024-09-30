@@ -7,14 +7,11 @@
   import { page } from "$app/stores";
   import { client } from "$lib/api/client";
   import TokenDetailCarousel from "$lib/components/memecooking/Board/TokenDetailCarousel.svelte";
-  import { wallet } from "$lib/near";
   import { requiredStake } from "$lib/near/memecooking";
   import { memebids$ } from "$lib/store/memebids";
 
   // page data
   $: meme_id = $page.params.meme_id;
-
-  const { accountId$ } = wallet;
 
   let interval: number;
   function retryPromise<T>(
@@ -48,9 +45,6 @@
 
     const response = await client.GET("/meme/{id}", {
       params: {
-        query: {
-          accountId: $accountId$,
-        },
         path: { id: meme_id },
       },
     });
