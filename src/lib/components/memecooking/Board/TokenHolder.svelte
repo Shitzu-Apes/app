@@ -99,7 +99,7 @@
   });
 </script>
 
-<div class="w-full px-4 max-h-[30rem] md:max-h-none overflow-auto">
+<div class="w-full px-4 overflow-auto">
   <h2 class="text-xl my-3 flex items-center gap-1">
     Holders
 

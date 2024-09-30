@@ -149,12 +149,17 @@
         <div class="flex-[0_0_100%] min-w-0">
           <TokenChart {memebid} touchToStart />
         </div>
-        <div class="flex-[0_0_100%] min-w-0">
-          <TokenTrade {memebid} {trades} touchToStart />
+        <div class="flex-[0_0_100%] min-w-0 flex flex-col">
+          <div class="flex-[1_1_5rem] h-0">
+            <TokenTrade {memebid} {trades} touchToStart />
+          </div>
         </div>
-        <div class="flex-[0_0_100%] min-w-0">
-          <TokenHolder meme={memebid} />
+        <div class="flex-[0_0_100%] min-w-0 flex flex-col">
+          <div class="flex-[1_1_5rem] h-0 overflow-auto">
+            <TokenHolder meme={memebid} />
+          </div>
         </div>
+        <div class="flex-[0_0_100%] min-w-0"></div>
       {/if}
     </div>
   </div>
