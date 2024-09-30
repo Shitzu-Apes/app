@@ -41,9 +41,12 @@
   <section class="text-white px-3 space-y-4 my-10">
     <div class="space-y-6">
       <span class="inline-block">
-        Shitstars is a point and reputation system within the SHITZU ecosystem.
-        It rewards users for their participation and contributions. The
-        individual who earns the most Shitstars is also called the Shitstar.
+        Shitstars is a point and reputation system within the <a
+          href="https://shitzuapes.xyz"
+          target="_blank"
+          class="text-lightblue-3 hover:underline hover:font-bold">[Shitzu]</a
+        > ecosystem. It rewards users for their participation and contributions.
+        The individual who earns the most Shitstars is also called the Shitstar.
       </span>
       <span class="inline-block">
         <strong class="text-shitzu-4 strong">
