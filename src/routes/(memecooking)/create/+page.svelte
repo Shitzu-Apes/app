@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { createSlider, melt } from "@melt-ui/svelte";
+  import dayjs from "dayjs";
   import type {
     FinalExecutionStatus,
     FinalExecutionStatusBasic,
@@ -14,7 +16,6 @@
   import { goto } from "$app/navigation";
   import { showWalletSelector } from "$lib/auth";
   import { TokenInput } from "$lib/components";
-  import SelectBox from "$lib/components/SelectBox.svelte";
   import { addToast } from "$lib/components/Toast.svelte";
   import Tooltip from "$lib/components/Tooltip.svelte";
   import CreateCoinSheet from "$lib/components/memecooking/BottomSheet/CreateCoinSheet.svelte";
@@ -81,13 +82,33 @@
     writable<z.infer<typeof totalSupplyValueSchema>>("1000000000");
   $: totalSupply$ = totalSupply?.u128$;
 
-  let durationOptions = [
-    { label: "5 minutes", value: (1000 * 60 * 5).toString() },
-    { label: "1 hour", value: (1000 * 60 * 60).toString() },
-    { label: "1 day", value: (1000 * 60 * 60 * 24).toString() },
-  ];
-  let durationMs = durationOptions[2]!;
   let ctoFrom: number | null = null;
+
+  const {
+    elements: { root, range, thumbs },
+    states: { value },
+  } = createSlider({
+    defaultValue: [1000 * 60 * 60 * 24],
+    min: 1000 * 60 * 10,
+    step: 1000 * 60 * 10,
+    max: 1000 * 60 * 60 * 24,
+  });
+  let humanDuration = "-";
+  $: if ($value) {
+    if ($value[0] < 1000 * 60 * 60) {
+      humanDuration = dayjs.duration($value[0], "ms").format("m [minutes]");
+    } else if ($value[0] < 1000 * 60 * 60 * 2) {
+      humanDuration = dayjs
+        .duration($value[0], "ms")
+        .format("H [hour] m [minutes]");
+    } else if ($value[0] < 1000 * 60 * 60 * 24) {
+      humanDuration = dayjs
+        .duration($value[0], "ms")
+        .format("H [hours] m [minutes]");
+    } else {
+      humanDuration = dayjs.duration($value[0], "ms").format("D [day]");
+    }
+  }
 
   $: imageReady = imageCID || imageFile;
 
@@ -149,7 +170,7 @@
   );
   $: fetchStorageCost(
     $accountId$ || "",
-    durationMs.value,
+    $value[0]?.toString() ?? "0",
     name,
     ticker,
     icon || "",
@@ -290,7 +311,7 @@
           symbol: ticker,
           decimals,
           depositTokenId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
-          durationMs: durationMs.value,
+          durationMs: $value[0].toString(),
           totalSupply: $totalSupply$!.toU128(),
           icon: icon!,
           reference: referenceCID,
@@ -439,16 +460,26 @@
       validateOnInput={true}
     />
 
-    <div class="space-y-2">
-      <label for="name" class="block text-sm text-shitzu-4 font-600">
+    <div class="space-y-2 flex flex-col items-center">
+      <label
+        for="name"
+        class=" self-start block text-sm text-shitzu-4 font-600"
+      >
         duration
       </label>
-      <SelectBox
-        options={durationOptions}
-        bind:selected={durationMs}
-        sameWidth
-      />
+      <span use:melt={$root} class="relative flex h-[20px] w-full items-center">
+        <span class="h-[3px] w-full bg-black/40">
+          <span use:melt={$range} class="h-[3px] bg-white" />
+        </span>
+
+        <span
+          use:melt={$thumbs[0]}
+          class="h-5 w-5 rounded-full bg-white focus:ring-4 focus:!ring-black/40"
+        />
+      </span>
+      <span>{humanDuration}</span>
     </div>
+
     <details class="space-y-4">
       <summary class="text-sm text-shitzu-4 cursor-pointer">
         Show more options

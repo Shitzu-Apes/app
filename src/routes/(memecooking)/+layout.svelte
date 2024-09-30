@@ -4,6 +4,9 @@
   import "../../app.scss";
 
   import { reconnect, watchAccount } from "@wagmi/core";
+  import dayjs from "dayjs";
+  import duration from "dayjs/plugin/duration";
+  import relativeTime from "dayjs/plugin/relativeTime";
   import { onDestroy, onMount } from "svelte";
   import { cubicIn, cubicOut } from "svelte/easing";
   import { derived, get } from "svelte/store";
@@ -27,6 +30,11 @@
   } from "$lib/store/indexer";
   import { initializeWebsocket, ws } from "$lib/store/memebids";
   import { readAndSetReferral } from "$lib/util/referral";
+
+  // eslint-disable-next-line import/no-named-as-default-member
+  dayjs.extend(duration);
+  // eslint-disable-next-line import/no-named-as-default-member
+  dayjs.extend(relativeTime);
 
   onMount(() => {
     const initWebSocket = () => {
