@@ -18,7 +18,7 @@
   let selectedDirection = orderOptions[0];
 
   let liveOnly = false;
-
+  let ref = false;
   $: displayedMemebids = $memebids$.then((memebids) => [
     ...filterAndSortMeme(
       memebids,
@@ -28,6 +28,7 @@
       },
       $searchQuery$,
       liveOnly,
+      ref,
     ),
   ]);
 
@@ -39,6 +40,7 @@
   <SelectBox options={sortOptions} bind:selected={selectedSort} />
   <SelectBox options={orderOptions} bind:selected={selectedDirection} />
   <Toggle bind:isOn={liveOnly}>live auction:{" "}</Toggle>
+  <Toggle bind:isOn={ref}>ref:{" "}</Toggle>
 </div>
 
 {#await Promise.all([requiredStake, displayedMemebids])}

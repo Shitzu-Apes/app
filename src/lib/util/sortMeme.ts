@@ -19,6 +19,7 @@ export function filterAndSortMeme<T extends Meme>(
   },
   searchQuery: string,
   liveOnly: boolean,
+  ref: boolean,
 ): T[] {
   console.log("[filterAndSortMeme] memes", memes);
   if (liveOnly) {
@@ -34,6 +35,9 @@ export function filterAndSortMeme<T extends Meme>(
         meme.owner.toLowerCase().includes(searchQuery.toLowerCase())
       );
     });
+  }
+  if (ref) {
+    memes = memes.filter((meme) => meme.pool_id !== null);
   }
 
   switch (sort.sort) {
