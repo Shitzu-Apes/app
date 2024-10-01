@@ -122,6 +122,30 @@ export async function handleSell(
 
   const transactions: HereCall[] = [];
 
+  const isWnearRegistered = await Ft.isUserRegistered(
+    import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
+    accountId,
+  );
+  if (!isWnearRegistered) {
+    const deposit = await Ft.storageRequirement(
+      import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
+    );
+    transactions.push({
+      receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
+      actions: [
+        {
+          type: "FunctionCall",
+          params: {
+            methodName: "storage_deposit",
+            args: {},
+            gas: 20_000_000_000_000n.toString(),
+            deposit,
+          },
+        },
+      ],
+    });
+  }
+
   const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
   if (!isRegistered) {
     const deposit = await Ft.storageRequirement(tokenOut);
