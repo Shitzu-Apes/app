@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ClaimBanner from "../../../../routes/(memecooking)/meme/[meme_id]/ClaimBanner.svelte";
   import Chef from "../Chef.svelte";
   import Countdown from "../Countdown.svelte";
   import ProgressBarMobile from "../ProgressBarMobile.svelte";
@@ -96,7 +97,7 @@
       </div>
 
       <div class="flex flex-col w-full">
-        {#if memebid.end_timestamp_ms}
+        {#if memebid.end_timestamp_ms && memebid.pool_id === null}
           <div class="my-2">
             <Countdown
               to={memebid.end_timestamp_ms}
@@ -104,6 +105,7 @@
             />
           </div>
         {/if}
+        <ClaimBanner meme={memebid} />
       </div>
     </h2>
     <div class="w-full">
