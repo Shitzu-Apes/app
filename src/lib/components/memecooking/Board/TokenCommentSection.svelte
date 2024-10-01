@@ -191,30 +191,18 @@
             id: reply.id ?? 0,
             content: reply.content,
             created_at_ms: reply.created_at_ms ?? 0,
-            is_liked_by_user: reply.is_liked_by_user,
-            likes_count: reply.likes_count,
             reply_to_id: reply.reply_to_id,
             child_replies: reply.child_replies?.map((child) => ({
               account_id: child.account_id,
               id: child.id ?? 0,
               content: child.content,
               created_at_ms: child.created_at_ms ?? 0,
-              is_liked_by_user: child.is_liked_by_user ?? false,
-              likes_count: child.likes_count ?? 0,
               reply_to_id: child.reply_to_id,
             })),
           }}
           owner={meme.owner}
           onReplyTo={async (id) => {
             replyToId = id;
-          }}
-          onLike={async (id) => {
-            await client.POST("/post-reply/like", {
-              body: {
-                replyId: id.toString(),
-              },
-              credentials: "include",
-            });
           }}
         />
       {/each}
