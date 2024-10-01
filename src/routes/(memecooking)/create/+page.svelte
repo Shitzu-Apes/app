@@ -89,8 +89,8 @@
     states: { value },
   } = createSlider({
     defaultValue: [1000 * 60 * 60 * 24],
-    min: 1000 * 60 * 10,
-    step: 1000 * 60 * 10,
+    min: 1000 * 60 * 5,
+    step: 1000 * 60 * 5,
     max: 1000 * 60 * 60 * 24,
   });
   let humanDuration = "-";
