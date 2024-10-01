@@ -381,14 +381,6 @@
   }}
 />
 
-<div class="fixed top-0 left-0 bg-gray-8/70 z-100 min-w-[100vw] min-h-[100vh]">
-  <div
-    class="flex w-[100vw] h-[100vh] text-[3rem] text-align-center font-bold items-center justify-center"
-  >
-    Under maintenance
-  </div>
-</div>
-
 <div class="flex flex-col items-center min-h-screen text-white">
   <div class="w-full max-w-md p-4 space-y-4 rounded-lg">
     <div class="flex justify-center items-center">
