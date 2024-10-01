@@ -17,7 +17,7 @@
 
   let selectedDirection = orderOptions[0];
 
-  let liveOnly = false;
+  let liveOnly = true;
   let ref = false;
   $: displayedMemebids = $memebids$.then((memebids) => [
     ...filterAndSortMeme(
