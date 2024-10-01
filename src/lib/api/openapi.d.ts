@@ -68,8 +68,65 @@ export interface paths {
             "application/json": {
               total_memes: number;
               total_finalized_memes: number;
+              total_launched_memes: number;
               tvl: string;
               tvl_num: number;
+              total_volume: string;
+              total_volume_num: number;
+              total_deposits: string;
+              total_deposits_num: number;
+              total_withdrawals: string;
+              total_withdrawals_num: number;
+              total_protocol_fees: string;
+              total_protocol_fees_num: number;
+              total_referral_fees: string;
+              total_referral_fees_num: number;
+              total_withdraw_fees: string;
+              total_withdraw_fees_num: number;
+              last_change_ms: number;
+            };
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/info/daily-stats": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Returns daily statistics about memes */
+    get: {
+      parameters: {
+        query: {
+          date: string;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Statistics about memes */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              date: string;
+              total_memes: number;
+              total_launched_memes: number;
+              total_finalized_memes: number;
               total_volume: string;
               total_volume_num: number;
               total_deposits: string;
@@ -336,8 +393,6 @@ export interface paths {
       parameters: {
         query: {
           meme_id: string;
-          account_id?: string;
-          direction?: "deposits" | "withdrawals";
         };
         header?: never;
         path?: never;
@@ -776,6 +831,7 @@ export interface paths {
           accountId: string;
           signature: string;
           publicKey: string;
+          callbackUrl?: string;
           state?: string;
         };
         header?: never;

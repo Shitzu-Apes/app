@@ -24,7 +24,7 @@
     }
     try {
       const res = await fetch(
-        `https://api3-testnet.nearblocks.io/v1/search/?keyword=${receiptId}`,
+        `https://api.nearblocks.io/v1/search/?keyword=${receiptId}`,
       );
 
       const json = await res.json();
@@ -32,7 +32,7 @@
       txIdCache[receiptId] = txId;
       return txId;
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       txIdCache[receiptId] = null;
     }
   }
