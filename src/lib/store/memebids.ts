@@ -8,6 +8,12 @@ export const searchQuery$ = writable("");
 
 const _memebids$ = writable<Promise<Meme[]>>(new Promise<never>(() => {}));
 export const memebids$ = derived(_memebids$, (m) => m);
+export const memeMap$ = derived(memebids$, async (memes) => {
+  const memeMap = new Map<number, Meme>(
+    (await memes).map((m) => [m.meme_id, m]),
+  );
+  return memeMap;
+});
 
 function udpateMemebids() {
   return client
@@ -82,6 +88,7 @@ export function initializeWebsocket(ws: WebSocket) {
   ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
 
+    console.log("[ws.onmessage]:", data);
     callbacks.forEach((callback) => {
       callback(data);
     });
@@ -96,9 +103,12 @@ export function MCTradeSubscribe(
   id: string | symbol,
   callback: (data: Meme & Trade) => void,
 ) {
-  const cb = (data: LiveData) => {
+  const cb = async (data: LiveData) => {
     if (data.action === "new_trade") {
-      callback(data.data);
+      const memeMap = await get(memeMap$);
+      const meme = memeMap.get(data.data.meme_id);
+      if (meme == null) return;
+      callback({ ...meme, ...data.data });
     }
   };
   callbacks.set(id, cb);
@@ -120,7 +130,17 @@ export function MCSubscribe(
   id: string | symbol,
   callback: (data: LiveData) => void,
 ) {
-  callbacks.set(id, callback);
+  const cb = async (data: LiveData) => {
+    if (data.action === "new_trade") {
+      const memeMap = await get(memeMap$);
+      const meme = memeMap.get(data.data.meme_id);
+      if (meme == null) return;
+      callback({ action: "new_trade", data: { ...meme, ...data.data } });
+    } else if (data.action === "new_meme") {
+      callback({ action: "new_meme", data: data.data });
+    }
+  };
+  callbacks.set(id, cb);
 }
 
 export function MCunsubscribe(id: string | symbol) {
