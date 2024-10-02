@@ -338,11 +338,7 @@
               ) {
                 const decodedOutcome = atob(outcome.status.SuccessValue);
 
-                if (isMobile()) {
-                  goto(`/${decodedOutcome}`);
-                } else {
-                  goto(`/meme/${decodedOutcome}`);
-                }
+                goto(`/meme/${decodedOutcome}`);
                 closeBottomSheet();
               }
             }

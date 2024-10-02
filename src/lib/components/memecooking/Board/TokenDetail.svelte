@@ -1,5 +1,6 @@
 <script lang="ts">
   import ClaimBanner from "../../../../routes/(memecooking)/meme/[meme_id]/ClaimBanner.svelte";
+  import WithdrawBanner from "../../../../routes/(memecooking)/meme/[meme_id]/WithdrawBanner.svelte";
   import Chef from "../Chef.svelte";
   import Countdown from "../Countdown.svelte";
   import ProgressBarMobile from "../ProgressBarMobile.svelte";
@@ -105,6 +106,7 @@
             />
           </div>
         {/if}
+        <WithdrawBanner meme={memebid} />
         <ClaimBanner meme={memebid} />
       </div>
     </h2>

@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
 
   import ClaimBanner from "./ClaimBanner.svelte";
+  import WithdrawBanner from "./WithdrawBanner.svelte";
 
   import type { Meme } from "$lib/api/client";
   import ExtraDetail from "$lib/components/ExtraDetail.svelte";
@@ -149,6 +150,7 @@
         to={meme.end_timestamp_ms}
       />
     {/if}
+    <WithdrawBanner {meme} />
     <ClaimBanner {meme} />
     <div class="w-full min-h-74 border-2 border-shitzu-4 rounded-xl p-2">
       <McActionBox {meme} />

@@ -1,197 +1,46 @@
 <script lang="ts">
   import { createTabs, melt } from "@melt-ui/svelte";
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
+  import { onDestroy } from "svelte";
+  import { derived } from "svelte/store";
   import { slide } from "svelte/transition";
   import { match } from "ts-pattern";
 
   import { page } from "$app/stores";
-  import { client } from "$lib/api/client";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import Tooltip from "$lib/components/Tooltip.svelte";
   import ClaimList from "$lib/components/memecooking/Profile/ClaimList.svelte";
   import CoinCreated from "$lib/components/memecooking/Profile/CoinCreated.svelte";
   import DepositList from "$lib/components/memecooking/Profile/DepositList.svelte";
   import Revenue from "$lib/components/memecooking/Profile/Revenue.svelte";
-  import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
-  import { MemeCooking } from "$lib/near/memecooking";
-  import { fetchBlockHeight } from "$lib/near/rpc";
-  import { awaitRpcBlockHeight } from "$lib/store/indexer";
-  import { FixedNumber } from "$lib/util";
-  import { getTokenId } from "$lib/util/getTokenId";
   import {
-    sortMemeByEndtimestamp,
-    sortMemeByUnclaimedThenEndTimestamp,
-  } from "$lib/util/sortMemeByCreatedAt";
+    fetchMcAccount,
+    mcAccount$,
+    updateMcAccount,
+    type McAccount,
+  } from "$lib/near/memecooking";
+  import { fetchBlockHeight } from "$lib/near/rpc";
 
   $: accountId = $page.params.accountId;
   const { accountId$ } = wallet;
 
   $: isOwnAccount = accountId === $accountId$;
 
-  let fullAccount: ReturnType<typeof fetchFullAccount> = new Promise<never>(
-    () => {},
-  );
-
-  $: {
-    if (accountId != null) {
-      fetchFullAccount();
-    }
-  }
-  function fetchFullAccount(blockHeight?: number) {
-    const res = Promise.all([
-      MemeCooking.getAccount(accountId),
-      MemeCooking.getUnclaimed(accountId),
-      client
-        .GET(`/profile/{accountId}`, {
-          params: {
-            path: {
-              accountId,
-            },
-            headers:
-              blockHeight != null
-                ? {
-                    "X-Block-Height": String(blockHeight),
-                  }
-                : {},
-          },
-        })
-        .then((res) => {
-          console.log("[Profile] fetching full account", res);
-          if (!res.data) {
-            throw new Error(`[Profile] Account ${accountId} not found`);
-          }
-
-          return res.data;
-        })
-        .catch((err) => {
-          console.error("[Profile] fetching full account", err);
-          return null;
-        }),
-      blockHeight != null
-        ? awaitRpcBlockHeight(blockHeight)
-        : Promise.resolve(),
-    ]).then(async ([account, unclaimed, profile]) => {
-      console.log("[Profile] fetching full account", {
-        account,
-        unclaimed,
-        profile,
+  let account: McAccount | undefined;
+  const unsubscribe = derived([accountId$, page], (res) => res).subscribe(
+    ([ownAccountId, page]) => {
+      console.log("ownAccountId", ownAccountId);
+      console.log("page.params.accountId", page.params.accountId);
+      if (ownAccountId === page.params.accountId) return;
+      fetchMcAccount(page.params.accountId).then((acc) => {
+        account = acc;
       });
-      if (!account || !unclaimed || !profile) return;
-
-      const meme_map = new Map<string, Meme>([
-        ...(profile.virtual_coins.map((coin) => [
-          coin.meme_id.toString(),
-          coin,
-        ]) as [string, Meme][]),
-        ...(profile.coin_created.map((coin) => [
-          coin.meme_id.toString(),
-          coin,
-        ]) as [string, Meme][]),
-      ]);
-
-      const deposits = account.deposits
-        .map((deposit) => {
-          const meme = meme_map.get(deposit[0].toString());
-          if (!meme) return null;
-          return {
-            meme_id: deposit[0],
-            amount: deposit[1].toString(),
-            meme,
-          };
-        })
-        .filter(
-          (deposit): deposit is NonNullable<typeof deposit> => deposit != null,
-        )
-        .sort((a, b) => sortMemeByEndtimestamp(a.meme, b.meme));
-      let unclaimedInfo = await Promise.all(
-        unclaimed.map(async (meme_id) => {
-          // find meme id from data
-          const meme = meme_map.get(meme_id.toString());
-          if (!meme) return null;
-          const token_id = getTokenId(meme.symbol, meme.meme_id);
-          const amount = await MemeCooking.getClaimable(
-            accountId,
-            meme.meme_id,
-          );
-          if (amount === null) return null;
-          return {
-            token_id,
-            amount,
-            meme,
-          };
-        }),
-      );
-
-      const claims = Array.from(
-        new Set([
-          ...unclaimedInfo,
-          ...profile.coins_held.map((m) => m.meme_id),
-        ]),
-      )
-        .map((meme_id) => {
-          // try to get meme from unclaimedInfo
-          const unclaimed = unclaimedInfo.find(
-            (m) => m && m.meme.meme_id === meme_id,
-          );
-          if (unclaimed)
-            return {
-              token_id: unclaimed.token_id,
-              amount: new FixedNumber(
-                unclaimed.amount,
-                unclaimed.meme.decimals,
-              ),
-              meme: unclaimed.meme,
-            };
-          // try to get meme from profile.coins_held
-          const meme = profile.coins_held.find((m) => m.meme_id === meme_id);
-          if (meme)
-            return {
-              token_id: getTokenId(meme.symbol, meme.meme_id),
-              amount: new FixedNumber(0n, meme.decimals),
-              meme,
-            };
-          return null;
-        })
-        .filter((claim): claim is NonNullable<typeof claim> => {
-          return claim != null;
-        })
-        .sort((a, b) =>
-          sortMemeByUnclaimedThenEndTimestamp(
-            {
-              unclaimed: a.amount.valueOf() > 0n,
-              end_timestamp_ms: a.meme.end_timestamp_ms ?? 0,
-            },
-            {
-              unclaimed: b.amount.valueOf() > 0n,
-              end_timestamp_ms: b.meme.end_timestamp_ms ?? 0,
-            },
-          ),
-        );
-
-      const revenue = account.income.map((income) => ({
-        token_id: income[0].toString(),
-        amount: income[1].toString(),
-        meme: meme_map.get(income[0].toString()),
-      }));
-
-      console.log("[claims]", claims);
-      console.log("[revenue]", revenue);
-
-      return {
-        account,
-        deposits,
-        claims,
-        created: profile.coin_created,
-        revenue,
-        shitstarClaim: new FixedNumber(account.shitstar_claim, 18),
-        referralFees: new FixedNumber(profile.referral_fees, 24),
-        withdrawFees: new FixedNumber(profile.withdraw_fees, 24),
-      };
-    });
-    fullAccount = res;
-    return res;
-  }
+    },
+  );
+  onDestroy(() => {
+    unsubscribe();
+  });
 
   $: tabs = match(isOwnAccount)
     .with(true, () => [
@@ -235,7 +84,9 @@
     if (outcome == null) return;
     const blockHeight = await fetchBlockHeight(outcome);
     // adding +5 here becauce of receipts being delayed
-    fetchFullAccount(blockHeight + 5);
+    const ownAccountId = await $accountId$;
+    if (!ownAccountId) return;
+    updateMcAccount(ownAccountId, blockHeight + 5);
   }
 </script>
 
@@ -264,7 +115,7 @@
     </div>
   </div>
 
-  {#await fullAccount}
+  {#await $mcAccount$}
     <div transition:slide class="i-svg-spinners:pulse-3 size-20 mt-[80px]" />
   {:then info}
     <Revenue
@@ -311,7 +162,7 @@
       </div>
     </div>
 
-    {#if info}
+    {#if info && isOwnAccount}
       {#each tabs as tab}
         <section class="w-full max-w-sm" use:melt={$content(tab.id)}>
           {#if tab.component === DepositList}
@@ -323,6 +174,8 @@
           {/if}
         </section>
       {/each}
+    {:else if account != null}
+      <ClaimList claims={account.claims} {isOwnAccount} {update} />
     {/if}
   {/await}
 </section>

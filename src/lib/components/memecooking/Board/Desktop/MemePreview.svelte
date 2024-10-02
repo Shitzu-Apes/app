@@ -17,6 +17,7 @@
   export let requiredStake: FixedNumber;
   export let showCook = true;
   export let depositAmount: string | undefined = undefined;
+  export let isOwnAccount: boolean = false;
   export let claimAmount: FixedNumber | undefined = undefined;
   export let update:
     | ((
@@ -199,7 +200,7 @@
           <Near className="size-4 inline" />]
         </button>
       {/if}
-      {#if claimAmount != null}
+      {#if isOwnAccount && claimAmount != null}
         {#if claimAmount.valueOf() > 0n}
           <button
             class="hover:underline flex items-center gap-1"

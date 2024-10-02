@@ -3,6 +3,7 @@
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
   import { writable } from "svelte/store";
   import { slide } from "svelte/transition";
+  import { match } from "ts-pattern";
 
   import { addToast } from "../../Toast.svelte";
 
@@ -33,7 +34,7 @@
   const tabs = [
     { id: "buy", label: "buy" },
     { id: "sell", label: "sell" },
-  ];
+  ] as const;
 
   const { accountId$ } = wallet;
 
@@ -45,9 +46,13 @@
 
   const tokenBalance = writable<FixedNumber | undefined>();
   $: if ($accountId$) {
+    refreshTokenBalance($accountId$);
+  }
+
+  function refreshTokenBalance(accountId: string) {
     Ft.balanceOf(
       getTokenId(meme.symbol, meme.meme_id),
-      $accountId$,
+      accountId,
       meme.decimals,
     ).then((balance) => {
       $tokenBalance = balance;
@@ -139,13 +144,7 @@
           awaitRpcBlockHeight(blockHeight),
         ]);
         refreshNearBalance($accountId$);
-        Ft.balanceOf(
-          getTokenId(meme.symbol, meme.meme_id),
-          $accountId$,
-          meme.decimals,
-        ).then((balance) => {
-          $tokenBalance = balance;
-        });
+        refreshTokenBalance($accountId$);
         closeBottomSheet();
         $inputValue$ = "";
       },
@@ -215,6 +214,15 @@
         use:melt={$trigger(tab.id)}
         on:click={() => {
           $inputValue$ = "";
+          if (!$accountId$) return;
+          match(tab.id)
+            .with("buy", () => {
+              refreshNearBalance($accountId$);
+            })
+            .with("sell", () => {
+              refreshTokenBalance($accountId$);
+            })
+            .exhaustive();
         }}
         class="w-1/2 py-1 {tab.id === $value
           ? 'text-shitzu-4 border-current'

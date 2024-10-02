@@ -13,6 +13,7 @@
     amount: FixedNumber;
     meme: Meme;
   }[];
+  export let isOwnAccount: boolean = false;
   export let update: (
     outcome: FinalExecutionOutcome | FinalExecutionOutcome[] | undefined,
   ) => void;
@@ -29,6 +30,7 @@
             memebid={claim.meme}
             {requiredStake}
             claimAmount={claim.amount}
+            {isOwnAccount}
             {update}
           />
         {/each}

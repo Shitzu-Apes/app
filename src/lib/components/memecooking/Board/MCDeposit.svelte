@@ -40,10 +40,13 @@
 
   const depositAmount$ = writable<FixedNumber | undefined>();
   $: if ($mcAccount$) {
-    const deposit = $mcAccount$.deposits.find(
-      ([memeId]) => memeId === meme.meme_id,
-    );
-    $depositAmount$ = new FixedNumber(deposit?.[1] ?? "0", 24);
+    $mcAccount$.then((mcAccount) => {
+      if (!mcAccount) return;
+      const deposit = mcAccount.deposits.find(
+        ({ meme_id }) => meme_id === meme.meme_id,
+      );
+      $depositAmount$ = new FixedNumber(deposit?.amount ?? "0", 24);
+    });
   }
 
   const {
@@ -54,14 +57,10 @@
   });
 
   $: finished =
-    $value === "deposit" &&
-    meme.end_timestamp_ms != null &&
-    meme.end_timestamp_ms < Date.now();
+    meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now();
   const timer = setInterval(() => {
     finished =
-      $value === "deposit" &&
-      meme.end_timestamp_ms != null &&
-      meme.end_timestamp_ms < Date.now();
+      meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now();
   }, 1_000);
 
   onDestroy(() => {
@@ -221,28 +220,42 @@
         meme,
       });
     } else {
-      return MemeCooking.withdraw(
-        wallet,
-        {
-          amount: $input$.toU128(),
-          memeId: meme.meme_id,
-        },
-        {
-          onSuccess: () => {
-            $inputValue$ = "";
-            addToast({
-              data: {
-                type: "simple",
-                data: {
-                  title: "Withdraw Success",
-                  description: `You have successfully withdrawn ${$input$.format()} NEAR`,
-                },
-              },
-            });
-            closeBottomSheet();
+      const onSuccess = () => {
+        $inputValue$ = "";
+        addToast({
+          data: {
+            type: "simple",
+            data: {
+              title: "Withdraw Success",
+              description: `You have successfully withdrawn ${$input$.format()} NEAR`,
+            },
           },
-        },
-      );
+        });
+        closeBottomSheet();
+      };
+      if (meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now()) {
+        return MemeCooking.claim(
+          wallet,
+          {
+            meme_ids: [meme.meme_id],
+            token_ids: [],
+          },
+          {
+            onSuccess,
+          },
+        );
+      } else {
+        return MemeCooking.withdraw(
+          wallet,
+          {
+            amount: $input$.toU128(),
+            memeId: meme.meme_id,
+          },
+          {
+            onSuccess,
+          },
+        );
+      }
     }
   }
 

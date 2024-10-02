@@ -3,7 +3,7 @@
 
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
-  import { MemeCooking } from "$lib/near/memecooking";
+  import { MemeCooking, updateMcAccount } from "$lib/near/memecooking";
   import { FixedNumber } from "$lib/util";
   import { getTokenId } from "$lib/util/getTokenId";
 
@@ -26,12 +26,20 @@
     if (!claimAmount || claimAmount.valueOf() <= 0n) return;
 
     try {
-      await MemeCooking.claim(wallet, {
-        meme_ids: [meme.meme_id],
-        token_ids: [getTokenId(meme.symbol, meme.meme_id)],
-      });
-      // Refresh claim amount after successful claim
-      claimAmount = new FixedNumber(0n, meme.decimals);
+      await MemeCooking.claim(
+        wallet,
+        {
+          meme_ids: [meme.meme_id],
+          token_ids: [getTokenId(meme.symbol, meme.meme_id)],
+        },
+        {
+          onSuccess: () => {
+            claimAmount = new FixedNumber(0n, meme.decimals);
+            if (!$accountId$) return;
+            updateMcAccount($accountId$);
+          },
+        },
+      );
     } catch (e) {
       console.error("Claim failed:", e);
     }
@@ -44,7 +52,11 @@
   >
     <p class="text-gray-8 text-center sm:text-left">
       <span class="text-xl text-center"
-        >{claimAmount.format()} {meme.symbol}</span
+        >{claimAmount.format({
+          compactDisplay: "short",
+          notation: "compact",
+        })}
+        {meme.symbol}</span
       >
     </p>
     <button
