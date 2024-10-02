@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { fly } from "svelte/transition";
 
   import Chef from "../Chef.svelte";
 
@@ -14,6 +13,21 @@
   export let meme_id: number;
 
   const MCsymbol = Symbol();
+
+  let currentPage = 1;
+  const itemsPerPage = 20;
+
+  $: totalPages = Math.ceil(trades.length / itemsPerPage);
+
+  $: paginatedTrades = trades.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
+  function goToPage(page: number) {
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+  }
 
   onMount(() => {
     MCTradeSubscribe(MCsymbol, (newTrade) => {
@@ -38,10 +52,9 @@
   });
 </script>
 
-{#each trades as trade (trade.receipt_id)}
+{#each paginatedTrades as trade (trade.receipt_id)}
   <li
     class="flex [&>*]:mx-[0.1rem] justify-between items-center p-2 bg-gray-600 rounded-lg text-white"
-    in:fly={{ x: "-100%" }}
   >
     <span
       class="flex-[0.5_1_5rem] text-start flex items-center gap-1 overflow-hidden text-ellipsis"
@@ -72,3 +85,20 @@
     </a>
   </li>
 {/each}
+
+<!-- Add pagination controls -->
+<div class="pagination-controls flex justify-between items-center mt-4">
+  <button
+    on:click={() => goToPage(currentPage - 1)}
+    disabled={currentPage === 1}
+  >
+    Previous
+  </button>
+  <span>Page {currentPage} of {totalPages}</span>
+  <button
+    on:click={() => goToPage(currentPage + 1)}
+    disabled={currentPage === totalPages}
+  >
+    Next
+  </button>
+</div>

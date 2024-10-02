@@ -31,7 +31,6 @@
     imageFileToIcon,
     imageFileToBase64,
     FixedNumber,
-    isMobile,
     imageUrlToBase64,
     base64ToIcon,
   } from "$lib/util";

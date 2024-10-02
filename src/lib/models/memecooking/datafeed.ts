@@ -99,49 +99,50 @@ const MemeCookingDataFeed: IBasicDataFeed = {
     resolution,
     periodParams,
     onHistoryCallback,
-    // onErrorCallback,
+    onErrorCallback,
   ) => {
-    // const { from, to, firstDataRequest } = periodParams;
-    // console.log(
-    //   "[getBars]: Method call",
-    //   symbolInfo,
-    //   resolution,
-    //   from,
-    //   to,
-    //   firstDataRequest,
-    //   periodParams,
-    // );
-    // try {
-    //   if (!symbolInfo.unit_id) {
-    //     throw new Error("Symbol not found");
-    //   }
-    //   const responses = await client.POST("/tradingview/history", {
-    //     body: {
-    //       meme_id: symbolInfo.unit_id,
-    //       from,
-    //       to,
-    //       resolution,
-    //       countBack: periodParams.countBack,
-    //     },
-    //   });
-    //   if (!responses.data) {
-    //     throw new Error("No data returned");
-    //   }
-    //   const bars = responses.data;
-    //   console.log("[getBars]: Bars", bars);
-    //   if (firstDataRequest && symbolInfo.ticker) {
-    //     lastBarsCache.set(symbolInfo.ticker, {
-    //       ...bars[bars.length - 1],
-    //     });
-    //   }
-    //   console.log(`[getBars]: returned ${bars.length} bar(s)`);
-    // } catch (error: unknown) {
-    //   console.log("[getBars]: Get error", error);
-    //   onErrorCallback(JSON.stringify(error));
-    // }
-    onHistoryCallback([], {
-      noData: false,
-    });
+    const { from, to, firstDataRequest } = periodParams;
+    console.log(
+      "[getBars]: Method call",
+      symbolInfo,
+      resolution,
+      from,
+      to,
+      firstDataRequest,
+      periodParams,
+    );
+    try {
+      if (!symbolInfo.unit_id) {
+        throw new Error("Symbol not found");
+      }
+      console.log("[getBars]: Fetching bars");
+      const responses = await client.POST("/tradingview/history", {
+        body: {
+          meme_id: symbolInfo.unit_id,
+          from,
+          to,
+          resolution,
+          countBack: periodParams.countBack,
+        },
+      });
+      if (!responses.data) {
+        throw new Error("No data returned");
+      }
+      const bars = responses.data;
+      console.log("[getBars]: Bars", bars);
+      if (firstDataRequest && symbolInfo.ticker) {
+        lastBarsCache.set(symbolInfo.ticker, {
+          ...bars[bars.length - 1],
+        });
+      }
+      console.log(`[getBars]: returned ${bars.length} bar(s)`);
+      onHistoryCallback(bars, {
+        noData: true,
+      });
+    } catch (error: unknown) {
+      console.log("[getBars]: Get error", error);
+      onErrorCallback(JSON.stringify(error));
+    }
   },
 
   subscribeBars: (

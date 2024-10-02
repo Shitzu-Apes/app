@@ -8,8 +8,6 @@
     id: number;
     content: string;
     created_at_ms: number;
-    is_liked_by_user: boolean;
-    likes_count: number;
     reply_to_id?: number;
     child_replies:
       | {
@@ -17,18 +15,12 @@
           id: number;
           content: string;
           created_at_ms: number;
-          is_liked_by_user: boolean;
-          likes_count: number;
           reply_to_id?: number;
         }[]
       | undefined;
   };
   export let owner: string;
-  export let onLike: (id: number) => Promise<void>;
   export let onReplyTo: ((id: string) => void) | undefined = undefined;
-
-  let localLikes: number = reply.likes_count;
-  let localIsLiked: boolean = reply.is_liked_by_user;
 
   function getColorFromAccountId(accountId: string): string {
     if (accountId === owner) {
@@ -62,24 +54,6 @@
       asLink
     />
     <div class="flex gap-1">
-      <button
-        on:click={() => {
-          if (!reply.id) return;
-          localIsLiked = !localIsLiked;
-          localLikes = localIsLiked ? localLikes + 1 : localLikes - 1;
-          onLike(reply.id);
-        }}
-        class="flex items-center gap-1"
-      >
-        <div
-          class={localIsLiked
-            ? "i-mdi:heart text-shitzu-4"
-            : "i-mdi:heart-outline text-shitzu-4"}
-        />
-        <div class="text-xs text-shitzu-3">
-          {localLikes}
-        </div>
-      </button>
       <div class="text-xs text-shitzu-3">
         #{reply.id}
         {new Date((reply.created_at_ms ?? 0) * 1000).toLocaleString()}
@@ -107,7 +81,7 @@
           <div class="absolute top-4 w-2 h-0.25 bg-shitzu-4"></div>
         </div>
         {#if !reply.reply_to_id}
-          <svelte:self reply={child} {owner} {onLike} />
+          <svelte:self reply={child} {owner} />
         {/if}
       </div>
     {/each}
