@@ -24,7 +24,7 @@
       </span>
       <span class="inline-block">
         step 3: <strong class="text-shitzu-4">reach the goal:</strong> if at least
-        4k NEAR have been deposited by the end of the auction, the token is created
+        100 NEAR have been deposited by the end of the auction, the token is created
       </span>
       <span class="inline-block">
         step 4: <strong class="text-shitzu-4">fair distribution:</strong> the token
