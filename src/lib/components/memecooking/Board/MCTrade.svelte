@@ -38,7 +38,7 @@
           class="flex justify-between items-center p-2 bg-gray-600 rounded-lg text-white loader h-8"
         ></li>
       {:then trades}
-        <Trades {trades} {meme_id} />
+        <Trades {trades} {meme_id} paginated={false} />
       {/await}
     </ul>
   </button>

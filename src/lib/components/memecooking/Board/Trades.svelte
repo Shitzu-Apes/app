@@ -11,6 +11,7 @@
 
   export let trades: Array<Trade & { tokenAmount: number }>;
   export let meme_id: number;
+  export let paginated = true;
 
   const MCsymbol = Symbol();
 
@@ -19,10 +20,9 @@
 
   $: totalPages = Math.ceil(trades.length / itemsPerPage);
 
-  $: paginatedTrades = trades.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
-  );
+  $: displayedTrades = paginated
+    ? trades.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+    : trades;
 
   function goToPage(page: number) {
     if (page < 1 || page > totalPages) return;
@@ -52,7 +52,7 @@
   });
 </script>
 
-{#each paginatedTrades as trade (trade.receipt_id)}
+{#each displayedTrades as trade (trade.receipt_id)}
   <li
     class="flex [&>*]:mx-[0.1rem] justify-between items-center p-2 bg-gray-600 rounded-lg text-white"
   >
@@ -86,19 +86,21 @@
   </li>
 {/each}
 
-<!-- Add pagination controls -->
-<div class="pagination-controls flex justify-between items-center mt-4">
-  <button
-    on:click={() => goToPage(currentPage - 1)}
-    disabled={currentPage === 1}
-  >
-    Previous
-  </button>
-  <span>Page {currentPage} of {totalPages}</span>
-  <button
-    on:click={() => goToPage(currentPage + 1)}
-    disabled={currentPage === totalPages}
-  >
-    Next
-  </button>
-</div>
+{#if paginated}
+  <!-- Add pagination controls -->
+  <div class="pagination-controls flex justify-between items-center mt-4">
+    <button
+      on:click={() => goToPage(currentPage - 1)}
+      disabled={currentPage === 1}
+    >
+      Previous
+    </button>
+    <span>Page {currentPage} of {totalPages}</span>
+    <button
+      on:click={() => goToPage(currentPage + 1)}
+      disabled={currentPage === totalPages}
+    >
+      Next
+    </button>
+  </div>
+{/if}
