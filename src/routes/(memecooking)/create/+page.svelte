@@ -65,6 +65,12 @@
   const totalSupplySchema = z.instanceof(TokenInput);
   const totalSupplyValueSchema = z.string().optional();
 
+  // Add new schemas for softCap and hardCap
+  const softCapSchema = z.instanceof(TokenInput);
+  const softCapValueSchema = z.string().optional();
+  const hardCapSchema = z.instanceof(TokenInput).nullable();
+  const hardCapValueSchema = z.string().optional();
+
   let name: z.infer<typeof nameSchema> = "";
   let ticker: z.infer<typeof tickerSchema> = "";
   let description: z.infer<typeof descriptionSchema> = "";
@@ -80,6 +86,15 @@
   let totalSupplyValue$ =
     writable<z.infer<typeof totalSupplyValueSchema>>("1000000000");
   $: totalSupply$ = totalSupply?.u128$;
+
+  // Add variables for softCap and hardCap
+  let softCap: z.infer<typeof softCapSchema>;
+  let softCapValue$ = writable<z.infer<typeof softCapValueSchema>>("100");
+  $: softCap$ = softCap?.u128$;
+
+  let hardCap: z.infer<typeof hardCapSchema> = null;
+  let hardCapValue$ = writable<z.infer<typeof hardCapValueSchema>>("");
+  $: hardCap$ = hardCap?.u128$ || null;
 
   let ctoFrom: number | null = null;
 
@@ -146,6 +161,8 @@
       icon: string,
       decimals: number,
       totalSupply: string,
+      softCap: string,
+      hardCap?: string | null,
     ) =>
       MemeCooking.createMemeStorageCost(
         accountId,
@@ -159,6 +176,8 @@
         "ipfs://bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",
         "EiC+qKUoJBa3iRpHrsBFrbUqe6rLgGfpRm7L6tfCz5sSjA==",
         import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
+        softCap,
+        hardCap || undefined,
       ).then((cost) => {
         // Add dust to the cost
         const res = ((BigInt(cost) * BigInt(105)) / BigInt(100)).toString();
@@ -175,6 +194,8 @@
     icon || "",
     decimals,
     $totalSupply$?.toU128() ?? "",
+    $softCap$?.toU128() ?? "0",
+    $hardCap$?.toU128() || null,
   );
 
   async function handleFilesSelect(
@@ -315,6 +336,8 @@
           icon: icon!,
           reference: referenceCID,
           referenceHash,
+          softCap: $softCap$!.toU128(),
+          hardCap: $hardCap$?.toU128() || undefined,
         },
         await $storageCost$,
         {
@@ -532,6 +555,29 @@
           {decimals}
           bind:this={totalSupply}
           bind:value={$totalSupplyValue$}
+        />
+      </div>
+      <div class="space-y-2">
+        <label for="softCap" class="block text-sm text-shitzu-4 font-600">
+          Soft Cap
+        </label>
+        <TokenInput
+          class="w-full p-2 bg-gray-700 rounded text-white border border-white"
+          {decimals}
+          bind:this={softCap}
+          bind:value={$softCapValue$}
+        />
+      </div>
+
+      <div class="space-y-2">
+        <label for="hardCap" class="block text-sm text-shitzu-4 font-600">
+          Hard Cap (optional)
+        </label>
+        <TokenInput
+          class="w-full p-2 bg-gray-700 rounded text-white border border-white"
+          {decimals}
+          bind:this={hardCap}
+          bind:value={$hardCapValue$}
         />
       </div>
     </details>
