@@ -35,12 +35,16 @@
   {#if expanded}
     <div transition:slide|local>
       {FULL_COPY}
-      <button on:click={() => (expanded = false)}>less</button>
+      <button class="text-lightblue-3" on:click={() => (expanded = false)}
+        >less</button
+      >
     </div>
   {:else}
     <div transition:slide|local>
       {SHORT_COPY}
-      <button on:click={() => (expanded = true)}>more</button>
+      <button class="text-lightblue-3" on:click={() => (expanded = true)}
+        >more</button
+      >
     </div>
   {/if}
 </div>
