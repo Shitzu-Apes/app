@@ -15,7 +15,7 @@ export const memeMap$ = derived(memebids$, async (memes) => {
   return memeMap;
 });
 
-function udpateMemebids() {
+function updateMemebids() {
   return client
     .GET("/meme")
     .then((res) => {
@@ -25,7 +25,7 @@ function udpateMemebids() {
       return res.data;
     })
     .catch(() => {
-      console.log("[udpateMemebids]: Error");
+      console.log("[updateMemebids]: Error");
       MemeCooking.getLatestMeme().then((res) => {
         // use this as a backup
 
@@ -74,7 +74,7 @@ function udpateMemebids() {
       });
     });
 }
-udpateMemebids();
+updateMemebids();
 
 type LiveData =
   | {
@@ -146,8 +146,14 @@ export function MCSubscribe(
 ) {
   const cb = async (data: LiveData) => {
     if (data.action === "new_trade") {
-      const memeMap = await get(memeMap$);
-      const meme = memeMap.get(data.data.meme_id);
+      const response = await client.GET("/meme/{id}", {
+        params: {
+          path: {
+            id: String(data.data.meme_id),
+          },
+        },
+      });
+      const meme = response.data?.meme;
       if (meme == null) return;
       callback({ action: "new_trade", data: { ...meme, ...data.data } });
     } else if (data.action === "new_meme") {
@@ -178,7 +184,7 @@ MCSubscribe(symbol, async (data) => {
   const idx = memebids.findIndex((b) => b.meme_id === newMemeInfo.meme_id);
   let meme = memebids[idx];
   if (meme == null) {
-    const update = await udpateMemebids();
+    const update = await updateMemebids();
     if (update != null) {
       memebids = update;
       meme = memebids[idx];
