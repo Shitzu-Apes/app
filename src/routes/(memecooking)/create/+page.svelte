@@ -8,6 +8,7 @@
   import DropZone from "svelte-file-dropzone";
   import { z } from "zod";
 
+  import SoftcapDefault from "./SoftcapDefault.svelte";
   import TextAreaField from "./TextAreaField.svelte";
   import TextInputField from "./TextInputField.svelte";
 
@@ -65,10 +66,8 @@
   const totalSupplyValueSchema = z.string().optional();
 
   // Add new schemas for softCap and hardCap
-  const softCapSchema = z.instanceof(TokenInput);
-  const softCapValueSchema = z.string().optional();
-  const hardCapSchema = z.instanceof(TokenInput).nullable();
-  const hardCapValueSchema = z.string().optional();
+  const softCapSchema = z.string();
+  const hardCapSchema = z.string().nullable();
 
   let name: z.infer<typeof nameSchema> = "";
   let ticker: z.infer<typeof tickerSchema> = "";
@@ -88,13 +87,8 @@
 
   // Add variables for softCap and hardCap
   let softCap: z.infer<typeof softCapSchema>;
-  let softCapValue$ = writable<z.infer<typeof softCapValueSchema>>("100");
-  $: softCap$ = softCap?.u128$;
-
   let hardCap: z.infer<typeof hardCapSchema> = null;
-  let hardCapValue$ = writable<z.infer<typeof hardCapValueSchema>>("");
-  $: hardCap$ = hardCap?.u128$ || null;
-
+  let hardCapEnabled: boolean = false;
   let ctoFrom: number | null = null;
 
   // Add a new variable for duration
@@ -170,8 +164,8 @@
     icon || "",
     decimals,
     $totalSupply$?.toU128() ?? "",
-    $softCap$?.toU128() ?? "0",
-    $hardCap$?.toU128() || null,
+    softCap,
+    hardCap,
   );
 
   async function handleFilesSelect(
@@ -312,8 +306,8 @@
           icon: icon!,
           reference: referenceCID,
           referenceHash,
-          softCap: $softCap$!.toU128(),
-          hardCap: $hardCap$?.toU128() || undefined,
+          softCap,
+          hardCap: hardCap || undefined,
         },
         await $storageCost$,
         {
@@ -456,6 +450,8 @@
 
     <DurationSlider bind:value={durationMs} />
 
+    <SoftcapDefault bind:softCap bind:hardCap bind:hardCapEnabled />
+
     <details class="space-y-4">
       <summary class="text-sm text-shitzu-4 cursor-pointer">
         Show more options
@@ -513,29 +509,6 @@
           {decimals}
           bind:this={totalSupply}
           bind:value={$totalSupplyValue$}
-        />
-      </div>
-      <div class="space-y-2">
-        <label for="softCap" class="block text-sm text-shitzu-4 font-600">
-          Soft Cap
-        </label>
-        <TokenInput
-          class="w-full p-2 bg-gray-700 rounded text-white border border-white"
-          {decimals}
-          bind:this={softCap}
-          bind:value={$softCapValue$}
-        />
-      </div>
-
-      <div class="space-y-2">
-        <label for="hardCap" class="block text-sm text-shitzu-4 font-600">
-          Hard Cap (optional)
-        </label>
-        <TokenInput
-          class="w-full p-2 bg-gray-700 rounded text-white border border-white"
-          {decimals}
-          bind:this={hardCap}
-          bind:value={$hardCapValue$}
         />
       </div>
     </details>
