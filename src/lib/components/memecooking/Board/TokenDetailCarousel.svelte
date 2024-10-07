@@ -4,7 +4,8 @@
     type EmblaOptionsType,
   } from "embla-carousel";
   import embalaCarousel from "embla-carousel-svelte";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
+  import type { Writable } from "svelte/store";
 
   import StakeSheet from "../BottomSheet/StakeSheet.svelte";
   import TokenCommentSheet from "../BottomSheet/TokenCommentSheet.svelte";
@@ -25,12 +26,10 @@
   import { wallet } from "$lib/near";
   import { screenSize$ } from "$lib/screen-size";
   import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
-  import { FixedNumber } from "$lib/util";
   import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
   import { shareWithReferral } from "$lib/util/referral";
 
-  export let memebid: Meme;
-  export let requiredStake: FixedNumber;
+  export let memebid$: Writable<Meme>;
 
   const { accountId$ } = wallet;
 
@@ -57,10 +56,10 @@
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
         focused = true;
-        replaceState(`/meme/${memebid.meme_id}`, {});
+        replaceState(`/meme/${$memebid$.meme_id}`, {});
         MCTradeSubscribe(MCSymbol, (newMemebid) => {
-          if (newMemebid.meme_id === memebid.meme_id) {
-            memebid = newMemebid;
+          if (newMemebid.meme_id === $memebid$.meme_id) {
+            $memebid$ = newMemebid;
           }
         });
       }
@@ -70,6 +69,9 @@
       }
     });
   }
+  onDestroy(() => {
+    MCunsubscribe(MCSymbol);
+  });
 
   let observer: IntersectionObserver | undefined;
   let chartElement: HTMLElement | undefined;
@@ -92,7 +94,7 @@
     .GET("/trades", {
       params: {
         query: {
-          meme_id: memebid.meme_id.toString(),
+          meme_id: $memebid$.meme_id.toString(),
         },
       },
     })
@@ -102,7 +104,7 @@
 
       const trades = trade.data.map((trade) => ({
         ...trade,
-        tokenAmount: predictedTokenAmount({ ...trade, ...memebid }),
+        tokenAmount: predictedTokenAmount({ ...trade, ...$memebid$ }),
       }));
 
       return trades.sort((a, b) => b.timestamp_ms - a.timestamp_ms);
@@ -143,20 +145,25 @@
       <div
         class="flex-[0_0_100%] min-w-0 flex flex-col justify-center items-center h-full text-shitzu-4 gap-4"
       >
-        <TokenDetail {memebid} {requiredStake} />
+        <TokenDetail memebid={$memebid$} />
       </div>
       {#if focused}
         <div class="flex-[0_0_100%] min-w-0">
-          <TokenChart {memebid} touchToStart />
+          <TokenChart memebid={$memebid$} touchToStart />
         </div>
         <div class="flex-[0_0_100%] min-w-0 flex flex-col">
           <div class="flex-[1_1_5rem] h-0">
-            <TokenTrade {memebid} {trades} touchToStart paginated={false} />
+            <TokenTrade
+              memebid={$memebid$}
+              {trades}
+              touchToStart
+              paginated={false}
+            />
           </div>
         </div>
         <div class="flex-[0_0_100%] min-w-0 flex flex-col">
           <div class="flex-[1_1_5rem] h-0 overflow-auto">
-            <TokenHolder meme={memebid} />
+            <TokenHolder meme={$memebid$} />
           </div>
         </div>
         <div class="flex-[0_0_100%] min-w-0"></div>
@@ -186,40 +193,40 @@
       on:click={(e) => {
         e.preventDefault();
         if (
-          !memebid.pool_id &&
-          memebid.end_timestamp_ms &&
-          memebid.end_timestamp_ms < Date.now()
+          !$memebid$.pool_id &&
+          $memebid$.end_timestamp_ms &&
+          $memebid$.end_timestamp_ms < Date.now()
         ) {
           goto(`/create`);
 
-          localStorage.setItem("meme_to_cto", JSON.stringify(memebid));
+          localStorage.setItem("meme_to_cto", JSON.stringify($memebid$));
         } else {
-          openBottomSheet(StakeSheet, { meme: memebid });
+          openBottomSheet(StakeSheet, { meme: $memebid$ });
         }
       }}
-      class="{!memebid.pool_id &&
-      memebid.end_timestamp_ms &&
-      memebid.end_timestamp_ms < Date.now()
+      class="{!$memebid$.pool_id &&
+      $memebid$.end_timestamp_ms &&
+      $memebid$.end_timestamp_ms < Date.now()
         ? 'bg-memecooking-5 border-memecooking-6'
         : 'bg-shitzu-4 border-shitzu-6'} flex-grow py-2 rounded text-xl tracking-wider text-black"
     >
-      {#if memebid.pool_id}
+      {#if $memebid$.pool_id}
         [buy]
-      {:else if memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now()}
+      {:else if $memebid$.end_timestamp_ms && $memebid$.end_timestamp_ms < Date.now()}
         [relaunch]
       {:else}
         [deposit]
       {/if}
     </button>
     <button
-      on:click={() => shareWithReferral($accountId$, memebid)}
+      on:click={() => shareWithReferral($accountId$, $memebid$)}
       class="text-xl tracking-wider text-shitzu-4 hover:font-bold w-[80px]"
     >
       <span class="flex items-center justify-center"> [share] </span>
     </button>
   </div>
   <div class="w-full flex items-center mt-2 px-2">
-    {#if typeof memebid.staker_count === "number"}
+    {#if typeof $memebid$.staker_count === "number"}
       <button
         class="text-base flex justify-center items-center gap-1 flex-grow basis-0 py-2"
         on:click={() => {
@@ -227,28 +234,28 @@
         }}
       >
         <span class="hover:font-bold">
-          [{memebid.staker_count}
-          {memebid.staker_count <= 1 ? "depositor" : "depositors"}]
+          [{$memebid$.staker_count}
+          {$memebid$.staker_count <= 1 ? "depositor" : "depositors"}]
         </span>
       </button>
     {/if}
     <div class="w-px h-6 bg-white" />
-    {#if typeof memebid.replies_count === "number"}
+    {#if typeof $memebid$.replies_count === "number"}
       <button
         class="text-base flex justify-center items-center gap-1 flex-grow basis-0 py-2"
         on:click={() => {
           openBottomSheet(
             TokenCommentSheet,
             {
-              meme: memebid,
+              meme: $memebid$,
             },
             "l",
           );
         }}
       >
         <span class="hover:font-bold">
-          [{memebid.replies_count}
-          {memebid.replies_count <= 1 ? "comment" : "comments"}]
+          [{$memebid$.replies_count}
+          {$memebid$.replies_count <= 1 ? "comment" : "comments"}]
         </span>
       </button>
     {/if}

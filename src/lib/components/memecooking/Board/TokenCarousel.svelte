@@ -3,7 +3,6 @@
 
   import SelectBox from "$lib/components/SelectBox.svelte";
   import Toggle from "$lib/components/Toggle.svelte";
-  import { requiredStake } from "$lib/near/memecooking";
   import { memebids$, searchQuery$ } from "$lib/store/memebids";
   import {
     filterAndSortMeme,
@@ -36,7 +35,7 @@
   <Toggle bind:isOn={liveOnly}>live auction:{" "}</Toggle>
   <Toggle bind:isOn={ref}>ref:{" "}</Toggle>
 </div>
-{#await Promise.all([requiredStake, displayedMemebids])}
+{#await displayedMemebids}
   <section>
     <div class="flex flex-col h-screen">
       <div class="flex-[0_0_100%] min-h-0">
@@ -84,6 +83,6 @@
       </div>
     </div>
   </section>
-{:then [requiredStake, memebids]}
-  <TokenCarouselPaginate {memebids} {requiredStake} />
+{:then memebids}
+  <TokenCarouselPaginate {memebids} />
 {/await}

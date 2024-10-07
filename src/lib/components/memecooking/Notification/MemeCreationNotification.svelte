@@ -15,8 +15,8 @@
   let shake = false;
 
   $: $memebids$.then((meme) => {
-    console.log("[MemeCreationNotification] meme", meme);
     const firstMeme = meme[0];
+    console.log("[MemeCreationNotification] meme", firstMeme);
     notification = {
       meme_id: firstMeme.meme_id,
       party: firstMeme.owner,

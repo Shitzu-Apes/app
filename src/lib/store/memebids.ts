@@ -46,6 +46,8 @@ function udpateMemebids() {
           reference: meme.reference,
           reference_hash: meme.reference_hash,
           deposit_token_id: meme.deposit_token_id,
+          soft_cap: "0",
+          soft_cap_num: 0,
           last_change_ms: Date.now(), // Placeholder, adjust as needed
           total_supply_num: parseFloat(meme.total_supply),
           created_blockheight: 0, // Placeholder, adjust as needed
@@ -105,9 +107,21 @@ export function MCTradeSubscribe(
 ) {
   const cb = async (data: LiveData) => {
     if (data.action === "new_trade") {
-      const memeMap = await get(memeMap$);
-      const meme = memeMap.get(data.data.meme_id);
+      const response = await client.GET("/meme/{id}", {
+        params: {
+          path: {
+            id: String(data.data.meme_id),
+          },
+        },
+      });
+      const meme = response.data?.meme;
       if (meme == null) return;
+      const memes = await get(_memebids$);
+      const index = memes.findIndex(({ meme_id }) => meme.meme_id === meme_id);
+      if (index !== -1) {
+        memes[index] = meme;
+        _memebids$.set(Promise.resolve(memes));
+      }
       callback({ ...meme, ...data.data });
     }
   };

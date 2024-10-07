@@ -1,13 +1,12 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { get } from "svelte/store";
+  import { get, writable } from "svelte/store";
 
   import MemeDetail from "./MemeDetail.svelte";
 
   import { page } from "$app/stores";
   import { client } from "$lib/api/client";
   import TokenDetailCarousel from "$lib/components/memecooking/Board/TokenDetailCarousel.svelte";
-  import { requiredStake } from "$lib/near/memecooking";
   import { memebids$ } from "$lib/store/memebids";
 
   // page data
@@ -59,19 +58,15 @@
       >[go back]</a
     >
   </div>
-  {#await Promise.all([meme, requiredStake])}
+  {#await meme}
     <div class="w-full text-center text-2xl">Loading...</div>
-  {:then [detail, requiredStake]}
+  {:then detail}
     {#if detail}
       <div class="desktop">
-        <MemeDetail meme={detail.meme} {requiredStake} />
+        <MemeDetail meme$={writable(detail.meme)} />
       </div>
       <div class="mobile">
-        <TokenDetailCarousel
-          focused={true}
-          memebid={detail.meme}
-          {requiredStake}
-        />
+        <TokenDetailCarousel focused={true} memebid$={writable(detail.meme)} />
       </div>
     {:else}
       <div>Meme not found</div>

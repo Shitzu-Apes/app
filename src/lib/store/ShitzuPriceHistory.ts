@@ -21,7 +21,7 @@ export const currentShitzuPrice = derived<
   getToken$("token.0xshitzu.near"),
   ($token, set) => {
     $token.then((token) => {
-      set(token.price);
+      set(token.price ?? null);
     });
   },
   null,
