@@ -1,8 +1,22 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
 
-  export let progress: number;
+  import type { Meme } from "$lib/api/client";
+  import { FixedNumber } from "$lib/util";
+
+  export let meme: Meme;
   export let textVisible = true;
+
+  $: softCap = new FixedNumber(meme.soft_cap, 24);
+  $: hardCap = new FixedNumber(meme.hard_cap, 24);
+  $: totalDeposit = new FixedNumber(meme.total_deposit, 24);
+
+  $: progress = hardCap
+    ? totalDeposit.div(hardCap).toNumber()
+    : totalDeposit.div(softCap).toNumber();
+
+  $: softCapProgress = totalDeposit.div(softCap).toNumber();
+  $: hardCapProgress = totalDeposit.div(hardCap).toNumber();
   $: animatedWidth = Math.min(progress, 1.2);
 
   const explosionDelay = 2_000 / Math.min(progress, 1.2) - 300;
@@ -23,26 +37,35 @@
 </script>
 
 {#if textVisible}
-  <div class="mb-2 text-shitzu-4">progress: {(progress * 100).toFixed(2)}%</div>
+  <div class="mb-2 text-shitzu-4">
+    progress: {(progress * 100).toFixed(2)}%
+    {#if hardCap}
+      (Soft Cap: {(softCapProgress * 100).toFixed(2)}%) (Hard Cap: {(
+        hardCapProgress * 100
+      ).toFixed(2)}%)
+    {/if}
+  </div>
 {/if}
 <div
-  class="w-full h-5 bg-gray-3 {progress > 0.5
-    ? progress >= 1
-      ? 'text-shitzu-4'
-      : 'text-amber-5'
-    : 'text-red-5'} relative border-2 border-current"
+  class="w-full h-5 bg-gray-3 relative border-2 {BigInt(meme.total_deposit) <
+  BigInt(meme.soft_cap ?? 0)
+    ? 'border-red-5'
+    : BigInt(meme.total_deposit) >= BigInt(meme.hard_cap ?? 0)
+      ? 'border-shitzu-4'
+      : 'border-lime-4'}"
 >
   <div
     class="h-3 absolute top-0.5 left-0.5 transition-width duration-2000"
     style={`width: ${animatedWidth * 100}%`}
   >
     <div
-      class="w-full h-full animate-ease-linear animate-pulse animate-duration-500 {progress >
-      0.5
-        ? progress >= 1
-          ? 'bg-gradient-to-r from-green-400 to-shitzu-4'
-          : 'bg-gradient-to-r from-yellow-400 to-amber-500'
-        : 'bg-gradient-to-r from-red-500 to-rose-600'}"
+      class="w-full h-full animate-ease-linear animate-pulse animate-duration-500 {BigInt(
+        meme.total_deposit,
+      ) < BigInt(meme.soft_cap ?? 0)
+        ? 'bg-gradient-to-r from-red-500 to-rose-600'
+        : BigInt(meme.total_deposit) >= BigInt(meme.hard_cap ?? 0)
+          ? 'bg-gradient-to-r from-shitzu-4 to-lime-4'
+          : 'bg-gradient-to-r from-shitzu-4 to-lime-4'}"
     ></div>
     <div
       class="absolute -top-7 -right-3 transform translate-x-1/2 -translate-y-full w-fit animate-bounce animate-duration-300"
@@ -50,6 +73,23 @@
       <div class="i-mdi:arrow-down-bold size-6" />
     </div>
   </div>
+  {#if meme.soft_cap && meme.hard_cap}
+    <div
+      class="absolute -bottom-12 left-0 flex items-center flex-col"
+      style={`left: calc(${Number((BigInt(meme.soft_cap ?? 0) * BigInt(100_00)) / BigInt(meme.hard_cap ?? 0)) / 100}% - 12px)`}
+    >
+      <div
+        class="i-mdi:arrow-up-bold size-6 text-lime-4 animate-bounce animate-duration-300"
+      />
+      <div class="text-xs text-lime-4">Soft Cap</div>
+    </div>
+  {/if}
+  {#if hardCap && softCapProgress >= 1 && softCapProgress < progress}
+    <div
+      class="h-3 absolute top-0.5 left-0.5 bg-shitzu-4 opacity-50"
+      style={`width: ${softCapProgress * 100}%`}
+    ></div>
+  {/if}
   {#if progress >= 1 && explode}
     <img
       out:fade

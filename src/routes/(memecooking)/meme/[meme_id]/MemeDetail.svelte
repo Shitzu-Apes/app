@@ -25,7 +25,6 @@
 
   $: mcap = projectedMCap(meme);
   export let meme: Meme;
-  export let requiredStake: FixedNumber;
   const { accountId$ } = wallet;
 
   const MCSymbol = Symbol();
@@ -40,13 +39,11 @@
 
 <div class="flex px-2 gap-2">
   <div class="flex-grow">
-    <div class="w-full my-8">
-      <ProgressBar
-        progress={new FixedNumber(meme.total_deposit, 24)
-          .div(requiredStake)
-          .toNumber()}
-      />
-    </div>
+    {#if !meme.pool_id}
+      <div class="w-full mt-4 mb-12">
+        <ProgressBar {meme} />
+      </div>
+    {/if}
     <div class="w-full flex items-center gap-3 my-2 text-sm">
       <span>
         {meme.name}
@@ -176,7 +173,7 @@
           <div class="text-sm">{meme.description}</div>
         </div>
       </div>
-      <ExtraDetail class="text-sm mt-3" {meme} />
+      <ExtraDetail class="text-sm mt-3" {meme} expanded />
     </div>
 
     <!-- Holder -->
