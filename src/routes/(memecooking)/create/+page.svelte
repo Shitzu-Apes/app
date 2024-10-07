@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { createSlider, melt } from "@melt-ui/svelte";
-  import dayjs from "dayjs";
   import type {
     FinalExecutionStatus,
     FinalExecutionStatusBasic,
@@ -16,6 +14,7 @@
   import { goto } from "$app/navigation";
   import { showWalletSelector } from "$lib/auth";
   import { TokenInput } from "$lib/components";
+  import DurationSlider from "$lib/components/DurationSlider.svelte";
   import { addToast } from "$lib/components/Toast.svelte";
   import Tooltip from "$lib/components/Tooltip.svelte";
   import CreateCoinSheet from "$lib/components/memecooking/BottomSheet/CreateCoinSheet.svelte";
@@ -98,31 +97,8 @@
 
   let ctoFrom: number | null = null;
 
-  const {
-    elements: { root, range, thumbs },
-    states: { value },
-  } = createSlider({
-    defaultValue: [1000 * 60 * 60 * 24],
-    min: 1000 * 60 * 5,
-    step: 1000 * 60 * 5,
-    max: 1000 * 60 * 60 * 24,
-  });
-  let humanDuration = "-";
-  $: if ($value) {
-    if ($value[0] < 1000 * 60 * 60) {
-      humanDuration = dayjs.duration($value[0], "ms").format("m [minutes]");
-    } else if ($value[0] < 1000 * 60 * 60 * 2) {
-      humanDuration = dayjs
-        .duration($value[0], "ms")
-        .format("H [hour] m [minutes]");
-    } else if ($value[0] < 1000 * 60 * 60 * 24) {
-      humanDuration = dayjs
-        .duration($value[0], "ms")
-        .format("H [hours] m [minutes]");
-    } else {
-      humanDuration = dayjs.duration($value[0], "ms").format("D [day]");
-    }
-  }
+  // Add a new variable for duration
+  let durationMs = 1000 * 60 * 60 * 24; // Default duration is 24 hours
 
   $: imageReady = imageCID || imageFile;
 
@@ -188,7 +164,7 @@
   );
   $: fetchStorageCost(
     $accountId$ || "",
-    $value[0]?.toString() ?? "0",
+    durationMs.toString(),
     name,
     ticker,
     icon || "",
@@ -331,7 +307,7 @@
           symbol: ticker,
           decimals,
           depositTokenId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
-          durationMs: $value[0].toString(),
+          durationMs: durationMs.toString(),
           totalSupply: $totalSupply$!.toU128(),
           icon: icon!,
           reference: referenceCID,
@@ -478,25 +454,7 @@
       validateOnInput={true}
     />
 
-    <div class="space-y-2 flex flex-col items-center">
-      <label
-        for="name"
-        class=" self-start block text-sm text-shitzu-4 font-600"
-      >
-        duration
-      </label>
-      <span use:melt={$root} class="relative flex h-[20px] w-full items-center">
-        <span class="h-[3px] w-full bg-black/40">
-          <span use:melt={$range} class="h-[3px] bg-white" />
-        </span>
-
-        <span
-          use:melt={$thumbs[0]}
-          class="h-5 w-5 rounded-full bg-white focus:ring-4 focus:!ring-black/40"
-        />
-      </span>
-      <span>{humanDuration}</span>
-    </div>
+    <DurationSlider bind:value={durationMs} />
 
     <details class="space-y-4">
       <summary class="text-sm text-shitzu-4 cursor-pointer">
