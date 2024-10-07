@@ -5,18 +5,15 @@
   import { FixedNumber } from "$lib/util";
 
   export let meme: Meme;
-  export let textVisible = true;
 
   $: softCap = new FixedNumber(meme.soft_cap, 24);
-  $: hardCap = new FixedNumber(meme.hard_cap, 24);
+  $: hardCap = meme.hard_cap ? new FixedNumber(meme.hard_cap, 24) : null;
   $: totalDeposit = new FixedNumber(meme.total_deposit, 24);
 
   $: progress = hardCap
     ? totalDeposit.div(hardCap).toNumber()
     : totalDeposit.div(softCap).toNumber();
 
-  $: softCapProgress = totalDeposit.div(softCap).toNumber();
-  $: hardCapProgress = totalDeposit.div(hardCap).toNumber();
   $: animatedWidth = Math.min(progress, 1.2);
 
   const explosionDelay = 2_000 / Math.min(progress, 1.2) - 300;
@@ -36,16 +33,6 @@
   }, explosionDelay);
 </script>
 
-{#if textVisible}
-  <div class="mb-2 text-shitzu-4">
-    progress: {(progress * 100).toFixed(2)}%
-    {#if hardCap}
-      (Soft Cap: {(softCapProgress * 100).toFixed(2)}%) (Hard Cap: {(
-        hardCapProgress * 100
-      ).toFixed(2)}%)
-    {/if}
-  </div>
-{/if}
 <div
   class="w-full h-5 bg-gray-3 relative border-2 {BigInt(meme.total_deposit) <
   BigInt(meme.soft_cap ?? 0)
@@ -84,10 +71,10 @@
       <div class="text-xs text-lime-4">Soft Cap</div>
     </div>
   {/if}
-  {#if hardCap && softCapProgress >= 1 && softCapProgress < progress}
+  {#if progress}
     <div
       class="h-3 absolute top-0.5 left-0.5 bg-shitzu-4 opacity-50"
-      style={`width: ${softCapProgress * 100}%`}
+      style={`width: ${progress * 100}%`}
     ></div>
   {/if}
   {#if progress >= 1 && explode}
