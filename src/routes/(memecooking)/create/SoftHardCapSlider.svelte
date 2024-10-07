@@ -36,7 +36,7 @@
         : [softCapNumber],
       min: 100,
       max: 4000, // Representing up to 4000 NEAR
-      step: 0.1, // 0.1 NEAR steps
+      step: 5,
       autoSort: true,
     });
 
