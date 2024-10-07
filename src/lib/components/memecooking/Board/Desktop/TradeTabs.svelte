@@ -66,5 +66,5 @@
   <TokenCommentSection {meme} />
 </section>
 <section use:melt={$content(tabs[1].id)}>
-  <TokenTrade memebid={meme} {trades} />
+  <TokenTrade memebid={meme} {trades} paginated />
 </section>

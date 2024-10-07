@@ -12,6 +12,7 @@
     >
   >;
   export let touchToStart = false;
+  export let paginated = true;
   let isInteracted = false || !touchToStart;
 </script>
 
@@ -38,7 +39,7 @@
           class="flex justify-between items-center p-2 bg-gray-600 rounded-lg text-white loader h-8"
         ></li>
       {:then trades}
-        <Trades {trades} {meme_id} />
+        <Trades {trades} {meme_id} {paginated} />
       {/await}
     </ul>
   </button>
@@ -52,7 +53,7 @@
     >
       <div class="text-white text-2xl flex flex-col items-center gap-4">
         <div class="i-mdi:fingerprint size-24" />
-        Tap to start interact with the chart
+        Tap to start explore the trades
       </div>
     </button>
   {/if}

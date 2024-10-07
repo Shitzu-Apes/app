@@ -14,10 +14,11 @@
     >
   >;
   export let touchToStart = false;
+  export let paginated = true;
 </script>
 
 {#if memebid.pool_id}
   <DexscreenerTrade pool_id={memebid.pool_id.toString()} />
 {:else}
-  <McTrade meme_id={memebid.meme_id} {trades} {touchToStart} />
+  <McTrade meme_id={memebid.meme_id} {trades} {touchToStart} {paginated} />
 {/if}

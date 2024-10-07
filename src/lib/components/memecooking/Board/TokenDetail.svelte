@@ -47,12 +47,7 @@
           </div>
         {/if}
       {:else}
-        <ProgressBarMobile
-          progress={new FixedNumber(memebid.total_deposit, 24)
-            .div(requiredStake)
-            .toNumber()}
-          textVisible={false}
-        />
+        <ProgressBarMobile meme={memebid} />
       {/if}
     </div>
     <h2

@@ -151,7 +151,7 @@
         </div>
         <div class="flex-[0_0_100%] min-w-0 flex flex-col">
           <div class="flex-[1_1_5rem] h-0">
-            <TokenTrade {memebid} {trades} touchToStart />
+            <TokenTrade {memebid} {trades} touchToStart paginated={false} />
           </div>
         </div>
         <div class="flex-[0_0_100%] min-w-0 flex flex-col">
