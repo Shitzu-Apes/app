@@ -26,32 +26,32 @@
       shareUrl.searchParams.set("referral", $accountId$);
     }
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: document.title,
-          url: shareUrl.toString(),
-        });
-      } catch (error) {
-        console.error("Error sharing:", error);
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(shareUrl.toString());
-        addToast({
+    // if (navigator.share) {
+    //   try {
+    //     await navigator.share({
+    //       title: document.title,
+    //       url: shareUrl.toString(),
+    //     });
+    //   } catch (error) {
+    //     console.error("Error sharing:", error);
+    //   }
+    // } else {
+    try {
+      await navigator.clipboard.writeText(shareUrl.toString());
+      addToast({
+        data: {
+          type: "simple",
           data: {
-            type: "simple",
-            data: {
-              title: "Success",
-              description: "Referral link copied to clipboard!",
-              color: "green",
-            },
+            title: "Success",
+            description: "Referral link copied to clipboard!",
+            color: "green",
           },
-        });
-      } catch (error) {
-        console.error("Error copying to clipboard:", error);
-      }
+        },
+      });
+    } catch (error) {
+      console.error("Error copying to clipboard:", error);
     }
+    // }
     copying = false;
   }
 </script>
