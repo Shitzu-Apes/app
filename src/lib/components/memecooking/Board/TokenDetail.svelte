@@ -8,15 +8,14 @@
   import ExtraDetail from "$lib/components/ExtraDetail.svelte";
   import Squircle from "$lib/components/Squircle.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { FixedNumber } from "$lib/util";
   import { projectedMCap } from "$lib/util/projectedMCap";
   import { timesAgo } from "$lib/util/timesAgo";
 
   export let memebid: Meme;
-  export let requiredStake: FixedNumber;
   let showDescription = false;
 
-  $: reachedMcap = new FixedNumber(memebid.total_deposit, 24) >= requiredStake;
+  $: reachedMcap =
+    BigInt(memebid.total_deposit) >= BigInt(memebid.soft_cap ?? "0");
   $: mcap = projectedMCap(memebid);
 </script>
 
@@ -47,12 +46,7 @@
           </div>
         {/if}
       {:else}
-        <ProgressBarMobile
-          progress={new FixedNumber(memebid.total_deposit, 24)
-            .div(requiredStake)
-            .toNumber()}
-          textVisible={false}
-        />
+        <ProgressBarMobile meme={memebid} />
       {/if}
     </div>
     <h2

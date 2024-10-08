@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { createSlider, melt } from "@melt-ui/svelte";
-  import dayjs from "dayjs";
   import type {
     FinalExecutionStatus,
     FinalExecutionStatusBasic,
@@ -10,12 +8,14 @@
   import DropZone from "svelte-file-dropzone";
   import { z } from "zod";
 
+  import SoftcapDefault from "./SoftcapDefault.svelte";
   import TextAreaField from "./TextAreaField.svelte";
   import TextInputField from "./TextInputField.svelte";
 
   import { goto } from "$app/navigation";
   import { showWalletSelector } from "$lib/auth";
   import { TokenInput } from "$lib/components";
+  import DurationSlider from "$lib/components/DurationSlider.svelte";
   import { addToast } from "$lib/components/Toast.svelte";
   import Tooltip from "$lib/components/Tooltip.svelte";
   import CreateCoinSheet from "$lib/components/memecooking/BottomSheet/CreateCoinSheet.svelte";
@@ -65,6 +65,10 @@
   const totalSupplySchema = z.instanceof(TokenInput);
   const totalSupplyValueSchema = z.string().optional();
 
+  // Add new schemas for softCap and hardCap
+  const softCapSchema = z.string();
+  const hardCapSchema = z.string().nullable();
+
   let name: z.infer<typeof nameSchema> = "";
   let ticker: z.infer<typeof tickerSchema> = "";
   let description: z.infer<typeof descriptionSchema> = "";
@@ -81,33 +85,14 @@
     writable<z.infer<typeof totalSupplyValueSchema>>("1000000000");
   $: totalSupply$ = totalSupply?.u128$;
 
+  // Add variables for softCap and hardCap
+  let softCap: z.infer<typeof softCapSchema>;
+  let hardCap: z.infer<typeof hardCapSchema> = null;
+  let hardCapEnabled: boolean = false;
   let ctoFrom: number | null = null;
 
-  const {
-    elements: { root, range, thumbs },
-    states: { value },
-  } = createSlider({
-    defaultValue: [1000 * 60 * 60 * 24],
-    min: 1000 * 60 * 5,
-    step: 1000 * 60 * 5,
-    max: 1000 * 60 * 60 * 24,
-  });
-  let humanDuration = "-";
-  $: if ($value) {
-    if ($value[0] < 1000 * 60 * 60) {
-      humanDuration = dayjs.duration($value[0], "ms").format("m [minutes]");
-    } else if ($value[0] < 1000 * 60 * 60 * 2) {
-      humanDuration = dayjs
-        .duration($value[0], "ms")
-        .format("H [hour] m [minutes]");
-    } else if ($value[0] < 1000 * 60 * 60 * 24) {
-      humanDuration = dayjs
-        .duration($value[0], "ms")
-        .format("H [hours] m [minutes]");
-    } else {
-      humanDuration = dayjs.duration($value[0], "ms").format("D [day]");
-    }
-  }
+  // Add a new variable for duration
+  let durationMs = 1000 * 60 * 60 * 24; // Default duration is 24 hours
 
   $: imageReady = imageCID || imageFile;
 
@@ -146,6 +131,8 @@
       icon: string,
       decimals: number,
       totalSupply: string,
+      softCap: string,
+      hardCap?: string | null,
     ) =>
       MemeCooking.createMemeStorageCost(
         accountId,
@@ -159,6 +146,8 @@
         "ipfs://bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",
         "EiC+qKUoJBa3iRpHrsBFrbUqe6rLgGfpRm7L6tfCz5sSjA==",
         import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
+        softCap,
+        hardCap || undefined,
       ).then((cost) => {
         // Add dust to the cost
         const res = ((BigInt(cost) * BigInt(105)) / BigInt(100)).toString();
@@ -169,12 +158,14 @@
   );
   $: fetchStorageCost(
     $accountId$ || "",
-    $value[0]?.toString() ?? "0",
+    durationMs.toString(),
     name,
     ticker,
     icon || "",
     decimals,
     $totalSupply$?.toU128() ?? "",
+    softCap,
+    hardCap,
   );
 
   async function handleFilesSelect(
@@ -310,11 +301,13 @@
           symbol: ticker,
           decimals,
           depositTokenId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
-          durationMs: $value[0].toString(),
+          durationMs: durationMs.toString(),
           totalSupply: $totalSupply$!.toU128(),
           icon: icon!,
           reference: referenceCID,
           referenceHash,
+          softCap,
+          hardCap: hardCap || undefined,
         },
         await $storageCost$,
         {
@@ -455,25 +448,9 @@
       validateOnInput={true}
     />
 
-    <div class="space-y-2 flex flex-col items-center">
-      <label
-        for="name"
-        class=" self-start block text-sm text-shitzu-4 font-600"
-      >
-        duration
-      </label>
-      <span use:melt={$root} class="relative flex h-[20px] w-full items-center">
-        <span class="h-[3px] w-full bg-black/40">
-          <span use:melt={$range} class="h-[3px] bg-white" />
-        </span>
+    <DurationSlider bind:value={durationMs} />
 
-        <span
-          use:melt={$thumbs[0]}
-          class="h-5 w-5 rounded-full bg-white focus:ring-4 focus:!ring-black/40"
-        />
-      </span>
-      <span>{humanDuration}</span>
-    </div>
+    <SoftcapDefault bind:softCap bind:hardCap bind:hardCapEnabled />
 
     <details class="space-y-4">
       <summary class="text-sm text-shitzu-4 cursor-pointer">

@@ -1,5 +1,9 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
+
   export let isOn = false;
+
+  const dispatch = createEventDispatcher();
 </script>
 
 <div class="flex items-center">
@@ -11,7 +15,19 @@
         : 'right-0'} transition-all duration-300"
     />
 
-    <button class="px-1 z-1" on:click={() => (isOn = true)}>On</button>
-    <button class="px-1 z-1" on:click={() => (isOn = false)}>Off</button>
+    <button
+      class="px-1 z-1"
+      on:click={() => {
+        isOn = true;
+        dispatch("toggle", true);
+      }}>On</button
+    >
+    <button
+      class="px-1 z-1"
+      on:click={() => {
+        isOn = false;
+        dispatch("toggle", false);
+      }}>Off</button
+    >
   </div>
 </div>

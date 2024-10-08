@@ -187,8 +187,12 @@ export interface paths {
               reference: string;
               reference_hash: string;
               deposit_token_id: string;
+              soft_cap?: string | null;
+              hard_cap?: string | null;
               last_change_ms: number;
               total_supply_num: number;
+              soft_cap_num: number;
+              hard_cap_num?: number | null;
               created_blockheight: number;
               created_timestamp_ms: number;
               total_deposit: string;
@@ -266,8 +270,12 @@ export interface paths {
               reference: string;
               reference_hash: string;
               deposit_token_id: string;
+              soft_cap?: string | null;
+              hard_cap?: string | null;
               last_change_ms: number;
               total_supply_num: number;
+              soft_cap_num: number;
+              hard_cap_num?: number | null;
               created_blockheight: number;
               created_timestamp_ms: number;
               total_deposit: string;
@@ -310,9 +318,7 @@ export interface paths {
     /** @description Returns a meme token launch by id */
     get: {
       parameters: {
-        query?: {
-          accountId?: string;
-        };
+        query?: never;
         header?: never;
         path: {
           id: string;
@@ -339,8 +345,12 @@ export interface paths {
                 reference: string;
                 reference_hash: string;
                 deposit_token_id: string;
+                soft_cap?: string | null;
+                hard_cap?: string | null;
                 last_change_ms: number;
                 total_supply_num: number;
+                soft_cap_num: number;
+                hard_cap_num?: number | null;
                 created_blockheight: number;
                 created_timestamp_ms: number;
                 total_deposit: string;
@@ -360,13 +370,6 @@ export interface paths {
                 coronated_at_ms?: number | null;
                 replies_count: number;
                 staker_count: number;
-              };
-              account?: {
-                id: string;
-                meme_id: number;
-                account_id: string;
-                balance: string;
-                balance_num: number;
               };
             };
           };
@@ -474,6 +477,13 @@ export interface paths {
             }[];
           };
         };
+        /** @description Meme not found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
       };
     };
     delete?: never;
@@ -527,8 +537,12 @@ export interface paths {
                 reference: string;
                 reference_hash: string;
                 deposit_token_id: string;
+                soft_cap?: string | null;
+                hard_cap?: string | null;
                 last_change_ms: number;
                 total_supply_num: number;
+                soft_cap_num: number;
+                hard_cap_num?: number | null;
                 created_blockheight: number;
                 created_timestamp_ms: number;
                 total_deposit: string;
@@ -562,8 +576,12 @@ export interface paths {
                 reference: string;
                 reference_hash: string;
                 deposit_token_id: string;
+                soft_cap?: string | null;
+                hard_cap?: string | null;
                 last_change_ms: number;
                 total_supply_num: number;
+                soft_cap_num: number;
+                hard_cap_num?: number | null;
                 created_blockheight: number;
                 created_timestamp_ms: number;
                 total_deposit: string;
@@ -593,8 +611,12 @@ export interface paths {
                 reference: string;
                 reference_hash: string;
                 deposit_token_id: string;
+                soft_cap?: string | null;
+                hard_cap?: string | null;
                 last_change_ms: number;
                 total_supply_num: number;
+                soft_cap_num: number;
+                hard_cap_num?: number | null;
                 created_blockheight: number;
                 created_timestamp_ms: number;
                 total_deposit: string;
@@ -675,8 +697,12 @@ export interface paths {
                       reference: string;
                       reference_hash: string;
                       deposit_token_id: string;
+                      soft_cap?: string | null;
+                      hard_cap?: string | null;
                       last_change_ms: number;
                       total_supply_num: number;
+                      soft_cap_num: number;
+                      hard_cap_num?: number | null;
                       created_blockheight: number;
                       created_timestamp_ms: number;
                       total_deposit: string;
@@ -710,8 +736,12 @@ export interface paths {
                       reference: string;
                       reference_hash: string;
                       deposit_token_id: string;
+                      soft_cap?: string | null;
+                      hard_cap?: string | null;
                       last_change_ms: number;
                       total_supply_num: number;
+                      soft_cap_num: number;
+                      hard_cap_num?: number | null;
                       created_blockheight: number;
                       created_timestamp_ms: number;
                       total_deposit: string;
@@ -743,8 +773,12 @@ export interface paths {
                 reference: string;
                 reference_hash: string;
                 deposit_token_id: string;
+                soft_cap?: string | null;
+                hard_cap?: string | null;
                 last_change_ms: number;
                 total_supply_num: number;
+                soft_cap_num: number;
+                hard_cap_num?: number | null;
                 created_blockheight: number;
                 created_timestamp_ms: number;
                 total_deposit: string;
@@ -1091,8 +1125,6 @@ export interface paths {
                 account_id: string;
                 created_at_ms?: number;
                 reply_to_id?: number;
-                is_liked_by_user: boolean;
-                likes_count: number;
                 child_replies?: {
                   id?: number;
                   meme_id: number;
@@ -1100,10 +1132,19 @@ export interface paths {
                   account_id: string;
                   created_at_ms?: number;
                   reply_to_id?: number;
-                  is_liked_by_user: boolean;
-                  likes_count: number;
                 }[];
               }[];
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              error?: string;
             };
           };
         };

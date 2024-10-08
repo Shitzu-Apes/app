@@ -1,13 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { writable } from "svelte/store";
 
   import TokenDetailCarousel from "./TokenDetailCarousel.svelte";
 
   import type { Meme } from "$lib/models/memecooking";
-  import type { FixedNumber } from "$lib/util";
 
   export let memebids: Meme[];
-  export let requiredStake: FixedNumber;
 
   let observer: IntersectionObserver | undefined;
   let page = 1;
@@ -46,7 +45,7 @@
       {#each memebids.slice(0, page * perPage) as memebid (memebid.meme_id)}
         <div class="px-3 my-3">
           <div class="flex flex-col rounded-xl bg-dark-8 overflow-hidden">
-            <TokenDetailCarousel {memebid} {requiredStake} />
+            <TokenDetailCarousel memebid$={writable(memebid)} />
           </div>
         </div>
       {/each}

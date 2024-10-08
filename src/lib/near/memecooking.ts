@@ -133,6 +133,8 @@ export abstract class MemeCooking {
       reference: string;
       referenceHash: string;
       depositTokenId: string;
+      softCap: string;
+      hardCap?: string;
     },
     deposit: string,
     callback: TransactionCallbacks<FinalExecutionOutcome> = {},
@@ -171,6 +173,8 @@ export abstract class MemeCooking {
           reference: args.reference,
           reference_hash: args.referenceHash,
           deposit_token_id: args.depositTokenId,
+          soft_cap: args.softCap,
+          hard_cap: args.hardCap,
         },
         gas: 250_000_000_000_000n.toString(),
         deposit,
@@ -403,6 +407,8 @@ export abstract class MemeCooking {
     reference: string,
     reference_hash: string,
     deposit_token_id: string,
+    soft_cap: string,
+    hard_cap?: string,
   ): Promise<string> {
     return view<string>(
       import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
@@ -418,6 +424,8 @@ export abstract class MemeCooking {
         reference,
         reference_hash,
         deposit_token_id,
+        soft_cap,
+        hard_cap,
       },
     );
   }

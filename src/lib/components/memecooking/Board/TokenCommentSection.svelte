@@ -120,8 +120,6 @@
           refreshReplies({
             ...actualReply,
             id: actualReply.id,
-            is_liked_by_user: false,
-            likes_count: 0,
           });
         }
       })

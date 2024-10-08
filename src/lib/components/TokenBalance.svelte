@@ -47,9 +47,11 @@
       <div class="text-right font-bold text-white">
         {new FixedNumber(share, token.decimal).format()}
         <div class="text-sm text-gray font-400">
-          ${new FixedNumber(share, token.decimal)
-            .mul(new FixedNumber(BigInt(Math.trunc(+token.price * 1e24)), 24))
-            .format()}
+          {#if token.price != null}
+            ${new FixedNumber(share, token.decimal)
+              .mul(new FixedNumber(BigInt(Math.trunc(+token.price * 1e24)), 24))
+              .format()}
+          {/if}
         </div>
       </div>
     {:catch}
