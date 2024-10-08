@@ -32,8 +32,22 @@
 <div class="flex flex-wrap justify-center gap-3 mt-6 px-4">
   <SelectBox options={sortOptions} bind:selected={selectedSort} />
   <SelectBox options={orderOptions} bind:selected={selectedDirection} />
-  <Toggle bind:isOn={liveOnly}>live auction:{" "}</Toggle>
-  <Toggle bind:isOn={ref}>ref:{" "}</Toggle>
+  <Toggle
+    bind:isOn={liveOnly}
+    on:toggle={({ detail: value }) => {
+      if (value) {
+        ref = false;
+      }
+    }}>live auction:{" "}</Toggle
+  >
+  <Toggle
+    bind:isOn={ref}
+    on:toggle={({ detail: value }) => {
+      if (value) {
+        liveOnly = false;
+      }
+    }}>ref:{" "}</Toggle
+  >
 </div>
 {#await displayedMemebids}
   <section>
