@@ -43,7 +43,7 @@
   <div class="relative focus-element">
     <div class="flex flex-col h-screen pb-20vh">
       {#each memebids.slice(0, page * perPage) as memebid (memebid.meme_id)}
-        <div class="px-3 my-3">
+        <div class="my-2">
           <div class="flex flex-col rounded-xl bg-dark-8 overflow-hidden">
             <TokenDetailCarousel memebid$={writable(memebid)} />
           </div>

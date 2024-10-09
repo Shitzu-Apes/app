@@ -13,8 +13,21 @@
   $: progress = hardCap
     ? totalDeposit.div(hardCap).toNumber()
     : totalDeposit.div(softCap).toNumber();
+
+  $: softcapProgress = totalDeposit.div(softCap).toNumber();
+
+  $: hardCapProgress = hardCap
+    ? Number(
+        ((totalDeposit.toBigInt() - softCap.toBigInt()) * 10000n) /
+          (hardCap.toBigInt() - softCap.toBigInt()),
+      ) / 10000
+    : 0;
+
+  $: softHardCapRatio = hardCap ? softCap.div(hardCap).toNumber() : 0;
+
   $: animatedWidth = Math.min(progress, 1.2);
 
+  // Explosion effect
   const explosionDelay = 2000 / Math.min(progress, 1.2) - 300;
   let explode = false;
   setTimeout(() => {
@@ -25,24 +38,60 @@
   }, explosionDelay);
 </script>
 
-<div
-  class="w-full h-6 bg-gray-3 relative border-2 border-current {BigInt(
-    meme.total_deposit,
-  ) < BigInt(meme.soft_cap ?? 0)
-    ? 'text-red-5'
-    : BigInt(meme.total_deposit) >= BigInt(meme.soft_cap ?? 0)
-      ? 'text-shitzu-4'
-      : 'text-lime-4'}"
->
-  <div
-    class="h-full bg-current absolute top-0 left-0 transition-width duration-2000 animate-ease-linear rounded-r-full"
-    style={`width: ${animatedWidth * 100}%`}
-  ></div>
-  <div
-    class="h-full absolute top-0 right-2 text-gray-8 font-medium flex items-center justify-center"
-  >
-    {(progress * 100).toFixed(2)}%
-  </div>
+<div class="w-full h-6 relative">
+  {#if hardCap}
+    <div class="flex items-center h-full gap-1.5">
+      <div
+        class="relative h-full rounded-tl-xl bg-gray-3 border-2 border-current {softcapProgress <
+        1
+          ? 'text-red-5'
+          : 'text-shitzu-4'} "
+        style={`width: ${softHardCapRatio * 100}%`}
+      >
+        <div
+          class="h-full bg-current absolute top-0 left-0 transition-all duration-[2000ms] ease-linear"
+          style={`width: ${(Math.min(softcapProgress, 1) * 100).toFixed(2)}%`}
+        ></div>
+      </div>
+      <div
+        class="relative h-full rounded-tr-xl bg-gray-3 border-2 border-current flex-1 {softcapProgress <
+        1
+          ? 'text-red-5'
+          : hardCapProgress > 0
+            ? 'text-lime-4'
+            : 'text-gray-3'}"
+      >
+        <div
+          class="h-full bg-current absolute top-0 left-0 transition-all duration-[2000ms] ease-linear"
+          style={`width: ${(Math.min(hardCapProgress, 1) * 100).toFixed(2)}%`}
+        ></div>
+      </div>
+    </div>
+    <div
+      class="h-full absolute top-0 right-2 text-gray-8 font-medium flex items-center justify-center"
+    >
+      {(progress * 100).toFixed(2)}%
+    </div>
+  {:else}
+    <div
+      class="w-full h-full bg-gray-3 relative border-2 border-current rounded-t-xl {BigInt(
+        meme.total_deposit,
+      ) < BigInt(meme.soft_cap ?? 0)
+        ? 'text-red-5'
+        : 'text-shitzu-4'}"
+    >
+      <div
+        class="h-full bg-current absolute top-0 left-0 transition-all duration-[2000ms] ease-linear"
+        style={`width: ${animatedWidth * 100}%`}
+      ></div>
+      <div
+        class="h-full absolute top-0 right-2 text-gray-8 font-medium flex items-center justify-center"
+      >
+        {(progress * 100).toFixed(2)}%
+      </div>
+    </div>
+  {/if}
+
   {#if progress > 1 && explode}
     <img
       out:fade
@@ -56,16 +105,5 @@
       alt="Explosion"
       class="absolute top-0 right-0 transform translate-x-1/2 w-30 aspect-[150/97] object-cover rotate-180"
     />
-  {/if}
-  {#if meme.soft_cap && meme.hard_cap}
-    <div
-      class="absolute top-1/2 flex items-center flex-col"
-      style={`left: calc(${Number((BigInt(meme.soft_cap ?? 0) * BigInt(100_00)) / BigInt(meme.hard_cap ?? 0)) / 100}% - 12px)`}
-    >
-      <div
-        class="i-mdi:arrow-up-bold size-6 text-lime-4 animate-bounce animate-duration-300"
-      ></div>
-      <div class="text-xs text-lime-4">Soft Cap</div>
-    </div>
   {/if}
 </div>

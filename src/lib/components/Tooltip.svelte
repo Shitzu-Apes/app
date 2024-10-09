@@ -3,6 +3,8 @@
   import { fade } from "svelte/transition";
 
   export let info: string | undefined = undefined;
+  let className: string = "";
+  export { className as class };
 
   const {
     elements: { trigger, content, arrow },
@@ -18,7 +20,7 @@
   });
 </script>
 
-<button type="button" use:melt={$trigger} aria-label="Add">
+<button class={className} type="button" use:melt={$trigger} aria-label="Add">
   <slot />
 </button>
 
