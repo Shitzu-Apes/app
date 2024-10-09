@@ -14,7 +14,10 @@ import type {
   MemeInfoWithReference,
   Meme,
 } from "$lib/models/memecooking";
-import { awaitRpcBlockHeight } from "$lib/store/indexer";
+import {
+  awaitIndexerBlockHeight,
+  awaitRpcBlockHeight,
+} from "$lib/store/indexer";
 import { FixedNumber } from "$lib/util";
 import { getTokenId } from "$lib/util/getTokenId";
 import {
@@ -664,7 +667,13 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
   return res;
 }
 
-export function updateMcAccount(accountId: string, blockHeight?: number) {
+export async function updateMcAccount(accountId: string, blockHeight?: number) {
+  if (blockHeight != null) {
+    await Promise.all([
+      awaitIndexerBlockHeight(blockHeight),
+      awaitRpcBlockHeight(blockHeight),
+    ]);
+  }
   const res = fetchMcAccount(accountId, blockHeight);
   _mcAccount$.set(res);
   return res;

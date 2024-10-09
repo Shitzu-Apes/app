@@ -4,6 +4,7 @@
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
   import { MemeCooking, updateMcAccount } from "$lib/near/memecooking";
+  import { fetchBlockHeight } from "$lib/near/rpc";
   import { FixedNumber } from "$lib/util";
   import { getTokenId } from "$lib/util/getTokenId";
 
@@ -33,10 +34,11 @@
           token_ids: [getTokenId(meme.symbol, meme.meme_id)],
         },
         {
-          onSuccess: () => {
+          onSuccess: async (outcome) => {
+            if (!outcome || !$accountId$) return;
             claimAmount = new FixedNumber(0n, meme.decimals);
-            if (!$accountId$) return;
-            updateMcAccount($accountId$);
+            const blockHeight = (await fetchBlockHeight(outcome)) + 3;
+            updateMcAccount($accountId$, blockHeight);
           },
         },
       );

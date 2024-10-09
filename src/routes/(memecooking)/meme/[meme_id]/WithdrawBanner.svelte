@@ -8,10 +8,6 @@
     updateMcAccount,
   } from "$lib/near/memecooking";
   import { fetchBlockHeight } from "$lib/near/rpc";
-  import {
-    awaitIndexerBlockHeight,
-    awaitRpcBlockHeight,
-  } from "$lib/store/indexer";
   import { FixedNumber } from "$lib/util";
 
   export let meme: Meme;
@@ -42,12 +38,8 @@
         {
           onSuccess: async (outcome) => {
             if (!outcome || !$accountId$) return;
-            const blockHeight = (await fetchBlockHeight(outcome)) + 3;
-            await Promise.all([
-              awaitIndexerBlockHeight(blockHeight),
-              awaitRpcBlockHeight(blockHeight),
-            ]);
             depositAmount = new FixedNumber(0n, meme.decimals);
+            const blockHeight = (await fetchBlockHeight(outcome)) + 3;
             updateMcAccount($accountId$, blockHeight);
           },
         },
