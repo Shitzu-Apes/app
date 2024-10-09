@@ -118,14 +118,25 @@
   {#await $mcAccount$}
     <div transition:slide class="i-svg-spinners:pulse-3 size-20 mt-[80px]" />
   {:then info}
-    <Revenue
-      revenue={info?.revenue}
-      shitstarClaim={info?.shitstarClaim}
-      referralFees={info?.referralFees}
-      withdrawFees={info?.withdrawFees}
-      {update}
-      {isOwnAccount}
-    />
+    {#if isOwnAccount}
+      <Revenue
+        revenue={info?.revenue}
+        shitstarClaim={info?.shitstarClaim}
+        referralFees={info?.referralFees}
+        withdrawFees={info?.withdrawFees}
+        {update}
+        {isOwnAccount}
+      />
+    {:else}
+      <Revenue
+        revenue={account?.revenue}
+        shitstarClaim={account?.shitstarClaim}
+        referralFees={account?.referralFees}
+        withdrawFees={account?.withdrawFees}
+        {update}
+        {isOwnAccount}
+      />
+    {/if}
 
     <div use:melt={$root}>
       <div use:melt={$list} class="flex gap-1">
