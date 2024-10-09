@@ -50,11 +50,11 @@
     'm'
       ? 'h-[90svh]'
       : 'h-[95svh]'} z-40 transform {$open
-      ? 'translate-y-0'
-      : 'translate-y-full'} duration-500 rounded-t-xl border-3 border-b-0 {variant ===
+      ? 'translate-y-0 lg:translate-y-[-50%] '
+      : 'translate-y-full opacity-0'} transition duration-250 rounded-t-xl border-3 border-b-0 {variant ===
     'lime'
       ? 'border-lime'
-      : 'border-shitzu-4'}"
+      : 'border-shitzu-4'} lg:max-h-[70vh] lg:top-1/2 lg:rounded-xl lg:border-3"
   >
     <div class="h-full">
       <button
