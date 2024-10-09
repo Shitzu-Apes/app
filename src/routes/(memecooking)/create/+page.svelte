@@ -457,31 +457,32 @@
 
     <SoftcapDefault bind:softCap bind:hardCap bind:hardCapEnabled />
 
+    <TextInputField
+      label="twitter link"
+      bind:value={twitterLink}
+      placeholder="(optional)"
+      schema={twitterLinkSchema}
+      validateOnInput={true}
+    />
+    <TextInputField
+      label="telegram link"
+      bind:value={telegramLink}
+      placeholder="(optional)"
+      schema={telegramLinkSchema}
+      validateOnInput={true}
+    />
+    <TextInputField
+      label="website"
+      bind:value={website}
+      placeholder="(optional)"
+      schema={websiteSchema}
+      validateOnInput={true}
+    />
+
     <details class="space-y-4">
       <summary class="text-sm text-shitzu-4 cursor-pointer">
         Show more options
       </summary>
-      <TextInputField
-        label="twitter link"
-        bind:value={twitterLink}
-        placeholder="(optional)"
-        schema={twitterLinkSchema}
-        validateOnInput={true}
-      />
-      <TextInputField
-        label="telegram link"
-        bind:value={telegramLink}
-        placeholder="(optional)"
-        schema={telegramLinkSchema}
-        validateOnInput={true}
-      />
-      <TextInputField
-        label="website"
-        bind:value={website}
-        placeholder="(optional)"
-        schema={websiteSchema}
-        validateOnInput={true}
-      />
       <div class="space-y-2">
         <InputField
           label="decimals"
