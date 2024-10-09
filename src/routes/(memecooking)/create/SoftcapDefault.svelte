@@ -19,7 +19,7 @@
 
   export let softCap: string = presetOptions.small.softCap;
   export let hardCap: string | null = presetOptions.small.hardCap;
-  export let hardCapEnabled: boolean = false;
+  export let hardCapEnabled: boolean = true;
 
   let selectedOption: "small" | "large" | "customize" = "small";
 
