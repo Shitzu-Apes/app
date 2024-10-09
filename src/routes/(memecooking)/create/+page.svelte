@@ -8,6 +8,7 @@
   import DropZone from "svelte-file-dropzone";
   import { z } from "zod";
 
+  import FgBanner from "./FGBanner.svelte";
   import SoftcapDefault, { CAP_DEFAULT_OPTIONS } from "./SoftcapDefault.svelte";
   import TextAreaField from "./TextAreaField.svelte";
   import TextInputField from "./TextInputField.svelte";
@@ -376,6 +377,8 @@
     <div class="flex justify-center items-center">
       <a href="/board" class="text-2xl font-500 hover:font-bold">[go back]</a>
     </div>
+
+    <FgBanner />
 
     <div class="space-y-2">
       <label
