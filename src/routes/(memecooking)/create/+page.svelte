@@ -8,7 +8,7 @@
   import DropZone from "svelte-file-dropzone";
   import { z } from "zod";
 
-  import SoftcapDefault from "./SoftcapDefault.svelte";
+  import SoftcapDefault, { CAP_DEFAULT_OPTIONS } from "./SoftcapDefault.svelte";
   import TextAreaField from "./TextAreaField.svelte";
   import TextInputField from "./TextInputField.svelte";
 
@@ -86,9 +86,11 @@
   $: totalSupply$ = totalSupply?.u128$;
 
   // Add variables for softCap and hardCap
-  let softCap: z.infer<typeof softCapSchema>;
-  let hardCap: z.infer<typeof hardCapSchema> = null;
-  let hardCapEnabled: boolean = false;
+  let softCap: z.infer<typeof softCapSchema> =
+    CAP_DEFAULT_OPTIONS.small.softCap;
+  let hardCap: z.infer<typeof hardCapSchema> =
+    CAP_DEFAULT_OPTIONS.small.hardCap;
+  let hardCapEnabled: boolean = true;
   let ctoFrom: number | null = null;
 
   // Add a new variable for duration

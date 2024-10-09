@@ -1,12 +1,5 @@
-<script lang="ts">
-  import SoftHardCapSlider from "./SoftHardCapSlider.svelte";
-
-  import Near from "$lib/assets/Near.svelte";
-
-  const NEAR_DECIMALS = 24;
-  const NEAR_MULTIPLIER = BigInt(10) ** BigInt(NEAR_DECIMALS);
-
-  const presetOptions = {
+<script lang="ts" context="module">
+  export const CAP_DEFAULT_OPTIONS = {
     small: {
       softCap: "100000000000000000000000000", // 100 NEAR in YoctoNEAR
       hardCap: "500000000000000000000000000", // 500 NEAR in YoctoNEAR
@@ -16,9 +9,18 @@
       hardCap: "1000000000000000000000000000", // 1000 NEAR in YoctoNEAR
     },
   };
+</script>
 
-  export let softCap: string = presetOptions.small.softCap;
-  export let hardCap: string | null = presetOptions.small.hardCap;
+<script lang="ts">
+  import SoftHardCapSlider from "./SoftHardCapSlider.svelte";
+
+  import Near from "$lib/assets/Near.svelte";
+
+  const NEAR_DECIMALS = 24;
+  const NEAR_MULTIPLIER = BigInt(10) ** BigInt(NEAR_DECIMALS);
+
+  export let softCap: string = CAP_DEFAULT_OPTIONS.small.softCap;
+  export let hardCap: string | null = CAP_DEFAULT_OPTIONS.small.hardCap;
   export let hardCapEnabled: boolean = true;
 
   let selectedOption: "small" | "large" | "customize" = "small";
@@ -26,8 +28,8 @@
   function selectOption(option: "small" | "large" | "customize") {
     selectedOption = option;
     if (option === "small" || option === "large") {
-      softCap = presetOptions[option].softCap;
-      hardCap = presetOptions[option].hardCap;
+      softCap = CAP_DEFAULT_OPTIONS[option].softCap;
+      hardCap = CAP_DEFAULT_OPTIONS[option].hardCap;
       hardCapEnabled = true;
     } else if (option === "customize") {
       // Allow customization through the slider
