@@ -1,28 +1,20 @@
-<script lang="ts">
-  import FRONTIER_GROWTH_LOGO from "$lib/assets/logo/frontier-growth.png";
-</script>
-
 <div
-  class="flex items-center justify-between bg-gray-700 p-3 rounded-lg text-white border border-white"
+  class="flex items-center justify-between bg-gray-700 p-3 rounded-lg text-white border border-white gap-2"
 >
-  <div class="flex items-center">
-    <img
-      src={FRONTIER_GROWTH_LOGO}
-      alt="Frontier Growth"
-      class="size-10 mr-3"
-    />
-    <div>
-      <h2 class="text-lg text-shitzu-4">Memecoin Accelerator</h2>
-      <p class="text-xs">
-        You may be supported you may not. Only one way to find out.
-      </p>
-    </div>
+  <div class="flex flex-col w-full gap-1">
+    <h2 class="text-lg text-shitzu-4 flex justify-between items-center w-full">
+      Memecoin Accelerator Program
+
+      <a
+        href="https://airtable.com/applXqz3gPFlADfUS/pagWRMVrtnNiHZE2O/form"
+        target="_blank"
+        class="text-white px-2 py-0.5 rounded-md hover:font-bold text-sm flex-shrink-0"
+      >
+        [Apply Now]
+      </a>
+    </h2>
+    <p class="text-[13px]">
+      You may be supported you may not. Only one way to find out.
+    </p>
   </div>
-  <a
-    href="https://airtable.com/applXqz3gPFlADfUS/pagWRMVrtnNiHZE2O/form"
-    target="_blank"
-    class="bg-shitzu-4 text-white px-3 py-1 rounded-md hover:bg-shitzu-3 text-sm flex-shrink-0"
-  >
-    Apply Now
-  </a>
 </div>
