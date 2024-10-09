@@ -8,6 +8,7 @@
   import { requiredStake } from "$lib/near/memecooking";
 
   export let coins: Meme[] | undefined;
+  export let isOwnAccount: boolean = false;
   export let update: (
     outcome: FinalExecutionOutcome | FinalExecutionOutcome[] | undefined,
   ) => void;
@@ -29,6 +30,7 @@
             memebid={claim}
             {requiredStake}
             showCook={false}
+            {isOwnAccount}
             {update}
           />
         {/each}

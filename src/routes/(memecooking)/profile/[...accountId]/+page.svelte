@@ -175,7 +175,7 @@
         </section>
       {/each}
     {:else if account != null}
-      <ClaimList claims={account.claims} {isOwnAccount} {update} />
+      <CoinCreated coins={account.created} {isOwnAccount} {update} />
     {/if}
   {/await}
 </section>
