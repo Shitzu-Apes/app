@@ -16,7 +16,7 @@
   import { goto } from "$app/navigation";
   import { showWalletSelector } from "$lib/auth";
   import { TokenInput } from "$lib/components";
-  import DurationSlider from "$lib/components/DurationSlider.svelte";
+  import DurationDefault from "$lib/components/DurationDefault.svelte";
   import { addToast } from "$lib/components/Toast.svelte";
   import Tooltip from "$lib/components/Tooltip.svelte";
   import CreateCoinSheet from "$lib/components/memecooking/BottomSheet/CreateCoinSheet.svelte";
@@ -95,7 +95,7 @@
   let ctoFrom: number | null = null;
 
   // Add a new variable for duration
-  let durationMs = 1000 * 60 * 60 * 24; // Default duration is 24 hours
+  let durationMs = 1000 * 60 * 60; // Default duration is 24 hours
 
   $: imageReady = imageCID || imageFile;
 
@@ -453,7 +453,7 @@
       validateOnInput={true}
     />
 
-    <DurationSlider bind:value={durationMs} />
+    <DurationDefault bind:value={durationMs} />
 
     <SoftcapDefault bind:softCap bind:hardCap bind:hardCapEnabled />
 

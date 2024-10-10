@@ -66,10 +66,7 @@
   }
 </script>
 
-<div class="space-y-4 flex flex-col items-center">
-  <div class="self-start block text-sm text-shitzu-4 font-600">
-    Soft Cap &amp; Hard Cap
-  </div>
+<div class="space-y-4 flex flex-col items-center w-full">
   <!-- Soft cap is the min near to be deposited at the end of duration to launch the ref -->
   <!-- Hard cap is the number that is once reached, it will immediately launch on ref -->
   <span use:melt={$root} class="relative flex h-[20px] w-full items-center">
