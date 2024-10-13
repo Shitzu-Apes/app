@@ -14,9 +14,11 @@
   import SocialLink from "$lib/components/memecooking/Board/SocialLink.svelte";
   import TokenChart from "$lib/components/memecooking/Board/TokenChart.svelte";
   import TokenHolder from "$lib/components/memecooking/Board/TokenHolder.svelte";
+  import RefWhitelistSheet from "$lib/components/memecooking/BottomSheet/RefWhitelistSheet.svelte";
   import Chef from "$lib/components/memecooking/Chef.svelte";
   import Countdown from "$lib/components/memecooking/Countdown.svelte";
   import ProgressBar from "$lib/components/memecooking/ProgressBar.svelte";
+  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import { wallet } from "$lib/near";
   import { MCTradeSubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
@@ -148,6 +150,15 @@
         to={$meme$.end_timestamp_ms}
       />
     {/if}
+    {#if $meme$.owner === $accountId$ && $meme$.pool_id}
+      <button
+        on:click={() => openBottomSheet(RefWhitelistSheet, { meme: $meme$ })}
+        class="w-full text-white hover:font-bold"
+      >
+        [Request Ref Finance Whitelist]
+      </button>
+    {/if}
+
     <WithdrawBanner meme={$meme$} />
     <ClaimBanner meme={$meme$} />
     <div class="w-full min-h-74 border-2 border-shitzu-4 rounded-xl p-2">

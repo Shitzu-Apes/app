@@ -17,7 +17,7 @@
     />
   </div>
   <div
-    class="block w-full h-[calc(100%-3.75rem)] overflow-y-auto overscroll-contain noscrollbar"
+    class="block w-full h-[calc(100%-3.75rem)] overflow-y-auto overscroll-contain noscrollbar pb-10"
   >
     <slot />
   </div>
