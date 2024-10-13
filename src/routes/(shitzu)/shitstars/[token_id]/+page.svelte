@@ -7,6 +7,7 @@
   import rarity from "$lib/assets/rarity.json";
   import { Squircle } from "$lib/components";
   import { Rewarder, Nft } from "$lib/near";
+  import type { ShitstarTrait } from "$lib/shitstars/type";
   import { FixedNumber } from "$lib/util";
 
   const RARITY = rarity as Record<string, Record<string, number>>;
@@ -15,65 +16,6 @@
   const {
     props: { token_id },
   } = data;
-
-  type Background = "Black Dragon" | "Cosmos" | "Garden" | "Doghouse" | "Pool";
-  type Base = "Base";
-  type Clothes =
-    | "Astronaut"
-    | "Kimono"
-    | "Naked"
-    | "Puffer Jacket"
-    | "Aurora Swag"
-    | "Dogtag"
-    | "Jumper"
-    | "Floral"
-    | "Resto Worker"
-    | "Tux"
-    | "NEAR Swag"
-    | "Tank Top";
-  type Eyes =
-    | "NVG"
-    | "Dizzy"
-    | "Visor"
-    | "Disguise"
-    | "Eyepatch"
-    | "Blindfold"
-    | "Heart Eyes"
-    | "3D Glasses"
-    | "Squeal"
-    | "Crypto Laser Eyes"
-    | "Monocle";
-  type Headwears =
-    | "Crown"
-    | "Astronaut Helmet"
-    | "None"
-    | "Cowboy Hat"
-    | "Hopping Zombie Hat"
-    | "Clown"
-    | "Noogler Hat"
-    | "Funky Earring"
-    | "Art hat"
-    | "Viking"
-    | "Afro";
-  type Mouths =
-    | "None"
-    | "Dead Rat"
-    | "Plushy"
-    | "Dead Squirrel"
-    | "Bone"
-    | "Dogtoy"
-    | "Party Blower"
-    | "Growl"
-    | "Pipe"
-    | "Tongue out";
-
-  type TraitType =
-    | { trait_type: "Backgrounds"; value: Background }
-    | { trait_type: "Base"; value: Base }
-    | { trait_type: "Clothes"; value: Clothes }
-    | { trait_type: "Eyes"; value: Eyes }
-    | { trait_type: "Headwears"; value: Headwears }
-    | { trait_type: "Mouths"; value: Mouths };
 
   let token = Promise.all([
     Nft.nftToken(token_id),
@@ -88,7 +30,7 @@
       dna: string;
       edition: number;
       date: number;
-      attributes: TraitType[];
+      attributes: ShitstarTrait[];
     }>,
   ]).then(([nftToken, staker, score, trait]) => {
     console.log({ nftToken, trait, staker, score });
