@@ -41,7 +41,10 @@
 </script>
 
 {#if $open && mounted}
-  <button class="fixed inset-0 bg-black/80 z-30" on:click={closeBottomSheet} />
+  <button
+    class="fixed inset-0 bg-black/80 z-30 cursor-auto"
+    on:click={closeBottomSheet}
+  />
 {/if}
 
 {#if mounted}
@@ -51,7 +54,7 @@
       ? 'h-[90svh]'
       : 'h-[95svh]'} z-40 transform {$open
       ? 'translate-y-0 lg:translate-y-[-50%] '
-      : 'translate-y-full opacity-0'} transition duration-250 rounded-t-xl border-3 border-b-0 {variant ===
+      : 'translate-y-full opacity-0'} transition ease-out duration-200 rounded-t-xl border-3 border-b-0 {variant ===
     'lime'
       ? 'border-lime'
       : 'border-shitzu-4'} lg:max-h-[70vh] lg:top-1/2 lg:rounded-xl lg:border-3"
