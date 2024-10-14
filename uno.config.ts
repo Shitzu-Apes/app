@@ -6,6 +6,7 @@ import {
   presetIcons,
 } from "unocss";
 import { presetFluid } from "unocss-preset-fluid";
+import { presetScrollbar } from "unocss-preset-scrollbar";
 
 export default defineConfig({
   presets: [
@@ -17,6 +18,7 @@ export default defineConfig({
       minWidth: 200,
       maxWidth: 448,
     }),
+    presetScrollbar(),
   ],
   theme: {
     colors: {

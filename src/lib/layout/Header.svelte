@@ -8,6 +8,7 @@
     "/": "i-mdi-house",
     "/stake": "i-mdi-lightning-bolt",
     "/shitstars": "i-mdi-stars",
+    "/shitchat": "i-mdi:message-star",
   };
 
   $: pathname = $page.url.pathname;

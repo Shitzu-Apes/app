@@ -3476,6 +3476,11 @@
     "@unocss/core" "0.61.3"
     unconfig "^0.3.13"
 
+"@unocss/core@0.56.5", "@unocss/core@^0.56.5":
+  version "0.56.5"
+  resolved "https://registry.yarnpkg.com/@unocss/core/-/core-0.56.5.tgz#5c3caf24dd0d13e359aa71112d0487b685cb165a"
+  integrity sha512-fx5VhOjSHn0HdV2D34pEwFMAHJcJQRTCp1xEE4GzxY1irXzaa+m2aYf5PZjmDxehiOC16IH7TO9FOWANXk1E0w==
+
 "@unocss/core@0.60.4":
   version "0.60.4"
   resolved "https://registry.npmjs.org/@unocss/core/-/core-0.60.4.tgz"
@@ -3485,6 +3490,13 @@
   version "0.61.3"
   resolved "https://registry.npmjs.org/@unocss/core/-/core-0.61.3.tgz"
   integrity sha512-9vixY1i5E0DQFtHJz/pHyFlFsiXJgL1bKHuocbl+GUi09lY/gE9TRm2qr2JOJx/BF720tMv9VxYI8Zq3EyPOXA==
+
+"@unocss/extractor-arbitrary-variants@0.56.5":
+  version "0.56.5"
+  resolved "https://registry.yarnpkg.com/@unocss/extractor-arbitrary-variants/-/extractor-arbitrary-variants-0.56.5.tgz#fa88a30bc10e68f2899f375aa01e03f11ea18d01"
+  integrity sha512-p2pyzz/ONvc5CGcaB9OZvWE8qkRSgyuhaQqFQLdBFeUhveHC0CGP0iSnXwBgAFHWM7DJo4/JpWeZ+mBt0ogVLA==
+  dependencies:
+    "@unocss/core" "0.56.5"
 
 "@unocss/extractor-arbitrary-variants@0.61.3":
   version "0.61.3"
@@ -3555,6 +3567,15 @@
     "@unocss/extractor-arbitrary-variants" "0.61.3"
     "@unocss/rule-utils" "0.61.3"
 
+"@unocss/preset-mini@^0.56.0":
+  version "0.56.5"
+  resolved "https://registry.yarnpkg.com/@unocss/preset-mini/-/preset-mini-0.56.5.tgz#109fe9183b12313b7f9923577791391cf55989f3"
+  integrity sha512-/KhlThhs1ilauM7MwRSpahLbIPZ5VGeGvaUsU8+ZlNT3sis4yoVYkPtR14tL2IT6jhOU05N/uu3aBj+1bP8GjQ==
+  dependencies:
+    "@unocss/core" "0.56.5"
+    "@unocss/extractor-arbitrary-variants" "0.56.5"
+    "@unocss/rule-utils" "0.56.5"
+
 "@unocss/preset-tagify@0.61.3":
   version "0.61.3"
   resolved "https://registry.npmjs.org/@unocss/preset-tagify/-/preset-tagify-0.61.3.tgz"
@@ -3606,6 +3627,13 @@
   version "0.60.4"
   resolved "https://registry.npmjs.org/@unocss/reset/-/reset-0.60.4.tgz"
   integrity sha512-MEngG4byIHnfb0osvxqU2gBdBkXPPE4z+G9HeEt3JUadWAp2gggm8ojC1/1PoJF5M31loxGEVVrB0FLSKACw3g==
+
+"@unocss/rule-utils@0.56.5":
+  version "0.56.5"
+  resolved "https://registry.yarnpkg.com/@unocss/rule-utils/-/rule-utils-0.56.5.tgz#ca924845081aa231d007533b65510c9e9fc0c034"
+  integrity sha512-CXIGHCIC9B8WUl9KbbFMSZHcsIgfmI/+X0bjBv6xrgBVC1EQ2Acq4PYnJIbaRGBRAhl9wYjNL7Zq2UWOdowHAw==
+  dependencies:
+    "@unocss/core" "^0.56.5"
 
 "@unocss/rule-utils@0.61.3":
   version "0.61.3"
@@ -10851,6 +10879,13 @@ unocss-preset-fluid@^1.0.2:
   integrity sha512-ggHinMtgGHxGQqEsyZBan/nrypJ36gzR5wKxil6Xg4Qu42oJC+GW+SXqD0psybg7q1U9r4euE/f4Yz+fbY+idQ==
   dependencies:
     vue "^3.3.8"
+
+unocss-preset-scrollbar@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/unocss-preset-scrollbar/-/unocss-preset-scrollbar-0.3.1.tgz#a7faff0522e046c037300dcf92bec3000519fcb8"
+  integrity sha512-LhvcQA1cfwq06sqAZY++1crrLsOf/IfOPdyCkMHVyywI9WCvMhxCJlCcrySlQI8/Y2VUjOpLBDWB0w3DXS5qRA==
+  dependencies:
+    "@unocss/preset-mini" "^0.56.0"
 
 unocss@^0.61.0:
   version "0.61.3"
