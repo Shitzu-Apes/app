@@ -18,18 +18,20 @@
     open.set(true);
     component.set({ component: newComponent, props });
     size$.set(size ?? "m");
+    document.body.style.overflow = "hidden";
   }
 
   export function closeBottomSheet() {
     open.set(false);
     component.set(null);
+    document.body.style.overflow = "";
   }
 </script>
 
 <script lang="ts">
   import { SvelteComponent } from "svelte";
   import type { colorVariant } from "$lib/models/variant";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
 
   export let variant: colorVariant = "lime";
 
@@ -37,6 +39,10 @@
 
   onMount(() => {
     mounted = true;
+  });
+
+  onDestroy(() => {
+    document.body.style.overflow = "";
   });
 </script>
 
