@@ -237,8 +237,7 @@
         return MemeCooking.claim(
           wallet,
           {
-            meme_ids: [meme.meme_id],
-            token_ids: [],
+            memes: [meme],
           },
           {
             onSuccess,

@@ -32,3 +32,27 @@ export async function fetchBlockHeight(
   };
   return json.result.header.height;
 }
+
+export async function checkIfAccountExists(token_id: string) {
+  const res = await fetch(import.meta.env.VITE_NODE_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: "dontcare",
+      method: "query",
+      params: {
+        request_type: "view_account",
+        finality: "optimistic",
+        account_id: token_id,
+      },
+    }),
+  });
+  const json = (await res.json()) as {
+    result?: unknown;
+    error?: unknown;
+  };
+  return json.error == null;
+}

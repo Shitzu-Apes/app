@@ -6,7 +6,6 @@
   import { MemeCooking, updateMcAccount } from "$lib/near/memecooking";
   import { fetchBlockHeight } from "$lib/near/rpc";
   import { FixedNumber } from "$lib/util";
-  import { getTokenId } from "$lib/util/getTokenId";
 
   export let meme: Meme;
 
@@ -30,8 +29,7 @@
       await MemeCooking.claim(
         wallet,
         {
-          meme_ids: [meme.meme_id],
-          token_ids: [getTokenId(meme.symbol, meme.meme_id)],
+          memes: [meme],
         },
         {
           onSuccess: async (outcome) => {

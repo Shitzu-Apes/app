@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createTabs, melt } from "@melt-ui/svelte";
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
-  import { onDestroy } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { derived } from "svelte/store";
   import { slide } from "svelte/transition";
   import { match } from "ts-pattern";
@@ -40,6 +40,11 @@
   );
   onDestroy(() => {
     unsubscribe();
+  });
+
+  onMount(() => {
+    if (!$accountId$) return;
+    fetchMcAccount($accountId$);
   });
 
   $: tabs = match(isOwnAccount)
@@ -86,6 +91,7 @@
     // adding +5 here becauce of receipts being delayed
     const ownAccountId = await $accountId$;
     if (!ownAccountId) return;
+    $mcAccount$ = new Promise(() => {});
     updateMcAccount(ownAccountId, blockHeight + 5);
   }
 </script>
@@ -179,9 +185,9 @@
           {#if tab.component === DepositList}
             <DepositList deposits={info.deposits} {update} />
           {:else if tab.component === ClaimList}
-            <ClaimList claims={info.claims} {update} />
+            <ClaimList claims={info.claims} {isOwnAccount} {update} />
           {:else if tab.component === CoinCreated}
-            <CoinCreated coins={info.created} {update} />
+            <CoinCreated coins={info.created} {isOwnAccount} {update} />
           {/if}
         </section>
       {/each}

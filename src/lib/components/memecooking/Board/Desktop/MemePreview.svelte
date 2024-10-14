@@ -12,7 +12,6 @@
   import { wallet } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
   import { FixedNumber } from "$lib/util";
-  import { getTokenId } from "$lib/util/getTokenId";
   import { projectedMCap } from "$lib/util/projectedMCap";
 
   export let memebid: Meme;
@@ -27,6 +26,9 @@
       ) => void)
     | undefined = undefined;
 
+  console.log("isOwn", isOwnAccount);
+  console.log("claimAmount", claimAmount?.format());
+
   $: reachedMcap = new FixedNumber(memebid.total_deposit, 24) >= requiredStake;
 
   $: mcap = projectedMCap(memebid);
@@ -39,8 +41,7 @@
         await MemeCooking.claim(
           wallet,
           {
-            meme_ids: [memebid.meme_id],
-            token_ids: [],
+            memes: [memebid],
           },
           {
             onSuccess: update,
@@ -69,8 +70,7 @@
       await MemeCooking.claim(
         wallet,
         {
-          meme_ids: [memebid.meme_id],
-          token_ids: [getTokenId(memebid.symbol, memebid.meme_id)],
+          memes: [memebid],
         },
         {
           onSuccess: update,

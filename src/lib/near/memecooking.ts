@@ -3,6 +3,7 @@ import type { Action, FinalExecutionOutcome } from "@near-wallet-selector/core";
 import { derived, get, writable, type Writable } from "svelte/store";
 
 import { Ft } from "./fungibleToken";
+import { checkIfAccountExists } from "./rpc";
 import { view } from "./utils";
 import { wallet, Wallet, type TransactionCallbacks } from "./wallet";
 
@@ -304,14 +305,17 @@ export abstract class MemeCooking {
 
   public static async claim(
     wallet: Wallet,
-    args: { meme_ids: number[]; token_ids: string[] },
+    args: { memes: Meme[] },
     callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
   ) {
     const transactions: HereCall[] = [];
 
     const MIN_STORAGE_DEPOSIT = 1250000000000000000000n;
 
-    for (const token_id of args.token_ids) {
+    for (const meme of args.memes) {
+      const token_id = getTokenId(meme.symbol, meme.meme_id);
+      const exists = await checkIfAccountExists(token_id);
+      if (!exists) continue;
       transactions.push({
         receiverId: token_id,
         actions: [
@@ -336,7 +340,7 @@ export abstract class MemeCooking {
           params: {
             methodName: "claim",
             args: {
-              meme_ids: args.meme_ids,
+              meme_ids: args.memes.map(({ meme_id }) => meme_id),
             },
             gas: 50_000_000_000_000n.toString(),
             deposit: "1",
