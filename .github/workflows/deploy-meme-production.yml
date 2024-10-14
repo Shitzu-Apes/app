@@ -1,4 +1,4 @@
-name: Deploy Meme Cooking Staging
+name: Deploy Meme Cooking Production
 on:
   push:
     branches: [main]
