@@ -6,7 +6,7 @@
 <div>
   {#each qnas as qna (qna.question)}
     <details
-      class="bg-neutral-800 border border-lime rounded-lg cursor-pointer [&_#chevron]:open:-rotate-180 list-none not-prose py-2 px-2 mb-3"
+      class="bg-black border border-lime rounded-lg cursor-pointer [&_#chevron]:open:-rotate-180 list-none not-prose py-2 px-2 mb-3"
     >
       <summary
         class="w-full px-1 list-none marker:hidden transition duration-150 transition-ease-out"

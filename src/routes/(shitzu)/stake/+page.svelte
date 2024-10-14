@@ -102,10 +102,12 @@
     <div
       class="pb-12 border-2 border-lime rounded-t-xl px-3 pt-3 bg-gradient-to-r from-lime to-emerald text-black"
     >
-      <div class="flex justify-between items-center pb-6 border-b border-black">
-        <div class="flex flex-col">
+      <div
+        class="flex justify-between items-center pb-6 border-b border-black gap-5"
+      >
+        <div class="flex flex-col flex-shrink-0">
           <div class="flex items-center mb-3">
-            <div>
+            <div class="whitespace-nowrap">
               {#if $nearBalance != null && $nearBalance.toNumber() < 0.5}
                 Balance too low
               {:else}
@@ -128,7 +130,9 @@
           {/if}
         </div>
 
-        <div class="border-2 px-3 py-1 border border-lime rounded-full">
+        <div
+          class="border-2 px-3 py-1 border border-lime rounded-full flex-shrink-1 truncate"
+        >
           <span>{$accountId$}</span>
         </div>
       </div>
