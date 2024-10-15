@@ -34,7 +34,7 @@
   function fetchHolders(): Promise<[string, FixedNumber][] | null> {
     if (meme.pool_id) {
       const token_id = meme.token_id;
-      return fetch(`https://api.fastnear.com/v1/ft/${token_id}/top`)
+      return fetch(`${import.meta.env.VITE_FASTNEAR_API}/v1/ft/${token_id}/top`)
         .then((res) => res.json())
         .then(
           (data: {
