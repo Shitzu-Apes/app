@@ -16,12 +16,13 @@
 
   $: softcapProgress = totalDeposit.div(softCap).toNumber();
 
-  $: hardCapProgress = hardCap
-    ? Number(
-        ((totalDeposit.toBigInt() - softCap.toBigInt()) * 10000n) /
-          (hardCap.toBigInt() - softCap.toBigInt()),
-      ) / 10000
-    : 0;
+  $: hardCapProgress =
+    hardCap && hardCap.valueOf() !== softCap.valueOf()
+      ? Number(
+          ((totalDeposit.toBigInt() - softCap.toBigInt()) * 10000n) /
+            (hardCap.toBigInt() - softCap.toBigInt()),
+        ) / 10000
+      : 0;
 
   $: softHardCapRatio = hardCap ? softCap.div(hardCap).toNumber() : 0;
 

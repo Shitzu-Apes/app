@@ -21,10 +21,6 @@ function updateMemebids() {
     .then((res) => {
       if (!res.data) return;
       console.log("[+page] memebids", res.data);
-      const bowen = res.data.find(({ meme_id }) => meme_id === 227);
-      if (bowen != null) {
-        bowen.end_timestamp_ms = Date.now() - 1;
-      }
       _memebids$.set(Promise.resolve(res.data));
       return res.data;
     })
