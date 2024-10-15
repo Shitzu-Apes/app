@@ -26,9 +26,6 @@
       ) => void)
     | undefined = undefined;
 
-  console.log("isOwn", isOwnAccount);
-  console.log("claimAmount", claimAmount?.format());
-
   $: reachedMcap = new FixedNumber(memebid.total_deposit, 24) >= requiredStake;
 
   $: mcap = projectedMCap(memebid);
@@ -42,6 +39,8 @@
           wallet,
           {
             memes: [memebid],
+            unwrapNear: true,
+            unwrapAmount: depositAmount,
           },
           {
             onSuccess: update,
@@ -53,6 +52,7 @@
           {
             memeId: memebid.meme_id,
             amount: depositAmount,
+            unwrapNear: true,
           },
           {
             onSuccess: update,

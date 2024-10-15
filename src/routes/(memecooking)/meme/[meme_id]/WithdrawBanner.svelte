@@ -33,6 +33,8 @@
         wallet,
         {
           memes: [meme],
+          unwrapNear: true,
+          unwrapAmount: depositAmount.toU128(),
         },
         {
           onSuccess: async (outcome) => {

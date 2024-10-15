@@ -278,34 +278,54 @@ export abstract class MemeCooking {
 
   public static async withdraw(
     wallet: Wallet,
-    args: { memeId: number; amount: string },
-    callback: TransactionCallbacks<FinalExecutionOutcome> = {},
+    args: { memeId: number; amount: string; unwrapNear: boolean },
+    callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
   ) {
-    return wallet.signAndSendTransaction(
-      {
-        receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+    const transactions: HereCall[] = [];
+
+    transactions.push({
+      receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+      actions: [
+        {
+          type: "FunctionCall",
+          params: {
+            methodName: "withdraw",
+            args: {
+              meme_id: args.memeId,
+              amount: args.amount,
+            },
+            gas: 100_000_000_000_000n.toString(),
+            deposit: "1",
+          },
+        },
+      ],
+    });
+
+    if (args.unwrapNear) {
+      transactions.push({
+        receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
         actions: [
           {
             type: "FunctionCall",
             params: {
-              methodName: "withdraw",
+              methodName: "near_withdraw",
               args: {
-                meme_id: args.memeId,
                 amount: args.amount,
               },
-              gas: 100_000_000_000_000n.toString(),
+              gas: 20_000_000_000_000n.toString(),
               deposit: "1",
             },
           },
         ],
-      },
-      callback,
-    );
+      });
+    }
+
+    return wallet.signAndSendTransactions({ transactions }, callback);
   }
 
   public static async claim(
     wallet: Wallet,
-    args: { memes: Meme[] },
+    args: { memes: Meme[]; unwrapNear?: boolean; unwrapAmount?: string },
     callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
   ) {
     const transactions: HereCall[] = [];
@@ -348,6 +368,25 @@ export abstract class MemeCooking {
         },
       ],
     });
+
+    if (args.unwrapNear) {
+      transactions.push({
+        receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "near_withdraw",
+              args: {
+                amount: args.unwrapAmount,
+              },
+              gas: 20_000_000_000_000n.toString(),
+              deposit: "1",
+            },
+          },
+        ],
+      });
+    }
 
     return wallet.signAndSendTransactions({ transactions }, callback);
   }

@@ -38,6 +38,8 @@
 
   export let meme: Meme;
 
+  let unwrapNear: boolean = true;
+
   const depositAmount$ = writable<FixedNumber | undefined>();
   $: if ($mcAccount$) {
     $mcAccount$.then((mcAccount) => {
@@ -238,6 +240,8 @@
           wallet,
           {
             memes: [meme],
+            unwrapNear,
+            unwrapAmount: $depositAmount$?.toU128() ?? "",
           },
           {
             onSuccess,
@@ -249,6 +253,7 @@
           {
             amount: $input$.toU128(),
             memeId: meme.meme_id,
+            unwrapNear,
           },
           {
             onSuccess,
@@ -402,6 +407,16 @@
         </li>
       {/each}
     </ul>
+
+    <label
+      class="flex items-center space-x-2 mt-2 {$value === 'deposit'
+        ? 'invisible'
+        : ''}"
+    >
+      <input type="checkbox" bind:checked={unwrapNear} />
+      <span>Unwrap wNEAR</span>
+    </label>
+
     <Button
       onClick={async () => {
         await action();
