@@ -11081,6 +11081,11 @@ viem@^2.1.1:
     webauthn-p256 "0.0.5"
     ws "8.17.1"
 
+virtua@^0.35.1:
+  version "0.35.1"
+  resolved "https://registry.yarnpkg.com/virtua/-/virtua-0.35.1.tgz#6b64be0513d7de329db9907f2a6bb7456bbe14ce"
+  integrity sha512-0pb6rqrysyaWLRtkmM3sYMkK6oom8TzN8vSoPyOSblY89B+z8xyK7VXVzGtVLVhD49E8YMp9uQXaRVftWCHFCw==
+
 vite-plugin-node-polyfills@^0.21.0:
   version "0.21.0"
   resolved "https://registry.npmjs.org/vite-plugin-node-polyfills/-/vite-plugin-node-polyfills-0.21.0.tgz"
