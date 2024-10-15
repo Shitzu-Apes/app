@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
 
   import { Button } from "$lib/components";
   import Chatlist from "$lib/components/ShitChat/Chatlist.svelte";
+  import { wallet } from "$lib/near";
 
   interface Message {
     id: string;
@@ -11,81 +12,56 @@
     created_at_ms: number;
   }
 
+  const { accountId$ } = wallet;
+
   let messages: Message[] = [];
   let newMessage: string = "";
-  let currentUser: string = "alice.near"; // Replace with actual user authentication
   let chatContainer: HTMLElement;
+  let socket: WebSocket;
 
   onMount(async () => {
-    // Fetch initial messages
-    messages = await fetchMessages();
-    scrollToBottom();
+    // Initialize WebSocket connection
+    socket = new WebSocket("ws://localhost:8787/shitchat/chat");
+
+    socket.addEventListener("open", () => {
+      console.log("WebSocket connection established");
+    });
+
+    socket.addEventListener("message", (event) => {
+      const message: Message = JSON.parse(event.data);
+      // Update messages with the new message from the backend
+      messages = [...messages, message];
+      scrollToBottom();
+    });
+
+    socket.addEventListener("close", () => {
+      console.log("WebSocket connection closed");
+    });
+
+    socket.addEventListener("error", (error) => {
+      console.error("WebSocket error:", error);
+    });
   });
 
-  async function fetchMessages() {
-    const mockMessages: Message[] = [];
-    const users = [
-      "alice.near",
-      "bob.near",
-      "charlie.near",
-      "david.near",
-      "eve.near",
-    ];
-    const contents = [
-      "Hello!",
-      "How are you?",
-      "What's up?",
-      "Nice to meet you!",
-      "LOL",
-      "That's interesting!",
-      "I agree",
-      "Disagree",
-      "Tell me more",
-      "Cool!",
-      "Awesome!",
-      "No way!",
-      "Really?",
-      "That's crazy!",
-      "I'm excited!",
-      "Good luck!",
-      "Congratulations!",
-      "Well done!",
-      "That's hilarious!",
-      "I'm confused",
-      "Can you explain?",
-      "Makes sense",
-      "I see",
-      "Got it",
-    ];
-
-    for (let i = 0; i < 1000; i++) {
-      mockMessages.push({
-        id: i.toString(),
-        account_id: users[Math.floor(Math.random() * users.length)],
-        content: contents[Math.floor(Math.random() * contents.length)],
-        created_at_ms: Date.now() - Math.floor(Math.random() * 86400000), // Random time within last 24 hours
-      });
+  onDestroy(() => {
+    // Clean up the WebSocket connection when the component is destroyed
+    if (socket) {
+      socket.close();
     }
-
-    // Sort messages by created_at_ms
-    mockMessages.sort((a, b) => a.created_at_ms - b.created_at_ms);
-
-    return mockMessages;
-  }
+  });
 
   async function sendMessage() {
-    if (newMessage.trim()) {
+    if (newMessage.trim() && $accountId$) {
       const message: Message = {
         id: messages.length.toString(),
-        account_id: currentUser,
+        account_id: $accountId$,
         content: newMessage,
         created_at_ms: Date.now(),
       };
-      messages = [...messages, message];
+      // Send the message to the backend via WebSocket
+      socket.send(JSON.stringify(message));
       newMessage = "";
-      // Send message to server (replace with actual API call)
-      // await sendMessageToServer(message);
-      scrollToBottom();
+      // The message will be added to 'messages' when received back from the server
     }
   }
 
@@ -101,7 +77,9 @@
 <div
   class="flex-1 flex flex-col max-h-[calc(100vh-182px)] not-prose text-white w-full py-4"
 >
-  <Chatlist bind:messages bind:currentUser />
+  {#if $accountId$}
+    <Chatlist bind:messages currentUser={$accountId$} />
+  {/if}
 
   <div class="flex items-center sticky bottom-0 bg-[#222] pt-2">
     <input

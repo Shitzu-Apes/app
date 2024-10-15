@@ -1,6 +1,6 @@
 <script lang="ts">
   import Markdown from "@magidoc/plugin-svelte-marked";
-  import { onMount, onDestroy } from "svelte";
+  import { onMount } from "svelte";
   import { VList } from "virtua/svelte";
 
   export let messages: {
@@ -22,36 +22,7 @@
 
   onMount(() => {
     scrollToBottom();
-    startAutoMessage();
   });
-
-  onDestroy(() => {
-    if (autoMessageTimer) {
-      clearTimeout(autoMessageTimer);
-    }
-  });
-
-  let autoMessageTimer: ReturnType<typeof setTimeout> | null = null;
-
-  function startAutoMessage() {
-    const setTimer = () => {
-      autoMessageTimer = setTimeout(() => {
-        messages = [...messages, createMessage(Math.random().toString())];
-        scrollToBottom();
-        setTimer();
-      }, 500);
-    };
-    setTimer();
-  }
-
-  function createMessage(content = "Auto message", isCurrentUser = false) {
-    return {
-      id: messages.length.toString(),
-      account_id: isCurrentUser ? currentUser : "auto.near",
-      content,
-      created_at_ms: Date.now(),
-    };
-  }
 
   function scrollToBottom() {
     if (vListHandle && shouldStickToBottom) {
@@ -69,12 +40,8 @@
 
     if (offset < 100) {
       isPrepend = false;
-      messages = [
-        ...Array.from({ length: 100 }, () =>
-          createMessage(Math.random().toString().substring(0, 10)),
-        ),
-        ...messages,
-      ];
+      // Load more messages if needed
+      // This part would need to be implemented based on your actual data loading logic
     } else {
       isPrepend = true;
     }
