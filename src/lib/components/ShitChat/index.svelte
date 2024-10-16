@@ -33,7 +33,6 @@
       const message: ShitChatMessage = JSON.parse(event.data);
       // Update messages with the new message from the backend
       messages = [...messages, message];
-      console.log(`[WebSocket message received]`, message);
       scrollToBottom();
     });
 
@@ -52,17 +51,6 @@
       socket.close();
     }
   });
-
-  async function loadMoreMessages() {
-    const res = await fetch(
-      `${import.meta.env.VITE_MEME_COOKING_API}/shitchat/chat/${messages[0].created_at_ms}`,
-      {
-        credentials: "include",
-      },
-    );
-    const newMessages = await res.json();
-    messages = [...newMessages, ...messages];
-  }
 
   async function sendMessage() {
     if (newMessage.trim() && $accountId$) {
@@ -88,19 +76,18 @@
 </script>
 
 <div
-  class="flex-1 flex flex-col max-h-[calc(100vh-182px)] not-prose text-white w-full py-4"
+  class="flex flex-col h-[calc(100vh-182px)] not-prose text-white w-full py-4"
 >
-  <div class="flex flex-col h-[calc(100vh-182px)]">
+  <div class="flex flex-col flex-1 overflow-y-auto">
     {#await $isLoggedIn$}
       <div class="flex items-center justify-center h-full">
         <div class="i-mdi:loading size-6 animate-spin" />
       </div>
     {:then isLoggedIn}
-      {#if isLoggedIn}
+      {#if isLoggedIn && $resolvedPrimaryNftTokenId?.token_id}
         <Chatlist
           bind:messages
           currentUser={$resolvedPrimaryNftTokenId?.token_id ?? ""}
-          on:loadMoreMessages={loadMoreMessages}
         />
       {:else}
         <div class="flex flex-col items-center justify-center flex-1 h-full">
@@ -124,16 +111,27 @@
     <input
       type="text"
       bind:value={newMessage}
+      disabled={!$accountId$ || !$resolvedPrimaryNftTokenId?.token_id}
       placeholder="Type a message..."
       class="flex-1 bg-black text-white border border-lime rounded-l-lg px-4 py-2 focus:outline-none"
       on:keypress={(e) => e.key === "Enter" && sendMessage()}
     />
-    <button
-      class="bg-lime text-black font-bold text-sm rounded-r-lg px-5 py-2 flex items-center justify-center"
-      on:click={sendMessage}
-    >
-      <div class="i-mdi:send size-6 mr-2" />
-      Send
-    </button>
+    {#if $accountId$ && $resolvedPrimaryNftTokenId?.token_id}
+      <button
+        class="bg-lime text-black font-bold text-sm rounded-r-lg px-5 py-2 flex items-center justify-center border-y-1 border-lime"
+        on:click={sendMessage}
+      >
+        <div class="i-mdi:send size-6 mr-2" />
+        Send
+      </button>
+    {:else}
+      <button
+        class="bg-lime text-black font-bold text-sm rounded-r-lg px-5 py-2 flex items-center justify-center border-y-1 border-lime"
+        on:click={() => wallet.login()}
+      >
+        <div class="i-mdi:login size-6 mr-2" />
+        Login
+      </button>
+    {/if}
   </div>
 </div>

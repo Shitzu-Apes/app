@@ -1,76 +1,36 @@
 <script lang="ts">
   import Markdown from "@magidoc/plugin-svelte-marked";
-  import { createEventDispatcher, onMount } from "svelte";
-  import { VList } from "virtua/svelte";
+  import { onMount, afterUpdate } from "svelte";
 
   import type { ShitChatMessage } from "$lib/components/ShitChat/types";
   import Squircle from "$lib/components/Squircle.svelte";
-  import { timesAgo } from "$lib/util/timesAgo";
 
   export let messages: ShitChatMessage[];
   export let currentUser: string;
 
-  const dispatch = createEventDispatcher();
-
-  let isLoading = false;
-
-  function loadMoreMessages() {
-    if (!isLoading) {
-      isLoading = true;
-      dispatch("loadMoreMessages");
-    }
-  }
-
-  let vListHandle: VList<ShitChatMessage>;
-  let shouldStickToBottom = true;
-  let isPrepend = false;
+  let chatContainer: HTMLElement;
 
   onMount(() => {
     scrollToBottom();
   });
 
+  afterUpdate(() => {
+    scrollToBottom();
+  });
+
   function scrollToBottom() {
-    if (vListHandle && shouldStickToBottom) {
-      vListHandle.scrollToIndex(messages.length - 1, { align: "end" });
-    }
-  }
-
-  function handleScroll(offset: number) {
-    if (!vListHandle) return;
-    const scrollSize = vListHandle.getScrollSize();
-    const viewportSize = vListHandle.getViewportSize();
-    const maxScroll = scrollSize - viewportSize;
-
-    shouldStickToBottom = maxScroll - offset <= 1;
-
-    if (offset < 100) {
-      isPrepend = true;
-      loadMoreMessages();
-    } else {
-      isPrepend = true;
-    }
-  }
-
-  $: {
-    if (messages) {
-      isLoading = false;
+    if (chatContainer) {
+      chatContainer.scrollTo({
+        top: chatContainer.scrollHeight,
+        behavior: "smooth",
+      });
     }
   }
 </script>
 
-<div
-  class="overflow-y-auto h-[calc(100vh-182px)]"
-  style="display: block; overflow-y: auto; contain: strict; width: 100%; height: 100%;"
->
-  <div class="flex flex-col justify-end overflow-y-auto h-full">
-    <VList
-      bind:this={vListHandle}
-      data={messages}
-      let:item={message}
-      on:scroll={(e) => handleScroll(e.detail)}
-      class="scrollbar-none"
-      shift={isPrepend}
-    >
+<div bind:this={chatContainer} class="overflow-y-auto h-full scrollbar-none">
+  <div class="flex flex-col justify-end">
+    {#each messages as message}
       <div
         class="flex {message.token_id === currentUser
           ? 'justify-end'
@@ -95,7 +55,10 @@
               </span>
             </a>
             <span class="text-xs text-gray-6 ml-2 flex-shrink-0">
-              {timesAgo(new Date(message.created_at_ms))}
+              {new Date(message.created_at_ms).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </span>
           </div>
           <div class="markdown text-black">
@@ -103,7 +66,7 @@
           </div>
         </div>
       </div>
-    </VList>
+    {/each}
   </div>
 </div>
 
