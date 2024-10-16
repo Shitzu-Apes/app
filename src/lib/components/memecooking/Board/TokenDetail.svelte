@@ -11,7 +11,6 @@
   import { timesAgo } from "$lib/util/timesAgo";
 
   export let memebid: Meme;
-  let showDescription = false;
 
   $: reachedMcap =
     BigInt(memebid.total_deposit) >= BigInt(memebid.soft_cap ?? "0");
@@ -111,24 +110,7 @@
     <div class="w-full">
       <div class="px-4 py-2">
         <p class="text-sm text-gray-200">
-          {#if memebid.description && memebid.description.length > 100}
-            {#if showDescription}
-              {memebid.description}
-            {:else}
-              {memebid.description.slice(0, 100)}...
-
-              <button
-                on:click={() => {
-                  showDescription = true;
-                }}
-                class="text-shitzu-4 underline"
-              >
-                Read more
-              </button>
-            {/if}
-          {:else}
-            {memebid.description}
-          {/if}
+          {memebid.description}
         </p>
       </div>
     </div>
@@ -138,14 +120,7 @@
         alt="{memebid.name} icon"
         class="w-full h-full max-h-[25rem] object-contain"
       />
-      <div class="absolute bottom-0 w-full px-4 py-2">
-        <!-- backdrop -->
-        <div
-          class="absolute inset-0 bg-black/25 w-full h-full z-0 backdrop-blur-sm"
-        />
-        <!-- extra details -->
-        <ExtraDetail meme={memebid} class="text-white relative z-30" />
-      </div>
+      <ExtraDetail meme={memebid} class="text-white relative z-30" />
     </div>
   </div>
 {:else}

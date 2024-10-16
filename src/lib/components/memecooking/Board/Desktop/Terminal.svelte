@@ -36,7 +36,7 @@
   let perPage = 21;
 </script>
 
-<div class="flex gap-3 mt-6 px-4">
+<div class="flex flex-wrap gap-3 mt-6 px-4">
   <SelectBox options={sortOptions} bind:selected={selectedSort} />
   <SelectBox options={orderOptions} bind:selected={selectedDirection} />
   <Toggle
@@ -59,7 +59,7 @@
 
 {#await Promise.all([requiredStake, displayedMemebids])}
   <div
-    class="w-full flex items-center justify-around flex-wrap mt-10 gap-6 px-4 mb-10"
+    class="w-full flex items-center justify-around flex-wrap mt-10 gap-6 px-5 mb-10"
   >
     <!-- eslint-disable-next-line -->
     {#each { length: 10 } as _, i (i)}
@@ -84,26 +84,31 @@
   </div>
 {:then [requiredStake, displayedMemebids]}
   <div
-    class="w-full flex items-center justify-around flex-wrap mt-10 gap-6 px-4 mb-10"
+    class="w-full flex items-center justify-around flex-wrap mt-10 gap-6 px-5 mb-10"
   >
     {#if displayedMemebids[0]}
       {#key displayedMemebids[0].meme_id}
         <div
-          class="flex-grow basis-[30%] min-w-[300px] max-w-[30%] border-3 border-transparent animate-shake-and-border"
+          class="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] border-3 border-transparent animate-shake-and-border"
         >
           <MemePreview memebid={displayedMemebids[0]} {requiredStake} />
         </div>
       {/key}
     {/if}
     {#each displayedMemebids.slice(1 + (page - 1) * perPage, page * perPage) as memebid (memebid.meme_id)}
-      <div class="flex-grow basis-[30%] min-w-[300px] max-w-[30%]" in:fly>
+      <div
+        class="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
+        in:fly
+      >
         <MemePreview {memebid} {requiredStake} />
       </div>
     {/each}
     <!-- add empty div if not divisible by 3 -->
     {#if displayedMemebids.slice(1 + (page - 1) * perPage, page * perPage).length % 3 !== 0}
       {#each Array(3 - (displayedMemebids.slice(1 + (page - 1) * perPage, page * perPage).length % 3)).keys() as i (-i)}
-        <div class="flex-grow basis-[30%] min-w-[300px] max-w-[30%]"></div>
+        <div
+          class="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
+        ></div>
       {/each}
     {/if}
     <div class="flex items-center justify-center w-full gap-10">

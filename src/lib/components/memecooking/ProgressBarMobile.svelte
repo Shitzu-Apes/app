@@ -43,7 +43,7 @@
   {#if hardCap}
     <div class="flex items-center h-full gap-1.5">
       <div
-        class="relative h-full rounded-tl-xl bg-gray-3 border-2 border-current {softcapProgress <
+        class="relative h-full bg-gray-3 border-2 border-current {softcapProgress <
         1
           ? 'text-red-5'
           : 'text-shitzu-4'} "
@@ -55,7 +55,7 @@
         ></div>
       </div>
       <div
-        class="relative h-full rounded-tr-xl bg-gray-3 border-2 border-current flex-1 {softcapProgress <
+        class="relative h-full bg-gray-3 border-2 border-current flex-1 {softcapProgress <
         1
           ? 'text-red-5'
           : hardCapProgress > 0
@@ -75,7 +75,7 @@
     </div>
   {:else}
     <div
-      class="w-full h-full bg-gray-3 relative border-2 border-current rounded-t-xl {BigInt(
+      class="w-full h-full bg-gray-3 relative border-2 border-current {BigInt(
         meme.total_deposit,
       ) < BigInt(meme.soft_cap ?? 0)
         ? 'text-red-5'
