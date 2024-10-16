@@ -85,23 +85,25 @@ export async function shareWithReferral($accountId$?: string, meme?: Meme) {
   //     console.error("Error sharing:", error);
   //   }
   // } else {
-  try {
-    await navigator.clipboard.writeText(shareUrl.toString());
-    addToast({
-      data: {
-        type: "simple",
+  setTimeout(async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl.toString());
+      addToast({
         data: {
-          title: "Success",
-          description:
-            $accountId$ != null
-              ? "Link with referral copied!"
-              : "Link copied (need to register for referrals)",
-          color: "green",
+          type: "simple",
+          data: {
+            title: "Success",
+            description:
+              $accountId$ != null
+                ? "Link with referral copied!"
+                : "Link copied (need to register for referrals)",
+            color: "green",
+          },
         },
-      },
-    });
-  } catch (error) {
-    console.error("Error copying to clipboard:", error);
-  }
+      });
+    } catch (error) {
+      console.error("Error copying to clipboard:", error);
+    }
+  });
   // }
 }
