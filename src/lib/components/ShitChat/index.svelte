@@ -33,6 +33,7 @@
       const message: ShitChatMessage = JSON.parse(event.data);
       // Update messages with the new message from the backend
       messages = [...messages, message];
+      console.log(`[WebSocket message received]`, message);
       scrollToBottom();
     });
 
@@ -95,7 +96,6 @@
         <div class="i-mdi:loading size-6 animate-spin" />
       </div>
     {:then isLoggedIn}
-      <div>Debug: {JSON.stringify(isLoggedIn)}</div>
       {#if isLoggedIn}
         <Chatlist
           bind:messages

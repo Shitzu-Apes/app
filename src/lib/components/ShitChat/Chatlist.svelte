@@ -4,6 +4,8 @@
   import { VList } from "virtua/svelte";
 
   import type { ShitChatMessage } from "$lib/components/ShitChat/types";
+  import Squircle from "$lib/components/Squircle.svelte";
+  import { timesAgo } from "$lib/util/timesAgo";
 
   export let messages: ShitChatMessage[];
   export let currentUser: string;
@@ -49,24 +51,6 @@
     }
   }
 
-  function getColorFromAccountId(accountId: string): string {
-    const colors = [
-      "bg-red-500",
-      "bg-blue-500",
-      "bg-green-500",
-      "bg-yellow-500",
-      "bg-purple-500",
-      "bg-pink-500",
-      "bg-indigo-500",
-      "bg-teal-500",
-      "bg-orange-500",
-    ];
-    const index =
-      accountId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) %
-      colors.length;
-    return colors[index];
-  }
-
   $: {
     if (messages) {
       isLoading = false;
@@ -96,15 +80,22 @@
           class="max-w-3/4 bg-gradient-to-r from-lime to-emerald border border-lime rounded-lg p-3"
         >
           <div class="flex items-center mb-1">
-            <span
-              class="{getColorFromAccountId(
-                message.token_id,
-              )} text-white rounded px-2 py-1 text-xs flex-shrink-1 truncate"
+            <a
+              href={`/shitstars/${message.token_id}`}
+              class="flex items-center"
             >
-              {message.token_id}
-            </span>
+              <Squircle
+                src={`${import.meta.env.VITE_NFT_BASE_URL}/${message.token_id}.png`}
+                class="size-6 mr-2"
+              />
+              <span
+                class="text-black rounded py-1 text-xs flex-shrink-1 truncate"
+              >
+                #{message.token_id}
+              </span>
+            </a>
             <span class="text-xs text-gray-6 ml-2 flex-shrink-0">
-              {new Date(message.created_at_ms).toLocaleString()}
+              {timesAgo(new Date(message.created_at_ms))}
             </span>
           </div>
           <div class="markdown text-black">
