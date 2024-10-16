@@ -107,19 +107,21 @@
         <ClaimBanner meme={memebid} />
       </div>
     </h2>
-    <div class="w-full">
-      <div class="px-4 py-2">
-        <p class="text-sm text-gray-200">
-          {memebid.description}
-        </p>
+    <div class="w-full flex flex-col gap-5">
+      <div class="w-full">
+        <div class="px-4 py-2">
+          <p class="text-sm text-gray-200">
+            {memebid.description}
+          </p>
+        </div>
       </div>
-    </div>
-    <div class="w-full h-auto relative">
-      <img
-        src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
-        alt="{memebid.name} icon"
-        class="w-full h-full max-h-[25rem] object-contain"
-      />
+      <div class="w-full h-auto relative">
+        <img
+          src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
+          alt="{memebid.name} icon"
+          class="w-full h-full max-h-[25rem] object-contain"
+        />
+      </div>
       <ExtraDetail meme={memebid} class="text-white relative z-30" />
     </div>
   </div>

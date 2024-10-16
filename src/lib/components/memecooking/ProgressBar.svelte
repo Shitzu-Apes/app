@@ -2,49 +2,51 @@
   import { fade } from "svelte/transition";
 
   import type { Meme } from "$lib/api/client";
-  import { FixedNumber } from "$lib/util";
+  import { createProgressBarData } from "$lib/util/progressBarLogic";
 
   export let meme: Meme;
 
-  $: softCap = new FixedNumber(meme.soft_cap, 24);
-  $: hardCap = meme.hard_cap ? new FixedNumber(meme.hard_cap, 24) : null;
-  $: totalDeposit = new FixedNumber(meme.total_deposit, 24);
-
-  $: progress = hardCap
-    ? totalDeposit.div(hardCap).toNumber()
-    : totalDeposit.div(softCap).toNumber();
-
-  $: softcapProgress = totalDeposit.div(softCap).toNumber();
-
-  $: hardCapProgress =
-    hardCap && hardCap.valueOf() !== softCap.valueOf()
-      ? Number(
-          ((totalDeposit.toBigInt() - softCap.toBigInt()) * 10000n) /
-            (hardCap.toBigInt() - softCap.toBigInt()),
-        ) / 10000
-      : 0;
-
-  $: softHardCapRatio = hardCap ? softCap.div(hardCap).toNumber() : 0;
-
-  $: animatedWidth = Math.min(progress, 1.2);
-
-  // Explosion and mind-blown effects
-  const explosionDelay = 2000 / Math.min(progress, 1.2) - 300;
   let explode = false;
-  setTimeout(() => {
-    explode = true;
-    setTimeout(() => {
-      explode = false;
-    }, 300);
-  }, explosionDelay);
-
   let mindBlown = false;
-  setTimeout(() => {
-    mindBlown = true;
-    setTimeout(() => {
-      mindBlown = false;
-    }, 1700);
-  }, explosionDelay);
+  let {
+    hardCap,
+    progress,
+    softcapProgress,
+    hardCapProgress,
+    softHardCapRatio,
+    animatedWidth,
+    explosionDelay,
+  } = createProgressBarData(meme);
+
+  $: {
+    ({
+      hardCap,
+      progress,
+      softcapProgress,
+      hardCapProgress,
+      softHardCapRatio,
+      animatedWidth,
+      explosionDelay,
+    } = createProgressBarData(meme));
+
+    // Explosion effect
+    if (progress >= 1) {
+      setTimeout(() => {
+        explode = true;
+        setTimeout(() => {
+          explode = false;
+        }, 300);
+      }, explosionDelay);
+
+      // Mind-blown effect
+      setTimeout(() => {
+        mindBlown = true;
+        setTimeout(() => {
+          mindBlown = false;
+        }, 1700);
+      }, explosionDelay);
+    }
+  }
 </script>
 
 <div class="w-full h-5 relative">

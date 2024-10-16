@@ -89,7 +89,10 @@
   const tabs = ["[detail]", "[chart]", "[trade]", "[holder]"];
 </script>
 
-<div class="relative min-h-screen flex flex-col" bind:this={chartElement}>
+<div
+  class="relative min-h-[calc(100vh-300px)] flex flex-col pb-[150px]"
+  bind:this={chartElement}
+>
   <div class="overflow-hidden flex-grow relative z-1">
     {#if selected === 0}
       <div

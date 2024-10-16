@@ -2,41 +2,42 @@
   import { fade } from "svelte/transition";
 
   import type { Meme } from "$lib/api/client";
-  import { FixedNumber } from "$lib/util";
+  import { createProgressBarData } from "$lib/util/progressBarLogic";
 
   export let meme: Meme;
 
-  $: softCap = new FixedNumber(meme.soft_cap, 24);
-  $: hardCap = meme.hard_cap ? new FixedNumber(meme.hard_cap, 24) : null;
-  $: totalDeposit = new FixedNumber(meme.total_deposit, 24);
-
-  $: progress = hardCap
-    ? totalDeposit.div(hardCap).toNumber()
-    : totalDeposit.div(softCap).toNumber();
-
-  $: softcapProgress = totalDeposit.div(softCap).toNumber();
-
-  $: hardCapProgress =
-    hardCap && hardCap.valueOf() !== softCap.valueOf()
-      ? Number(
-          ((totalDeposit.toBigInt() - softCap.toBigInt()) * 10000n) /
-            (hardCap.toBigInt() - softCap.toBigInt()),
-        ) / 10000
-      : 0;
-
-  $: softHardCapRatio = hardCap ? softCap.div(hardCap).toNumber() : 0;
-
-  $: animatedWidth = Math.min(progress, 1.2);
-
-  // Explosion effect
-  const explosionDelay = 2000 / Math.min(progress, 1.2) - 300;
   let explode = false;
-  setTimeout(() => {
-    explode = true;
-    setTimeout(() => {
-      explode = false;
-    }, 300);
-  }, explosionDelay);
+  let {
+    hardCap,
+    progress,
+    softcapProgress,
+    hardCapProgress,
+    softHardCapRatio,
+    animatedWidth,
+    explosionDelay,
+  } = createProgressBarData(meme);
+
+  $: {
+    ({
+      hardCap,
+      progress,
+      softcapProgress,
+      hardCapProgress,
+      softHardCapRatio,
+      animatedWidth,
+      explosionDelay,
+    } = createProgressBarData(meme));
+
+    // Explosion effect
+    if (progress >= 1) {
+      setTimeout(() => {
+        explode = true;
+        setTimeout(() => {
+          explode = false;
+        }, 300);
+      }, explosionDelay);
+    }
+  }
 </script>
 
 <div class="w-full h-6 relative">
@@ -46,7 +47,7 @@
         class="relative h-full bg-gray-3 border-2 border-current {softcapProgress <
         1
           ? 'text-red-5'
-          : 'text-shitzu-4'} "
+          : 'text-shitzu-4'}"
         style={`width: ${softHardCapRatio * 100}%`}
       >
         <div
@@ -75,9 +76,8 @@
     </div>
   {:else}
     <div
-      class="w-full h-full bg-gray-3 relative border-2 border-current {BigInt(
-        meme.total_deposit,
-      ) < BigInt(meme.soft_cap ?? 0)
+      class="w-full h-full bg-gray-3 relative border-2 border-current {softcapProgress <
+      1
         ? 'text-red-5'
         : 'text-shitzu-4'}"
     >
@@ -93,7 +93,7 @@
     </div>
   {/if}
 
-  {#if progress > 1 && explode}
+  {#if progress >= 1 && explode}
     <img
       out:fade
       src="/animations/explosion.gif"
