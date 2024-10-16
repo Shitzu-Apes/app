@@ -1,6 +1,6 @@
 <script lang="ts">
   import Markdown from "@magidoc/plugin-svelte-marked";
-  import { onMount } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
   import { VList } from "virtua/svelte";
 
   export let messages: {
@@ -10,6 +10,17 @@
     created_at_ms: number;
   }[];
   export let currentUser: string;
+
+  const dispatch = createEventDispatcher();
+
+  let isLoading = false;
+
+  function loadMoreMessages() {
+    if (!isLoading) {
+      isLoading = true;
+      dispatch("loadMoreMessages");
+    }
+  }
 
   let vListHandle: VList<{
     id: string;
@@ -39,9 +50,8 @@
     shouldStickToBottom = maxScroll - offset <= 1;
 
     if (offset < 100) {
-      isPrepend = false;
-      // Load more messages if needed
-      // This part would need to be implemented based on your actual data loading logic
+      isPrepend = true;
+      loadMoreMessages();
     } else {
       isPrepend = true;
     }
@@ -63,6 +73,12 @@
       accountId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) %
       colors.length;
     return colors[index];
+  }
+
+  $: {
+    if (messages) {
+      isLoading = false;
+    }
   }
 </script>
 
@@ -92,11 +108,11 @@
               <span
                 class="{getColorFromAccountId(
                   message.account_id,
-                )} text-white rounded px-2 py-1 text-xs"
+                )} text-white rounded px-2 py-1 text-xs flex-shrink-1 truncate"
               >
                 {message.account_id}
               </span>
-              <span class="text-xs text-gray-6 ml-2">
+              <span class="text-xs text-gray-6 ml-2 flex-shrink-0">
                 {new Date(message.created_at_ms).toLocaleString()}
               </span>
             </div>

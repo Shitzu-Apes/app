@@ -21,10 +21,13 @@
 
   onMount(async () => {
     // Initialize WebSocket connection
-    socket = new WebSocket("ws://localhost:8787/shitchat/chat");
+    socket = new WebSocket(
+      `${import.meta.env.VITE_MEME_COOKING_API}/shitchat/chat`,
+    );
 
     socket.addEventListener("open", () => {
       console.log("WebSocket connection established");
+      socket.send("initial_messages");
     });
 
     socket.addEventListener("message", (event) => {
@@ -50,6 +53,17 @@
     }
   });
 
+  async function loadMoreMessages() {
+    const res = await fetch(
+      `${import.meta.env.VITE_MEME_COOKING_API}/shitchat/chat/${messages[0].created_at_ms}`,
+      {
+        credentials: "include",
+      },
+    );
+    const newMessages = await res.json();
+    messages = [...newMessages, ...messages];
+  }
+
   async function sendMessage() {
     if (newMessage.trim() && $accountId$) {
       const message: Message = {
@@ -61,7 +75,7 @@
       // Send the message to the backend via WebSocket
       socket.send(JSON.stringify(message));
       newMessage = "";
-      // The message will be added to 'messages' when received back from the server
+      messages = [...messages, message];
     }
   }
 
@@ -78,7 +92,11 @@
   class="flex-1 flex flex-col max-h-[calc(100vh-182px)] not-prose text-white w-full py-4"
 >
   {#if $accountId$}
-    <Chatlist bind:messages currentUser={$accountId$} />
+    <Chatlist
+      bind:messages
+      currentUser={$accountId$}
+      on:loadMoreMessages={loadMoreMessages}
+    />
   {/if}
 
   <div class="flex items-center sticky bottom-0 bg-[#222] pt-2">
