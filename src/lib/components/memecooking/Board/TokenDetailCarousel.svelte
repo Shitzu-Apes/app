@@ -102,17 +102,12 @@
       </div>
     {:else if selected === 1 && focused}
       <div class="h-[70vh]">
-        <TokenChart memebid={$memebid$} touchToStart />
+        <TokenChart memebid={$memebid$} />
       </div>
     {:else if selected === 2 && focused}
       <div class="flex flex-col min-h-screen">
         <div class="flex-grow">
-          <TokenTrade
-            memebid={$memebid$}
-            {trades}
-            touchToStart
-            paginated={false}
-          />
+          <TokenTrade memebid={$memebid$} {trades} paginated={false} />
         </div>
       </div>
     {:else if selected === 3 && focused}
