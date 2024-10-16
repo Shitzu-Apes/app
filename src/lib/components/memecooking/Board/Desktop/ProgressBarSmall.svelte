@@ -16,10 +16,12 @@
     : totalDeposit.div(softCap).toNumber();
   $: softcapProgress = totalDeposit.div(softCap).toNumber();
   $: hardCapProgress = hardCap
-    ? Number(
-        ((totalDeposit.toBigInt() - softCap.toBigInt()) * 10000n) /
-          (hardCap.toBigInt() - softCap.toBigInt()),
-      ) / 10000
+    ? hardCap.toBigInt() - softCap.toBigInt() !== 0n
+      ? Number(
+          ((totalDeposit.toBigInt() - softCap.toBigInt()) * 10000n) /
+            (hardCap.toBigInt() - softCap.toBigInt()),
+        ) / 10000
+      : 0
     : 0;
   console.log("[hardCapProgress]", hardCapProgress);
   $: animatedWidth = Math.min(progress, 1.05);
