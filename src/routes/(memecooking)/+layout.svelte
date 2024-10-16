@@ -12,6 +12,7 @@
   import { derived, get } from "svelte/store";
   import { blur } from "svelte/transition";
 
+  import { onNavigate } from "$app/navigation";
   import { client } from "$lib/api/client";
   import Toast from "$lib/components/Toast.svelte";
   import Tooltip from "$lib/components/Tooltip.svelte";
@@ -28,13 +29,19 @@
     indexer_last_block_height$,
     node_last_block_height$,
   } from "$lib/store/indexer";
-  import { initializeWebsocket, ws } from "$lib/store/memebids";
+  import { initializeWebsocket, updateMemebids, ws } from "$lib/store/memebids";
   import { readAndSetReferral } from "$lib/util/referral";
 
   // eslint-disable-next-line import/no-named-as-default-member
   dayjs.extend(duration);
   // eslint-disable-next-line import/no-named-as-default-member
   dayjs.extend(relativeTime);
+
+  onNavigate((navigate) => {
+    if (navigate.to?.url.pathname === "/board") {
+      updateMemebids();
+    }
+  });
 
   onMount(() => {
     const initWebSocket = () => {

@@ -1,5 +1,6 @@
 import { derived, get, writable } from "svelte/store";
 
+import { browser } from "$app/environment";
 import { client, type Trade } from "$lib/api/client";
 import { type Meme, type MemeInfo } from "$lib/models/memecooking";
 import { MemeCooking } from "$lib/near/memecooking";
@@ -15,7 +16,7 @@ export const memeMap$ = derived(memebids$, async (memes) => {
   return memeMap;
 });
 
-function updateMemebids() {
+export function updateMemebids() {
   return client
     .GET("/meme")
     .then((res) => {
@@ -74,7 +75,9 @@ function updateMemebids() {
       });
     });
 }
-updateMemebids();
+if (browser) {
+  updateMemebids();
+}
 
 type LiveData =
   | {
