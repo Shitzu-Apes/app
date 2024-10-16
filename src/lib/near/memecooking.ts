@@ -21,6 +21,7 @@ import {
 } from "$lib/store/indexer";
 import { FixedNumber } from "$lib/util";
 import { getTokenId } from "$lib/util/getTokenId";
+import { projectedMCap } from "$lib/util/projectedMCap";
 import {
   sortMemeByEndtimestamp,
   sortMemeByUnclaimedThenEndTimestamp,
@@ -624,7 +625,10 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
         return {
           meme_id: deposit[0],
           amount: deposit[1].toString(),
-          meme,
+          meme: {
+            ...meme,
+            projectedMcap: projectedMCap(meme),
+          },
         };
       })
       .filter(
@@ -659,7 +663,10 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
           return {
             token_id: unclaimed.token_id,
             amount: new FixedNumber(unclaimed.amount, unclaimed.meme.decimals),
-            meme: unclaimed.meme,
+            meme: {
+              ...unclaimed.meme,
+              projectedMcap: projectedMCap(unclaimed.meme),
+            },
           };
         // try to get meme from profile.coins_held
         const meme = profile.coins_held.find((m) => m.meme_id === meme_id);
@@ -667,7 +674,10 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
           return {
             token_id: getTokenId(meme.symbol, meme.meme_id),
             amount: new FixedNumber(0n, meme.decimals),
-            meme,
+            meme: {
+              ...meme,
+              projectedMcap: projectedMCap(meme),
+            },
           };
         return null;
       })
@@ -687,11 +697,20 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
         ),
       );
 
-    const revenue = account.income.map((income) => ({
-      token_id: income[0].toString(),
-      amount: income[1].toString(),
-      meme: meme_map.get(income[0].toString()),
-    }));
+    const revenue = account.income.map((income) => {
+      const meme = meme_map.get(income[0].toString());
+      return {
+        token_id: income[0].toString(),
+        amount: income[1].toString(),
+        meme:
+          meme != null
+            ? {
+                ...meme,
+                projectedMcap: projectedMCap(meme),
+              }
+            : undefined,
+      };
+    });
 
     console.log("[claims]", claims);
     console.log("[revenue]", revenue);
@@ -700,7 +719,10 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
       account,
       deposits,
       claims,
-      created: profile.coin_created,
+      created: profile.coin_created.map((meme) => ({
+        ...meme,
+        projectedMcap: projectedMCap(meme),
+      })),
       revenue,
       shitstarClaim: new FixedNumber(account.shitstar_claim, 18),
       referralFees: new FixedNumber(profile.referral_fees, 24),

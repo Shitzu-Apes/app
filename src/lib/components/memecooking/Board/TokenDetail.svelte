@@ -8,7 +8,6 @@
   import ExtraDetail from "$lib/components/ExtraDetail.svelte";
   import Squircle from "$lib/components/Squircle.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { projectedMCap } from "$lib/util/projectedMCap";
   import { timesAgo } from "$lib/util/timesAgo";
 
   export let memebid: Meme;
@@ -16,7 +15,7 @@
 
   $: reachedMcap =
     BigInt(memebid.total_deposit) >= BigInt(memebid.soft_cap ?? "0");
-  $: mcap = projectedMCap(memebid);
+  const { projectedMcap } = memebid;
 </script>
 
 {#if memebid}
@@ -68,10 +67,15 @@
               <div
                 class="ml-auto flex items-center text-shitzu-2 text-sm rounded"
               >
-                MCap: $
-                {$mcap.format({
-                  maximumFractionDigits: 1,
-                })}
+                MCap:
+                {#if $projectedMcap}
+                  ${$projectedMcap.format({
+                    maximumFractionDigits: 1,
+                    notation: "compact",
+                    compactDisplay: "short",
+                  })}
+                {:else}-
+                {/if}
               </div>
             </h4>
             <div class="w-full flex items-center text-xs gap-1 text-shitzu-6">

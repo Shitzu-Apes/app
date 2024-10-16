@@ -4,6 +4,7 @@ import { browser } from "$app/environment";
 import { client, type Trade } from "$lib/api/client";
 import { type Meme, type MemeInfo } from "$lib/models/memecooking";
 import { MemeCooking } from "$lib/near/memecooking";
+import { projectedMCap } from "$lib/util/projectedMCap";
 
 export const searchQuery$ = writable("");
 
@@ -21,9 +22,15 @@ export function updateMemebids() {
     .GET("/meme")
     .then((res) => {
       if (!res.data) return;
-      console.log("[+page] memebids", res.data);
-      _memebids$.set(Promise.resolve(res.data));
-      return res.data;
+      const memes: Meme[] = res.data.map((meme) => {
+        return {
+          ...meme,
+          projectedMcap: projectedMCap(meme),
+        };
+      });
+      console.log("[+page] memebids", memes);
+      _memebids$.set(Promise.resolve(memes));
+      return memes;
     })
     .catch(() => {
       console.log("[updateMemebids]: Error");
@@ -122,7 +129,7 @@ export function MCTradeSubscribe(
       const memes = await get(_memebids$);
       const index = memes.findIndex(({ meme_id }) => meme.meme_id === meme_id);
       if (index !== -1) {
-        memes[index] = meme;
+        memes[index] = { ...meme, projectedMcap: projectedMCap(meme) };
         _memebids$.set(Promise.resolve(memes));
       }
       callback({ ...meme, ...data.data });
@@ -196,6 +203,7 @@ MCSubscribe(symbol, async (data) => {
   meme.total_deposit = newMemeInfo.total_deposit;
   meme.total_deposit_fees = newMemeInfo.total_deposit_fees;
   meme.last_change_ms = Date.now();
+  meme.projectedMcap = projectedMCap(meme);
 
   _memebids$.set(
     Promise.resolve([

@@ -1,4 +1,7 @@
+import type { Readable } from "svelte/store";
+
 import type { Meme as MemeType } from "$lib/api/client";
+import type { FixedNumber } from "$lib/util";
 
 export type MemeInfo = {
   id: number;
@@ -24,7 +27,9 @@ export type MCReference = {
   image: string;
 };
 
-export type Meme = MemeType;
+export type Meme = MemeType & {
+  projectedMcap?: Readable<FixedNumber>;
+};
 
 export type MemeInfoWithReference = MemeInfo & MCReference;
 

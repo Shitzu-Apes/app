@@ -1,3 +1,5 @@
+import { get } from "svelte/store";
+
 import type { Meme } from "$lib/models/memecooking";
 
 export const sortOptions = [
@@ -52,9 +54,23 @@ export function filterAndSortMeme<T extends Meme>(
     case "market cap":
       return memes.sort((a, b) => {
         if (sort.order === "asc") {
-          return BigInt(a.total_deposit) > BigInt(b.total_deposit) ? 1 : -1;
+          if (a.projectedMcap != null && b.projectedMcap) {
+            return get(a.projectedMcap).toBigInt() >
+              get(b.projectedMcap).toBigInt()
+              ? 1
+              : -1;
+          } else {
+            return BigInt(a.total_deposit) > BigInt(b.total_deposit) ? 1 : -1;
+          }
         } else {
-          return BigInt(b.total_deposit) > BigInt(a.total_deposit) ? 1 : -1;
+          if (a.projectedMcap != null && b.projectedMcap) {
+            return get(b.projectedMcap).toBigInt() >
+              get(a.projectedMcap).toBigInt()
+              ? 1
+              : -1;
+          } else {
+            return BigInt(b.total_deposit) > BigInt(a.total_deposit) ? 1 : -1;
+          }
         }
       });
     case "creation time":

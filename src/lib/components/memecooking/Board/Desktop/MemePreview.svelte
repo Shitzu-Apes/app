@@ -12,7 +12,6 @@
   import { wallet } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
   import { FixedNumber } from "$lib/util";
-  import { projectedMCap } from "$lib/util/projectedMCap";
 
   export let memebid: Meme;
   export let requiredStake: FixedNumber;
@@ -28,7 +27,7 @@
 
   $: reachedMcap = new FixedNumber(memebid.total_deposit, 24) >= requiredStake;
 
-  $: mcap = projectedMCap(memebid);
+  const { projectedMcap } = memebid;
 
   async function withdraw(ev: Event) {
     ev.preventDefault();
@@ -167,9 +166,15 @@
         </div>
         <div class="w-full flex justify-between items-center self-stretch">
           <span class="text-xs text-shitzu-2 px-2 flex items-center">
-            MCap: ${$mcap.format({
-              maximumFractionDigits: 1,
-            })}
+            MCap:
+            {#if $projectedMcap}
+              ${$projectedMcap.format({
+                maximumFractionDigits: 1,
+                notation: "compact",
+                compactDisplay: "short",
+              })}
+            {:else}-
+            {/if}
           </span>
 
           <div>

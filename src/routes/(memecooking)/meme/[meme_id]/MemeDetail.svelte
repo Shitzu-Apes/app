@@ -5,7 +5,6 @@
   import ClaimBanner from "./ClaimBanner.svelte";
   import WithdrawBanner from "./WithdrawBanner.svelte";
 
-  import type { Meme } from "$lib/api/client";
   import ExtraDetail from "$lib/components/ExtraDetail.svelte";
   import { addToast } from "$lib/components/Toast.svelte";
   import Tooltip from "$lib/components/Tooltip.svelte";
@@ -19,15 +18,15 @@
   import Countdown from "$lib/components/memecooking/Countdown.svelte";
   import ProgressBar from "$lib/components/memecooking/ProgressBar.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
+  import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
   import { MCTradeSubscribe } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
   import { getTokenId } from "$lib/util/getTokenId";
-  import { projectedMCap } from "$lib/util/projectedMCap";
   import { shareWithReferral } from "$lib/util/referral";
 
   export let meme$: Writable<Meme>;
-  $: mcap = projectedMCap($meme$);
+  const { projectedMcap } = $meme$;
   const { accountId$ } = wallet;
 
   const MCSymbol = Symbol();
@@ -57,9 +56,14 @@
       <div class="text-green-400 flex items-center gap-1 flex-wrap">
         Market cap:{" "}
         <span class="font-semibold flex items-center gap-1">
-          ${$mcap.format({
-            maximumFractionDigits: 1,
-          })}{" "}
+          {#if $projectedMcap}
+            ${$projectedMcap.format({
+              maximumFractionDigits: 1,
+              notation: "compact",
+              compactDisplay: "short",
+            })}
+          {:else}-
+          {/if}{" "}
           <Tooltip
             info="total supply {new FixedNumber(
               $meme$.total_supply,

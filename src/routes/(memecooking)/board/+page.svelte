@@ -5,8 +5,16 @@
   import King from "$lib/components/memecooking/Board/King.svelte";
   import { requiredStake } from "$lib/near/memecooking";
   import { searchQuery$ } from "$lib/store/memebids";
+  import { projectedMCap } from "$lib/util/projectedMCap";
 
-  let currentKing = client.GET("/meme/king");
+  let currentKing = client.GET("/meme/king").then((res) =>
+    res.data != null
+      ? {
+          ...res.data,
+          projectedMcap: projectedMCap(res.data),
+        }
+      : res.data,
+  );
 </script>
 
 <div class="flex flex-col items-center gap-4 mt-2 min-h-screen">
@@ -35,8 +43,8 @@
         <div class="loader w-50 h-5" />
       </div>
     </div>
-  {:then [data, requiredStake]}
-    <King king={data.data} {requiredStake} />
+  {:then [currentKing, requiredStake]}
+    <King king={currentKing} {requiredStake} />
   {/await}
 
   <!-- Search box -->
