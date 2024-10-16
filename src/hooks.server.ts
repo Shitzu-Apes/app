@@ -1,7 +1,7 @@
 import type { Handle } from "@sveltejs/kit";
 import { parse as parseHtml } from "node-html-parser";
 
-import { client } from "$lib/api/client";
+import { client, type Meme } from "$lib/api/client";
 import MEMECOOKING_LOGO from "$lib/assets/logo/meme-cooking.webp";
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -19,6 +19,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     // Check if the path matches /meme/{meme_id}
     const memeMatch = /^\/meme\/(\d+)$/.test(event.url.pathname);
 
+    let meme: Meme | null = null;
     if (memeMatch) {
       const memeId = event.url.pathname.split("/meme/")[1];
       try {
@@ -32,23 +33,23 @@ export const handle: Handle = async ({ event, resolve }) => {
         });
 
         if (response.data && response.data.meme.image) {
+          meme = response.data.meme;
           // Add Open Graph meta tags for the meme
           const ogTagsArray = [
             {
               property: "og:title",
-              content: response.data.meme.name
-                ? `${response.data.meme.name} | Meme Cooking`
+              content: meme.name
+                ? `${meme.name} (${meme.symbol}) - Meme Cooking`
                 : "Meme Cooking",
             },
             {
               property: "og:description",
               content:
-                response.data.meme.description ||
-                "Check out this meme on Meme Cooking!",
+                meme.description || "Check out this meme on Meme Cooking!",
             },
             {
               property: "og:image",
-              content: `${import.meta.env.VITE_IPFS_GATEWAY}/${response.data.meme.image}`,
+              content: `${import.meta.env.VITE_IPFS_GATEWAY}/${meme.image}`,
             },
             { property: "og:url", content: event.url.href },
             { property: "og:type", content: "website" },
@@ -94,7 +95,9 @@ export const handle: Handle = async ({ event, resolve }) => {
       },
       {
         search: /<title>.*?<\/title>/g,
-        replace: `<title>Meme Cooking</title>`,
+        replace: meme
+          ? `<title>${meme.name} (${meme.symbol}) - Meme Cooking</title>`
+          : `<title>Meme Cooking</title>`,
       },
       {
         search: /app\.shitzuapes\.xyz/g,
