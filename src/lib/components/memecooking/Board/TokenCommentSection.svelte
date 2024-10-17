@@ -149,92 +149,94 @@
   {#await replies}
     <div class="loader size-24" />
   {:then data}
-    <div
-      bind:this={scrollContainer}
-      class="w-full flex flex-col gap-2 flex-1 h-0 overflow-auto noscrollbar"
-    >
+    <div class="contents max-h-fit">
       <div
-        class="w-full flex flex-col gap-2 bg-gray-5 p-2 rounded-md text-shitzu-1"
+        bind:this={scrollContainer}
+        class="w-full flex flex-col gap-2 flex-1 h-0 max-h-[50rem] overflow-auto"
       >
         <div
-          class="flex items-center justify-between gap-1 text-xs text-shitzu-3"
+          class="w-full flex flex-col gap-2 bg-gray-5 p-2 rounded-md text-shitzu-1"
         >
-          <Chef
-            account={`${meme.owner} (dev)`}
-            class="bg-shitzu-4 text-gray-8 rounded px-1"
-            asLink
-          />
-          <div class="text-xs text-shitzu-3">
-            {new Date(meme.created_timestamp_ms ?? 0).toLocaleString()}
-          </div>
-        </div>
-        <div class="flex items-start gap-1">
-          <img
-            src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
-            class="w-30 rounded-md"
-            alt={meme.name}
-          />
-          <div class="flex flex-col items-start">
-            <div class="text-sm font-bold">
-              {meme.name} (ticker: {meme.symbol})
+          <div
+            class="flex items-center justify-between gap-1 text-xs text-shitzu-3"
+          >
+            <Chef
+              account={`${meme.owner} (dev)`}
+              class="bg-shitzu-4 text-gray-8 rounded px-1"
+              asLink
+            />
+            <div class="text-xs text-shitzu-3">
+              {new Date(meme.created_timestamp_ms ?? 0).toLocaleString()}
             </div>
-            <div class="text-sm text-white">{meme.description}</div>
           </div>
-        </div>
-      </div>
-      {#each data as reply}
-        <TokenComment
-          reply={{
-            account_id: reply.account_id,
-            id: reply.id ?? 0,
-            content: reply.content,
-            created_at_ms: reply.created_at_ms ?? 0,
-            reply_to_id: reply.reply_to_id,
-            child_replies: reply.child_replies?.map((child) => ({
-              account_id: child.account_id,
-              id: child.id ?? 0,
-              content: child.content,
-              created_at_ms: child.created_at_ms ?? 0,
-              reply_to_id: child.reply_to_id,
-            })),
-          }}
-          owner={meme.owner}
-          onReplyTo={async (id) => {
-            replyToId = id;
-          }}
-        />
-      {/each}
-
-      {#if reply}
-        <div
-          out:slide
-          in:slide={{ duration: $screenSize$ >= ScreenSize.Laptop ? 300 : 0 }}
-          class="w-full flex flex-col bg-gray-5 p-2 rounded-md text-shitzu-1"
-        >
-          <div class="flex items-center gap-1 text-xs text-shitzu-3">
-            <div class="flex flex-1">
-              <div class="flex items-center gap-1 flex-1">
-                <img src={SHITZU_POCKET} alt="Shitzu Pocket" class="size-4" />
-                <span class="bg-gray-200 text-gray-8 rounded px-1">
-                  preview (supports <a
-                    class="c-blue-700 inline-flex"
-                    href="https://github.github.com/gfm/"
-                    target="_blank"
-                  >
-                    markdown <div class="i-mdi:open-in-new" />
-                  </a>)
-                </span>
+          <div class="flex items-start gap-1">
+            <img
+              src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
+              class="w-30 rounded-md"
+              alt={meme.name}
+            />
+            <div class="flex flex-col items-start">
+              <div class="text-sm font-bold">
+                {meme.name} (ticker: {meme.symbol})
               </div>
-              {#if postingReply}
-                <div class="i-svg-spinners:3-dots-fade" />
-              {/if}
+              <div class="text-sm text-white">{meme.description}</div>
             </div>
           </div>
-          <div class="markdown mt-1 pl-4 text-white">
-            <Markdown source={reply} />
-          </div>
         </div>
-      {/if}
+        {#each data as reply}
+          <TokenComment
+            reply={{
+              account_id: reply.account_id,
+              id: reply.id ?? 0,
+              content: reply.content,
+              created_at_ms: reply.created_at_ms ?? 0,
+              reply_to_id: reply.reply_to_id,
+              child_replies: reply.child_replies?.map((child) => ({
+                account_id: child.account_id,
+                id: child.id ?? 0,
+                content: child.content,
+                created_at_ms: child.created_at_ms ?? 0,
+                reply_to_id: child.reply_to_id,
+              })),
+            }}
+            owner={meme.owner}
+            onReplyTo={async (id) => {
+              replyToId = id;
+            }}
+          />
+        {/each}
+
+        {#if reply}
+          <div
+            out:slide
+            in:slide={{ duration: $screenSize$ >= ScreenSize.Laptop ? 300 : 0 }}
+            class="w-full flex flex-col bg-gray-5 p-2 rounded-md text-shitzu-1"
+          >
+            <div class="flex items-center gap-1 text-xs text-shitzu-3">
+              <div class="flex flex-1">
+                <div class="flex items-center gap-1 flex-1">
+                  <img src={SHITZU_POCKET} alt="Shitzu Pocket" class="size-4" />
+                  <span class="bg-gray-200 text-gray-8 rounded px-1">
+                    preview (supports <a
+                      class="c-blue-700 inline-flex"
+                      href="https://github.github.com/gfm/"
+                      target="_blank"
+                    >
+                      markdown <div class="i-mdi:open-in-new" />
+                    </a>)
+                  </span>
+                </div>
+                {#if postingReply}
+                  <div class="i-svg-spinners:3-dots-fade" />
+                {/if}
+              </div>
+            </div>
+            <div class="markdown mt-1 pl-4 text-white">
+              <Markdown source={reply} />
+            </div>
+          </div>
+        {/if}
+      </div>
     </div>
 
     <div class="w-full flex flex-row gap-2 mt-6 pb-3">

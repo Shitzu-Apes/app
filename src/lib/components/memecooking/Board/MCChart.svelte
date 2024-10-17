@@ -80,7 +80,6 @@
       charts_storage_api_version: "1.1",
       client_id: "tradingview.com",
       user_id: "public_user_id",
-      fullscreen: false,
       autosize: true,
       timeframe,
       width,
@@ -115,9 +114,9 @@
   let isInteracted = false || !touchToStart;
 </script>
 
-<div class="w-full h-full relative">
+<div class="flex flex-col flex-1 w-full h-full relative">
   <div
-    class="h-full w-full"
+    class="flex flex-col flex-1 h-full w-full [&>*]:flex-1"
     bind:this={ref}
     bind:clientHeight={height}
     bind:clientWidth={width}

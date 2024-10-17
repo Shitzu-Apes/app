@@ -120,7 +120,7 @@
     <div class="w-full aspect-ratio-16/9 max-h-[75vh]">
       <TokenChart memebid={$meme$} />
     </div>
-    <div class="w-full h-screen">
+    <div class="flex flex-col w-full h-screen max-h-[40rem]">
       <TradeTabs meme={$meme$} />
     </div>
   </div>

@@ -90,10 +90,10 @@
 </script>
 
 <div
-  class="relative min-h-[calc(100vh-300px)] flex flex-col pb-[150px]"
+  class="relative min-h-[calc(100vh-19rem)] max-h-[calc(100vh-19rem)] flex flex-col"
   bind:this={chartElement}
 >
-  <div class="overflow-hidden flex-grow relative z-1">
+  <div class="overflow-auto flex flex-col flex-1 relative z-1">
     {#if selected === 0}
       <div
         class="flex flex-col justify-start items-center h-full text-shitzu-4 gap-6"
@@ -101,18 +101,18 @@
         <TokenDetail memebid={$memebid$} />
       </div>
     {:else if selected === 1 && focused}
-      <div class="h-[70vh] px-3">
+      <div class="flex flex-col flex-1">
         <TokenChart memebid={$memebid$} />
       </div>
     {:else if selected === 2 && focused}
-      <div class="flex flex-col h-[calc(100vh-300px)]">
-        <div class="flex-grow h-screen">
+      <div class="flex flex-col flex-1">
+        <div class="flex flex-col flex-1">
           <TokenTrade memebid={$memebid$} {trades} paginated={false} />
         </div>
       </div>
     {:else if selected === 3 && focused}
-      <div class="flex flex-col h-[calc(100vh-300px)]">
-        <div class="flex-grow overflow-auto">
+      <div class="flex flex-col flex-1">
+        <div class="flex-1 overflow-auto">
           <TokenHolder meme={$memebid$} />
         </div>
       </div>

@@ -62,9 +62,15 @@
   </div>
 </div>
 
-<section use:melt={$content(tabs[0].id)}>
+<section
+  class="{$value === 'thread' ? 'flex' : ''} flex-col flex-1"
+  use:melt={$content(tabs[0].id)}
+>
   <TokenCommentSection {meme} />
 </section>
-<section use:melt={$content(tabs[1].id)}>
+<section
+  class="{$value === 'trade' ? 'flex' : ''} flex-col flex-1"
+  use:melt={$content(tabs[1].id)}
+>
   <TokenTrade memebid={meme} {trades} paginated />
 </section>

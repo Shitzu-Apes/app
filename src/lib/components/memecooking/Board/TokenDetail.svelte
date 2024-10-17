@@ -107,7 +107,7 @@
         <ClaimBanner meme={memebid} />
       </div>
     </h2>
-    <div class="w-full flex flex-col gap-5">
+    <div class="w-full flex flex-col gap-5 pb-4">
       <div class="w-full">
         <div class="px-4 py-2">
           <p class="text-sm text-gray-200">

@@ -49,7 +49,7 @@
     <img src={SHITZU_POCKET} alt="shitzu pocket" class="size-6 mr-1" />
     <a
       href={`/profile/${notification.party}`}
-      class="max-w-20 overflow-hidden text-ellipsis mx-1 hover:font-bold"
+      class="max-w-25 overflow-hidden whitespace-nowrap text-ellipsis mx-1 hover:font-bold"
     >
       {notification.party}
     </a>
