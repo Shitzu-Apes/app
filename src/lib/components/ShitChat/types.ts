@@ -3,4 +3,5 @@ export type ShitChatMessage = {
   account_id: string;
   content: string;
   created_at_ms: number;
+  img?: string;
 };

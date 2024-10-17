@@ -62,6 +62,13 @@
               })}
             </span>
           </div>
+          {#if message.img}
+            <img
+              src={message.img}
+              alt={message.content}
+              class="mb-2 rounded-lg max-w-full h-auto"
+            />
+          {/if}
           <div class="markdown text-black">
             <Markdown source={message.content} />
           </div>
