@@ -32,6 +32,9 @@ jobs:
       - name: Lint
         run: "yarn lint"
 
+      - name: Svelte Check
+        run: "yarn run check"
+
       - name: Copy Charting Library files
         run: "./copy_charting_library_files.sh"
 

@@ -189,7 +189,7 @@
           <div class="text-sm">{$meme$.description}</div>
         </div>
       </div>
-      <ExtraDetail class="text-sm mt-3" meme={$meme$} expanded />
+      <ExtraDetail class="text-sm mt-3" meme={$meme$} />
     </div>
 
     <!-- Holder -->

@@ -1,11 +1,15 @@
 <script lang="ts">
   import { createSelect, melt } from "@melt-ui/svelte";
-  import type { ListboxOption } from "@melt-ui/svelte/dist/builders/listbox/types";
   import { fade } from "svelte/transition";
 
-  export let options: ListboxOption<string>[];
+  type ListboxOption = {
+    label: string;
+    value: string;
+  };
 
-  let selectedOption: ListboxOption<string>;
+  export let options: ListboxOption[];
+
+  let selectedOption: ListboxOption;
 
   export let sameWidth = false;
 
@@ -25,7 +29,7 @@
     defaultSelected: selectedOption,
   });
 
-  $: selectedOption = $selected as ListboxOption<string>;
+  $: selectedOption = $selected as ListboxOption;
 </script>
 
 <div class="flex flex-col gap-1 text-sm">
