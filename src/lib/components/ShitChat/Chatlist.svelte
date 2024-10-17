@@ -39,21 +39,25 @@
         <div
           class="max-w-3/4 bg-gradient-to-r from-lime to-emerald border border-lime rounded-lg p-3"
         >
-          <div class="flex items-center mb-1">
+          <div class="flex items-center mb-1 w-full">
             <a
               href={`/shitstars/${message.token_id}`}
-              class="flex items-center hover:underline text-black"
+              class="flex items-center hover:underline text-black gap-1 flex-shrink-1 overflow-hidden"
             >
               <Squircle
                 src={`${import.meta.env.VITE_NFT_BASE_URL}/${message.token_id}.png`}
-                class="size-6 mr-2 text-white"
+                class="size-6 mr-2 text-white flex-shrink-0"
                 stroke={true}
               />
-              <span
-                class="text-black rounded py-1 text-xs flex-shrink-1 truncate"
-              >
-                #{message.token_id} ({message.account_id})
-              </span>
+              <div class="text-black rounded py-1 text-xs flex-shrink-0">
+                #{message.token_id}
+              </div>
+              <div class="text-black rounded py-1 text-xs flex-1 truncate">
+                ({message.account_id}
+              </div>
+              <div class="text-black rounded py-1 text-xs flex-shrink-0 -ml-1">
+                )
+              </div>
             </a>
             <span class="text-xs text-gray-6 ml-2 flex-shrink-0">
               {new Date(message.created_at_ms).toLocaleTimeString([], {
