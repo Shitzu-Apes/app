@@ -32,11 +32,11 @@ jobs:
       - name: Lint
         run: "yarn lint"
 
-      - name: Svelte Check
-        run: "yarn run check"
-
       - name: Copy Charting Library files
         run: "./copy_charting_library_files.sh"
+
+      - name: Svelte Check
+        run: "yarn run check"
 
       - name: Add app name to .env
         run: echo "VITE_APP_NAME=Meme.Cooking" >> .env
