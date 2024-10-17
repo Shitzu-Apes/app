@@ -1,14 +1,16 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
+  import { match, P } from "ts-pattern";
 
   import SHITZU_WOOF_WOOF from "$lib/assets/static/shitzu_woof_woof.png";
   import { fetchIsLoggedIn, isLoggedIn$ } from "$lib/auth/login";
   import Chatlist from "$lib/components/ShitChat/Chatlist.svelte";
   import type { ShitChatMessage } from "$lib/components/ShitChat/types";
+  import { addToast } from "$lib/components/Toast.svelte";
   import { wallet } from "$lib/near";
   import { resolvedPrimaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
 
-  const { accountId$ } = wallet;
+  const { accountId$, walletId$ } = wallet;
 
   let messages: ShitChatMessage[] = [];
   let newMessage: string = "";
@@ -99,17 +101,17 @@
     }, 0);
   }
 
-  function handleFileInput(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      imageFile = input.files[0];
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        imagePreview = e.target?.result as string;
-      };
-      reader.readAsDataURL(imageFile);
-    }
-  }
+  // function handleFileInput(event: Event) {
+  //   const input = event.target as HTMLInputElement;
+  //   if (input.files && input.files.length > 0) {
+  //     imageFile = input.files[0];
+  //     const reader = new FileReader();
+  //     reader.onload = (e) => {
+  //       imagePreview = e.target?.result as string;
+  //     };
+  //     reader.readAsDataURL(imageFile);
+  //   }
+  // }
 
   async function uploadPromise(formData: FormData) {
     const response = await fetch("/api/create", {
@@ -191,7 +193,7 @@
       </div>
     {:then isLoggedIn}
       <div class="flex items-center">
-        <label
+        <!-- <label
           class="bg-lime text-black font-bold text-sm rounded-l-lg px-3 py-2 flex items-center justify-center border-y border-lime cursor-pointer"
           class:cursor-not-allowed={!isLoggedIn ||
             !$accountId$ ||
@@ -210,7 +212,7 @@
               !$resolvedPrimaryNftTokenId?.token_id}
           />
           <div class="i-mdi:image size-6" />
-        </label>
+        </label> -->
 
         <input
           type="text"
@@ -242,7 +244,27 @@
         {:else}
           <button
             class="bg-lime text-black font-bold text-sm rounded-r-lg px-5 py-2 flex items-center justify-center border-y-1 border-r border-lime"
-            on:click={() => wallet.login()}
+            on:click={async () => {
+              const isLoggedIn = await $isLoggedIn$;
+              if (!isLoggedIn) {
+                const walletId = await $walletId$;
+                return match(walletId)
+                  .with(P.union("ethereum-wallets"), () => {
+                    addToast({
+                      data: {
+                        type: "simple",
+                        data: {
+                          title: "Login",
+                          description:
+                            "This wallet does not yet support replying",
+                          color: "red",
+                        },
+                      },
+                    });
+                  })
+                  .otherwise(wallet.login);
+              }
+            }}
           >
             <div class="i-mdi:login size-6 mr-2" />
             Login
