@@ -42,16 +42,17 @@
           <div class="flex items-center mb-1">
             <a
               href={`/shitstars/${message.token_id}`}
-              class="flex items-center"
+              class="flex items-center hover:underline text-black"
             >
               <Squircle
                 src={`${import.meta.env.VITE_NFT_BASE_URL}/${message.token_id}.png`}
-                class="size-6 mr-2"
+                class="size-6 mr-2 text-white"
+                stroke={true}
               />
               <span
                 class="text-black rounded py-1 text-xs flex-shrink-1 truncate"
               >
-                #{message.token_id}
+                #{message.token_id} ({message.account_id})
               </span>
             </a>
             <span class="text-xs text-gray-6 ml-2 flex-shrink-0">

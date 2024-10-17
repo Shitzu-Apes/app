@@ -58,6 +58,7 @@
     if (newMessage.trim() && $accountId$) {
       const message = {
         token_id: $resolvedPrimaryNftTokenId?.token_id ?? "",
+        account_id: $accountId$,
         content: newMessage,
         created_at_ms: Date.now(),
       };
