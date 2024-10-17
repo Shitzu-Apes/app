@@ -101,17 +101,17 @@
         <TokenDetail memebid={$memebid$} />
       </div>
     {:else if selected === 1 && focused}
-      <div class="h-[70vh]">
+      <div class="h-[70vh] px-3">
         <TokenChart memebid={$memebid$} />
       </div>
     {:else if selected === 2 && focused}
-      <div class="flex flex-col min-h-screen">
-        <div class="flex-grow">
+      <div class="flex flex-col h-[calc(100vh-300px)]">
+        <div class="flex-grow h-screen">
           <TokenTrade memebid={$memebid$} {trades} paginated={false} />
         </div>
       </div>
     {:else if selected === 3 && focused}
-      <div class="flex flex-col min-h-screen">
+      <div class="flex flex-col h-[calc(100vh-300px)]">
         <div class="flex-grow overflow-auto">
           <TokenHolder meme={$memebid$} />
         </div>
