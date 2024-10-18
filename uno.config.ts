@@ -1,3 +1,4 @@
+import { presetSafeArea } from "@yeungkc/unocss-preset-safe-area";
 import {
   defineConfig,
   presetUno,
@@ -21,6 +22,8 @@ export default defineConfig({
     }),
     presetScrollbar(),
     presetExtra(),
+    // @ts-expect-error presetSafeArea is not typed
+    presetSafeArea(),
   ],
   theme: {
     colors: {

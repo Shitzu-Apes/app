@@ -46,9 +46,17 @@ export default defineConfig({
             purpose: "maskable",
           },
         ],
+        display: "standalone",
+        orientation: "portrait",
+        start_url: "/",
+        background_color: "#222222",
       },
       workbox: {
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MiB
+      },
+      devOptions: {
+        enabled: true,
+        type: "module",
       },
     }),
   ],

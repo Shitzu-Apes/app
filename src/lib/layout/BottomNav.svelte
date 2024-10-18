@@ -30,7 +30,9 @@
   }
 </script>
 
-<nav class="fixed bottom-0 left-0 right-0 bg-[#222] border-t border-lime">
+<nav
+  class="fixed bottom-0 left-0 right-0 bg-[#222] border-t border-lime pb-safe"
+>
   <div class="flex justify-between items-stretch max-w-lg mx-auto">
     {#each paths as { slug, title }}
       <a

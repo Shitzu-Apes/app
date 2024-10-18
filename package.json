@@ -71,6 +71,7 @@
     "@unocss/preset-icons": "^0.60.2",
     "@vite-pwa/assets-generator": "^0.2.6",
     "@vite-pwa/sveltekit": "^0.6.5",
+    "@yeungkc/unocss-preset-safe-area": "^0.0.10",
     "d3": "^7.9.0",
     "embla-carousel": "^8.1.5",
     "embla-carousel-svelte": "^8.1.5",

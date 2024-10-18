@@ -1882,7 +1882,7 @@
     "@jridgewell/gen-mapping" "^0.3.5"
     "@jridgewell/trace-mapping" "^0.3.25"
 
-"@jridgewell/sourcemap-codec@^1.4.10", "@jridgewell/sourcemap-codec@^1.4.14", "@jridgewell/sourcemap-codec@^1.4.15":
+"@jridgewell/sourcemap-codec@^1.4.10", "@jridgewell/sourcemap-codec@^1.4.14", "@jridgewell/sourcemap-codec@^1.4.15", "@jridgewell/sourcemap-codec@^1.5.0":
   version "1.5.0"
   resolved "https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.5.0.tgz"
   integrity sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==
@@ -4502,6 +4502,11 @@
   resolved "https://registry.npmjs.org/@unocss/core/-/core-0.61.3.tgz"
   integrity sha512-9vixY1i5E0DQFtHJz/pHyFlFsiXJgL1bKHuocbl+GUi09lY/gE9TRm2qr2JOJx/BF720tMv9VxYI8Zq3EyPOXA==
 
+"@unocss/core@0.62.4", "@unocss/core@^0.62.3", "@unocss/core@^0.62.4":
+  version "0.62.4"
+  resolved "https://registry.yarnpkg.com/@unocss/core/-/core-0.62.4.tgz#306eaafe9dd5c564526b77c5685555b4704668f9"
+  integrity sha512-Cc+Vo6XlaQpyVejkJrrzzWtiK9pgMWzVVBpm9VCVtwZPUjD4GSc+g7VQCPXSsr7m03tmSuRySJx72QcASmauNQ==
+
 "@unocss/extractor-arbitrary-variants@0.56.5":
   version "0.56.5"
   resolved "https://registry.yarnpkg.com/@unocss/extractor-arbitrary-variants/-/extractor-arbitrary-variants-0.56.5.tgz#fa88a30bc10e68f2899f375aa01e03f11ea18d01"
@@ -4515,6 +4520,13 @@
   integrity sha512-8yFAavi4PXTZTyJqsSQJuZNdaERMyLP4Gs4IzBDt8zjmUrXmYfgV+bKif2eE52QKvtb5/Jsij3fgfMsJouln7A==
   dependencies:
     "@unocss/core" "0.61.3"
+
+"@unocss/extractor-arbitrary-variants@0.62.4":
+  version "0.62.4"
+  resolved "https://registry.yarnpkg.com/@unocss/extractor-arbitrary-variants/-/extractor-arbitrary-variants-0.62.4.tgz#09196441619f043dfa7a375aeb402e113f57410b"
+  integrity sha512-e4hJfBMyFr6T6dYSTTjNv9CQwaU1CVEKxDlYP0GpfSgxsV58pguID9j1mt0/XZD6LvEDzwxj9RTRWKpUSWqp+Q==
+  dependencies:
+    "@unocss/core" "0.62.4"
 
 "@unocss/extractor-svelte@^0.60.2":
   version "0.60.4"
@@ -4587,6 +4599,15 @@
     "@unocss/extractor-arbitrary-variants" "0.56.5"
     "@unocss/rule-utils" "0.56.5"
 
+"@unocss/preset-mini@^0.62.3":
+  version "0.62.4"
+  resolved "https://registry.yarnpkg.com/@unocss/preset-mini/-/preset-mini-0.62.4.tgz#e7804172b8f7f62fcf1788485195efcf5af2d9e3"
+  integrity sha512-1O+QpQFx7FT61aheAZEYemW5e4AGib8TFGm+rWLudKq2IBNnXHcS5xsq5QvqdC7rp9Dn3lnW5du6ijow5kCBuw==
+  dependencies:
+    "@unocss/core" "0.62.4"
+    "@unocss/extractor-arbitrary-variants" "0.62.4"
+    "@unocss/rule-utils" "0.62.4"
+
 "@unocss/preset-tagify@0.61.3":
   version "0.61.3"
   resolved "https://registry.npmjs.org/@unocss/preset-tagify/-/preset-tagify-0.61.3.tgz"
@@ -4653,6 +4674,14 @@
   dependencies:
     "@unocss/core" "^0.61.3"
     magic-string "^0.30.10"
+
+"@unocss/rule-utils@0.62.4":
+  version "0.62.4"
+  resolved "https://registry.yarnpkg.com/@unocss/rule-utils/-/rule-utils-0.62.4.tgz#4e5ca23923b94b35a5f09627f95e5262e9b1f9d5"
+  integrity sha512-XUwLbLUzL+VSHCJNK5QBHC9RbFehumge1/XJmsRfmh0+oxgJoO1gvEvxi57gYEmdJdMRJHRJZ66se6+cB0Ymvw==
+  dependencies:
+    "@unocss/core" "^0.62.4"
+    magic-string "^0.30.11"
 
 "@unocss/scope@0.61.3":
   version "0.61.3"
@@ -5295,6 +5324,14 @@
     "@web3modal/common" "5.1.8"
     "@web3modal/polyfills" "5.1.8"
     zod "3.22.4"
+
+"@yeungkc/unocss-preset-safe-area@^0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@yeungkc/unocss-preset-safe-area/-/unocss-preset-safe-area-0.0.10.tgz#996d64c85d9aba941d8931f777350eec560960b7"
+  integrity sha512-km1EzBhbSUpWiT8JVyS7PAGrUtyMgRQ10smndxoxer3eOyLR87SDn5hMy7RuWnokf2pgvD/Fjpc26fUI+jaBbA==
+  dependencies:
+    "@unocss/core" "^0.62.3"
+    "@unocss/preset-mini" "^0.62.3"
 
 abab@^2.0.6:
   version "2.0.6"
@@ -9584,6 +9621,13 @@ magic-string@^0.30.10, magic-string@^0.30.3, magic-string@^0.30.4, magic-string@
   integrity sha512-iIRwTIf0QKV3UAnYK4PU8uiEc4SRh5jX0mwpIwETPpHdhVM4f53RSwS/vXvN1JhGX+Cs7B8qIq3d6AH49O5fAQ==
   dependencies:
     "@jridgewell/sourcemap-codec" "^1.4.15"
+
+magic-string@^0.30.11:
+  version "0.30.12"
+  resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.30.12.tgz#9eb11c9d072b9bcb4940a5b2c2e1a217e4ee1a60"
+  integrity sha512-Ea8I3sQMVXr8JhN4z+H/d8zwo+tYDgHE9+5G4Wnrwhs0gaK9fXTKx0Tw5Xwsd/bCPTTZNRAdpyzvoeORe9LYpw==
+  dependencies:
+    "@jridgewell/sourcemap-codec" "^1.5.0"
 
 make-dir@^3.0.2:
   version "3.1.0"
