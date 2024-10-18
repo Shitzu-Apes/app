@@ -1,11 +1,12 @@
 <script lang="ts">
   export let pool_id: string;
+  export let showTrade: boolean = false;
 </script>
 
 <div id="dexscreener-embed" class="flex-1">
   <iframe
     title="Dexscreener"
-    src={`https://dexscreener.com/near/refv1-${pool_id}?embed=1&theme=dark&info=0&trades=0`}
+    src={`https://dexscreener.com/near/refv1-${pool_id}?embed=1&theme=dark&info=0&trades=${showTrade ? 1 : 0}`}
   ></iframe>
 </div>
 
