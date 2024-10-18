@@ -2,8 +2,11 @@
   import Markdown from "@magidoc/plugin-svelte-marked";
   import { onMount, afterUpdate } from "svelte";
 
+  import ShitstarSheet from "../ShitstarSheet.svelte";
+
   import type { ShitChatMessage } from "$lib/components/ShitChat/types";
   import Squircle from "$lib/components/Squircle.svelte";
+  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
 
   export let messages: ShitChatMessage[];
   export let currentUser: string;
@@ -26,6 +29,10 @@
       });
     }
   }
+
+  function openShitstarSheet(token_id: string) {
+    openBottomSheet(ShitstarSheet, { token_id });
+  }
 </script>
 
 <div bind:this={chatContainer} class="overflow-y-auto h-full scrollbar-none">
@@ -35,7 +42,10 @@
     <h2 class="text-lg font-300 text-lime mb-2">Online</h2>
     <div class="inline-flex space-x-2">
       {#each onlineUsers as onlineUser (onlineUser.token_id)}
-        <div class="flex flex-col items-center">
+        <button
+          class="flex flex-col items-center"
+          on:click={() => openShitstarSheet(onlineUser.token_id)}
+        >
           <div class="relative">
             <Squircle
               src={`${import.meta.env.VITE_NFT_BASE_URL}/${onlineUser.token_id}.png`}
@@ -47,7 +57,7 @@
             ></div>
           </div>
           <span class="text-xs text-white mt-1">#{onlineUser.token_id}</span>
-        </div>
+        </button>
       {/each}
     </div>
   </div>
@@ -62,9 +72,9 @@
           class="max-w-3/4 bg-gradient-to-r from-lime to-emerald border border-lime rounded-lg p-3"
         >
           <div class="flex items-center mb-1 w-full">
-            <a
-              href={`/shitstars/${message.token_id}`}
+            <button
               class="flex items-center hover:underline text-black gap-1 flex-shrink-1 overflow-hidden"
+              on:click={() => openShitstarSheet(message.token_id)}
             >
               <Squircle
                 src={`${import.meta.env.VITE_NFT_BASE_URL}/${message.token_id}.png`}
@@ -80,7 +90,7 @@
               <div class="text-black rounded py-1 text-xs flex-shrink-0 -ml-1">
                 )
               </div>
-            </a>
+            </button>
             <span class="text-xs text-gray-6 ml-2 flex-shrink-0">
               {new Date(message.created_at_ms).toLocaleTimeString([], {
                 hour: "2-digit",
