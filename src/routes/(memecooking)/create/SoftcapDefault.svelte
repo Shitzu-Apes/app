@@ -12,6 +12,8 @@
 </script>
 
 <script lang="ts">
+  import { fade, slide } from "svelte/transition";
+
   import SoftHardCapSlider from "./SoftHardCapSlider.svelte";
 
   import Near from "$lib/assets/Near.svelte";
@@ -29,8 +31,9 @@
     selectedOption = option;
     if (option === "small" || option === "large") {
       softCap = CAP_DEFAULT_OPTIONS[option].softCap;
-      hardCap = CAP_DEFAULT_OPTIONS[option].hardCap;
-      hardCapEnabled = true;
+      if (hardCapEnabled) {
+        hardCap = CAP_DEFAULT_OPTIONS[option].hardCap;
+      }
     } else if (option === "customize") {
       // Allow customization through the slider
     }
@@ -51,9 +54,11 @@
         <div class="flex items-center">
           Soft: 100 <Near className="size-4" />
         </div>
-        <div class="flex items-center">
-          Hard: 500 <Near className="size-4" />
-        </div>
+        {#if hardCapEnabled}
+          <div transition:slide class="flex items-center">
+            Hard: 500 <Near className="size-4" />
+          </div>
+        {/if}
       </button>
     </div>
     <div class="flex-grow basis-0">
@@ -65,9 +70,11 @@
         <div class="flex items-center">
           Soft: 500 <Near className="size-4" />
         </div>
-        <div class="flex items-center">
-          Hard: 1000 <Near className="size-4" />
-        </div>
+        {#if hardCapEnabled}
+          <div transition:slide class="flex items-center">
+            Hard: 1000 <Near className="size-4" />
+          </div>
+        {/if}
       </button>
     </div>
     <div class="flex-grow basis-0">
@@ -80,6 +87,11 @@
     </div>
   </div>
 
+  <label class="flex items-center space-x-2 mt-2">
+    <input type="checkbox" bind:checked={hardCapEnabled} />
+    <span>Enable Hard Cap</span>
+  </label>
+
   {#if selectedOption === "customize"}
     <SoftHardCapSlider bind:softCap bind:hardCap bind:hardCapEnabled />
   {/if}
@@ -87,8 +99,10 @@
   <div class="text-xs text-gray-400 w-full">
     The Soft Cap of {(Number(softCap) / Number(NEAR_MULTIPLIER)).toFixed(2)} NEAR
     is the minimum required to launch on ref once the duration is over. {#if hardCapEnabled}
-      If the Hard Cap of {(
-        Number(hardCap || 0) / Number(NEAR_MULTIPLIER)
-      ).toFixed(2)} NEAR is reached, it will trigger an immediate launch.{/if}
+      <span transition:fade
+        >If the Hard Cap of {(
+          Number(hardCap || 0) / Number(NEAR_MULTIPLIER)
+        ).toFixed(2)} NEAR is reached, it will trigger an immediate launch.</span
+      >{/if}
   </div>
 </div>

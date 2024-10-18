@@ -4,7 +4,7 @@
   // Define NEAR amounts in YoctoNEAR (1 NEAR = 10^24 YoctoNEAR)
   export let softCap: string = "1000000000000000000000000"; // 1 NEAR
   export let hardCap: string | null = null; // e.g., "5000000000000000000000000" for 5 NEAR
-  export let hardCapEnabled: boolean = false;
+  export let hardCapEnabled: boolean;
 
   const NEAR_DECIMALS = 24;
   const NEAR_MULTIPLIER = BigInt(10) ** BigInt(NEAR_DECIMALS);
@@ -92,9 +92,4 @@
       </span>
     {/if}
   </div>
-
-  <label class="flex items-center space-x-2 mt-2">
-    <input type="checkbox" bind:checked={hardCapEnabled} />
-    <span>Enable Hard Cap</span>
-  </label>
 </div>

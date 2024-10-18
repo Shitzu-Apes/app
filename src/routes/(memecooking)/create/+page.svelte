@@ -310,7 +310,7 @@
           reference: referenceCID,
           referenceHash,
           softCap,
-          hardCap: hardCap || undefined,
+          hardCap: hardCapEnabled ? hardCap ?? undefined : undefined,
         },
         await $storageCost$,
         {
