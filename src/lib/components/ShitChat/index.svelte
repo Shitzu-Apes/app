@@ -179,9 +179,10 @@
       {:else}
         <div class="flex flex-col items-center justify-center flex-1 h-full">
           <img src={SHITZU_WOOF_WOOF} class="w-1/2 mb-4" alt="ShitChat" />
-          <p class="text-xl mb-4">ShitChat</p>
+          <p class="text-xl mb-4">Shitchat</p>
           <p class="text-lg mb-6 text-center">
-            Access to Alpha ShitChat is <br /> reserved for Shitzu NFT Revival holders.
+            Shitchat is a chill hangout spot <br /> exclusively for Shitzu NFT Revival
+            holders.
           </p>
         </div>
       {/if}

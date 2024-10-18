@@ -20,12 +20,12 @@
     },
     {
       slug: "/shitstars",
-      title: "ShitStars",
+      title: "Shitstars",
       icon: "i-mdi-stars",
     },
     {
       slug: "/shitchat",
-      title: "ShitChat",
+      title: "Shitchat",
       icon: "i-mdi:shield-key",
     },
     {
@@ -55,7 +55,7 @@
     },
     {
       slug: "#",
-      title: "DexScreener",
+      title: "Dexscreener",
       customLogo: DEXSCREENER_LOGO,
       action: () => openBottomSheet(DexscreenerSheet, { pool_id: "4369" }, "l"),
     },
@@ -64,7 +64,7 @@
   const secondSlideLinks = [
     {
       slug: "https://www.coingecko.com/en/coins/shitzu",
-      title: "CoinGecko",
+      title: "Coingecko",
       customLogo: COINGECKO_LOGO,
       external: true,
     },

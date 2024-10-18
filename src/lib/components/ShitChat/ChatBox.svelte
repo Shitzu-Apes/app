@@ -18,6 +18,16 @@
   function isTopTen(token_id: string): boolean {
     return ranking.some((item) => item.token_id === token_id);
   }
+
+  function getMessageStyle(account_id: string): string {
+    if (account_id === "root.near") {
+      return "bg-gradient-to-r from-gray-800 to-gray-900 text-white";
+    } else if (isTopTen(message.token_id)) {
+      return "bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-200 text-black";
+    } else {
+      return "bg-gradient-to-r from-lime to-emerald text-black";
+    }
+  }
 </script>
 
 <div
@@ -25,14 +35,10 @@
     ? 'justify-end'
     : 'justify-start'} p-2"
 >
-  <div
-    class="max-w-3/4 {isTopTen(message.token_id)
-      ? 'bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-200'
-      : 'bg-gradient-to-r from-lime to-emerald'} rounded-lg p-3"
-  >
+  <div class="max-w-3/4 {getMessageStyle(message.account_id)} rounded-lg p-3">
     <div class="flex items-center mb-1 w-full">
       <button
-        class="flex items-center hover:underline text-black gap-1 flex-shrink-1 overflow-hidden"
+        class="flex items-center hover:underline gap-1 flex-shrink-1 overflow-hidden"
         on:click={() => openShitstarSheet(message.token_id)}
       >
         <Squircle
@@ -40,13 +46,13 @@
           class="size-6 mr-2 text-white flex-shrink-0"
           stroke={true}
         />
-        <div class="text-black rounded py-1 text-xs flex-shrink-0">
+        <div class="rounded py-1 text-xs flex-shrink-0">
           #{message.token_id}
         </div>
-        <div class="text-black rounded py-1 text-xs flex-1 truncate">
+        <div class="rounded py-1 text-xs flex-1 truncate">
           ({message.account_id}
         </div>
-        <div class="text-black rounded py-1 text-xs flex-shrink-0 -ml-1">)</div>
+        <div class="rounded py-1 text-xs flex-shrink-0 -ml-1">)</div>
       </button>
       <span class="text-xs text-gray-6 ml-2 flex-shrink-0">
         {new Date(message.created_at_ms).toLocaleTimeString([], {
@@ -62,7 +68,7 @@
         class="mb-2 rounded-lg max-w-full h-auto"
       />
     {/if}
-    <div class="markdown text-black">
+    <div class="markdown">
       <Markdown source={message.content} />
     </div>
   </div>
