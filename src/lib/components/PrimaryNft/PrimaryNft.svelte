@@ -134,12 +134,12 @@
             />
           </a>
           <div
-            class="flex flex-col justify-center items-start text-sm md:text-lg flex-1"
+            class="flex flex-col justify-center items-start text-sm md:text-lg flex-1 overflow-hidden"
           >
             <div class="font-bold text-black leading-tight">
               #{token.token_id}
             </div>
-            <div class="font-light text-black leading-tight">
+            <div class="font-light text-black leading-tight w-full truncate">
               {$accountId$}
             </div>
             <div class="font-bold text-black flex items-center">
