@@ -44,6 +44,8 @@
 
   export let meme: Meme;
 
+  let unwrapNear: boolean = true;
+
   const tokenBalance = writable<FixedNumber | undefined>();
   $: if ($accountId$) {
     refreshTokenBalance($accountId$);
@@ -59,7 +61,7 @@
     });
   }
 
-  let expected: FixedNumber | undefined = undefined;
+  let expected: Promise<FixedNumber> | undefined = undefined;
   $: {
     if (meme.pool_id) {
       const decimals = $value === "buy" ? 24 : meme.decimals;
@@ -78,7 +80,7 @@
           tokenOut = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
         }
 
-        Ref.getReturn({
+        expected = Ref.getReturn({
           amountIn,
           tokenOut,
           tokenIn,
@@ -86,7 +88,7 @@
           decimals: $value === "buy" ? meme.decimals : 24,
         }).then((value) => {
           console.log("[getReturn]: ", value);
-          expected = value;
+          return value;
         });
       } else {
         expected = undefined;
@@ -138,6 +140,45 @@
     const callback: TransactionCallbacks<FinalExecutionOutcome[]> = {
       onSuccess: async (outcome) => {
         if (!outcome || !$accountId$) return;
+
+        const refReceipt = outcome[outcome.length - 1].receipts_outcome.find(
+          (outcome) =>
+            outcome.outcome.executor_id ===
+            import.meta.env.VITE_REF_CONTRACT_ID,
+        );
+        if (refReceipt != null) {
+          const log = refReceipt.outcome.logs[0];
+          const inAmount = new FixedNumber(
+            log.split("Swapped ")[1].split(" ")[0],
+            $value === "buy" ? 24 : meme.decimals,
+          );
+          const outAmount = new FixedNumber(
+            log.split(" for ")[1].split(" ")[0],
+            $value === "buy" ? meme.decimals : 24,
+          );
+          addToast({
+            data: {
+              type: "simple",
+              data: {
+                title: "Swap Success",
+                description: `You successfully swapped ${inAmount.format({
+                  compactDisplay: "short",
+                  notation: "compact",
+                })} ${$value === "buy" ? "NEAR" : meme.symbol} for ${outAmount.format(
+                  {
+                    compactDisplay: "short",
+                    notation: "compact",
+                    maximumFractionDigits: 3,
+                  },
+                )} ${$value === "buy" ? meme.symbol : "NEAR"}`,
+              },
+            },
+            closeDelay: 8_000,
+          });
+        }
+        closeBottomSheet();
+        $inputValue$ = "";
+
         const blockHeight = await fetchBlockHeight(outcome);
         await Promise.all([
           awaitIndexerBlockHeight(blockHeight),
@@ -145,14 +186,19 @@
         ]);
         refreshNearBalance($accountId$);
         refreshTokenBalance($accountId$);
-        closeBottomSheet();
-        $inputValue$ = "";
       },
     };
     if ($value === "buy") {
-      return handleBuy($input$, $accountId$, expected, meme, callback);
+      return handleBuy($input$, $accountId$, await expected, meme, callback);
     } else {
-      return handleSell($input$, $accountId$, expected, meme, callback);
+      return handleSell(
+        $input$,
+        $accountId$,
+        await expected,
+        meme,
+        unwrapNear,
+        callback,
+      );
     }
   }
 
@@ -316,25 +362,39 @@
         </li>
       {/each}
     </ul>
-    {#if expected != null && expected.valueOf() > 0n}
-      <div transition:slide class="text-sm text-white my-3">
-        {expected.format({
-          notation: "compact",
-          compactDisplay: "short",
-        })}
-        {#if $value === "buy"}
-          {meme.symbol}
-          <img
-            src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
-            alt={meme.name}
-            class="inline size-5 rounded-full"
-          />
-        {:else}
-          NEAR
-          <Near className="inline size-5 bg-white text-black rounded-full" />
-        {/if}
+    {#if expected != null}
+      <div transition:slide class="text-sm text-white my-3 min-h-7">
+        {#await expected}
+          <div class="i-svg-spinners:pulse-3 size-4 my-3 ml-4" />
+        {:then expected}
+          {expected.format({
+            notation: "compact",
+            compactDisplay: "short",
+          })}
+          {#if $value === "buy"}
+            {meme.symbol}
+            <img
+              src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
+              alt={meme.name}
+              class="inline size-5 rounded-full"
+            />
+          {:else}
+            NEAR
+            <Near className="inline size-5 bg-white text-black rounded-full" />
+          {/if}
+        {/await}
       </div>
     {/if}
+
+    <label
+      class="flex items-center space-x-2 mt-2 {$value === 'buy'
+        ? 'invisible'
+        : ''}"
+    >
+      <input type="checkbox" bind:checked={unwrapNear} />
+      <span>Unwrap wNEAR</span>
+    </label>
+
     <Button
       onClick={async () => {
         await action();
@@ -350,7 +410,7 @@
         : 'bg-rose-4'} w-full py-2 rounded text-xl tracking-wider text-black
         {$value === 'buy'
         ? 'border-shitzu-5'
-        : 'border-rose-5'} active:translate-y-1 my-12"
+        : 'border-rose-5'} active:translate-y-1 my-8"
     >
       [{$value}]
     </Button>

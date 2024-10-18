@@ -76,7 +76,7 @@
           } catch (err) {
             // already removed
           }
-        }, 10_000);
+        }, 8_000);
       });
   }
 

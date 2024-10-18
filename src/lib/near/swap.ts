@@ -1,9 +1,9 @@
 import type { HereCall } from "@here-wallet/core";
-import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
-import { match } from "ts-pattern";
+import type { Action, FinalExecutionOutcome } from "@near-wallet-selector/core";
+import { get } from "svelte/store";
 
 import type { Meme } from "$lib/models/memecooking";
-import { Ft, wallet, type TransactionCallbacks } from "$lib/near";
+import { Ft, nearBalance, wallet, type TransactionCallbacks } from "$lib/near";
 import { FixedNumber } from "$lib/util";
 import { getTokenId } from "$lib/util/getTokenId";
 
@@ -25,9 +25,21 @@ export async function handleBuy(
 
   const transactions: HereCall[] = [];
 
-  const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
+  const [
+    isRegistered,
+    storageRequirement,
+    wrapNearRegistered,
+    wrapNearMinDeposit,
+    wrapNearBalance,
+  ] = await Promise.all([
+    Ft.isUserRegistered(tokenId, accountId),
+    Ft.storageRequirement(tokenId),
+    Ft.isUserRegistered(import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!, accountId),
+    Ft.storageRequirement(import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!),
+    Ft.balanceOf(import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!, accountId, 24),
+  ]);
+
   if (!isRegistered) {
-    const deposit = await Ft.storageRequirement(tokenId);
     transactions.push({
       receiverId: tokenId,
       actions: [
@@ -37,66 +49,71 @@ export async function handleBuy(
             methodName: "storage_deposit",
             args: {},
             gas: 20_000_000_000_000n.toString(),
-            deposit,
+            deposit: storageRequirement,
           },
         },
       ],
     });
   }
 
-  const isWnearRegistered = await Ft.isUserRegistered(
-    import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
-    accountId,
-  );
-  const deposit = await match(isWnearRegistered)
-    .with(true, () => Promise.resolve(input.clone()))
-    .with(false, () =>
-      Ft.storageRequirement(import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!).then(
-        (storageReq) => input.add(new FixedNumber(storageReq, 24)),
-      ),
-    )
-    .exhaustive();
+  console.log("wnear", wrapNearBalance.format());
+  let nearDeposit =
+    input.toBigInt() > wrapNearBalance.toBigInt()
+      ? input.toBigInt() - wrapNearBalance.toBigInt()
+      : 0n;
+  if (!wrapNearRegistered) {
+    nearDeposit += BigInt(wrapNearMinDeposit);
+  }
+
+  const balance = get(nearBalance);
+  if (balance && nearDeposit > balance.toBigInt()) {
+    console.error("Not enough NEAR balance");
+    return;
+  }
+
+  const actions: Action[] = [];
+  if (nearDeposit > 0n) {
+    actions.push({
+      type: "FunctionCall",
+      params: {
+        methodName: "near_deposit",
+        args: {},
+        gas: 30_000_000_000_000n.toString(),
+        deposit: nearDeposit.toString(),
+      },
+    });
+  }
+  actions.push({
+    type: "FunctionCall",
+    params: {
+      methodName: "ft_transfer_call",
+      args: {
+        receiver_id: import.meta.env.VITE_REF_CONTRACT_ID,
+        amount: input.toU128(),
+        msg: JSON.stringify({
+          referral_id:
+            import.meta.env.VITE_NETWORK_ID === "mainnet"
+              ? "shitzu.sputnik-dao.near"
+              : undefined,
+          actions: [
+            {
+              pool_id: meme.pool_id,
+              token_in: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
+              amount_in: input.toU128(),
+              token_out: tokenId,
+              min_amount_out,
+            },
+          ],
+        }),
+      },
+      gas: 150_000_000_000_000n.toString(),
+      deposit: "1",
+    },
+  });
 
   transactions.push({
     receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
-    actions: [
-      {
-        type: "FunctionCall",
-        params: {
-          methodName: "near_deposit",
-          args: {},
-          gas: 30_000_000_000_000n.toString(),
-          deposit: deposit.toU128(),
-        },
-      },
-      {
-        type: "FunctionCall",
-        params: {
-          methodName: "ft_transfer_call",
-          args: {
-            receiver_id: import.meta.env.VITE_REF_CONTRACT_ID,
-            amount: input.toU128(),
-            msg: JSON.stringify({
-              referral_id:
-                import.meta.env.VITE_NETWORK_ID === "mainnet"
-                  ? "shitzu.sputnik-dao.near"
-                  : undefined,
-              actions: [
-                {
-                  pool_id: meme.pool_id,
-                  token_in: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
-                  amount_in: input.toU128(),
-                  token_out: tokenId,
-                  min_amount_out,
-                },
-              ],
-            }),
-          },
-          gas: 150_000_000_000_000n.toString(),
-          deposit: "1",
-        },
-      },
-    ],
+    actions,
   });
 
   await wallet.signAndSendTransactions({ transactions }, callback);
@@ -107,6 +124,7 @@ export async function handleSell(
   accountId: string,
   expected: FixedNumber,
   meme: Meme,
+  unwrapNear: boolean,
   callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
 ) {
   if (!input || !accountId) return;
@@ -189,6 +207,7 @@ export async function handleSell(
                   min_amount_out,
                 },
               ],
+              skip_unwrap_near: !unwrapNear,
             }),
           },
           gas: 150_000_000_000_000n.toString(),
