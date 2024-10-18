@@ -30,7 +30,7 @@
 
 <div bind:this={chatContainer} class="overflow-y-auto h-full scrollbar-none">
   <div
-    class="overflow-x-auto whitespace-nowrap py-2 mb-4 scrollbar-none border-b border-lime"
+    class="overflow-x-auto whitespace-nowrap py-2 scrollbar-none border-b border-lime sticky top-0 bg-[#222] px-2"
   >
     <h2 class="text-lg font-300 text-lime mb-2">Online</h2>
     <div class="inline-flex space-x-2">
