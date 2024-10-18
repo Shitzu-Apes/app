@@ -3,6 +3,7 @@
   import { match, P } from "ts-pattern";
 
   import SHITZU_WOOF_WOOF from "$lib/assets/static/shitzu_woof_woof.png";
+  import { showWalletSelector } from "$lib/auth";
   import { fetchIsLoggedIn, isLoggedIn$ } from "$lib/auth/login";
   import Chatlist from "$lib/components/ShitChat/Chatlist.svelte";
   import type { ShitChatMessage } from "$lib/components/ShitChat/types";
@@ -15,7 +16,7 @@
   let messages: ShitChatMessage[] = [];
   let newMessage: string = "";
   let chatContainer: HTMLElement;
-  let socket: WebSocket;
+  let socket: WebSocket | null = null;
   let imageFile: File | null = null;
   let imagePreview: string | null = null;
 
@@ -23,21 +24,22 @@
     refreshPrimaryNftOf($accountId$);
   }
 
-  onMount(async () => {
-    fetchIsLoggedIn();
-    // Initialize WebSocket connection
+  function initializeSocket() {
+    if (socket) {
+      socket.close();
+    }
+
     socket = new WebSocket(
       `${import.meta.env.VITE_MEME_COOKING_API}/shitchat/chat`,
     );
 
     socket.addEventListener("open", () => {
       console.log("WebSocket connection established");
-      socket.send("initial_messages");
+      socket?.send("initial_messages");
     });
 
     socket.addEventListener("message", (event) => {
       const message: ShitChatMessage = JSON.parse(event.data);
-      // Update messages with the new message from the backend
       messages = [...messages, message];
       scrollToBottom();
     });
@@ -49,16 +51,32 @@
     socket.addEventListener("error", (error) => {
       console.error("WebSocket error:", error);
     });
+  }
+
+  onMount(async () => {
+    await fetchIsLoggedIn();
+    initializeSocket();
   });
 
   onDestroy(() => {
-    // Clean up the WebSocket connection when the component is destroyed
     if (socket) {
       socket.close();
     }
   });
 
   async function sendMessage() {
+    if (!socket) {
+      return addToast({
+        data: {
+          type: "simple",
+          data: {
+            title: "Login",
+            description: "Please login to use ShitChat",
+            color: "red",
+          },
+        },
+      });
+    }
     if ((newMessage.trim() || imageFile) && $accountId$) {
       let imgUrl = imagePreview || "";
 
@@ -245,6 +263,9 @@
           <button
             class="bg-lime text-black font-bold text-sm rounded-r-lg px-5 py-2 flex items-center justify-center border-y-1 border-r border-lime"
             on:click={async () => {
+              if (!$accountId$) {
+                return await showWalletSelector();
+              }
               const isLoggedIn = await $isLoggedIn$;
               if (!isLoggedIn) {
                 const walletId = await $walletId$;
@@ -262,7 +283,11 @@
                       },
                     });
                   })
-                  .otherwise(wallet.login);
+                  .otherwise(async () => {
+                    await wallet.login();
+                    await fetchIsLoggedIn();
+                    initializeSocket();
+                  });
               }
             }}
           >
