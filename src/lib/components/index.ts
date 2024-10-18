@@ -12,6 +12,7 @@ import Leaderboard from "./Leaderboard.svelte";
 import MessageBox from "./MessageBox.svelte";
 import PrimaryNft from "./PrimaryNft";
 import { RefMemeSeason } from "./RefMemeSeason";
+import ShitzuEcosystem from "./ShitzuEcosystem/index.svelte";
 import ShitzuSwap from "./ShitzuSwap.svelte";
 import Squircle from "./Squircle.svelte";
 import Stake from "./Stake.svelte";
@@ -19,7 +20,6 @@ import TokenInput from "./TokenInput.svelte";
 import TokenStatistics from "./TokenStatistics.svelte";
 import TxSnackbar from "./TxSnackbar.svelte";
 import ValidatorStatistics from "./ValidatorStatistics.svelte";
-
 export {
   BuyNftBanner,
   RefBanner,
@@ -36,6 +36,7 @@ export {
   PrimaryNft,
   RefMemeSeason,
   ShitzuSwap,
+  ShitzuEcosystem,
   Stake,
   Squircle,
   TokenInput,

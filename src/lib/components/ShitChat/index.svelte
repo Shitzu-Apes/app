@@ -131,7 +131,7 @@
 </script>
 
 <div
-  class="flex flex-col h-[calc(100vh-182px)] not-prose text-white w-full py-4"
+  class="flex flex-col h-[calc(100vh-140px)] not-prose text-white w-full py-4"
 >
   <div class="flex flex-col flex-1 overflow-y-auto">
     {#await $isLoggedIn$}

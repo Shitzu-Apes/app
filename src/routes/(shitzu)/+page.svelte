@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { RefBanner, ShitzuSwap, RefMemeSeason } from "$lib/components";
+  import {
+    RefBanner,
+    ShitzuSwap,
+    RefMemeSeason,
+    ShitzuEcosystem,
+  } from "$lib/components";
   import { wallet } from "$lib/near";
   import { memes } from "$lib/store";
 
@@ -8,6 +13,7 @@
 
 <div class="flex flex-col gap-[1.2rem]">
   <ShitzuSwap />
+  <ShitzuEcosystem />
   {#if $accountId$}
     <RefMemeSeason />
   {:else}

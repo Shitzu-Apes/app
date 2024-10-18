@@ -71,7 +71,14 @@
 </script>
 
 {#if $accountId$}
-  <div class="flex flex-col w-full">
+  <div class="flex flex-col w-full relative">
+    <button
+      class="w-fit text-red hover:bg-red/10 px-3 py-2 rounded-full text-sm flex items-center justify-center gap-1 mt-2 self-end"
+      on:click={() => wallet.signOut()}
+    >
+      <div class="i-mdi:logout size-4" />
+      disconnect
+    </button>
     <div
       class="flex flex-col gap-2 justify-center items-center rounded-xl p-2 w-full"
     >
@@ -146,7 +153,7 @@
       {/each}
     </ul>
     <section>
-      <h2>Ref Finance</h2>
+      <h2 class="mt-0">Ref Finance</h2>
       <RefMemeSeason />
 
       <Faq

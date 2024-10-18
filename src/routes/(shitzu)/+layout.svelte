@@ -10,7 +10,8 @@
   import { blur } from "svelte/transition";
 
   import Toast from "$lib/components/Toast.svelte";
-  import { Footer, Header, Body } from "$lib/layout";
+  import { Footer, Body } from "$lib/layout";
+  import BottomNav from "$lib/layout/BottomNav.svelte";
   import { BottomSheet } from "$lib/layout/BottomSheet";
   import { ScreenSize } from "$lib/models";
   import { wallet } from "$lib/near";
@@ -61,13 +62,13 @@
     class="bg-[#222] min-h-screen w-screen max-w-full"
   >
     <div
-      class="flex flex-col min-h-screen prose prose-invert prose-lime mx-auto max-w-none"
+      class="flex flex-col min-h-screen prose prose-invert prose-lime mx-auto max-w-none pb-15"
     >
-      <Header />
       <Body>
         <slot />
       </Body>
       <Footer />
+      <BottomNav />
     </div>
   </div>
   <Toast />

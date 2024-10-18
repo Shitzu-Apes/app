@@ -3,6 +3,7 @@
   import { writable } from "svelte/store";
 
   import { Near } from "$lib/assets";
+  import SHITZU_LOGO from "$lib/assets/logo/shitzu.webp";
   import { ConnectWallet } from "$lib/auth";
   import { DayPriceChart } from "$lib/components";
   import { TokenInput } from "$lib/components";
@@ -201,7 +202,10 @@
 
   <div class="text-center not-prose flex justify-between items-center">
     <div class="flex flex-col justify-start">
-      <h2 class="mb-0 text-4xl text-start">SHITZU</h2>
+      <h2 class="mb-0 text-4xl text-start flex items-center">
+        <img src={SHITZU_LOGO} alt="SHITZU" class="w-8 h-8 mr-2" />
+        SHITZU
+      </h2>
       <div>Ref Finance Pool 4369</div>
     </div>
     <div class="text-center text-white text-3xl text-end">
