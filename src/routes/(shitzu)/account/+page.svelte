@@ -153,7 +153,7 @@
       {/each}
     </ul>
     <section>
-      <h2 class="mt-0">Ref Finance</h2>
+      <h2>Ref Finance</h2>
       <RefMemeSeason />
 
       <Faq
