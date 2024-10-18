@@ -48,6 +48,7 @@
     "perfect-debounce": "^1.0.0",
     "ts-pattern": "^5.1.1",
     "virtua": "^0.35.1",
+    "vite-plugin-pwa": "^0.20.5",
     "wagmi": "^2.12.12",
     "zod": "^3.23.8"
   },
@@ -68,6 +69,8 @@
     "@typescript-eslint/parser": "^7.9.0",
     "@unocss/extractor-svelte": "^0.60.2",
     "@unocss/preset-icons": "^0.60.2",
+    "@vite-pwa/assets-generator": "^0.2.6",
+    "@vite-pwa/sveltekit": "^0.6.5",
     "d3": "^7.9.0",
     "embla-carousel": "^8.1.5",
     "embla-carousel-svelte": "^8.1.5",

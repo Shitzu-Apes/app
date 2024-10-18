@@ -2,18 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="manifest" href="%sveltekit.assets%/manifest.webmanifest" />
+    <title>Shitzu App</title>
+    <meta
+      name="description"
+      content="Shitzu App - Your gateway to the Shitzu ecosystem"
+    />
     <link rel="icon" href="%sveltekit.assets%/assets/favicon.ico" />
-    <!-- Apple Icon -->
     <link
       rel="apple-touch-icon"
-      sizes="180x180"
       href="%sveltekit.assets%/assets/apple-touch-icon.png"
-    />
-    <!-- Apple icon precomposed -->
-    <link
-      rel="apple-touch-icon-precomposed"
       sizes="180x180"
-      href="%sveltekit.assets%/assets/apple-touch-icon.png"
     />
     <link
       rel="icon"
@@ -38,14 +38,19 @@
       media="(prefers-color-scheme: dark)"
     />
     <meta name="msapplication-TileColor" content="#da532c" />
-
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script
       defer
       data-domain="app.shitzuapes.xyz"
       src="https://plausible.io/js/script.js"
     ></script>
-    <title>Shitzu App</title>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js", { scope: "/" });
+        });
+      }
+    </script>
+
     %sveltekit.head%
   </head>
   <body
