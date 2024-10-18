@@ -19,6 +19,7 @@
   let socket: WebSocket | null = null;
   let imageFile: File | null = null;
   let imagePreview: string | null = null;
+  let onlineUsers: { token_id: string; account_id: string }[] = [];
 
   $: if ($accountId$) {
     refreshPrimaryNftOf($accountId$);
@@ -33,15 +34,22 @@
       `${import.meta.env.VITE_MEME_COOKING_API}/shitchat/chat`,
     );
 
-    socket.addEventListener("open", () => {
-      console.log("WebSocket connection established");
-      socket?.send("initial_messages");
-    });
+    // socket.addEventListener("open", () => {
+    //   console.log("WebSocket connection established");
+    //   socket?.send("initial_messages");
+    // });
 
     socket.addEventListener("message", (event) => {
-      const message: ShitChatMessage = JSON.parse(event.data);
-      messages = [...messages, message];
-      scrollToBottom();
+      const data = JSON.parse(event.data);
+      if (data.type === "user_status") {
+        handleUserStatus(data);
+      } else if (data.type === "online_users") {
+        onlineUsers = data.users;
+      } else {
+        const message: ShitChatMessage = data;
+        messages = [...messages, message];
+        scrollToBottom();
+      }
     });
 
     socket.addEventListener("close", () => {
@@ -51,6 +59,23 @@
     socket.addEventListener("error", (error) => {
       console.error("WebSocket error:", error);
     });
+  }
+
+  function handleUserStatus(data: {
+    token_id: string;
+    account_id: string;
+    status: "connected" | "disconnected";
+  }) {
+    if (data.status === "connected") {
+      onlineUsers = [
+        ...onlineUsers,
+        { token_id: data.token_id, account_id: data.account_id },
+      ];
+    } else {
+      onlineUsers = onlineUsers.filter(
+        (user) => user.token_id !== data.token_id,
+      );
+    }
   }
 
   onMount(async () => {
@@ -119,18 +144,6 @@
     }, 0);
   }
 
-  // function handleFileInput(event: Event) {
-  //   const input = event.target as HTMLInputElement;
-  //   if (input.files && input.files.length > 0) {
-  //     imageFile = input.files[0];
-  //     const reader = new FileReader();
-  //     reader.onload = (e) => {
-  //       imagePreview = e.target?.result as string;
-  //     };
-  //     reader.readAsDataURL(imageFile);
-  //   }
-  // }
-
   async function uploadPromise(formData: FormData) {
     const response = await fetch("/api/create", {
       method: "POST",
@@ -161,6 +174,7 @@
         <Chatlist
           bind:messages
           currentUser={$resolvedPrimaryNftTokenId?.token_id ?? ""}
+          {onlineUsers}
         />
       {:else}
         <div class="flex flex-col items-center justify-center flex-1 h-full">
@@ -211,27 +225,6 @@
       </div>
     {:then isLoggedIn}
       <div class="flex items-center">
-        <!-- <label
-          class="bg-lime text-black font-bold text-sm rounded-l-lg px-3 py-2 flex items-center justify-center border-y border-lime cursor-pointer"
-          class:cursor-not-allowed={!isLoggedIn ||
-            !$accountId$ ||
-            !$resolvedPrimaryNftTokenId?.token_id}
-          class:opacity-50={!isLoggedIn ||
-            !$accountId$ ||
-            !$resolvedPrimaryNftTokenId?.token_id}
-        >
-          <input
-            type="file"
-            accept="image/*"
-            class="hidden"
-            on:change={handleFileInput}
-            disabled={!isLoggedIn ||
-              !$accountId$ ||
-              !$resolvedPrimaryNftTokenId?.token_id}
-          />
-          <div class="i-mdi:image size-6" />
-        </label> -->
-
         <input
           type="text"
           bind:value={newMessage}

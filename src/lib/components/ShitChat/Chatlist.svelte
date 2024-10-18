@@ -7,9 +7,9 @@
 
   export let messages: ShitChatMessage[];
   export let currentUser: string;
+  export let onlineUsers: { token_id: string; account_id: string }[] = [];
 
   let chatContainer: HTMLElement;
-
   onMount(() => {
     scrollToBottom();
   });
@@ -29,6 +29,28 @@
 </script>
 
 <div bind:this={chatContainer} class="overflow-y-auto h-full scrollbar-none">
+  <div
+    class="overflow-x-auto whitespace-nowrap py-2 mb-4 scrollbar-none border-b border-lime"
+  >
+    <h2 class="text-lg font-300 text-lime mb-2">Online</h2>
+    <div class="inline-flex space-x-2">
+      {#each onlineUsers as onlineUser (onlineUser.token_id)}
+        <div class="flex flex-col items-center">
+          <div class="relative">
+            <Squircle
+              src={`${import.meta.env.VITE_NFT_BASE_URL}/${onlineUser.token_id}.png`}
+              class="size-12 text-white"
+              stroke={true}
+            />
+            <div
+              class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"
+            ></div>
+          </div>
+          <span class="text-xs text-white mt-1">#{onlineUser.token_id}</span>
+        </div>
+      {/each}
+    </div>
+  </div>
   <div class="flex flex-col justify-end">
     {#each messages as message}
       <div
