@@ -414,7 +414,7 @@
         : ''}"
     >
       <input type="checkbox" bind:checked={unwrapNear} />
-      <span>Unwrap wNEAR</span>
+      <span class="text-white">Unwrap wNEAR</span>
     </label>
 
     <Button
