@@ -15,6 +15,11 @@
     ? Number(hardCap) / Number(NEAR_MULTIPLIER)
     : null;
 
+  const min =
+    import.meta.env.VITE_MEMECOOKING_HOSTNAME === "testnet.meme.cooking"
+      ? 10
+      : 100;
+
   // Create a slider with one or two handles based on hardCapEnabled
   let {
     elements: { root, range, thumbs },
@@ -23,9 +28,9 @@
     defaultValue: hardCapEnabled
       ? [softCapNumber, hardCapNumber || 4000]
       : [softCapNumber],
-    min: 100,
+    min,
     max: 4000, // Representing up to 4000 NEAR
-    step: 0.1, // 0.1 NEAR steps
+    step: 5,
     autoSort: true,
   });
 
@@ -34,7 +39,7 @@
       defaultValue: hardCapEnabled
         ? [softCapNumber, hardCapNumber || 4000]
         : [softCapNumber],
-      min: 100,
+      min,
       max: 4000, // Representing up to 4000 NEAR
       step: 5,
       autoSort: true,

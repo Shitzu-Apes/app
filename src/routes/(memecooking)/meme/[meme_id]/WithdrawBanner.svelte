@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { slide } from "svelte/transition";
+
   import Near from "$lib/assets/Near.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
@@ -41,7 +43,7 @@
             if (!outcome || !$accountId$) return;
             depositAmount = new FixedNumber(0n, meme.decimals);
             const blockHeight = (await fetchBlockHeight(outcome)) + 3;
-            updateMcAccount($accountId$, blockHeight);
+            updateMcAccount($accountId$, true, blockHeight);
           },
         },
       );
@@ -53,6 +55,7 @@
 
 {#if depositAmount && depositAmount.valueOf() > 0n && meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now()}
   <div
+    out:slide
     class="bg-shitzu-4 rounded-md p-4 mb-4 flex flex-col justify-between items-stretch gap-4"
   >
     <p class="text-gray-8 text-center sm:text-left">

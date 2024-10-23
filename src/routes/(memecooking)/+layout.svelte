@@ -29,7 +29,13 @@
     indexer_last_block_height$,
     node_last_block_height$,
   } from "$lib/store/indexer";
-  import { initializeWebsocket, updateMemebids, ws } from "$lib/store/memebids";
+  import {
+    appendNewMeme,
+    initializeWebsocket,
+    MCMemeSubscribe,
+    updateMemebids,
+    ws,
+  } from "$lib/store/memebids";
   import { readAndSetReferral } from "$lib/util/referral";
 
   // eslint-disable-next-line import/no-named-as-default-member
@@ -170,6 +176,11 @@
     ) {
       openBottomSheet(LaunchSheet);
     }
+  });
+
+  onMount(() => {
+    const symbol = Symbol("new_meme");
+    MCMemeSubscribe(symbol, appendNewMeme);
   });
 </script>
 

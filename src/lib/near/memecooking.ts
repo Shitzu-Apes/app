@@ -397,7 +397,7 @@ export abstract class MemeCooking {
     args: { token_ids: string[] },
     hasRevenue: boolean,
     hasShitstarClaim: boolean,
-    callback: TransactionCallbacks<FinalExecutionOutcome> = {},
+    callback: TransactionCallbacks<FinalExecutionOutcome>,
   ) {
     const actions: Action[] = [];
     if (hasRevenue) {
@@ -732,7 +732,14 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
   return res;
 }
 
-export async function updateMcAccount(accountId: string, blockHeight?: number) {
+export async function updateMcAccount(
+  accountId: string,
+  setLoading = false,
+  blockHeight?: number,
+) {
+  if (setLoading) {
+    _mcAccount$.set(new Promise(() => {}));
+  }
   if (blockHeight != null) {
     await Promise.all([
       awaitIndexerBlockHeight(blockHeight),

@@ -17,6 +17,12 @@ export const memeMap$ = derived(memebids$, async (memes) => {
   return memeMap;
 });
 
+export async function appendNewMeme(meme: Meme) {
+  const memes = await get(_memebids$);
+  memes.push(meme);
+  _memebids$.set(Promise.resolve(memes));
+}
+
 export function updateMemebids() {
   return client
     .GET("/meme")

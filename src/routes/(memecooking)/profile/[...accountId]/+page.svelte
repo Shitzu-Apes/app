@@ -30,8 +30,6 @@
   let account: McAccount | undefined;
   const unsubscribe = derived([accountId$, page], (res) => res).subscribe(
     ([ownAccountId, page]) => {
-      console.log("ownAccountId", ownAccountId);
-      console.log("page.params.accountId", page.params.accountId);
       if (ownAccountId === page.params.accountId) return;
       fetchMcAccount(page.params.accountId).then((acc) => {
         account = acc;
@@ -87,12 +85,11 @@
     outcome: FinalExecutionOutcome | FinalExecutionOutcome[] | undefined,
   ) {
     if (outcome == null) return;
-    const blockHeight = await fetchBlockHeight(outcome);
     // adding +5 here becauce of receipts being delayed
     const ownAccountId = await $accountId$;
     if (!ownAccountId) return;
-    $mcAccount$ = new Promise(() => {});
-    updateMcAccount(ownAccountId, blockHeight + 5);
+    const blockHeight = await fetchBlockHeight(outcome);
+    updateMcAccount(ownAccountId, true, blockHeight + 5);
   }
 </script>
 
