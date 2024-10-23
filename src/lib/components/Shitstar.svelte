@@ -72,12 +72,12 @@
             </div>
           </div>
         </div>
-        <div class="flex flex-col justify-center flex-1">
+        <div class="flex flex-col justify-center flex-1 overflow-hidden">
           <div>
             Shitzu Revival #{token_id}
           </div>
           <h2 class="text-xl flex items-center gap-1">
-            {token.owner}
+            <span class="truncate">{token.owner}</span>
           </h2>
           <div
             class="flex items-center gap-1 text-lg bg-lime w-fit rounded-full px-2 text-black mt-1"
