@@ -283,7 +283,7 @@
 
 <div
   use:melt={$root}
-  class="w-full h-full flex flex-col justify-start items-center"
+  class="w-full h-full flex flex-col justify-start items-center text-white"
 >
   <div use:melt={$list} class="flex justify-between items-stretch gap-6 w-full">
     {#each tabs as tab}
