@@ -11,6 +11,7 @@
   import { showWalletSelector } from "$lib/auth";
   import { Button } from "$lib/components";
   import TokenInput from "$lib/components/TokenInput.svelte";
+  import MCRefSlippage from "$lib/components/memecooking/Board/MCRefSlippage.svelte";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import {
@@ -45,6 +46,9 @@
   export let meme: Meme;
 
   let unwrapNear: boolean = true;
+
+  // Add slippage configuration
+  let slippage: number = 0.05; // Default 5% slippage
 
   const tokenBalance = writable<FixedNumber | undefined>();
   $: if ($accountId$) {
@@ -189,7 +193,14 @@
       },
     };
     if ($value === "buy") {
-      return handleBuy($input$, $accountId$, await expected, meme, callback);
+      return handleBuy(
+        $input$,
+        $accountId$,
+        await expected,
+        meme,
+        slippage,
+        callback,
+      );
     } else {
       return handleSell(
         $input$,
@@ -197,6 +208,7 @@
         await expected,
         meme,
         unwrapNear,
+        slippage,
         callback,
       );
     }
@@ -248,6 +260,25 @@
       sell: { value: "100", label: "100%" },
     },
   ];
+
+  function handleSlippageUpdate(event: CustomEvent<number>) {
+    slippage = event.detail;
+  }
+
+  function handleInvalidSlippage(
+    event: CustomEvent<{ title: string; description: string }>,
+  ) {
+    addToast({
+      data: {
+        type: "simple",
+        data: {
+          title: event.detail.title,
+          description: event.detail.description,
+          color: "red",
+        },
+      },
+    });
+  }
 </script>
 
 <div
@@ -394,6 +425,12 @@
       <input type="checkbox" bind:checked={unwrapNear} />
       <span>Unwrap wNEAR</span>
     </label>
+
+    <MCRefSlippage
+      bind:slippage
+      on:update={handleSlippageUpdate}
+      on:invalidSlippage={handleInvalidSlippage}
+    />
 
     <Button
       onClick={async () => {

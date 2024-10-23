@@ -12,14 +12,15 @@ export async function handleBuy(
   accountId: string,
   expected: FixedNumber,
   meme: Meme,
+  slippage: number = 0.05,
   callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
 ) {
   if (!input || !accountId) return;
   const tokenId = getTokenId(meme.symbol, meme.meme_id);
 
-  // TODO configurable slippage
+  const slippageFixedNumber = new FixedNumber((slippage * 100).toString(), 2);
   const min_amount_out = expected
-    .mul(new FixedNumber("95", 2))
+    .mul(new FixedNumber("100", 2).sub(slippageFixedNumber))
     .div(new FixedNumber("100", 2))
     .toU128();
 
@@ -125,6 +126,7 @@ export async function handleSell(
   expected: FixedNumber,
   meme: Meme,
   unwrapNear: boolean,
+  slippage: number = 0.05,
   callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
 ) {
   if (!input || !accountId) return;
@@ -132,9 +134,9 @@ export async function handleSell(
   const tokenIn = tokenId;
   const tokenOut = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
 
-  // TODO configurable slippage
+  const slippageFixedNumber = new FixedNumber((slippage * 100).toString(), 2);
   const min_amount_out = expected
-    .mul(new FixedNumber("95", 2))
+    .mul(new FixedNumber("100", 2).sub(slippageFixedNumber))
     .div(new FixedNumber("100", 2))
     .toU128();
 
