@@ -3,7 +3,6 @@ import type { Action, FinalExecutionOutcome } from "@near-wallet-selector/core";
 import { derived, get, writable, type Writable } from "svelte/store";
 
 import { Ft } from "./fungibleToken";
-import { checkIfAccountExists } from "./rpc";
 import { view } from "./utils";
 import { wallet, Wallet, type TransactionCallbacks } from "./wallet";
 
@@ -332,13 +331,15 @@ export abstract class MemeCooking {
     const transactions: HereCall[] = [];
 
     const MIN_STORAGE_DEPOSIT = 1250000000000000000000n;
+    const accountId = get(wallet.accountId$);
+    if (!accountId) return;
 
     for (const meme of args.memes) {
-      const token_id = getTokenId(meme.symbol, meme.meme_id);
-      const exists = await checkIfAccountExists(token_id);
-      if (!exists) continue;
+      const tokenId = getTokenId(meme.symbol, meme.meme_id);
+      const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
+      if (isRegistered) continue;
       transactions.push({
-        receiverId: token_id,
+        receiverId: tokenId,
         actions: [
           {
             type: "FunctionCall",
