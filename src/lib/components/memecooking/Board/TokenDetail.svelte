@@ -5,6 +5,8 @@
   import Countdown from "../Countdown.svelte";
   import ProgressBarMobile from "../ProgressBarMobile.svelte";
 
+  import SocialLink from "./SocialLink.svelte";
+
   import ExtraDetail from "$lib/components/ExtraDetail.svelte";
   import Squircle from "$lib/components/Squircle.svelte";
   import type { Meme } from "$lib/models/memecooking";
@@ -104,6 +106,15 @@
       <ClaimBanner meme={memebid} />
     </div>
   </h2>
+
+  <div class="flex justify-center">
+    <SocialLink
+      twitterLink={memebid.twitterLink || ""}
+      telegramLink={memebid.telegramLink || ""}
+      website={memebid.website || ""}
+    />
+  </div>
+
   <div class="w-full flex flex-col gap-5 pb-4">
     <div class="w-full">
       <div class="px-4 py-2">
