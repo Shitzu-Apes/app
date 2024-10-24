@@ -38,6 +38,7 @@
           wallet,
           {
             memes: [memebid],
+            isWithdraw: true,
             unwrapNear: true,
             unwrapAmount: depositAmount,
           },

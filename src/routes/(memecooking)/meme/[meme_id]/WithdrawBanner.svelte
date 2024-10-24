@@ -42,6 +42,7 @@
         wallet,
         {
           memes: [meme],
+          isWithdraw: true,
           unwrapNear: true,
           unwrapAmount: depositAmount.toU128(),
         },
