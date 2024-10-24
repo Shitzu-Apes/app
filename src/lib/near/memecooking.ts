@@ -3,6 +3,7 @@ import type { Action, FinalExecutionOutcome } from "@near-wallet-selector/core";
 import { derived, get, writable, type Writable } from "svelte/store";
 
 import { Ft } from "./fungibleToken";
+import { checkIfAccountExists } from "./rpc";
 import { view } from "./utils";
 import { wallet, Wallet, type TransactionCallbacks } from "./wallet";
 
@@ -302,6 +303,7 @@ export abstract class MemeCooking {
     });
 
     if (args.unwrapNear) {
+      const withdrawFee = (BigInt(args.amount) * 2n) / 100n;
       transactions.push({
         receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
         actions: [
@@ -310,7 +312,7 @@ export abstract class MemeCooking {
             params: {
               methodName: "near_withdraw",
               args: {
-                amount: args.amount,
+                amount: (BigInt(args.amount) - withdrawFee).toString(),
               },
               gas: 20_000_000_000_000n.toString(),
               deposit: "1",
@@ -325,33 +327,48 @@ export abstract class MemeCooking {
 
   public static async claim(
     wallet: Wallet,
-    args: { memes: Meme[]; unwrapNear?: boolean; unwrapAmount?: string },
+    args: {
+      memes: Meme[];
+      isWithdraw?: boolean;
+      unwrapNear?: boolean;
+      unwrapAmount?: string;
+    },
     callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
   ) {
     const transactions: HereCall[] = [];
 
-    const MIN_STORAGE_DEPOSIT = 1250000000000000000000n;
+    const MIN_STORAGE_DEPOSIT = 1_250_000_000_000_000_000_000n;
     const accountId = get(wallet.accountId$);
     if (!accountId) return;
 
-    for (const meme of args.memes) {
-      const tokenId = getTokenId(meme.symbol, meme.meme_id);
-      const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
-      if (isRegistered) continue;
-      transactions.push({
-        receiverId: tokenId,
-        actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "storage_deposit",
-              args: {},
-              gas: 30_000_000_000_000n.toString(),
-              deposit: MIN_STORAGE_DEPOSIT.toString(),
+    if (!args.isWithdraw) {
+      for (const meme of args.memes) {
+        const tokenId = getTokenId(meme.symbol, meme.meme_id);
+        const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
+        if (isRegistered) continue;
+        transactions.push({
+          receiverId: tokenId,
+          actions: [
+            {
+              type: "FunctionCall",
+              params: {
+                methodName: "storage_deposit",
+                args: {},
+                gas: 30_000_000_000_000n.toString(),
+                deposit: MIN_STORAGE_DEPOSIT.toString(),
+              },
             },
-          },
-        ],
-      });
+          ],
+        });
+      }
+    } else {
+      for (const meme of args.memes) {
+        const tokenId = getTokenId(meme.symbol, meme.meme_id);
+        const accountExists = await checkIfAccountExists(tokenId);
+        if (accountExists) {
+          throw new Error("Trying to withdraw, but token exists");
+        }
+      }
     }
 
     transactions.push({

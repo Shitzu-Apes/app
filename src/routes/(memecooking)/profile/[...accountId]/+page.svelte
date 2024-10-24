@@ -41,8 +41,8 @@
   });
 
   onMount(() => {
-    if (!$accountId$) return;
-    fetchMcAccount($accountId$);
+    if (!$accountId$ || !isOwnAccount) return;
+    updateMcAccount($accountId$);
   });
 
   $: tabs = match(isOwnAccount)

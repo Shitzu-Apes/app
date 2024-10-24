@@ -8,6 +8,7 @@
     mcAccount$,
     MemeCooking,
     updateMcAccount,
+    type McAccount,
   } from "$lib/near/memecooking";
   import { fetchBlockHeight } from "$lib/near/rpc";
   import { FixedNumber } from "$lib/util";
@@ -17,7 +18,13 @@
   let depositAmount: FixedNumber | null = null;
   const { accountId$ } = wallet;
 
-  mcAccount$.subscribe(async (a) => {
+  $: if ($mcAccount$ && meme) {
+    updateDepositAmount($mcAccount$, meme);
+  }
+  async function updateDepositAmount(
+    a: Promise<McAccount | undefined>,
+    meme: Meme,
+  ) {
     const account = await a;
     if (!account) return;
     const depositedMeme = account.deposits.find(
@@ -25,7 +32,7 @@
     );
     if (!depositedMeme) return;
     depositAmount = new FixedNumber(depositedMeme.amount, 24);
-  });
+  }
 
   async function withdraw() {
     if (!depositAmount || depositAmount.valueOf() <= 0n) return;
