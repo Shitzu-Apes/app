@@ -91,7 +91,7 @@
         <ProgressBarSmall meme={memebid} />
       </div>
     {/if}
-    <div class="grid grid-cols-[auto_1fr] items-center justify-start gap-3">
+    <div class="flex items-center justify-start gap-3">
       <div class="w-24 flex flex-col items-center">
         <img
           src={`${import.meta.env.VITE_IPFS_GATEWAY}/${memebid.image}`}
