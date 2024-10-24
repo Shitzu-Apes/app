@@ -198,45 +198,45 @@
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="grid-col-start-2 ml-auto flex flex-col justify-end items-end">
-        {#if depositAmount != null}
-          <button
-            class="hover:underline flex items-center gap-1"
-            on:click={withdraw}
-          >
-            [withdraw {new FixedNumber(depositAmount, 24).format({
-              compactDisplay: "short",
-              notation: "compact",
-            })}
-            <Near className="size-4 inline" />]
-          </button>
-        {/if}
-        {#if isOwnAccount && claimAmount != null}
-          {#if claimAmount.valueOf() > 0n}
+        <div class="ml-auto flex flex-col justify-end items-end">
+          {#if depositAmount != null}
             <button
               class="hover:underline flex items-center gap-1"
-              on:click={claim}
+              on:click={withdraw}
             >
-              [claim {claimAmount.format({
+              [withdraw {new FixedNumber(depositAmount, 24).format({
                 compactDisplay: "short",
                 notation: "compact",
               })}
-              {#if memebid.image}
-                <img
-                  src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
-                  alt="icon"
-                  class="size-4 inline"
-                />
-              {:else}
-                <div class="size-4 bg-gray-200 inline"></div>
-              {/if}]
+              <Near className="size-4 inline" />]
             </button>
-          {:else}
-            <button>[already claimed]</button>
           {/if}
-        {/if}
+          {#if isOwnAccount && claimAmount != null}
+            {#if claimAmount.valueOf() > 0n}
+              <button
+                class="hover:underline flex items-center gap-1"
+                on:click={claim}
+              >
+                [claim {claimAmount.format({
+                  compactDisplay: "short",
+                  notation: "compact",
+                })}
+                {#if memebid.image}
+                  <img
+                    src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
+                    alt="icon"
+                    class="size-4 inline"
+                  />
+                {:else}
+                  <div class="size-4 bg-gray-200 inline"></div>
+                {/if}]
+              </button>
+            {:else}
+              <button>[already claimed]</button>
+            {/if}
+          {/if}
+        </div>
       </div>
     </div>
   </a>
