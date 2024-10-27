@@ -15,6 +15,19 @@ export type MemeInfo = {
   reference: string;
   reference_hash: string;
   deposit_token_id: string;
+  soft_cap: string;
+  hard_cap?: string;
+  team_allocation?: {
+    amount: number;
+    vesting_duration_ms: number;
+    cliff_duration_ms: number;
+  };
+  vesting?: {
+    already_claimed: string;
+    last_claim_ms: string;
+  };
+  pool_amount: string;
+  amount_to_be_distributed: string;
   total_staked: string;
   total_withdrawal_fees: string;
 };
