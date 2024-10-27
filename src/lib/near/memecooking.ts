@@ -140,6 +140,11 @@ export abstract class MemeCooking {
       depositTokenId: string;
       softCap: string;
       hardCap?: string;
+      teamAllocation?: {
+        allocationBps: number;
+        vestingDurationMs: number;
+        cliffDurationMs: number;
+      };
     },
     deposit: string,
     callback: TransactionCallbacks<FinalExecutionOutcome> = {},
@@ -180,6 +185,13 @@ export abstract class MemeCooking {
           deposit_token_id: args.depositTokenId,
           soft_cap: args.softCap,
           hard_cap: args.hardCap,
+          team_allocation: args.teamAllocation
+            ? [
+                args.teamAllocation.allocationBps,
+                args.teamAllocation.vestingDurationMs,
+                args.teamAllocation.cliffDurationMs,
+              ]
+            : undefined,
         },
         gas: 250_000_000_000_000n.toString(),
         deposit,
