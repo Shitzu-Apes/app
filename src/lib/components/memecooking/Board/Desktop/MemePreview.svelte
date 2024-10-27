@@ -37,7 +37,7 @@
         await MemeCooking.claim(
           wallet,
           {
-            memes: [memebid],
+            meme: memebid,
             isWithdraw: true,
             unwrapNear: true,
             unwrapAmount: depositAmount,
@@ -70,7 +70,7 @@
       await MemeCooking.claim(
         wallet,
         {
-          memes: [memebid],
+          meme: memebid,
         },
         {
           onSuccess: update,

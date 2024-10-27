@@ -239,7 +239,7 @@
         return MemeCooking.claim(
           wallet,
           {
-            memes: [meme],
+            meme,
             unwrapNear,
             unwrapAmount: $depositAmount$?.toU128() ?? "",
           },

@@ -30,7 +30,7 @@
       await MemeCooking.claim(
         wallet,
         {
-          memes: [meme],
+          meme,
         },
         {
           onSuccess: async (outcome) => {

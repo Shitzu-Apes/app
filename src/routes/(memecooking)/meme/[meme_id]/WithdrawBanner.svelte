@@ -41,7 +41,7 @@
       await MemeCooking.claim(
         wallet,
         {
-          memes: [meme],
+          meme,
           isWithdraw: true,
           unwrapNear: true,
           unwrapAmount: depositAmount.toU128(),
