@@ -66,7 +66,7 @@
         <MemeDetail meme$={writable(detail.meme)} />
       </div>
       <div class="mobile">
-        <TokenDetailCarousel focused={true} memebid$={writable(detail.meme)} />
+        <TokenDetailCarousel memebid$={writable(detail.meme)} />
       </div>
     {:else}
       <div>Meme not found</div>

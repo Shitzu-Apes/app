@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onDestroy, onMount } from "svelte";
   import type { Writable } from "svelte/store";
 
   import StakeSheet from "../BottomSheet/StakeSheet.svelte";
@@ -10,12 +9,11 @@
   import TokenHolder from "./TokenHolder.svelte";
   import TokenTrade from "./TokenTrade.svelte";
 
-  import { goto, replaceState } from "$app/navigation";
+  import { goto } from "$app/navigation";
   import { client } from "$lib/api/client";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
-  import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
   import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
   import { shareWithReferral } from "$lib/util/referral";
 
@@ -25,46 +23,7 @@
 
   let selected = 0;
 
-  export let focused = false;
-
-  const MCSymbol = Symbol();
-  function handleIntersection(entries: IntersectionObserverEntry[]) {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        focused = true;
-        replaceState(`/meme/${$memebid$.meme_id}`, {});
-        MCTradeSubscribe(MCSymbol, (newMemebid) => {
-          if (newMemebid.meme_id === $memebid$.meme_id) {
-            $memebid$ = newMemebid;
-          }
-        });
-      }
-      // when not in viewport, unsubscribe
-      if (!entry.isIntersecting) {
-        MCunsubscribe(MCSymbol);
-      }
-    });
-  }
-  onDestroy(() => {
-    MCunsubscribe(MCSymbol);
-  });
-
-  let observer: IntersectionObserver | undefined;
   let chartElement: HTMLElement | undefined;
-
-  onMount(() => {
-    observer = new IntersectionObserver(handleIntersection, {
-      threshold: 0.1,
-    });
-    if (chartElement) {
-      observer.observe(chartElement);
-    }
-    return () => {
-      if (observer && chartElement) {
-        observer.unobserve(chartElement);
-      }
-    };
-  });
 
   const trades = client
     .GET("/trades", {
@@ -100,17 +59,17 @@
       >
         <TokenDetail memebid={$memebid$} />
       </div>
-    {:else if selected === 1 && focused}
+    {:else if selected === 1}
       <div class="flex flex-col flex-1">
         <TokenChart memebid={$memebid$} />
       </div>
-    {:else if selected === 2 && focused}
+    {:else if selected === 2}
       <div class="flex flex-col flex-1">
         <div class="flex flex-col flex-1">
           <TokenTrade memebid={$memebid$} {trades} paginated={false} />
         </div>
       </div>
-    {:else if selected === 3 && focused}
+    {:else if selected === 3}
       <div class="flex flex-col flex-1">
         <div class="flex-1 overflow-auto">
           <TokenHolder meme={$memebid$} />
