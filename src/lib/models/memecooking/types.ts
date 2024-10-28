@@ -52,3 +52,9 @@ export type MCAccountInfo = {
   income: Array<[string, string]>;
   shitstar_claim: string;
 };
+
+export type TeamAllocation = {
+  allocationBps: number;
+  vestingDurationMs: number;
+  cliffDurationMs: number;
+};

@@ -14,6 +14,7 @@ import type {
   MCReference,
   MemeInfoWithReference,
   Meme,
+  TeamAllocation,
 } from "$lib/models/memecooking";
 import {
   awaitIndexerBlockHeight,
@@ -140,11 +141,7 @@ export abstract class MemeCooking {
       depositTokenId: string;
       softCap: string;
       hardCap?: string;
-      teamAllocation?: {
-        allocationBps: number;
-        vestingDurationMs: number;
-        cliffDurationMs: number;
-      };
+      teamAllocation?: TeamAllocation;
     },
     deposit: string,
     callback: TransactionCallbacks<FinalExecutionOutcome> = {},
