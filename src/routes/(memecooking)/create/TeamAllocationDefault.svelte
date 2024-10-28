@@ -1,14 +1,4 @@
-<script lang="ts">
-  import { createSlider, melt } from "@melt-ui/svelte";
-
-  import VestingChart from "$lib/components/VestingChart.svelte";
-  import InputField from "$lib/components/memecooking/InputField.svelte";
-  import type { TeamAllocation } from "$lib/models/memecooking";
-
-  export let teamAllocation: TeamAllocation;
-
-  const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
+<script lang="ts" context="module">
   export const ALLOCATION_DEFAULT_OPTIONS: Record<
     "small" | "large",
     Omit<TeamAllocation, "vestingDurationMs" | "cliffDurationMs"> & {
@@ -30,6 +20,18 @@
       cliffDurationDays: 2,
     },
   };
+</script>
+
+<script lang="ts">
+  import { createSlider, melt } from "@melt-ui/svelte";
+
+  import VestingChart from "$lib/components/VestingChart.svelte";
+  import InputField from "$lib/components/memecooking/InputField.svelte";
+  import type { TeamAllocation } from "$lib/models/memecooking";
+
+  export let teamAllocation: TeamAllocation;
+
+  const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
   let selectedOption: "small" | "large" | "customize" = "small";
   let vestingDurationDays = teamAllocation.vestingDurationMs / MS_PER_DAY;
