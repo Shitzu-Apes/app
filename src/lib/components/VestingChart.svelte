@@ -22,7 +22,8 @@
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
   const AUCTION_DURATION_MS = 1 * MS_PER_DAY; // 7 days auction period
 
-  $: totalDurationMs = teamAllocation.vestingDurationMs;
+  $: totalDurationMs =
+    teamAllocation.cliffDurationMs + teamAllocation.vestingDurationMs;
   $: cliffDurationMs = teamAllocation.cliffDurationMs;
   $: displayDurationMs =
     totalDurationMs === 0 && cliffDurationMs === 0

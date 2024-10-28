@@ -44,8 +44,8 @@
     states: { value: sliderValue },
   } = createSlider({
     defaultValue: [allocationPercentage],
-    min: 0,
-    max: 100,
+    min: 0.1,
+    max: 90,
     step: 0.1,
   });
 
@@ -67,6 +67,8 @@
       allocationPercentage = selected.allocationBps / 100;
       vestingDurationDays = selected.vestingDurationDays;
       cliffDurationDays = selected.cliffDurationDays;
+    } else {
+      allocationPercentage = $sliderValue[0];
     }
   }
 </script>
@@ -138,7 +140,7 @@
         <div class="flex justify-between text-sm text-gray-400">
           <span>0%</span>
           <span>{allocationPercentage.toFixed(1)}%</span>
-          <span>100%</span>
+          <span>90%</span>
         </div>
       </div>
 
@@ -148,12 +150,6 @@
         min={0}
         step={1}
         bind:value={cliffDurationDays}
-        validate={(value) => {
-          if (typeof value !== "number" || value > vestingDurationDays) {
-            return "Cliff duration must be less than vesting duration";
-          }
-          return "";
-        }}
       />
 
       <InputField
@@ -162,12 +158,6 @@
         min={0}
         step={1}
         bind:value={vestingDurationDays}
-        validate={(value) => {
-          if (typeof value !== "number" || value < cliffDurationDays) {
-            return "Vesting duration must be greater than cliff duration";
-          }
-          return "";
-        }}
       />
     </div>
   {/if}
