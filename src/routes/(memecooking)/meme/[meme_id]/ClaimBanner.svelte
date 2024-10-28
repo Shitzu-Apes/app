@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import { slide } from "svelte/transition";
 
   import type { Meme } from "$lib/models/memecooking";
@@ -13,15 +12,15 @@
   let claimAmount: FixedNumber | null = null;
   const { accountId$ } = wallet;
 
-  onMount(async () => {
-    const accountId = $accountId$;
-    if (accountId) {
-      const amount = await MemeCooking.getClaimable(accountId, meme.meme_id);
+  $: if ($accountId$) {
+    MemeCooking.getClaimable($accountId$, meme.meme_id).then((amount) => {
       if (amount !== null) {
         claimAmount = new FixedNumber(amount, meme.decimals);
       }
-    }
-  });
+    });
+  } else {
+    claimAmount = null;
+  }
 
   async function claim() {
     if (!claimAmount || claimAmount.valueOf() <= 0n) return;

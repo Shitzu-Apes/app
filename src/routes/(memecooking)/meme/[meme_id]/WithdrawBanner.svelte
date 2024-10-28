@@ -20,6 +20,8 @@
 
   $: if ($mcAccount$ && meme) {
     updateDepositAmount($mcAccount$, meme);
+  } else {
+    depositAmount = null;
   }
   async function updateDepositAmount(
     a: Promise<McAccount | undefined>,
