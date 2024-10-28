@@ -360,10 +360,10 @@
   }}
   role="img"
 >
-  <defs>
+  <defs class="text-lime-400">
     <linearGradient id="areaGradient" x1="0" x2="0" y1="0" y2="1">
-      <stop offset="0%" stop-color="currentColor" stop-opacity="0.3" />
-      <stop offset="100%" stop-color="currentColor" stop-opacity="0.1" />
+      <stop offset="0%" stop-color="currentColor" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="currentColor" stop-opacity="0.3" />
     </linearGradient>
   </defs>
 
@@ -372,7 +372,7 @@
     <text x={0} y="0" fill="currentColor" font-size={fontSize}>
       Time {selected ? readableDuration(selected.time, 2) : ""}
     </text>
-    <text x={width * 0.25} y="0" fill="currentColor" font-size={fontSize}>
+    <text x={width * 0.25} y="0" fill="#a3e635" font-size={fontSize}>
       Team {selected ? selected.vested.toFixed(1) + "%" : ""}
     </text>
     <text
@@ -427,9 +427,9 @@
     />
 
     <!-- Team allocation area -->
-    <path d={teamAreaPathD} class="text-white" fill="url(#areaGradient)" />
+    <path d={teamAreaPathD} class="text-lime-400" fill="url(#areaGradient)" />
     <path
-      class="text-white"
+      class="text-lime-400"
       d={pathD}
       fill="none"
       stroke="currentColor"
@@ -625,7 +625,8 @@
       cx={xScale(selected.time)}
       cy={yScale(selected.vested)}
       r={3}
-      fill="white"
+      class="text-lime-400"
+      fill="currentColor"
     />
   {/if}
 </svg>

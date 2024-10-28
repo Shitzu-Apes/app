@@ -67,12 +67,6 @@
       cliffDurationDays = selected.cliffDurationDays;
     }
   }
-
-  $: console.log("[TeamAllocationDefault]", {
-    vestingDurationDays,
-    cliffDurationDays,
-    allocationPercentage,
-  });
 </script>
 
 <div class="space-y-4 flex flex-col items-center w-full">
@@ -176,10 +170,14 @@
     </div>
   {/if}
 
-  <div class="text-xs text-gray-400 w-full">
+  <div class="text-xs text-gray-400 w-full min-h-12">
     The team will receive {allocationPercentage}% of the total supply. This
-    amount will be {selectedOption === "small"
-      ? "available instantly"
-      : `locked for ${cliffDurationDays} days (cliff period), after which it will gradually unlock over ${vestingDurationDays} days`}.
+    amount will be <br />
+    {#if selectedOption === "small"}
+      available instantly
+    {:else}
+      locked for {cliffDurationDays} days (cliff period), after which it will gradually
+      unlock over {vestingDurationDays} days
+    {/if}.
   </div>
 </div>
