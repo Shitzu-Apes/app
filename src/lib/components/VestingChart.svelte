@@ -21,6 +21,8 @@
   const delta = 1 / 1.98;
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
   const AUCTION_DURATION_MS = 1 * MS_PER_DAY; // 7 days auction period
+  $: POST_VESTING_WIDTH_MS =
+    0.2 * (teamAllocation.vestingDurationMs + teamAllocation.cliffDurationMs); // based on 0.15 of cliff + vesting
 
   $: totalDurationMs =
     teamAllocation.cliffDurationMs + teamAllocation.vestingDurationMs;
@@ -28,7 +30,7 @@
   $: displayDurationMs =
     totalDurationMs === 0 && cliffDurationMs === 0
       ? MS_PER_DAY // Show 1 day if instant allocation
-      : totalDurationMs + MS_PER_DAY; // Add 1 day to show final state
+      : totalDurationMs + POST_VESTING_WIDTH_MS; // Add 1 day to show final state
   $: allocationPercentage = teamAllocation.allocationBps / 10000; // Convert bps to percentage
   $: liquidityPoolPercentage = (100 - allocationPercentage * 100) * delta;
   $: depositorPercentage = (100 - allocationPercentage * 100) * (1 - delta);
