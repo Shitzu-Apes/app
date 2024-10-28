@@ -1,14 +1,31 @@
-export function timesAgo(date: Date) {
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-  const seconds = Math.floor(diff / 1000);
+export function readableDuration(milliseconds: number, depth: number = 1) {
+  const seconds = Math.floor(milliseconds / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
 
-  if (days > 0) return `${days}d`;
-  if (hours > 0) return `${hours}h`;
-  if (minutes > 0) return `${minutes}m`;
+  const remainingHours = hours % 24;
+  const remainingMinutes = minutes % 60;
+  const remainingSeconds = seconds % 60;
+
+  if (days > 0) {
+    if (depth >= 2) return `${days}d ${remainingHours}h`;
+    return `${days}d`;
+  }
+  if (hours > 0) {
+    if (depth >= 2) return `${hours}h ${remainingMinutes}m`;
+    return `${hours}h`;
+  }
+  if (minutes > 0) {
+    if (depth >= 2) return `${minutes}m ${remainingSeconds}s`;
+    return `${minutes}m`;
+  }
   if (seconds > 0) return `${seconds}s`;
   return "0s";
+}
+
+export function timesAgo(date: Date) {
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  return readableDuration(diff);
 }

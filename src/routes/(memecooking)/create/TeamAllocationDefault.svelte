@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { createSlider, melt } from "@melt-ui/svelte";
+
   import VestingChart from "$lib/components/VestingChart.svelte";
   import InputField from "$lib/components/memecooking/InputField.svelte";
   import type { TeamAllocation } from "$lib/models/memecooking";
@@ -17,30 +19,50 @@
   > = {
     small: {
       allocationBps: 500,
-      vestingDurationDays: 6,
-      cliffDurationDays: 2,
+      vestingDurationDays: 0,
+      cliffDurationDays: 0,
       label: "Small Allocation",
     },
     large: {
       label: "Large Allocation",
       allocationBps: 2000,
       vestingDurationDays: 7,
-      cliffDurationDays: 3,
+      cliffDurationDays: 2,
     },
   };
 
   let selectedOption: "small" | "large" | "customize" = "small";
   let vestingDurationDays = teamAllocation.vestingDurationMs / MS_PER_DAY;
   let cliffDurationDays = teamAllocation.cliffDurationMs / MS_PER_DAY;
+  let allocationPercentage = teamAllocation.allocationBps / 100;
 
+  // Create allocation slider
+  let {
+    elements: { root, range, thumbs },
+    states: { value: sliderValue },
+  } = createSlider({
+    defaultValue: [allocationPercentage],
+    min: 0,
+    max: 100,
+    step: 0.1,
+  });
+
+  $: allocationPercentage = $sliderValue[0];
   $: teamAllocation.vestingDurationMs = vestingDurationDays * MS_PER_DAY;
   $: teamAllocation.cliffDurationMs = cliffDurationDays * MS_PER_DAY;
+  $: teamAllocation.allocationBps = allocationPercentage * 100;
+
+  $: hasError =
+    teamAllocation.allocationBps < 0 ||
+    teamAllocation.allocationBps > 10000 ||
+    vestingDurationDays < cliffDurationDays ||
+    cliffDurationDays > vestingDurationDays;
 
   function selectOption(option: string) {
     selectedOption = option as "small" | "large" | "customize";
     if (option !== "customize") {
       const selected = ALLOCATION_DEFAULT_OPTIONS[option as "small" | "large"];
-      teamAllocation.allocationBps = selected.allocationBps;
+      allocationPercentage = selected.allocationBps / 100;
       vestingDurationDays = selected.vestingDurationDays;
       cliffDurationDays = selected.cliffDurationDays;
     }
@@ -59,12 +81,16 @@
           <div class="flex items-center">
             {option.allocationBps / 100}% Allocation
           </div>
-          <div class="flex items-center">
-            {option.cliffDurationDays}d Cliff
-          </div>
-          <div class="flex items-center">
-            {option.vestingDurationDays}d Vesting
-          </div>
+          {#if key === "small"}
+            <div class="flex items-center">Instant</div>
+          {:else}
+            <div class="flex items-center">
+              {option.cliffDurationDays}d Cliff
+            </div>
+            <div class="flex items-center">
+              {option.vestingDurationDays}d Vesting
+            </div>
+          {/if}
         </button>
       </div>
     {/each}
@@ -80,22 +106,49 @@
   </div>
 
   <!-- Chart Visualization -->
-  {#if teamAllocation.allocationBps > 0}
+  {#if teamAllocation.allocationBps > 0 && !hasError}
     <VestingChart {teamAllocation} />
   {/if}
 
   {#if selectedOption === "customize"}
     <div class="w-full space-y-4">
+      <div class="space-y-2">
+        <label
+          for="allocation-slider"
+          class="block text-sm text-shitzu-4 font-600"
+        >
+          Allocation (%)
+        </label>
+        <span
+          use:melt={$root}
+          class="relative flex h-[20px] w-full items-center"
+        >
+          <span class="h-[3px] w-full bg-shitzu-4">
+            <span use:melt={$range} class="h-[3px] bg-lime-4" />
+          </span>
+          {#each $thumbs as thumb}
+            <span
+              use:melt={thumb}
+              class="h-5 w-5 rounded-full bg-white focus:ring-4 focus:!ring-black/40"
+            />
+          {/each}
+        </span>
+        <div class="flex justify-between text-sm text-gray-400">
+          <span>0%</span>
+          <span>{allocationPercentage.toFixed(1)}%</span>
+          <span>100%</span>
+        </div>
+      </div>
+
       <InputField
-        label="Allocation (bps)"
+        label="Cliff Duration (days)"
         type="number"
         min={0}
-        max={10000}
         step={1}
-        bind:value={teamAllocation.allocationBps}
+        bind:value={cliffDurationDays}
         validate={(value) => {
-          if (typeof value !== "number" || value < 0 || value > 10000) {
-            return "Allocation Bps must be between 0 and 10000";
+          if (typeof value !== "number" || value > vestingDurationDays) {
+            return "Cliff duration must be less than vesting duration";
           }
           return "";
         }}
@@ -107,21 +160,20 @@
         min={0}
         step={1}
         bind:value={vestingDurationDays}
-      />
-
-      <InputField
-        label="Cliff Duration (days)"
-        type="number"
-        min={0}
-        step={1}
-        bind:value={cliffDurationDays}
+        validate={(value) => {
+          if (typeof value !== "number" || value < cliffDurationDays) {
+            return "Vesting duration must be greater than cliff duration";
+          }
+          return "";
+        }}
       />
     </div>
   {/if}
 
   <div class="text-xs text-gray-400 w-full">
-    The team will receive {teamAllocation.allocationBps / 100}% of the total
-    supply. This amount will be locked for {cliffDurationDays} days (cliff period),
-    after which it will gradually unlock over {vestingDurationDays} days.
+    The team will receive {allocationPercentage}% of the total supply. This
+    amount will be {selectedOption === "small"
+      ? "available instantly"
+      : `locked for ${cliffDurationDays} days (cliff period), after which it will gradually unlock over ${vestingDurationDays} days`}.
   </div>
 </div>
