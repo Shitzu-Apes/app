@@ -68,7 +68,7 @@
       vestingDurationDays = selected.vestingDurationDays;
       cliffDurationDays = selected.cliffDurationDays;
     } else {
-      allocationPercentage = $sliderValue[0];
+      $sliderValue = [allocationPercentage];
     }
   }
 </script>
