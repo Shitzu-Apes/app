@@ -408,14 +408,12 @@
       fill="none"
       stroke="#2196F3"
       stroke-width={strokeWidth}
-      stroke-dasharray="5,5"
     />
     <path
       d={depositorPostAuctionPathD}
       fill="none"
       stroke="#00f0f0"
       stroke-width={strokeWidth}
-      stroke-dasharray="5,5"
     />
 
     <!-- Liquidity pool areas -->
@@ -426,7 +424,6 @@
       fill="none"
       stroke="#4CAF50"
       stroke-width={strokeWidth}
-      stroke-dasharray="5,5"
     />
 
     <!-- Team allocation area -->
