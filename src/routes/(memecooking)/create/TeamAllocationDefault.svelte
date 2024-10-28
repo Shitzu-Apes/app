@@ -67,6 +67,12 @@
       cliffDurationDays = selected.cliffDurationDays;
     }
   }
+
+  $: console.log("[TeamAllocationDefault]", {
+    vestingDurationDays,
+    cliffDurationDays,
+    allocationPercentage,
+  });
 </script>
 
 <div class="space-y-4 flex flex-col items-center w-full">

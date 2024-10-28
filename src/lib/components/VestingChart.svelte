@@ -20,6 +20,7 @@
 
   const delta = 1 / 1.98;
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
+  const AUCTION_DURATION_MS = 1 * MS_PER_DAY; // 7 days auction period
 
   $: totalDurationMs = teamAllocation.vestingDurationMs;
   $: cliffDurationMs = teamAllocation.cliffDurationMs;
@@ -30,15 +31,35 @@
   $: allocationPercentage = teamAllocation.allocationBps / 10000; // Convert bps to percentage
   $: liquidityPoolPercentage = (100 - allocationPercentage * 100) * delta;
   $: depositorPercentage = (100 - allocationPercentage * 100) * (1 - delta);
+  $: circulatingSupplyPercentage =
+    depositorPercentage + liquidityPoolPercentage;
 
   $: data = calculateVestingData(
     totalDurationMs,
     cliffDurationMs,
     allocationPercentage,
   );
-  $: xScale = (x: number) =>
-    (x / displayDurationMs) * (width - margin.left - margin.right) +
-      margin.left || 0;
+
+  // Adjust xScale to account for auction period
+  $: xScale = (x: number) => {
+    const chartWidth = width - margin.left - margin.right;
+    const auctionWidth = chartWidth * 0.2; // 20% of width for auction
+    const vestingWidth = chartWidth * 0.8; // 80% of width for vesting
+
+    if (x < 0) {
+      // Auction period
+      return (
+        margin.left +
+        ((x + AUCTION_DURATION_MS) / AUCTION_DURATION_MS) * auctionWidth
+      );
+    } else {
+      // Vesting period
+      return (
+        margin.left + auctionWidth + (x / displayDurationMs) * vestingWidth
+      );
+    }
+  };
+
   $: yScale = (y: number) =>
     height -
       margin.bottom -
@@ -58,8 +79,25 @@
     // Create data points at key breakpoints
     const points = [];
 
+    // Add auction start point
+    points.push({
+      time: -AUCTION_DURATION_MS,
+      vested: 0,
+      liquidityPool: liquidityPoolPercentage,
+      depositor: liquidityPoolPercentage + depositorPercentage,
+      circulatingSupply: circulatingSupplyPercentage,
+    });
+
     if (isInstant) {
       // For instant vesting, add start and end points with full allocation
+      points.push({
+        time: 0,
+        vested: 0,
+        liquidityPool: liquidityPoolPercentage,
+        depositor: liquidityPoolPercentage + depositorPercentage,
+        circulatingSupply: circulatingSupplyPercentage,
+      });
+
       points.push({
         time: 0,
         vested: allocationPercentage * 100,
@@ -68,6 +106,7 @@
           allocationPercentage * 100 +
           liquidityPoolPercentage +
           depositorPercentage,
+        circulatingSupply: circulatingSupplyPercentage,
       });
 
       points.push({
@@ -78,14 +117,16 @@
           allocationPercentage * 100 +
           liquidityPoolPercentage +
           depositorPercentage,
+        circulatingSupply: circulatingSupplyPercentage,
       });
     } else {
-      // Start point
+      // Start point at auction end
       points.push({
         time: 0,
         vested: 0,
         liquidityPool: liquidityPoolPercentage,
         depositor: liquidityPoolPercentage + depositorPercentage,
+        circulatingSupply: circulatingSupplyPercentage,
       });
 
       // Add cliff point if there is a cliff
@@ -95,6 +136,7 @@
           vested: 0,
           liquidityPool: liquidityPoolPercentage,
           depositor: liquidityPoolPercentage + depositorPercentage,
+          circulatingSupply: circulatingSupplyPercentage,
         });
       }
 
@@ -107,6 +149,7 @@
           allocationPercentage * 100 +
           liquidityPoolPercentage +
           depositorPercentage,
+        circulatingSupply: circulatingSupplyPercentage,
       });
 
       // Add display end point
@@ -118,6 +161,7 @@
           allocationPercentage * 100 +
           liquidityPoolPercentage +
           depositorPercentage,
+        circulatingSupply: circulatingSupplyPercentage,
       });
     }
 
@@ -134,19 +178,13 @@
           .join(" ")
       : "";
 
-  $: liquidityPathD =
-    data.length > 0
-      ? data
-          .map(
-            (d, i) =>
-              `${i === 0 ? "M" : "L"} ${xScale(d.time)} ${yScale(d.liquidityPool)}`,
-          )
-          .join(" ")
-      : "";
+  // Split paths into auction and post-auction segments
+  $: auctionData = data.filter((d) => d.time <= 0);
+  $: postAuctionData = data.filter((d) => d.time >= 0);
 
-  $: depositorPathD =
-    data.length > 0
-      ? data
+  $: depositorAuctionPathD =
+    auctionData.length > 0
+      ? auctionData
           .map(
             (d, i) =>
               `${i === 0 ? "M" : "L"} ${xScale(d.time)} ${yScale(d.depositor)}`,
@@ -154,20 +192,48 @@
           .join(" ")
       : "";
 
-  $: depositorAreaPathD =
-    data.length > 0
-      ? depositorPathD +
-        ` L ${xScale(displayDurationMs)} ${height - margin.bottom} L ${
-          margin.left
-        } ${height - margin.bottom} Z`
+  $: depositorPostAuctionPathD =
+    postAuctionData.length > 0
+      ? postAuctionData
+          .map(
+            (d, i) =>
+              `${i === 0 ? "M" : "L"} ${xScale(d.time)} ${yScale(d.circulatingSupply + d.vested)}`,
+          )
+          .join(" ")
       : "";
 
-  $: liquidityAreaPathD =
-    data.length > 0
-      ? liquidityPathD +
-        ` L ${xScale(displayDurationMs)} ${height - margin.bottom} L ${
-          margin.left
-        } ${height - margin.bottom} Z`
+  $: liquidityAuctionPathD =
+    auctionData.length > 0
+      ? auctionData
+          .map(
+            (d, i) =>
+              `${i === 0 ? "M" : "L"} ${xScale(d.time)} ${yScale(d.liquidityPool)}`,
+          )
+          .join(" ")
+      : "";
+
+  $: depositorAuctionAreaPathD =
+    auctionData.length > 0
+      ? depositorAuctionPathD +
+        ` L ${xScale(0)} ${height - margin.bottom} L ${margin.left} ${
+          height - margin.bottom
+        } Z`
+      : "";
+
+  $: depositorPostAuctionAreaPathD =
+    postAuctionData.length > 0
+      ? depositorPostAuctionPathD +
+        ` L ${xScale(displayDurationMs)} ${height - margin.bottom} L ${xScale(
+          0,
+        )} ${height - margin.bottom} Z`
+      : "";
+
+  $: liquidityAuctionAreaPathD =
+    auctionData.length > 0
+      ? liquidityAuctionPathD +
+        ` L ${xScale(0)} ${height - margin.bottom} L ${margin.left} ${
+          height - margin.bottom
+        } Z`
       : "";
 
   $: teamAreaPathD =
@@ -192,27 +258,36 @@
   function handleMove(xPosition: number) {
     if (!data.length) return;
 
-    // Calculate exact time from x position
-    const time = Math.max(
-      0,
-      Math.min(
-        displayDurationMs,
-        ((xPosition - margin.left) / (width - margin.left - margin.right)) *
-          displayDurationMs,
-      ),
-    );
+    const chartWidth = width - margin.left - margin.right;
+    const auctionWidth = chartWidth * 0.2;
+    const vestingWidth = chartWidth * 0.8;
+    const relativeX = xPosition - margin.left;
+
+    let time: number;
+    if (relativeX < auctionWidth) {
+      // In auction period
+      time =
+        (relativeX / auctionWidth) * AUCTION_DURATION_MS - AUCTION_DURATION_MS;
+    } else {
+      // In vesting period
+      time = ((relativeX - auctionWidth) / vestingWidth) * displayDurationMs;
+    }
+
+    time = Math.max(-AUCTION_DURATION_MS, Math.min(displayDurationMs, time));
 
     // Calculate vested amount at this time
     let vested = 0;
-    if (totalDurationMs === 0 && cliffDurationMs === 0) {
-      vested = allocationPercentage * 100;
-    } else if (time > cliffDurationMs) {
-      vested = Math.min(
-        ((time - cliffDurationMs) / (totalDurationMs - cliffDurationMs)) *
-          allocationPercentage *
-          100,
-        allocationPercentage * 100,
-      );
+    if (time >= 0) {
+      if (totalDurationMs === 0 && cliffDurationMs === 0) {
+        vested = allocationPercentage * 100;
+      } else if (time > cliffDurationMs) {
+        vested = Math.min(
+          ((time - cliffDurationMs) / (totalDurationMs - cliffDurationMs)) *
+            allocationPercentage *
+            100,
+          allocationPercentage * 100,
+        );
+      }
     }
 
     const hoursFromStart = Math.floor(time / (60 * 60 * 1000));
@@ -223,11 +298,27 @@
         vested,
         hoursFromStart,
       });
+
+      let liquidityPool = liquidityPoolPercentage;
+      let depositor = liquidityPoolPercentage + depositorPercentage;
+      let circulatingSupply = circulatingSupplyPercentage;
+
+      if (time < 0) {
+        // During auction
+        liquidityPool = liquidityPoolPercentage;
+        depositor = liquidityPoolPercentage + depositorPercentage;
+        circulatingSupply = 0;
+      } else {
+        // After auction
+        circulatingSupply = circulatingSupplyPercentage + vested;
+      }
+
       selected = {
         time,
         vested,
-        liquidityPool: vested + liquidityPoolPercentage,
-        depositor: vested + liquidityPoolPercentage + depositorPercentage,
+        liquidityPool,
+        depositor,
+        circulatingSupply,
       };
     } else {
       dispatch("hover", null);
@@ -284,33 +375,51 @@
     <text x={width * 0.25} y="0" fill="currentColor" font-size={fontSize}>
       Team {selected ? selected.vested.toFixed(1) + "%" : ""}
     </text>
-    <text x={width * 0.5} y="0" fill="#4CAF50" font-size={fontSize}>
-      Ref {selected
-        ? (selected.liquidityPool - selected.vested).toFixed(1) + "%"
+    <text
+      x={width * 0.5}
+      y="0"
+      fill={selected?.time && selected.time < 0 ? "#4CAF50" : "#00f0f0"}
+      font-size={fontSize}
+    >
+      {selected?.time && selected.time < 0 ? "Ref " : "Circulating Supply "}
+      {selected
+        ? (selected.time < 0
+            ? selected.liquidityPool.toFixed(1)
+            : selected.circulatingSupply.toFixed(1)) + "%"
         : ""}
     </text>
-    <text x={width * 0.75} y="0" fill="#2196F3" font-size={fontSize}>
-      Depositor {selected
-        ? (selected.depositor - selected.liquidityPool).toFixed(1) + "%"
-        : ""}
-    </text>
+    {#if selected && selected.time < 0}
+      <text x={width * 0.75} y="0" fill="#2196F3" font-size={fontSize}>
+        Depositor {(selected.depositor - selected.liquidityPool).toFixed(1)}%
+      </text>
+    {/if}
   </g>
 
   {#if pathD}
-    <!-- Depositor area -->
-    <path d={depositorAreaPathD} fill="#2196F3" fill-opacity="0.2" />
+    <!-- Depositor areas -->
+    <path d={depositorAuctionAreaPathD} fill="#2196F3" fill-opacity="0.2" />
+    <path d={depositorPostAuctionAreaPathD} fill="#00f0f0" fill-opacity="0.2" />
+    <!-- Split depositor path -->
     <path
-      d={depositorPathD}
+      d={depositorAuctionPathD}
       fill="none"
       stroke="#2196F3"
       stroke-width={strokeWidth}
       stroke-dasharray="5,5"
     />
-
-    <!-- Liquidity pool area -->
-    <path d={liquidityAreaPathD} fill="#4CAF50" fill-opacity="0.2" />
     <path
-      d={liquidityPathD}
+      d={depositorPostAuctionPathD}
+      fill="none"
+      stroke="#00f0f0"
+      stroke-width={strokeWidth}
+      stroke-dasharray="5,5"
+    />
+
+    <!-- Liquidity pool areas -->
+    <path d={liquidityAuctionAreaPathD} fill="#4CAF50" fill-opacity="0.2" />
+    <!-- Split liquidity path -->
+    <path
+      d={liquidityAuctionPathD}
       fill="none"
       stroke="#4CAF50"
       stroke-width={strokeWidth}
@@ -318,9 +427,9 @@
     />
 
     <!-- Team allocation area -->
-    <path d={teamAreaPathD} class="text-shitzu-4" fill="url(#areaGradient)" />
+    <path d={teamAreaPathD} class="text-white" fill="url(#areaGradient)" />
     <path
-      class="text-shitzu-4"
+      class="text-white"
       d={pathD}
       fill="none"
       stroke="currentColor"
@@ -351,6 +460,27 @@
       >
     {/each}
   </g>
+
+  <!-- Auction end line -->
+  <g class="text-white">
+    <line
+      x1={xScale(0)}
+      y1={margin.top}
+      x2={xScale(0)}
+      y2={height - margin.bottom}
+      stroke="currentColor"
+      stroke-width={strokeWidth}
+      stroke-dasharray="5,5"
+    />
+    <text
+      x={xScale(0)}
+      y={margin.top - 5}
+      text-anchor="middle"
+      font-size={fontSize}
+      fill="currentColor">Auction end</text
+    >
+  </g>
+
   <!-- Cliff/Vesting line and label -->
   {#if cliffDurationMs === totalDurationMs}
     <!-- Combined cliff and vesting line when they're equal -->
@@ -449,15 +579,19 @@
     />
     <circle
       cx={xScale(selected.time)}
-      cy={yScale(selected.depositor)}
+      cy={yScale(
+        selected.time < 0 ? selected.depositor : selected.circulatingSupply,
+      )}
       r={3}
-      fill="#2196F3"
+      fill={selected.time < 0 ? "#2196F3" : "#00f0f0"}
     />
     <circle
       cx={xScale(selected.time)}
-      cy={yScale(selected.liquidityPool)}
+      cy={yScale(
+        selected.time < 0 ? selected.liquidityPool : selected.circulatingSupply,
+      )}
       r={3}
-      fill="#4CAF50"
+      fill={selected.time < 0 ? "#4CAF50" : "#00f0f0"}
     />
     <circle
       cx={xScale(selected.time)}
