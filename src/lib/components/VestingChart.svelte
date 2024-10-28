@@ -461,28 +461,50 @@
     {/each}
   </g>
 
-  <!-- Auction end line -->
-  <g class="text-white">
-    <line
-      x1={xScale(0)}
-      y1={margin.top}
-      x2={xScale(0)}
-      y2={height - margin.bottom}
-      stroke="currentColor"
-      stroke-width={strokeWidth}
-      stroke-dasharray="5,5"
-    />
-    <text
-      x={xScale(0)}
-      y={margin.top - 5}
-      text-anchor="middle"
-      font-size={fontSize}
-      fill="currentColor">Auction end</text
-    >
-  </g>
+  {#if totalDurationMs !== 0 || cliffDurationMs !== 0}
+    <!-- Auction end line -->
+    <g class="text-white">
+      <line
+        x1={xScale(0)}
+        y1={margin.top}
+        x2={xScale(0)}
+        y2={height - margin.bottom}
+        stroke="currentColor"
+        stroke-width={strokeWidth}
+        stroke-dasharray="5,5"
+      />
+      <text
+        x={xScale(0)}
+        y={margin.top - 5}
+        text-anchor="middle"
+        font-size={fontSize}
+        fill="currentColor">Auction end</text
+      >
+    </g>
+  {/if}
 
   <!-- Cliff/Vesting line and label -->
-  {#if cliffDurationMs === totalDurationMs}
+  {#if totalDurationMs === 0 && cliffDurationMs === 0}
+    <!-- Combined instant case line -->
+    <g class="text-white">
+      <line
+        x1={xScale(0)}
+        y1={margin.top}
+        x2={xScale(0)}
+        y2={height - margin.bottom}
+        stroke="currentColor"
+        stroke-width={strokeWidth}
+        stroke-dasharray="5,5"
+      />
+      <text
+        x={xScale(0)}
+        y={margin.top - 5}
+        text-anchor="middle"
+        font-size={fontSize}
+        fill="currentColor">Auction end + Instant allocation</text
+      >
+    </g>
+  {:else if cliffDurationMs === totalDurationMs}
     <!-- Combined cliff and vesting line when they're equal -->
     <g class="text-white">
       <line
@@ -511,31 +533,37 @@
     </g>
   {:else}
     <!-- Cliff line and label -->
-    <g class="text-white">
-      <line
-        x1={xScale(cliffDurationMs)}
-        y1={margin.top}
-        x2={xScale(cliffDurationMs)}
-        y2={height - margin.bottom}
-        stroke="currentColor"
-        stroke-width={strokeWidth}
-        stroke-dasharray="5,5"
-      />
-      <text
-        x={xScale(cliffDurationMs)}
-        y={margin.top - 5}
-        text-anchor={xScale(cliffDurationMs) < width * 0.1 ? "start" : "middle"}
-        font-size={fontSize}
-        fill="currentColor">Cliff end</text
-      >
-      <text
-        x={xScale(cliffDurationMs)}
-        y={height - margin.bottom + height * 0.067}
-        text-anchor={xScale(cliffDurationMs) < width * 0.1 ? "start" : "middle"}
-        font-size={fontSize}
-        fill="currentColor">{Math.round(cliffDurationMs / MS_PER_DAY)}d</text
-      >
-    </g>
+    {#if cliffDurationMs !== 0}
+      <g class="text-white">
+        <line
+          x1={xScale(cliffDurationMs)}
+          y1={margin.top}
+          x2={xScale(cliffDurationMs)}
+          y2={height - margin.bottom}
+          stroke="currentColor"
+          stroke-width={strokeWidth}
+          stroke-dasharray="5,5"
+        />
+        <text
+          x={xScale(cliffDurationMs)}
+          y={margin.top - 5}
+          text-anchor={xScale(cliffDurationMs) < width * 0.1
+            ? "start"
+            : "middle"}
+          font-size={fontSize}
+          fill="currentColor">Cliff end</text
+        >
+        <text
+          x={xScale(cliffDurationMs)}
+          y={height - margin.bottom + height * 0.067}
+          text-anchor={xScale(cliffDurationMs) < width * 0.1
+            ? "start"
+            : "middle"}
+          font-size={fontSize}
+          fill="currentColor">{Math.round(cliffDurationMs / MS_PER_DAY)}d</text
+        >
+      </g>
+    {/if}
 
     <!-- Vesting end line and label -->
     <g class="text-white">
