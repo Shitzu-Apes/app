@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { fly } from "svelte/transition";
+  import { createWindowVirtualizer } from "@tanstack/svelte-virtual";
+  import { onMount } from "svelte";
 
   import MemePreview from "./MemePreview.svelte";
 
@@ -14,11 +15,10 @@
   } from "$lib/util/sortMeme";
 
   let selectedSort = sortOptions[0];
-
   let selectedDirection = orderOptions[0];
-
+  let activeTab: "auction" | "live" | "all" = "all";
   let liveOnly = true;
-  let ref = false;
+
   $: displayedMemebids = $memebids$.then((memebids) => [
     ...filterAndSortMeme(
       memebids,
@@ -27,34 +27,90 @@
         order: selectedDirection.value,
       },
       $searchQuery$,
-      liveOnly,
-      ref,
+      activeTab === "auction" ? liveOnly : false,
+      activeTab === "live",
     ),
   ]);
 
-  let page = 1;
-  let perPage = 21;
+  let numLanes = 4; // Default for large screens
+
+  onMount(() => {
+    updateLanes();
+  });
+
+  function updateLanes() {
+    const width = window.innerWidth;
+    if (width < 640) {
+      // sm breakpoint
+      numLanes = 1;
+    } else if (width < 1024) {
+      // lg breakpoint
+      numLanes = 2;
+    } else if (width < 1280) {
+      numLanes = 3;
+    } else {
+      numLanes = 4;
+    }
+  }
+
+  $: virtualizer = createWindowVirtualizer<HTMLDivElement>({
+    count: 200,
+    initialOffset: 300,
+    estimateSize: () => 600, // Approximate height of MemePreview
+    overscan: 15,
+    lanes: numLanes,
+    gap: 10,
+  });
+
+  $: {
+    displayedMemebids.then((data) => {
+      $virtualizer.setOptions({
+        count: data.length,
+        lanes: numLanes,
+      });
+    });
+  }
+
+  function measureElement(element: HTMLDivElement) {
+    $virtualizer.measureElement(element);
+  }
 </script>
+
+<svelte:window on:resize={updateLanes} />
+
+<div class="w-full flex gap-2 justify-center items-center">
+  <button
+    class="px-4 py-2 rounded-lg {activeTab === 'all'
+      ? 'bg-shitzu-3 text-black'
+      : 'text-gray-400 hover:text-white'}"
+    on:click={() => (activeTab = "all")}
+  >
+    All
+  </button>
+  <button
+    class="px-4 py-2 rounded-lg {activeTab === 'auction'
+      ? 'bg-shitzu-3 text-black'
+      : 'text-gray-400 hover:text-white'}"
+    on:click={() => (activeTab = "auction")}
+  >
+    Auction
+  </button>
+  <button
+    class="px-4 py-2 rounded-lg {activeTab === 'live'
+      ? 'bg-shitzu-3 text-black'
+      : 'text-gray-400 hover:text-white'}"
+    on:click={() => (activeTab = "live")}
+  >
+    Live
+  </button>
+</div>
 
 <div class="flex flex-wrap gap-3 mt-6 px-4">
   <SelectBox options={sortOptions} bind:selected={selectedSort} />
   <SelectBox options={orderOptions} bind:selected={selectedDirection} />
-  <Toggle
-    bind:isOn={liveOnly}
-    on:toggle={({ detail: value }) => {
-      if (value) {
-        ref = false;
-      }
-    }}>live auction:{" "}</Toggle
-  >
-  <Toggle
-    bind:isOn={ref}
-    on:toggle={({ detail: value }) => {
-      if (value) {
-        liveOnly = false;
-      }
-    }}>ref:{" "}</Toggle
-  >
+  {#if activeTab === "auction"}
+    <Toggle bind:isOn={liveOnly}>live auction:{" "}</Toggle>
+  {/if}
 </div>
 
 {#await Promise.all([requiredStake, displayedMemebids])}
@@ -83,54 +139,26 @@
     {/each}
   </div>
 {:then [requiredStake, displayedMemebids]}
-  <div
-    class="w-full flex items-center justify-around flex-wrap mt-10 gap-6 px-5 mb-10"
-  >
-    {#if displayedMemebids[0]}
-      {#key displayedMemebids[0].meme_id}
+  <div class="mt-10 px-1 sm:px-5 mb-10">
+    <div
+      style="position: relative; height: {$virtualizer.getTotalSize()}px; width: 100%;"
+    >
+      {#each $virtualizer.getVirtualItems() as row (row.index)}
         <div
-          class="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] border-3 border-transparent animate-shake-and-border"
+          class="w-full sm:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] {row.index ===
+          0
+            ? 'animate-shake-and-border border-3 border-transparent'
+            : ''}"
+          style="position: absolute; top: 0; left: {(row.lane / numLanes) *
+            100}%; width: calc({100 / numLanes}% - {numLanes === 1
+            ? 0
+            : 10}px); transform: translateY({row.start}px);"
+          data-index={row.index}
+          use:measureElement
         >
-          <MemePreview memebid={displayedMemebids[0]} {requiredStake} />
+          <MemePreview memebid={displayedMemebids[row.index]} {requiredStake} />
         </div>
-      {/key}
-    {/if}
-    {#each displayedMemebids.slice(1 + (page - 1) * perPage, page * perPage) as memebid (memebid.meme_id)}
-      <div
-        class="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
-        in:fly
-      >
-        <MemePreview {memebid} {requiredStake} />
-      </div>
-    {/each}
-    <!-- add empty div if not divisible by 3 -->
-    {#if displayedMemebids.slice(1 + (page - 1) * perPage, page * perPage).length % 3 !== 0}
-      {#each Array(3 - (displayedMemebids.slice(1 + (page - 1) * perPage, page * perPage).length % 3)).keys() as i (-i)}
-        <div
-          class="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
-        ></div>
       {/each}
-    {/if}
-    <div class="flex items-center justify-center w-full gap-10">
-      <button
-        on:click={() => {
-          page = Math.max(1, page - 1);
-        }}
-        class="hover:font-bold"
-      >
-        [prev]
-      </button>
-      <button
-        on:click={() => {
-          page = Math.min(
-            page + 1,
-            Math.ceil(displayedMemebids.length / perPage),
-          );
-        }}
-        class="hover:font-bold"
-      >
-        [next]
-      </button>
     </div>
   </div>
 {/await}
@@ -160,7 +188,7 @@
   }
 
   .animate-shake-and-border {
-    animation: shakeAndBorder 500ms;
-    animation-iteration-count: 3;
+    animation: shakeAndBorder 300ms;
+    animation-iteration-count: 2;
   }
 </style>

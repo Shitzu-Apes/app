@@ -2,64 +2,89 @@
   import { onMount } from "svelte";
 
   export let to: number;
+  export let format: "compact" | "full" = "full";
   let className: string = "";
 
   export { className as class };
 
   let started = false;
-  let [hours, minutes, seconds] = [0, 0, 0, 0];
-  onMount(() => {
-    const interval = setInterval(() => {
-      started = true;
-      const now = Date.now();
-      const diff = to - now;
-      if (diff <= 0) {
-        clearInterval(interval);
-        return;
-      }
+  let [hours, minutes, seconds] = [0, 0, 0];
 
-      hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      seconds = Math.floor((diff % (1000 * 60)) / 1000);
+  function updateTime() {
+    started = true;
+    const now = Date.now();
+    const diff = to - now;
+    if (diff <= 0) {
+      return false;
+    }
+
+    hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    return true;
+  }
+
+  onMount(() => {
+    updateTime();
+    const interval = setInterval(() => {
+      if (!updateTime()) {
+        clearInterval(interval);
+      }
     }, 1000);
 
     return () => clearInterval(interval);
   });
+
+  function padZero(num: number) {
+    return num.toString().padStart(2, "0");
+  }
 </script>
 
-<div class="flex gap-2 text-6xl justify-center items-start {className}">
-  <div class="flex flex-col justify-center items-center flex-grow basis-0">
-    <div>
-      {#if started}
-        {hours}
-      {:else}
-        -
-      {/if}
-    </div>
-    <div class="text-xs w-full text-center">{hours > 1 ? "Hours" : "Hour"}</div>
+{#if format === "compact"}
+  <div class="flex gap-2 text-6xl justify-center items-start {className}">
+    {#if started}
+      {padZero(hours)}:{padZero(minutes)}:{padZero(seconds)}
+    {:else}
+      --:--:--
+    {/if}
   </div>
-  <div class="flex flex-col justify-center items-center flex-grow basis-0">
-    <div>
-      {#if started}
-        {minutes}
-      {:else}
-        -
-      {/if}
+{:else}
+  <div class="flex gap-2 text-6xl justify-center items-start {className}">
+    <div class="flex flex-col justify-center items-center flex-grow basis-0">
+      <div>
+        {#if started}
+          {hours}
+        {:else}
+          -
+        {/if}
+      </div>
+      <div class="text-xs w-full text-center">
+        {hours > 1 ? "Hours" : "Hour"}
+      </div>
     </div>
-    <div class="text-xs w-full text-center">
-      {minutes > 1 ? "Minutes" : "Minute"}
+    <div class="flex flex-col justify-center items-center flex-grow basis-0">
+      <div>
+        {#if started}
+          {minutes}
+        {:else}
+          -
+        {/if}
+      </div>
+      <div class="text-xs w-full text-center">
+        {minutes > 1 ? "Minutes" : "Minute"}
+      </div>
+    </div>
+    <div class="flex flex-col justify-center items-center flex-grow basis-0">
+      <div>
+        {#if started}
+          {seconds}
+        {:else}
+          -
+        {/if}
+      </div>
+      <div class="text-xs w-full text-center">
+        {seconds > 1 ? "Seconds" : "Second"}
+      </div>
     </div>
   </div>
-  <div class="flex flex-col justify-center items-center flex-grow basis-0">
-    <div>
-      {#if started}
-        {seconds}
-      {:else}
-        -
-      {/if}
-    </div>
-    <div class="text-xs w-full text-center">
-      {seconds > 1 ? "Seconds" : "Second"}
-    </div>
-  </div>
-</div>
+{/if}

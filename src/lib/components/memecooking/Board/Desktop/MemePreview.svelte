@@ -1,16 +1,14 @@
 <script lang="ts">
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
 
-  import Chef from "../../Chef.svelte";
-  import Countdown from "../../Countdown.svelte";
-
-  import ProgressBarSmall from "./ProgressBarSmall.svelte";
-
-  import { goto } from "$app/navigation";
   import Near from "$lib/assets/Near.svelte";
+  import ProgressBarSmall from "$lib/components/memecooking/Board/Desktop/ProgressBarSmall.svelte";
+  import Chef from "$lib/components/memecooking/Chef.svelte";
+  import Countdown from "$lib/components/memecooking/Countdown.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
+  import { handleBuy } from "$lib/near/swap";
   import { FixedNumber } from "$lib/util";
 
   export let memebid: Meme;
@@ -25,13 +23,32 @@
       ) => void)
     | undefined = undefined;
 
+  const { accountId$ } = wallet;
+
   $: reachedMcap = new FixedNumber(memebid.total_deposit, 24) >= requiredStake;
+  $: isLaunched = memebid.pool_id;
+  $: isEnded =
+    memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now();
+  $: status = isLaunched
+    ? "live"
+    : isEnded
+      ? reachedMcap
+        ? "pending"
+        : "failed"
+      : "active";
+  $: statusColor = {
+    live: "bg-shitzu-3 text-black",
+    pending: "bg-amber-4 text-black",
+    failed: "bg-rose-4 text-black",
+    active: "bg-gray-600 text-white",
+  }[status];
 
   const { projectedMcap } = memebid;
 
   async function withdraw(ev: Event) {
     ev.preventDefault();
-    if (memebid.end_timestamp_ms == null || depositAmount == null) return;
+    if (!memebid.end_timestamp_ms || !depositAmount) return;
+
     try {
       if (memebid.end_timestamp_ms < Date.now()) {
         await MemeCooking.claim(
@@ -42,9 +59,7 @@
             unwrapNear: true,
             unwrapAmount: depositAmount,
           },
-          {
-            onSuccess: update,
-          },
+          { onSuccess: update },
         );
       } else {
         await MemeCooking.withdraw(
@@ -54,9 +69,7 @@
             amount: depositAmount,
             unwrapNear: true,
           },
-          {
-            onSuccess: update,
-          },
+          { onSuccess: update },
         );
       }
     } catch (e) {
@@ -67,177 +80,169 @@
   async function claim(ev: Event) {
     ev.preventDefault();
     try {
-      await MemeCooking.claim(
-        wallet,
-        {
-          meme: memebid,
-        },
-        {
-          onSuccess: update,
-        },
-      );
+      await MemeCooking.claim(wallet, { meme: memebid }, { onSuccess: update });
     } catch (e) {
       console.error(e);
     }
   }
+
+  async function quickAction(ev: Event) {
+    ev.preventDefault();
+    if (!$accountId$) return;
+
+    if (isLaunched) {
+      // Buy action
+      const input = new FixedNumber("10", 24); // 10 NEAR
+      const expected = new FixedNumber("10000", 0); // Example expected amount
+      await handleBuy(input, $accountId$, expected, memebid);
+    } else {
+      // Deposit action
+      try {
+        await MemeCooking.deposit(
+          wallet,
+          {
+            memeId: memebid.meme_id,
+            amount: "10000000000000000000000000", // 10 NEAR
+            extraNearDeposit: "0",
+          },
+          { onSuccess: update },
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }
 </script>
 
-<div class="w-full">
-  <a
-    href={`/meme/${memebid.meme_id}`}
-    class="w-full flex flex-col p-2 border border-transparent hover:border-white cursor-pointer relative"
-  >
-    {#if !memebid.pool_id && !(memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now())}
-      <div class="w-full mb-3">
-        <ProgressBarSmall meme={memebid} />
-      </div>
-    {/if}
-    <div class="flex items-center justify-start gap-3">
-      <div class="w-24 flex flex-col items-center">
+<div class="w-full rounded hover:ring-2 hover:ring-shitzu-3 bg-gray-800">
+  {#if !isEnded}
+    <div class="flex justify-between items-center p-1">
+      {#if memebid.end_timestamp_ms}
+        <div class="flex items-center gap-1">
+          <div class="i-mdi:clock text-shitzu-4" />
+          <Countdown
+            class="text-shitzu-4 text-base"
+            to={memebid.end_timestamp_ms}
+            format="compact"
+          />
+        </div>
+      {/if}
+      {#if !isLaunched}
+        <div class="flex-shrink-0 w-10 h-fit">
+          <ProgressBarSmall meme={memebid} />
+        </div>
+      {/if}
+    </div>
+  {/if}
+  <a href={`/meme/${memebid.meme_id}`} class="block">
+    <div class="flex items-stretch">
+      <!-- Image Section -->
+      <div class="relative w-1/3 h-fit bg-white">
         <img
           src={`${import.meta.env.VITE_IPFS_GATEWAY}/${memebid.image}`}
           alt={memebid.name}
-          class="max-h-24"
+          class="w-full h-full object-contain"
         />
-        {#if memebid && memebid.end_timestamp_ms && !memebid.pool_id && memebid.end_timestamp_ms < Date.now()}
-          <button
-            class="border-2 border-memecooking-2 font-mono text-memecooking-2 hover:bg-memecooking-2 hover:text-black flex items-center gap-1 w-24 px-1"
-            on:click={(e) => {
-              e.preventDefault();
-              goto(`/create`);
-
-              localStorage.setItem("meme_to_cto", JSON.stringify(memebid));
-            }}
-          >
-            <div class="i-mdi:alert" />
-            <span class="text-xs"> Relaunch </span>
-          </button>
-        {/if}
       </div>
-      <div
-        class="flex flex-col items-start justify-start h-full gap-1 flex-1 relative overflow-hidden"
-      >
-        {#if memebid.pool_id}
-          <a
-            href="{import.meta.env.VITE_REF_APP_URL}/#near|{memebid.token_id}"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-xs self-end px-1 tracking-tight bg-shitzu-3 rounded-full text-black flex items-center gap-1"
-          >
-            live on ref <div class="i-mdi:open-in-new" />
-          </a>
-        {:else if memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now()}
-          {#if reachedMcap}
-            <div
-              class="text-xs self-end px-1 tracking-tight bg-amber-4 rounded-full text-black"
-            >
-              pending launch
-            </div>
-          {:else}
-            <div
-              class="text-xs self-end px-1 tracking-tight bg-rose-4 rounded-full text-black"
-            >
-              didn&apos;t make it
-            </div>
-          {/if}
-        {/if}
-        {#if showCook}
-          <div class="text-xs flex items-center gap-1 w-full">
-            created by <Chef
-              account={memebid.owner}
-              class="flex-1 w-0 overflow-hidden text-ellipsis"
-            />
-          </div>
-        {/if}
-        <div class="text-sm">
-          {memebid.name}
-          <span class="font-semibold text-shitzu-4">${memebid.symbol}</span>
-        </div>
-        <div class="text-xs line-clamp-12">{memebid.description}</div>
 
-        <div class="w-full flex justify-center">
-          <span class="text-xs text-shitzu-4">
-            {#if memebid.end_timestamp_ms}
-              <Countdown
-                class="text-xs text-shitzu-4"
-                to={memebid.end_timestamp_ms}
-              />
+      <div class="w-2/3 py-2 px-2 flex flex-col">
+        <!-- Status Bar -->
+        <div class="w-full flex justify-between items-center mb-2">
+          <div class="w-full flex justify-between items-center gap-2">
+            <span
+              class={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${statusColor}`}
+            >
+              {status.toUpperCase()}
+            </span>
+            {#if showCook}
+              <div class="text-xs flex flex-shrink-1 min-w-0 overflow-hidden">
+                by <Chef account={memebid.owner} class="font-medium min-w-0" />
+              </div>
             {/if}
-          </span>
-        </div>
-        <div class="w-full flex justify-between items-center self-stretch">
-          <span class="text-xs text-shitzu-2 px-2 flex items-center">
-            MCap:
-            {#if $projectedMcap}
-              ${$projectedMcap.format({
-                maximumFractionDigits: 1,
-                notation: "compact",
-                compactDisplay: "short",
-              })}
-            {:else}-
-            {/if}
-          </span>
-
-          <div>
-            <div class="flex items-center gap-3 text-shitzu-2">
-              {#if typeof memebid.staker_count === "number"}
-                <div class="text-sm flex items-center gap-1">
-                  <div class="i-mdi:account-multiple size-5" />
-                  <span class="font-bold">
-                    {memebid.staker_count}
-                  </span>
-                </div>
-              {/if}
-              {#if typeof memebid.replies_count === "number"}
-                <div class="text-sm flex items-center gap-1">
-                  <div class="i-mdi:chat size-5" />
-                  <span class="font-bold">
-                    {memebid.replies_count}
-                  </span>
-                </div>
-              {/if}
-            </div>
           </div>
         </div>
 
-        <div class="ml-auto flex flex-col justify-end items-end">
-          {#if depositAmount != null}
-            <button
-              class="hover:underline flex items-center gap-1"
-              on:click={withdraw}
-            >
-              [withdraw {new FixedNumber(depositAmount, 24).format({
-                compactDisplay: "short",
-                notation: "compact",
-              })}
-              <Near className="size-4 inline" />]
-            </button>
-          {/if}
-          {#if isOwnAccount && claimAmount != null}
-            {#if claimAmount.valueOf() > 0n}
+        <!-- Title -->
+        <div class="">
+          <h3 class="text-base font-medium">
+            {memebid.name}
+            <span class="text-shitzu-4">${memebid.symbol}</span>
+          </h3>
+        </div>
+
+        <!-- Description -->
+        <p class="text-sm text-gray-300 line-clamp-2 mb-2">
+          {memebid.description}
+        </p>
+
+        <!-- Stats -->
+        <div class="flex items-center justify-between text-sm mt-auto">
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-1">
+              <span class="text-gray-400">MCap:</span>
+              <span class="font-medium">
+                {#if $projectedMcap}
+                  ${$projectedMcap.format({
+                    maximumFractionDigits: 1,
+                    notation: "compact",
+                  })}
+                {:else}-{/if}
+              </span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            {#if typeof memebid.staker_count === "number"}
+              <div class="flex items-center gap-1">
+                <div class="i-mdi:account-multiple text-gray-400" />
+                <span class="font-medium">{memebid.staker_count}</span>
+              </div>
+            {/if}
+            {#if typeof memebid.replies_count === "number"}
+              <div class="flex items-center gap-1">
+                <div class="i-mdi:chat text-gray-400" />
+                <span class="font-medium">{memebid.replies_count}</span>
+              </div>
+            {/if}
+          </div>
+        </div>
+
+        {#if depositAmount != null || (isOwnAccount && claimAmount && claimAmount.valueOf() > 0n) || !isEnded || isLaunched}
+          <!-- Actions -->
+          <div class="mt-4 w-full">
+            {#if depositAmount != null}
               <button
-                class="hover:underline flex items-center gap-1"
-                on:click={claim}
+                class="px-3 py-1 w-full bg-gray-700 hover:bg-gray-600 rounded-sm flex items-center justify-center gap-1"
+                on:click={withdraw}
               >
-                [claim {claimAmount.format({
-                  compactDisplay: "short",
+                Withdraw {new FixedNumber(depositAmount, 24).format({
                   notation: "compact",
                 })}
-                {#if memebid.image}
-                  <img
-                    src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
-                    alt="icon"
-                    class="size-4 inline"
-                  />
-                {:else}
-                  <div class="size-4 bg-gray-200 inline"></div>
-                {/if}]
+                <Near className="size-4" />
               </button>
-            {:else}
-              <button>[already claimed]</button>
+            {:else if isOwnAccount && claimAmount && claimAmount.valueOf() > 0n}
+              <button
+                class="px-3 py-1 w-full bg-shitzu-3 text-black hover:brightness-110 rounded-sm flex items-center justify-center gap-1"
+                on:click={claim}
+              >
+                Claim {claimAmount.format({ notation: "compact" })}
+                <img
+                  src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
+                  alt="token"
+                  class="size-4"
+                />
+              </button>
+            {:else if !isEnded || isLaunched}
+              <button
+                class="px-3 py-1 w-full bg-shitzu-3 text-black hover:brightness-110 rounded-sm flex items-center justify-center gap-1"
+                on:click={quickAction}
+              >
+                [{isLaunched ? "buy" : "deposit"}
+                <Near className="size-4 bg-white rounded-full" /> 10]
+              </button>
             {/if}
-          {/if}
-        </div>
+          </div>
+        {/if}
       </div>
     </div>
   </a>

@@ -36,6 +36,7 @@
     "@near-wallet-selector/near-mobile-wallet": "^8.9.13",
     "@near-wallet-selector/okx-wallet": "^8.9.13",
     "@near-wallet-selector/wallet-connect": "^8.9.13",
+    "@tanstack/svelte-virtual": "^3.10.8",
     "@unocss/reset": "^0.60.2",
     "@wagmi/core": "^2.13.5",
     "@web3modal/wagmi": "^5.1.8",
