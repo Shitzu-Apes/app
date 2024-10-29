@@ -11,10 +11,10 @@
       allocationBps: 500,
       vestingDurationDays: 0,
       cliffDurationDays: 0,
-      label: "Small Allocation",
+      label: "Instant Allocation",
     },
     large: {
-      label: "Large Allocation",
+      label: "Vesting Allocation",
       allocationBps: 2000,
       vestingDurationDays: 7,
       cliffDurationDays: 2,
@@ -61,11 +61,9 @@
     selectedOption = option as "small" | "large" | "customize";
     if (option !== "customize") {
       const selected = ALLOCATION_DEFAULT_OPTIONS[option as "small" | "large"];
-      allocationPercentage = selected.allocationBps / 100;
       vestingDurationDays = selected.vestingDurationDays;
       cliffDurationDays = selected.cliffDurationDays;
-    } else {
-      $sliderValue = [allocationPercentage];
+      $sliderValue = [selected.allocationBps / 100];
     }
   }
 </script>
@@ -141,32 +139,42 @@
         </div>
       </div>
 
-      <InputField
-        label="Cliff Duration (days)"
-        type="number"
-        min={0}
-        step={1}
-        bind:value={cliffDurationDays}
-      />
+      <div class="space-y-4 pt-2">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1">
+            <InputField
+              label="Cliff Duration"
+              type="number"
+              min={0}
+              step={1}
+              bind:value={cliffDurationDays}
+              tooltip="Days before tokens start unlocking"
+            />
+          </div>
 
-      <InputField
-        label="Vesting Duration (days)"
-        type="number"
-        min={0}
-        step={1}
-        bind:value={vestingDurationDays}
-      />
+          <div class="flex flex-col gap-1">
+            <InputField
+              label="Vesting Duration"
+              type="number"
+              min={0}
+              step={1}
+              bind:value={vestingDurationDays}
+              tooltip="Days over which tokens gradually unlock after cliff period"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   {/if}
 
-  <div class="text-xs text-gray-400 w-full min-h-12">
-    The team will receive {allocationPercentage}% of the total supply. This
-    amount will be <br />
-    {#if selectedOption === "small"}
-      available instantly
+  <div class="text-sm text-gray-400 w-full bg-gray-800/50 p-4 rounded-lg">
+    <span class="font-semibold text-shitzu-4">Summary:</span> The team will
+    receive {allocationPercentage}% of the total supply.
+    {#if vestingDurationDays === 0 && cliffDurationDays === 0}
+      This amount will be available instantly after launch.
     {:else}
-      locked for {cliffDurationDays} days (cliff period), after which it will gradually
-      unlock over {vestingDurationDays} days
-    {/if}.
+      The tokens will be locked for {cliffDurationDays} days (cliff period), after
+      which they will gradually unlock over {vestingDurationDays} days.
+    {/if}
   </div>
 </div>

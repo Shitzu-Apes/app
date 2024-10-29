@@ -103,9 +103,11 @@
     <SoftHardCapSlider bind:softCap bind:hardCap bind:hardCapEnabled />
   {/if}
 
-  <div class="text-xs text-gray-400 w-full">
-    The Soft Cap of {(Number(softCap) / Number(NEAR_MULTIPLIER)).toFixed(2)} NEAR
-    is the minimum required to launch on ref once the duration is over. {#if hardCapEnabled}
+  <div class="text-sm text-gray-400 w-full bg-gray-800/50 p-4 rounded-lg">
+    <span class="font-semibold text-shitzu-4">Summary:</span> The Soft Cap of {(
+      Number(softCap) / Number(NEAR_MULTIPLIER)
+    ).toFixed(2)} NEAR is the minimum required to launch on ref once the duration
+    is over. {#if hardCapEnabled}
       <span transition:fade
         >If the Hard Cap of {(
           Number(hardCap || 0) / Number(NEAR_MULTIPLIER)
