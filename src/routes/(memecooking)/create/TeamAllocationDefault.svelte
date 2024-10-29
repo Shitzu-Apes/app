@@ -55,10 +55,7 @@
   $: teamAllocation.allocationBps = allocationPercentage * 100;
 
   $: hasError =
-    teamAllocation.allocationBps < 0 ||
-    teamAllocation.allocationBps > 10000 ||
-    vestingDurationDays < cliffDurationDays ||
-    cliffDurationDays > vestingDurationDays;
+    teamAllocation.allocationBps < 0 || teamAllocation.allocationBps > 9000;
 
   function selectOption(option: string) {
     selectedOption = option as "small" | "large" | "customize";
