@@ -4,6 +4,7 @@
 
   import MemePreview from "./MemePreview.svelte";
 
+  import Near from "$lib/assets/Near.svelte";
   import SelectBox from "$lib/components/SelectBox.svelte";
   import Toggle from "$lib/components/Toggle.svelte";
   import { requiredStake } from "$lib/near/memecooking";
@@ -18,6 +19,7 @@
   let selectedDirection = orderOptions[0];
   let activeTab: "auction" | "live" | "all" = "all";
   let liveOnly = true;
+  let quickActionAmount = "5";
 
   $: displayedMemebids = $memebids$.then((memebids) => [
     ...filterAndSortMeme(
@@ -105,12 +107,26 @@
   </button>
 </div>
 
-<div class="flex flex-wrap gap-3 mt-6 px-4">
+<div class="w-full flex flex-wrap gap-3 mt-6 px-4">
   <SelectBox options={sortOptions} bind:selected={selectedSort} />
   <SelectBox options={orderOptions} bind:selected={selectedDirection} />
   {#if activeTab === "auction"}
     <Toggle bind:isOn={liveOnly}>live auction:{" "}</Toggle>
   {/if}
+  <div class="ml-auto flex items-center gap-2">
+    <span class="text-sm text-white">Quick Buy/Deposit:</span>
+    <div class="relative w-24">
+      <input
+        type="number"
+        bind:value={quickActionAmount}
+        class="w-full pl-7 pr-2 py-1 bg-transparent border border-gray-100 text-white rounded focus:border-shitzu-3 focus:outline-none"
+        placeholder="5.00"
+      />
+      <Near
+        className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-white text-gray-700 rounded-full"
+      />
+    </div>
+  </div>
 </div>
 
 {#await Promise.all([requiredStake, displayedMemebids])}
@@ -156,7 +172,11 @@
           data-index={row.index}
           use:measureElement
         >
-          <MemePreview memebid={displayedMemebids[row.index]} {requiredStake} />
+          <MemePreview
+            memebid={displayedMemebids[row.index]}
+            {requiredStake}
+            {quickActionAmount}
+          />
         </div>
       {/each}
     </div>

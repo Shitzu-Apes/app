@@ -2,14 +2,21 @@
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
 
   import Near from "$lib/assets/Near.svelte";
+  import { showWalletSelector } from "$lib/auth";
+  import { addToast } from "$lib/components/Toast.svelte";
   import ProgressBarSmall from "$lib/components/memecooking/Board/Desktop/ProgressBarSmall.svelte";
+  import ReferralSheet from "$lib/components/memecooking/BottomSheet/ReferralSheet.svelte";
   import Chef from "$lib/components/memecooking/Chef.svelte";
   import Countdown from "$lib/components/memecooking/Countdown.svelte";
+  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { wallet } from "$lib/near";
+  import { Ref, wallet } from "$lib/near";
+  import { Ft } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
   import { handleBuy } from "$lib/near/swap";
   import { FixedNumber } from "$lib/util";
+  import { getTokenId } from "$lib/util/getTokenId";
+  import { getReferral } from "$lib/util/referral";
 
   export let memebid: Meme;
   export let requiredStake: FixedNumber;
@@ -17,6 +24,7 @@
   export let depositAmount: string | undefined = undefined;
   export let isOwnAccount: boolean = false;
   export let claimAmount: FixedNumber | undefined = undefined;
+  export let quickActionAmount: string = "5";
   export let update:
     | ((
         outcome: FinalExecutionOutcome | FinalExecutionOutcome[] | undefined,
@@ -88,25 +96,134 @@
 
   async function quickAction(ev: Event) {
     ev.preventDefault();
-    if (!$accountId$) return;
+    if (!$accountId$) {
+      showWalletSelector("shitzu");
+      return;
+    }
 
-    if (isLaunched) {
+    if (isLaunched && memebid.pool_id) {
       // Buy action
-      const input = new FixedNumber("10", 24); // 10 NEAR
-      const expected = new FixedNumber("10000", 0); // Example expected amount
+      const input = new FixedNumber(
+        BigInt(Number(quickActionAmount) * 1e24),
+        24,
+      );
+
+      const expected = await Ref.getReturn({
+        amountIn: input,
+        tokenOut: getTokenId(memebid.symbol, memebid.meme_id),
+        tokenIn: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
+        poolId: memebid.pool_id,
+        decimals: memebid.decimals,
+      });
+
       await handleBuy(input, $accountId$, expected, memebid);
     } else {
       // Deposit action
       try {
+        const input = new FixedNumber(
+          BigInt(Number(quickActionAmount) * 1e24),
+          24,
+        );
+
+        // Check storage balance before depositing
+        const [
+          storageBalance,
+          { account: accountCost, perMemeDeposit },
+          wrapNearRegistered,
+          wrapNearMinDeposit,
+          wrapNearBalance,
+        ] = await Promise.all([
+          MemeCooking.storageBalanceOf($accountId$),
+          MemeCooking.storageCosts(),
+          Ft.isUserRegistered(
+            import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
+            $accountId$,
+          ),
+          Ft.storageRequirement(import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!),
+          Ft.balanceOf(
+            import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
+            $accountId$,
+            24,
+          ),
+        ]);
+
+        let needStorageDeposit = null;
+        if (
+          storageBalance === null ||
+          (storageBalance !== null &&
+            new FixedNumber(storageBalance.available).toBigInt() <
+              new FixedNumber(accountCost).toBigInt())
+        ) {
+          needStorageDeposit = {
+            depositAmount: (
+              BigInt(accountCost) +
+              5n * BigInt(perMemeDeposit)
+            ).toString(),
+          };
+        } else if (BigInt(storageBalance.available) < BigInt(perMemeDeposit)) {
+          needStorageDeposit = {
+            depositAmount: (5n * BigInt(perMemeDeposit)).toString(),
+          };
+        }
+
+        let wrapNearDeposit = null;
+        if (!wrapNearRegistered) {
+          wrapNearDeposit = {
+            depositAmount: wrapNearMinDeposit,
+          };
+        }
+
+        const extraNearDeposit =
+          input.toBigInt() > (wrapNearBalance?.toBigInt() ?? 0n)
+            ? input.toBigInt() - (wrapNearBalance?.toBigInt() ?? 0n)
+            : 0n;
+
+        let referrer = getReferral() || undefined;
+
+        if (referrer === $accountId$) {
+          referrer = undefined;
+          addToast({
+            data: {
+              type: "simple",
+              data: {
+                title: "Invalid Referral",
+                description: "Referral cannot be the same as depositor",
+                color: "red",
+              },
+            },
+          });
+        }
+
         await MemeCooking.deposit(
           wallet,
           {
+            amount: input.toU128(),
+            extraNearDeposit: extraNearDeposit.toString(),
             memeId: memebid.meme_id,
-            amount: "10000000000000000000000000", // 10 NEAR
-            extraNearDeposit: "0",
+            referrer,
           },
-          { onSuccess: update },
+          {
+            onSuccess: () => {
+              addToast({
+                data: {
+                  type: "simple",
+                  data: {
+                    title: "Deposit Success",
+                    description: `You successfully deposited ${input.format()} NEAR`,
+                  },
+                },
+              });
+              if (update) update(undefined);
+            },
+          },
+          needStorageDeposit,
+          wrapNearDeposit,
         );
+
+        openBottomSheet(ReferralSheet, {
+          amount: input,
+          meme: memebid,
+        });
       } catch (e) {
         console.error(e);
       }
@@ -237,8 +354,8 @@
                 class="px-3 py-1 w-full bg-shitzu-3 text-black hover:brightness-110 rounded-sm flex items-center justify-center gap-1"
                 on:click={quickAction}
               >
-                [{isLaunched ? "buy" : "deposit"}
-                <Near className="size-4 bg-white rounded-full" /> 10]
+                <Near className="size-4 bg-white rounded-full" />
+                {quickActionAmount}
               </button>
             {/if}
           </div>
