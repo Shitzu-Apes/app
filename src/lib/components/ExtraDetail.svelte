@@ -16,7 +16,7 @@
     meme.total_supply,
     meme.decimals,
   ).format()}. Half of this supply, plus ${new FixedNumber(
-    meme.total_deposit,
+    (BigInt(meme.total_deposit) * 98n) / 100n,
     24,
   ).format()} NEAR, will be used for liquidity and burned. The remaining half will
   be shared among depositors. The Soft Cap of ${softCap.format()} NEAR is

@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
 
   import Tooltip from "$lib/components/Tooltip.svelte";
+  import TeamAllocation from "$lib/components/memecooking/Board/TokenAllocation.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { MemeCooking } from "$lib/near/memecooking";
   import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
@@ -62,6 +63,29 @@
           holders.sort((a, b) => (BigInt(b[1]) > BigInt(a[1]) ? 1 : -1));
 
           const total_staked = new FixedNumber(BigInt(meme.total_deposit), 24);
+          const delta = 1 / 1.98; // Same as VestingChart
+
+          // Calculate team allocation percentage with 2 decimal precision
+          const team_allocation_percentage =
+            meme.team_allocation_num && meme.total_supply_num
+              ? Number(
+                  (
+                    (meme.team_allocation_num / meme.total_supply_num) *
+                    100
+                  ).toFixed(2),
+                )
+              : 0;
+
+          // Calculate pool and depositor percentages based on delta with 2 decimal precision
+          const remaining_percentage = Number(
+            (100 - team_allocation_percentage).toFixed(2),
+          );
+          const pool_percentage = Number(
+            (remaining_percentage * delta).toFixed(2),
+          );
+          const depositor_percentage = Number(
+            (remaining_percentage * (1 - delta)).toFixed(2),
+          );
 
           const holders_with_percentage = holders.map(([holder, amount]) => {
             const percentage =
@@ -69,16 +93,38 @@
                 ? total_staked
                 : new FixedNumber(amount, 24)
                     .div(total_staked)
-                    .div(new FixedNumber(2n, 0))
-                    .mul(new FixedNumber(100n, 0));
+                    .mul(
+                      new FixedNumber(
+                        BigInt(Math.round(depositor_percentage * 100)),
+                        2,
+                      ),
+                    );
 
             return [holder, percentage];
           });
 
-          return [
-            ["pool", new FixedNumber(50n, 0)],
-            ...holders_with_percentage,
-          ] as [string, FixedNumber][];
+          let result: [string, FixedNumber][] = [
+            [
+              "pool",
+              new FixedNumber(BigInt(Math.round(pool_percentage * 100)), 2),
+            ],
+          ];
+
+          // Add team allocation if it exists
+          if (team_allocation_percentage > 0) {
+            result.push([
+              "team",
+              new FixedNumber(
+                BigInt(Math.round(team_allocation_percentage * 100)),
+                2,
+              ),
+            ]);
+          }
+
+          return [...result, ...holders_with_percentage] as [
+            string,
+            FixedNumber,
+          ][];
         },
       );
     }
@@ -99,8 +145,14 @@
   });
 </script>
 
-<div class="w-full px-4 overflow-auto">
-  <h2 class="text-xl my-3 flex items-center gap-1">
+<div class="w-full px-4 overflow-auto my-3 gap-2">
+  {#if meme.team_allocation_num && typeof meme.vesting_duration_ms === "number" && typeof meme.cliff_duration_ms === "number"}
+    <div class="w-full my-2">
+      <h2 class="text-xl flex items-center gap-1">Token Allocation</h2>
+      <TeamAllocation {meme} />
+    </div>
+  {/if}
+  <h2 class="text-xl flex items-center gap-1">
     Holders
 
     <Tooltip>

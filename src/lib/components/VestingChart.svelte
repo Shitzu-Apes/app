@@ -9,9 +9,13 @@
     cliffDurationMs: number;
   };
 
-  let width = 400;
-  let height = 300;
-  let margin = {
+  let container: HTMLDivElement;
+  let width: number;
+  let height: number;
+  $: width = container?.clientWidth || 400;
+  $: height = width * 0.75; // Keep 4:3 aspect ratio
+
+  $: margin = {
     top: height * 0.15, // Increased top margin
     right: width * 0.05,
     bottom: height * 0.1,
@@ -346,194 +350,171 @@
   }
 </script>
 
-<svg
-  {width}
-  {height}
-  class="bg-gray-700 rounded-lg border border-white"
-  on:mousemove={handleMouseMove}
-  on:mouseleave={() => {
-    dispatch("hover", null);
-    selected = null;
-  }}
-  on:touchstart={handleTouchMove}
-  on:touchmove={handleTouchMove}
-  on:touchend={() => {
-    dispatch("hover", null);
-    selected = null;
-  }}
-  role="img"
->
-  <defs class="text-lime-400">
-    <linearGradient id="areaGradient" x1="0" x2="0" y1="0" y2="1">
-      <stop offset="0%" stop-color="currentColor" stop-opacity="0.6" />
-      <stop offset="100%" stop-color="currentColor" stop-opacity="0.3" />
-    </linearGradient>
-  </defs>
+<div bind:this={container} class="w-full">
+  <svg
+    {width}
+    {height}
+    class="bg-gray-700 rounded-lg border border-white"
+    on:mousemove={handleMouseMove}
+    on:mouseleave={() => {
+      dispatch("hover", null);
+      selected = null;
+    }}
+    on:touchstart={handleTouchMove}
+    on:touchmove={handleTouchMove}
+    on:touchend={() => {
+      dispatch("hover", null);
+      selected = null;
+    }}
+    role="img"
+  >
+    <defs class="text-lime-400">
+      <linearGradient id="areaGradient" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="currentColor" stop-opacity="0.6" />
+        <stop offset="100%" stop-color="currentColor" stop-opacity="0.3" />
+      </linearGradient>
+    </defs>
 
-  <!-- Legend (moved to top) -->
-  <g transform="translate({margin.left}, {margin.top * 0.5})">
-    <text x={0} y="0" fill="currentColor" font-size={fontSize}>
-      Time {selected ? readableDuration(selected.time, 2) : ""}
-    </text>
-    <text x={width * 0.25} y="0" fill="#a3e635" font-size={fontSize}>
-      Team {selected ? selected.vested.toFixed(1) + "%" : ""}
-    </text>
-    <text
-      x={width * 0.5}
-      y="0"
-      fill={selected?.time && selected.time < 0 ? "#4CAF50" : "#00f0f0"}
-      font-size={fontSize}
-    >
-      {selected?.time && selected.time < 0 ? "Ref " : "Circulating Supply "}
-      {selected
-        ? (selected.time < 0
-            ? selected.liquidityPool.toFixed(1)
-            : selected.circulatingSupply.toFixed(1)) + "%"
-        : ""}
-    </text>
-    {#if selected && selected.time < 0}
-      <text x={width * 0.75} y="0" fill="#2196F3" font-size={fontSize}>
-        Depositor {(selected.depositor - selected.liquidityPool).toFixed(1)}%
+    <!-- Legend (moved to top) -->
+    <g transform="translate({margin.left}, {margin.top * 0.5})">
+      <text x={0} y="0" fill="currentColor" font-size={fontSize}>
+        Time {selected ? readableDuration(selected.time, 2) : ""}
       </text>
+      <text x={width * 0.25} y="0" fill="#a3e635" font-size={fontSize}>
+        Team {selected ? selected.vested.toFixed(1) + "%" : ""}
+      </text>
+      <text
+        x={width * 0.5}
+        y="0"
+        fill={selected?.time && selected.time < 0 ? "#4CAF50" : "#00f0f0"}
+        font-size={fontSize}
+      >
+        {selected?.time && selected.time < 0 ? "Ref " : "Circulating Supply "}
+        {selected
+          ? (selected.time < 0
+              ? selected.liquidityPool.toFixed(1)
+              : selected.circulatingSupply.toFixed(1)) + "%"
+          : ""}
+      </text>
+      {#if selected && selected.time < 0}
+        <text x={width * 0.75} y="0" fill="#2196F3" font-size={fontSize}>
+          Depositor {(selected.depositor - selected.liquidityPool).toFixed(1)}%
+        </text>
+      {/if}
+    </g>
+
+    {#if pathD}
+      <!-- Depositor areas -->
+      <path d={depositorAuctionAreaPathD} fill="#2196F3" fill-opacity="0.2" />
+      <path
+        d={depositorPostAuctionAreaPathD}
+        fill="#00f0f0"
+        fill-opacity="0.2"
+      />
+      <!-- Split depositor path -->
+      <path
+        d={depositorAuctionPathD}
+        fill="none"
+        stroke="#2196F3"
+        stroke-width={strokeWidth}
+      />
+      <path
+        d={depositorPostAuctionPathD}
+        fill="none"
+        stroke="#00f0f0"
+        stroke-width={strokeWidth}
+      />
+
+      <!-- Liquidity pool areas -->
+      <path d={liquidityAuctionAreaPathD} fill="#4CAF50" fill-opacity="0.2" />
+      <!-- Split liquidity path -->
+      <path
+        d={liquidityAuctionPathD}
+        fill="none"
+        stroke="#4CAF50"
+        stroke-width={strokeWidth}
+      />
+
+      <!-- Team allocation area -->
+      <path d={teamAreaPathD} class="text-lime-400" fill="url(#areaGradient)" />
+      <path
+        class="text-lime-400"
+        d={pathD}
+        fill="none"
+        stroke="currentColor"
+        stroke-width={strokeWidth}
+      />
     {/if}
-  </g>
 
-  {#if pathD}
-    <!-- Depositor areas -->
-    <path d={depositorAuctionAreaPathD} fill="#2196F3" fill-opacity="0.2" />
-    <path d={depositorPostAuctionAreaPathD} fill="#00f0f0" fill-opacity="0.2" />
-    <!-- Split depositor path -->
-    <path
-      d={depositorAuctionPathD}
-      fill="none"
-      stroke="#2196F3"
-      stroke-width={strokeWidth}
-    />
-    <path
-      d={depositorPostAuctionPathD}
-      fill="none"
-      stroke="#00f0f0"
-      stroke-width={strokeWidth}
-    />
-
-    <!-- Liquidity pool areas -->
-    <path d={liquidityAuctionAreaPathD} fill="#4CAF50" fill-opacity="0.2" />
-    <!-- Split liquidity path -->
-    <path
-      d={liquidityAuctionPathD}
-      fill="none"
-      stroke="#4CAF50"
-      stroke-width={strokeWidth}
-    />
-
-    <!-- Team allocation area -->
-    <path d={teamAreaPathD} class="text-lime-400" fill="url(#areaGradient)" />
-    <path
-      class="text-lime-400"
-      d={pathD}
-      fill="none"
-      stroke="currentColor"
-      stroke-width={strokeWidth}
-    />
-  {/if}
-
-  <!-- Y-axis -->
-  <g class="text-white">
-    {#each yAxisTicks as tick}
-      <line
-        x1={margin.left}
-        y1={tick.y}
-        x2={width - margin.right}
-        y2={tick.y}
-        stroke="currentColor"
-        stroke-opacity="0.25"
-        stroke-width={strokeWidth}
-        stroke-dasharray="5,5"
-      />
-      <text
-        x={width - margin.right}
-        y={tick.y - 5}
-        text-anchor="end"
-        font-size={fontSize}
-        fill-opacity="0.5"
-        fill="#FFFFFF">{tick.label}</text
-      >
-    {/each}
-  </g>
-
-  {#if totalDurationMs !== 0 || cliffDurationMs !== 0}
-    <!-- Auction end line -->
+    <!-- Y-axis -->
     <g class="text-white">
-      <line
-        x1={xScale(0)}
-        y1={margin.top}
-        x2={xScale(0)}
-        y2={height - margin.bottom}
-        stroke="currentColor"
-        stroke-width={strokeWidth}
-        stroke-dasharray="5,5"
-      />
-      <text
-        x={xScale(0)}
-        y={margin.top - 5}
-        text-anchor="middle"
-        font-size={fontSize}
-        fill="currentColor">Auction end</text
-      >
+      {#each yAxisTicks as tick}
+        <line
+          x1={margin.left}
+          y1={tick.y}
+          x2={width - margin.right}
+          y2={tick.y}
+          stroke="currentColor"
+          stroke-opacity="0.25"
+          stroke-width={strokeWidth}
+          stroke-dasharray="5,5"
+        />
+        <text
+          x={width - margin.right}
+          y={tick.y - 5}
+          text-anchor="end"
+          font-size={fontSize}
+          fill-opacity="0.5"
+          fill="#FFFFFF">{tick.label}</text
+        >
+      {/each}
     </g>
-  {/if}
 
-  <!-- Cliff/Vesting line and label -->
-  {#if totalDurationMs === 0 && cliffDurationMs === 0}
-    <!-- Combined instant case line -->
-    <g class="text-white">
-      <line
-        x1={xScale(0)}
-        y1={margin.top}
-        x2={xScale(0)}
-        y2={height - margin.bottom}
-        stroke="currentColor"
-        stroke-width={strokeWidth}
-        stroke-dasharray="5,5"
-      />
-      <text
-        x={xScale(0)}
-        y={margin.top - 5}
-        text-anchor="middle"
-        font-size={fontSize}
-        fill="currentColor">Auction end + Instant allocation</text
-      >
-    </g>
-  {:else if cliffDurationMs === totalDurationMs}
-    <!-- Combined cliff and vesting line when they're equal -->
-    <g class="text-white">
-      <line
-        x1={xScale(cliffDurationMs)}
-        y1={margin.top}
-        x2={xScale(cliffDurationMs)}
-        y2={height - margin.bottom}
-        stroke="currentColor"
-        stroke-width={strokeWidth}
-        stroke-dasharray="5,5"
-      />
-      <text
-        x={xScale(cliffDurationMs)}
-        y={margin.top - 5}
-        text-anchor={xScale(cliffDurationMs) < width * 0.1 ? "start" : "middle"}
-        font-size={fontSize}
-        fill="currentColor">Cliff & Vesting end</text
-      >
-      <text
-        x={xScale(cliffDurationMs)}
-        y={height - margin.bottom + height * 0.067}
-        text-anchor={xScale(cliffDurationMs) < width * 0.1 ? "start" : "middle"}
-        font-size={fontSize}
-        fill="currentColor">{Math.round(cliffDurationMs / MS_PER_DAY)}d</text
-      >
-    </g>
-  {:else}
-    <!-- Cliff line and label -->
-    {#if cliffDurationMs !== 0}
+    {#if totalDurationMs !== 0 || cliffDurationMs !== 0}
+      <!-- Auction end line -->
+      <g class="text-white">
+        <line
+          x1={xScale(0)}
+          y1={margin.top}
+          x2={xScale(0)}
+          y2={height - margin.bottom}
+          stroke="currentColor"
+          stroke-width={strokeWidth}
+          stroke-dasharray="5,5"
+        />
+        <text
+          x={xScale(0)}
+          y={margin.top - 5}
+          text-anchor="middle"
+          font-size={fontSize}
+          fill="currentColor">Auction end</text
+        >
+      </g>
+    {/if}
+
+    <!-- Cliff/Vesting line and label -->
+    {#if totalDurationMs === 0 && cliffDurationMs === 0}
+      <!-- Combined instant case line -->
+      <g class="text-white">
+        <line
+          x1={xScale(0)}
+          y1={margin.top}
+          x2={xScale(0)}
+          y2={height - margin.bottom}
+          stroke="currentColor"
+          stroke-width={strokeWidth}
+          stroke-dasharray="5,5"
+        />
+        <text
+          x={xScale(0)}
+          y={margin.top - 5}
+          text-anchor="middle"
+          font-size={fontSize}
+          fill="currentColor">Auction end + Instant allocation</text
+        >
+      </g>
+    {:else if cliffDurationMs === totalDurationMs}
+      <!-- Combined cliff and vesting line when they're equal -->
       <g class="text-white">
         <line
           x1={xScale(cliffDurationMs)}
@@ -551,7 +532,7 @@
             ? "start"
             : "middle"}
           font-size={fontSize}
-          fill="currentColor">Cliff end</text
+          fill="currentColor">Cliff & Vesting end</text
         >
         <text
           x={xScale(cliffDurationMs)}
@@ -563,70 +544,106 @@
           fill="currentColor">{Math.round(cliffDurationMs / MS_PER_DAY)}d</text
         >
       </g>
+    {:else}
+      <!-- Cliff line and label -->
+      {#if cliffDurationMs !== 0}
+        <g class="text-white">
+          <line
+            x1={xScale(cliffDurationMs)}
+            y1={margin.top}
+            x2={xScale(cliffDurationMs)}
+            y2={height - margin.bottom}
+            stroke="currentColor"
+            stroke-width={strokeWidth}
+            stroke-dasharray="5,5"
+          />
+          <text
+            x={xScale(cliffDurationMs)}
+            y={margin.top - 5}
+            text-anchor={xScale(cliffDurationMs) < width * 0.1
+              ? "start"
+              : "middle"}
+            font-size={fontSize}
+            fill="currentColor">Cliff end</text
+          >
+          <text
+            x={xScale(cliffDurationMs)}
+            y={height - margin.bottom + height * 0.067}
+            text-anchor={xScale(cliffDurationMs) < width * 0.1
+              ? "start"
+              : "middle"}
+            font-size={fontSize}
+            fill="currentColor"
+            >{Math.round(cliffDurationMs / MS_PER_DAY)}d</text
+          >
+        </g>
+      {/if}
+
+      <!-- Vesting end line and label -->
+      <g class="text-white">
+        <line
+          x1={xScale(totalDurationMs)}
+          y1={margin.top}
+          x2={xScale(totalDurationMs)}
+          y2={height - margin.bottom}
+          stroke="currentColor"
+          stroke-width={strokeWidth}
+          stroke-dasharray="5,5"
+        />
+        <text
+          x={xScale(totalDurationMs)}
+          y={margin.top - 5}
+          text-anchor="middle"
+          font-size={fontSize}
+          fill="currentColor">Vesting end</text
+        >
+        <text
+          x={xScale(totalDurationMs)}
+          y={height - margin.bottom + height * 0.067}
+          text-anchor="middle"
+          font-size={fontSize}
+          fill="currentColor">{Math.round(totalDurationMs / MS_PER_DAY)}d</text
+        >
+      </g>
     {/if}
 
-    <!-- Vesting end line and label -->
-    <g class="text-white">
+    <!-- Tooltip vertical line -->
+    {#if selected}
       <line
-        x1={xScale(totalDurationMs)}
-        y1={margin.top}
-        x2={xScale(totalDurationMs)}
-        y2={height - margin.bottom}
-        stroke="currentColor"
+        x1={xScale(selected.time)}
+        y1={height - margin.bottom}
+        x2={xScale(selected.time)}
+        y2={margin.top}
+        stroke="white"
+        stroke-opacity="0.5"
         stroke-width={strokeWidth}
         stroke-dasharray="5,5"
       />
-      <text
-        x={xScale(totalDurationMs)}
-        y={margin.top - 5}
-        text-anchor="middle"
-        font-size={fontSize}
-        fill="currentColor">Vesting end</text
-      >
-      <text
-        x={xScale(totalDurationMs)}
-        y={height - margin.bottom + height * 0.067}
-        text-anchor="middle"
-        font-size={fontSize}
-        fill="currentColor">{Math.round(totalDurationMs / MS_PER_DAY)}d</text
-      >
-    </g>
-  {/if}
-
-  <!-- Tooltip vertical line -->
-  {#if selected}
-    <line
-      x1={xScale(selected.time)}
-      y1={height - margin.bottom}
-      x2={xScale(selected.time)}
-      y2={margin.top}
-      stroke="white"
-      stroke-opacity="0.5"
-      stroke-width={strokeWidth}
-      stroke-dasharray="5,5"
-    />
-    <circle
-      cx={xScale(selected.time)}
-      cy={yScale(
-        selected.time < 0 ? selected.depositor : selected.circulatingSupply,
-      )}
-      r={3}
-      fill={selected.time < 0 ? "#2196F3" : "#00f0f0"}
-    />
-    <circle
-      cx={xScale(selected.time)}
-      cy={yScale(
-        selected.time < 0 ? selected.liquidityPool : selected.circulatingSupply,
-      )}
-      r={3}
-      fill={selected.time < 0 ? "#4CAF50" : "#00f0f0"}
-    />
-    <circle
-      cx={xScale(selected.time)}
-      cy={yScale(selected.vested)}
-      r={3}
-      class="text-lime-400"
-      fill="currentColor"
-    />
-  {/if}
-</svg>
+      <circle
+        cx={xScale(selected.time)}
+        cy={yScale(
+          selected.time < 0 ? selected.depositor : selected.circulatingSupply,
+        )}
+        r={3}
+        fill={selected.time < 0 ? "#2196F3" : "#00f0f0"}
+      />
+      <circle
+        cx={xScale(selected.time)}
+        cy={yScale(
+          selected.time < 0
+            ? selected.liquidityPool
+            : selected.circulatingSupply,
+        )}
+        r={3}
+        fill={selected.time < 0 ? "#4CAF50" : "#00f0f0"}
+      />
+      <circle
+        cx={xScale(selected.time)}
+        cy={yScale(selected.vested)}
+        r={3}
+        class="text-lime-400"
+        fill="currentColor"
+      />
+    {/if}
+  </svg>
+</div>
