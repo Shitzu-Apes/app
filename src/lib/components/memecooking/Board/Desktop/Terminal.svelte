@@ -41,18 +41,33 @@
   });
 
   function updateLanes() {
+    // Get container width based on Tailwind container class
+    // Container has different max-widths at different breakpoints
     const width = window.innerWidth;
+    let containerWidth;
+
     if (width < 640) {
-      // sm breakpoint
-      numLanes = 1;
+      // sm
+      containerWidth = width - 32; // Default padding
+    } else if (width < 768) {
+      // md
+      containerWidth = 640;
     } else if (width < 1024) {
-      // lg breakpoint
-      numLanes = 2;
+      // lg
+      containerWidth = 768;
     } else if (width < 1280) {
-      numLanes = 3;
+      // xl
+      containerWidth = 1024;
+    } else if (width < 1536) {
+      // 2xl
+      containerWidth = 1280;
     } else {
-      numLanes = 4;
+      containerWidth = 1536;
     }
+
+    // Calculate number of lanes based on target element width of 400px
+    // Account for 10px gap between elements
+    numLanes = Math.max(1, Math.floor((containerWidth + 10) / (400 + 10)));
   }
 
   $: virtualizer = createWindowVirtualizer<HTMLDivElement>({
@@ -80,108 +95,112 @@
 
 <svelte:window on:resize={updateLanes} />
 
-<div class="w-full flex gap-2 justify-center items-center">
-  <button
-    class="px-4 py-2 rounded-lg {activeTab === 'all'
-      ? 'bg-shitzu-3 text-black'
-      : 'text-gray-400 hover:text-white'}"
-    on:click={() => (activeTab = "all")}
-  >
-    All
-  </button>
-  <button
-    class="px-4 py-2 rounded-lg {activeTab === 'auction'
-      ? 'bg-shitzu-3 text-black'
-      : 'text-gray-400 hover:text-white'}"
-    on:click={() => (activeTab = "auction")}
-  >
-    Auction
-  </button>
-  <button
-    class="px-4 py-2 rounded-lg {activeTab === 'live'
-      ? 'bg-shitzu-3 text-black'
-      : 'text-gray-400 hover:text-white'}"
-    on:click={() => (activeTab = "live")}
-  >
-    Live
-  </button>
-</div>
+<div class="container mx-auto">
+  <div class=" flex gap-2 justify-center items-center">
+    <button
+      class="px-4 py-2 rounded-lg {activeTab === 'all'
+        ? 'bg-shitzu-3 text-black'
+        : 'text-gray-400 hover:text-white'}"
+      on:click={() => (activeTab = "all")}
+    >
+      All
+    </button>
+    <button
+      class="px-4 py-2 rounded-lg {activeTab === 'auction'
+        ? 'bg-shitzu-3 text-black'
+        : 'text-gray-400 hover:text-white'}"
+      on:click={() => (activeTab = "auction")}
+    >
+      Auction
+    </button>
+    <button
+      class="px-4 py-2 rounded-lg {activeTab === 'live'
+        ? 'bg-shitzu-3 text-black'
+        : 'text-gray-400 hover:text-white'}"
+      on:click={() => (activeTab = "live")}
+    >
+      Live
+    </button>
+  </div>
 
-<div class="w-full flex flex-wrap gap-3 mt-6 px-4">
-  <SelectBox options={sortOptions} bind:selected={selectedSort} />
-  <SelectBox options={orderOptions} bind:selected={selectedDirection} />
-  {#if activeTab === "auction"}
-    <Toggle bind:isOn={liveOnly}>live auction:{" "}</Toggle>
-  {/if}
-  <div class="ml-auto flex items-center gap-2">
-    <span class="text-sm text-white">Quick Buy/Deposit:</span>
-    <div class="relative w-24">
-      <input
-        type="number"
-        bind:value={quickActionAmount}
-        class="w-full pl-7 pr-2 py-1 bg-transparent border border-gray-100 text-white rounded focus:border-shitzu-3 focus:outline-none"
-        placeholder="5.00"
-      />
-      <Near
-        className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-white text-gray-700 rounded-full"
-      />
+  <div
+    class="w-full flex flex-wrap justify-center sm:justify-start gap-3 mt-6 px-1"
+  >
+    <SelectBox options={sortOptions} bind:selected={selectedSort} />
+    <SelectBox options={orderOptions} bind:selected={selectedDirection} />
+    {#if activeTab === "auction"}
+      <Toggle bind:isOn={liveOnly}>live auction:{" "}</Toggle>
+    {/if}
+    <div class="ml-0 sm:ml-auto flex items-center gap-2">
+      <span class="text-sm text-white">Quick Buy/Deposit:</span>
+      <div class="relative w-24">
+        <input
+          type="number"
+          bind:value={quickActionAmount}
+          class="w-full pl-7 pr-2 py-1 bg-transparent border border-gray-100 text-white rounded focus:border-shitzu-3 focus:outline-none"
+          placeholder="5.00"
+        />
+        <Near
+          className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-white text-gray-700 rounded-full"
+        />
+      </div>
     </div>
   </div>
-</div>
 
-{#await Promise.all([requiredStake, displayedMemebids])}
-  <div
-    class="w-full flex items-center justify-around flex-wrap mt-10 gap-6 px-5 mb-10"
-  >
-    <!-- eslint-disable-next-line -->
-    {#each { length: 10 } as _, i (i)}
-      <div
-        class="flex items-start justify-start w-full max-w-sm gap-3 p-2 border border-transparent hover:border-white cursor-pointer"
-      >
-        <div class="w-24 h-24 loader"></div>
-        <div class="flex flex-col items-start justify-start h-full gap-1">
-          <div class="text-xs flex items-center gap-1 loader w-42 h-4"></div>
-          <div class="text-sm w-24 h-4 loader"></div>
-          <div class="text-xs w-24 h-4 loader"></div>
-
-          <div class="flex flex-col gap-1">
-            <span class="text-xs text-shitzu-4">
-              <div class="text-xs text-shitzu-4 loader w-14 h-4"></div>
-            </span>
-            <span class="loader w-10 h-4"></span>
-          </div>
-        </div>
-      </div>
-    {/each}
-  </div>
-{:then [requiredStake, displayedMemebids]}
-  <div class="mt-10 px-1 sm:px-5 mb-10">
+  {#await Promise.all([requiredStake, displayedMemebids])}
     <div
-      style="position: relative; height: {$virtualizer.getTotalSize()}px; width: 100%;"
+      class="w-full flex items-center justify-around flex-wrap mt-10 gap-6 mb-10"
     >
-      {#each $virtualizer.getVirtualItems() as row (row.index)}
+      <!-- eslint-disable-next-line -->
+      {#each { length: 10 } as _, i (i)}
         <div
-          class="w-full sm:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] {row.index ===
-          0
-            ? 'animate-shake-and-border border-3 border-transparent'
-            : ''}"
-          style="position: absolute; top: 0; left: {(row.lane / numLanes) *
-            100}%; width: calc({100 / numLanes}% - {numLanes === 1
-            ? 0
-            : 10}px); transform: translateY({row.start}px);"
-          data-index={row.index}
-          use:measureElement
+          class="flex items-start justify-start w-full max-w-sm gap-3 p-2 border border-transparent hover:border-white cursor-pointer"
         >
-          <MemePreview
-            memebid={displayedMemebids[row.index]}
-            {requiredStake}
-            {quickActionAmount}
-          />
+          <div class="w-24 h-24 loader"></div>
+          <div class="flex flex-col items-start justify-start h-full gap-1">
+            <div class="text-xs flex items-center gap-1 loader w-42 h-4"></div>
+            <div class="text-sm w-24 h-4 loader"></div>
+            <div class="text-xs w-24 h-4 loader"></div>
+
+            <div class="flex flex-col gap-1">
+              <span class="text-xs text-shitzu-4">
+                <div class="text-xs text-shitzu-4 loader w-14 h-4"></div>
+              </span>
+              <span class="loader w-10 h-4"></span>
+            </div>
+          </div>
         </div>
       {/each}
     </div>
-  </div>
-{/await}
+  {:then [requiredStake, displayedMemebids]}
+    <div class="mt-10 px-1 mb-10">
+      <div
+        style="position: relative; height: {$virtualizer.getTotalSize()}px; width: 100%;"
+      >
+        {#each $virtualizer.getVirtualItems() as row (row.index)}
+          <div
+            class="w-full sm:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] {row.index ===
+            0
+              ? 'animate-shake-and-border border-3 border-transparent'
+              : ''}"
+            style="position: absolute; top: 0; left: {(row.lane / numLanes) *
+              100}%; width: calc({100 / numLanes}% - {numLanes === 1
+              ? 0
+              : 10}px); transform: translateY({row.start}px);"
+            data-index={row.index}
+            use:measureElement
+          >
+            <MemePreview
+              memebid={displayedMemebids[row.index]}
+              {requiredStake}
+              {quickActionAmount}
+            />
+          </div>
+        {/each}
+      </div>
+    </div>
+  {/await}
+</div>
 
 <style>
   @keyframes shakeAndBorder {
