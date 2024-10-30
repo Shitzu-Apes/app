@@ -1,5 +1,5 @@
 <script lang="ts">
-  import VestingChart from "$lib/components/VestingChart.svelte";
+  import VestingChart from "$lib/components/VestingChart";
   import type { Meme } from "$lib/models/memecooking";
 
   export let meme: Meme;

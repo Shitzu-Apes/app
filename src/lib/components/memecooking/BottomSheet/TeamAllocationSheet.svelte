@@ -4,7 +4,7 @@
 
   import type { Meme } from "$lib/api/client";
   import { Button } from "$lib/components";
-  import VestingChart from "$lib/components/VestingChart.svelte";
+  import VestingChart from "$lib/components/VestingChart";
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { MemeInfo } from "$lib/models/memecooking";

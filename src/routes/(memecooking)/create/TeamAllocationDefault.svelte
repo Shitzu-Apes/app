@@ -27,7 +27,7 @@
 <script lang="ts">
   import { createSlider, melt } from "@melt-ui/svelte";
 
-  import VestingChart from "$lib/components/VestingChart.svelte";
+  import VestingChart from "$lib/components/VestingChart";
   import InputField from "$lib/components/memecooking/InputField.svelte";
   import type { TeamAllocation } from "$lib/models/memecooking";
 
