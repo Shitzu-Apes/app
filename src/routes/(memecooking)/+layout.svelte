@@ -192,7 +192,7 @@
     out:blur={{ duration: 500, easing: cubicOut }}
     class="w-full h-screen bg-dark"
   >
-    <div class="text-white min-h-screen">
+    <div class="text-white min-h-screen flex flex-col">
       <MCHeader />
       <slot />
       <div class="fixed bottom-0 right-0 p-2 text-xs text-white bg-gray-800/70">
