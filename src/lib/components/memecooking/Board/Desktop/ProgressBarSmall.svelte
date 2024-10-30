@@ -48,7 +48,7 @@
   $: hardCapStartAngle = startAngle + softCapAngle + gapAngle;
   $: hardCapProgressAngle = hardCapStartAngle + hardCapAngle * hardCapProgress;
   $: hardCapEndAngle = hardCapStartAngle + hardCapAngle;
-  $: singleArcEndAngle = startAngle + Math.PI;
+  $: singleArcEndAngle = startAngle + Math.PI * softcapProgress;
 
   // Arc paths
   $: backgroundArcPath = arc()({
@@ -139,19 +139,21 @@
           {/if}
         </g>
       {:else}
-        <!-- Background arc -->
-        <path
-          d={backgroundArcPath}
-          fill="#E0E0E0"
-          stroke="#B0B0B0"
-          stroke-width="1.5"
-        />
+        <g transform="translate({width / 2}, {height})">
+          <!-- Background arc -->
+          <path
+            d={backgroundArcPath}
+            fill="#E0E0E0"
+            stroke="#B0B0B0"
+            stroke-width="1.5"
+          />
 
-        <!-- Progress arc -->
-        <path
-          d={singleArcPath}
-          fill={softcapProgress < 1 ? "url(#softCapGradient)" : "#32CD32"}
-        />
+          <!-- Progress arc -->
+          <path
+            d={singleArcPath}
+            fill={softcapProgress < 1 ? "url(#softCapGradient)" : "#32CD32"}
+          />
+        </g>
       {/if}
     </svg>
   </div>
