@@ -3,6 +3,7 @@
   import type { Writable } from "svelte/store";
 
   import ClaimBanner from "./ClaimBanner.svelte";
+  import TokenAllocationBanner from "./TokenAllocationBanner.svelte";
   import WithdrawBanner from "./WithdrawBanner.svelte";
 
   import ExtraDetail from "$lib/components/ExtraDetail.svelte";
@@ -174,6 +175,9 @@
 
       <WithdrawBanner meme={$meme$} />
       <ClaimBanner meme={$meme$} />
+      {#if $meme$.owner === $accountId$}
+        <TokenAllocationBanner meme={$meme$} />
+      {/if}
 
       <!-- Trading Box -->
       <div class="bg-gray-800 rounded-lg p-4">
