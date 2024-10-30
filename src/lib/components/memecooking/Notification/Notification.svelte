@@ -1,9 +1,10 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { slide } from "svelte/transition";
 
   import Near from "$lib/assets/Near.svelte";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
-  import { MCTradeSubscribe } from "$lib/store/memebids";
+  import { MCTradeSubscribe, memebids$ } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
 
   let notifications: {
@@ -32,6 +33,71 @@
       },
       ...notifications.slice(0, 9),
     ];
+  });
+
+  onMount(() => {
+    console.log("[Notification] mounted");
+    const ws = new WebSocket("wss://ws-events.intear.tech/events/trade_swap");
+
+    ws.onopen = () => {
+      console.log("[Notification] WebSocket connected");
+      ws.send("{}");
+    };
+
+    ws.onmessage = async (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        const balanceChanges = data.balance_changes;
+
+        // Check if any of the tokens include the meme cooking contract
+        const memeCookingToken = Object.keys(balanceChanges).find((token) =>
+          token.includes("meme-cooking"),
+        );
+
+        if (memeCookingToken) {
+          const amount = balanceChanges[memeCookingToken];
+          const isDeposit = !amount.startsWith("-");
+          // "gnuff-283.meme-cooking.near" -> 283
+          const memeId = parseInt(memeCookingToken.split("-")[1]);
+          console.log("[Notification] memeId", memeId);
+          const memeInfo = (await $memebids$).find(
+            (meme) => meme.meme_id === memeId,
+          );
+          console.log("[Notification] memeInfo", memeInfo);
+
+          if (!memeInfo) return;
+          notifications = [
+            {
+              id: data.receipt_id,
+              meme_id: memeInfo.meme_id,
+              amount: amount.replace("-", ""),
+              is_deposit: isDeposit,
+              party: data.trader,
+              ticker: memeInfo.symbol,
+              icon: `${import.meta.env.VITE_IPFS_GATEWAY}/${memeInfo.image}`,
+            },
+            ...notifications.slice(0, 9),
+          ];
+        }
+      } catch (error) {
+        console.error(
+          "[Notification] Error processing WebSocket message:",
+          error,
+        );
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error("[Notification] WebSocket error:", error);
+    };
+
+    ws.onclose = () => {
+      console.log("[Notification] WebSocket closed");
+    };
+
+    return () => {
+      ws.close();
+    };
   });
 </script>
 
