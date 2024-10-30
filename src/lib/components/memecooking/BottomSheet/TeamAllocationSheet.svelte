@@ -50,11 +50,17 @@
 
       claimed = BigInt(memeOnchain?.vesting?.already_claimed || "0");
 
-      claimable =
-        BigInt(
-          (meme.team_allocation_num / meme.vesting_duration_ms) *
-            (Date.now() - (meme.end_timestamp_ms + meme.cliff_duration_ms)),
-        ) - claimed;
+      if (Date.now() < meme.end_timestamp_ms + meme.cliff_duration_ms) {
+        claimable = 0n;
+      } else if (meme.vesting_duration_ms === 0) {
+        claimable = BigInt(meme.team_allocation) - claimed;
+      } else {
+        claimable =
+          BigInt(
+            (meme.team_allocation_num / meme.vesting_duration_ms) *
+              (Date.now() - (meme.end_timestamp_ms + meme.cliff_duration_ms)),
+          ) - claimed;
+      }
 
       loading = false;
     } catch (e) {
@@ -116,7 +122,7 @@
     : "0";
   $: claimedAmount = new FixedNumber(claimed, meme?.decimals || 0).format();
   $: vestedAmount = new FixedNumber(
-    BigInt(meme.team_allocation_num) - BigInt(claimed) - BigInt(claimable),
+    BigInt(meme.team_allocation ?? "0") - claimed - claimable,
     meme?.decimals || 0,
   ).format();
 </script>
