@@ -35,20 +35,24 @@
 
 <div class="my-6 w-full">
   {#if deposits.length > 0}
-    <ul class="w-full flex flex-col gap-4 justify-center items-center">
-      {#await requiredStake}
-        <div transition:slide class="i-svg-spinners:pulse-3 size-40" />
-      {:then requiredStake}
-        {#each deposits as deposit, index (deposit.meme_id || `index-${index}`)}
-          <MemePreview
-            memebid={deposit.meme}
-            {requiredStake}
-            depositAmount={deposit.amount}
-            {update}
-          />
-        {/each}
-      {/await}
-    </ul>
+    <div class="mt-10 px-1 mb-10">
+      <div class="flex flex-wrap gap-4 justify-evenly items-stretch">
+        {#await requiredStake}
+          <div transition:slide class="i-svg-spinners:pulse-3 size-40" />
+        {:then requiredStake}
+          {#each deposits as deposit, index (deposit.meme_id || `index-${index}`)}
+            <div class="w-full sm:w-[calc(50%-16px)] lg:w-[calc(33%-16px)]">
+              <MemePreview
+                memebid={deposit.meme}
+                {requiredStake}
+                depositAmount={deposit.amount}
+                {update}
+              />
+            </div>
+          {/each}
+        {/await}
+      </div>
+    </div>
   {:else}
     <div>No Token Held</div>
   {/if}

@@ -261,43 +261,6 @@
           alt={memebid.name}
           class="w-full h-full object-contain"
         />
-
-        {#if depositAmount != null || (isOwnAccount && claimAmount && claimAmount.valueOf() > 0n) || !isEnded || isLaunched}
-          <!-- Actions -->
-          <div class="mt-4 w-full">
-            {#if depositAmount != null}
-              <button
-                class="px-3 py-1 w-full bg-gray-700 hover:bg-gray-600 rounded-sm flex items-center justify-center gap-1"
-                on:click={withdraw}
-              >
-                Withdraw {new FixedNumber(depositAmount, 24).format({
-                  notation: "compact",
-                })}
-                <Near className="size-4" />
-              </button>
-            {:else if isOwnAccount && claimAmount && claimAmount.valueOf() > 0n}
-              <button
-                class="px-3 py-1 w-full bg-shitzu-3 text-black hover:brightness-110 rounded-sm flex items-center justify-center gap-1"
-                on:click={claim}
-              >
-                Claim {claimAmount.format({ notation: "compact" })}
-                <img
-                  src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
-                  alt="token"
-                  class="size-4"
-                />
-              </button>
-            {:else if !isEnded || isLaunched}
-              <button
-                class="px-3 py-1 w-full bg-shitzu-3 text-black hover:brightness-110 rounded-sm flex items-center justify-center gap-1"
-                on:click={quickAction}
-              >
-                <Near className="size-4 bg-white rounded-full" />
-                {quickActionAmount}
-              </button>
-            {/if}
-          </div>
-        {/if}
       </div>
 
       <div class="w-2/3 py-2 px-2 flex flex-col">
@@ -363,6 +326,43 @@
             {/if}
           </div>
         </div>
+
+        {#if depositAmount != null || (isOwnAccount && claimAmount && claimAmount.valueOf() > 0n) || !isEnded || isLaunched}
+          <!-- Actions -->
+          <div class="mt-2 w-full">
+            {#if depositAmount != null}
+              <button
+                class="px-3 py-1 w-full bg-gray-700 hover:bg-gray-600 rounded-sm flex items-center justify-center gap-1 leading-4"
+                on:click={withdraw}
+              >
+                Withdraw {new FixedNumber(depositAmount, 24).format({
+                  notation: "compact",
+                })}
+                <Near className="size-4 bg-white rounded-full text-black" />
+              </button>
+            {:else if isOwnAccount && claimAmount && claimAmount.valueOf() > 0n}
+              <button
+                class="px-3 py-1 w-full bg-shitzu-3 text-black hover:brightness-110 rounded-sm flex items-center justify-center gap-1 leading-4"
+                on:click={claim}
+              >
+                Claim {claimAmount.format({ notation: "compact" })}
+                <img
+                  src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
+                  alt="token"
+                  class="size-4 bg-white rounded-full text-black"
+                />
+              </button>
+            {:else if !isEnded || isLaunched}
+              <button
+                class="px-3 py-1 w-full bg-shitzu-3 text-black hover:brightness-110 rounded-sm flex items-center justify-center gap-1"
+                on:click={quickAction}
+              >
+                <Near className="size-4 bg-white rounded-full" />
+                {quickActionAmount}
+              </button>
+            {/if}
+          </div>
+        {/if}
       </div>
     </div>
   </a>

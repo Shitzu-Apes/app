@@ -178,7 +178,7 @@
 
     {#if info && isOwnAccount}
       {#each tabs as tab}
-        <section class="w-full max-w-sm" use:melt={$content(tab.id)}>
+        <section class="container mx-auto" use:melt={$content(tab.id)}>
           {#if tab.component === DepositList}
             <DepositList deposits={info.deposits} {update} />
           {:else if tab.component === ClaimList}
