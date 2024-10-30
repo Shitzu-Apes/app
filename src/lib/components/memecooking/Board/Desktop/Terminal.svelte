@@ -5,6 +5,7 @@
   import MemePreview from "./MemePreview.svelte";
 
   import Near from "$lib/assets/Near.svelte";
+  import SHITZU_DETECTIVE from "$lib/assets/static/shitzu_detective.png";
   import SelectBox from "$lib/components/SelectBox.svelte";
   import Toggle from "$lib/components/Toggle.svelte";
   import { requiredStake } from "$lib/near/memecooking";
@@ -174,6 +175,14 @@
     </div>
   {:then [requiredStake, displayedMemebids]}
     <div class="mt-10 px-1 mb-10">
+      {#if displayedMemebids.length === 0}
+        <div
+          class="text-center text-lg text-white flex flex-col items-center justify-center gap-2"
+        >
+          <img src={SHITZU_DETECTIVE} class="w-40" alt="No memes found" />
+          No memes found
+        </div>
+      {/if}
       <div
         style="position: relative; height: {$virtualizer.getTotalSize()}px; width: 100%;"
       >
