@@ -363,21 +363,22 @@ export abstract class MemeCooking {
     if (!isWithdraw) {
       const tokenId = getTokenId(meme.symbol, meme.meme_id);
       const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
-      if (isRegistered) return;
-      transactions.push({
-        receiverId: tokenId,
-        actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "storage_deposit",
-              args: {},
-              gas: 30_000_000_000_000n.toString(),
-              deposit: MIN_STORAGE_DEPOSIT.toString(),
+      if (!isRegistered) {
+        transactions.push({
+          receiverId: tokenId,
+          actions: [
+            {
+              type: "FunctionCall",
+              params: {
+                methodName: "storage_deposit",
+                args: {},
+                gas: 30_000_000_000_000n.toString(),
+                deposit: MIN_STORAGE_DEPOSIT.toString(),
+              },
             },
-          },
-        ],
-      });
+          ],
+        });
+      }
     } else {
       const tokenId = getTokenId(meme.symbol, meme.meme_id);
       const accountExists = await checkIfAccountExists(tokenId);

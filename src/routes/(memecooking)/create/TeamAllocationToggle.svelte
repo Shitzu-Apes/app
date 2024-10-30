@@ -12,17 +12,13 @@
 
   let enabled = teamAllocation !== null;
 
-  const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
   // Update teamAllocation based on toggle state
   $: if (enabled && !teamAllocation) {
     // Initialize with small allocation defaults when enabled
     teamAllocation = {
       allocationBps: ALLOCATION_DEFAULT_OPTIONS.small.allocationBps,
-      vestingDurationMs:
-        ALLOCATION_DEFAULT_OPTIONS.small.vestingDurationDays * MS_PER_DAY,
-      cliffDurationMs:
-        ALLOCATION_DEFAULT_OPTIONS.small.cliffDurationDays * MS_PER_DAY,
+      vestingDurationMs: ALLOCATION_DEFAULT_OPTIONS.small.vestingDurationDays,
+      cliffDurationMs: ALLOCATION_DEFAULT_OPTIONS.small.cliffDurationDays,
     };
   } else if (!enabled) {
     teamAllocation = null;

@@ -3,6 +3,7 @@
   import { get } from "svelte/store";
 
   import type { Meme } from "$lib/api/client";
+  import { Button } from "$lib/components";
   import VestingChart from "$lib/components/VestingChart.svelte";
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
@@ -54,11 +55,23 @@
         claimable = 0n;
       } else if (meme.vesting_duration_ms === 0) {
         claimable = BigInt(meme.team_allocation) - claimed;
+      } else if (
+        Date.now() >=
+        meme.end_timestamp_ms +
+          meme.cliff_duration_ms +
+          meme.vesting_duration_ms
+      ) {
+        claimable = BigInt(meme.team_allocation) - claimed;
       } else {
         claimable =
           BigInt(
-            (meme.team_allocation_num / meme.vesting_duration_ms) *
-              (Date.now() - (meme.end_timestamp_ms + meme.cliff_duration_ms)),
+            meme.team_allocation_num *
+              Math.min(
+                1,
+                (Date.now() -
+                  (meme.end_timestamp_ms + meme.cliff_duration_ms)) /
+                  meme.vesting_duration_ms,
+              ),
           ) - claimed;
       }
 
@@ -72,20 +85,15 @@
   async function handleClaim() {
     if (!meme || !claimable) return;
 
-    try {
-      await MemeCooking.claimVesting(
-        wallet,
-        { meme },
-        {
-          onSuccess: () => {
-            loadData(); // Refresh data after successful claim
-          },
+    await MemeCooking.claimVesting(
+      wallet,
+      { meme },
+      {
+        onSuccess: () => {
+          loadData(); // Refresh data after successful claim
         },
-      );
-    } catch (e) {
-      error = "Failed to claim vesting";
-      console.error(e);
-    }
+      },
+    );
   }
 
   onMount(() => {
@@ -96,11 +104,31 @@
       meme.end_timestamp_ms + meme.cliff_duration_ms + meme.vesting_duration_ms;
     if (Date.now() < endTime) {
       updateInterval = setInterval(() => {
-        claimable =
-          BigInt(
-            (meme.team_allocation_num / meme.vesting_duration_ms) *
-              (Date.now() - (meme.end_timestamp_ms + meme.cliff_duration_ms)),
-          ) - claimed;
+        if (meme.team_allocation) {
+          if (Date.now() < meme.end_timestamp_ms + meme.cliff_duration_ms) {
+            claimable = 0n;
+          } else if (meme.vesting_duration_ms === 0) {
+            claimable = BigInt(meme.team_allocation) - claimed;
+          } else if (
+            Date.now() >=
+            meme.end_timestamp_ms +
+              meme.cliff_duration_ms +
+              meme.vesting_duration_ms
+          ) {
+            claimable = BigInt(meme.team_allocation) - claimed;
+          } else {
+            claimable =
+              BigInt(
+                meme.team_allocation_num *
+                  Math.min(
+                    1,
+                    (Date.now() -
+                      (meme.end_timestamp_ms + meme.cliff_duration_ms)) /
+                      meme.vesting_duration_ms,
+                  ),
+              ) - claimed;
+          }
+        }
       }, 1000) as unknown as number; // Update every 1 second
     }
 
@@ -189,9 +217,10 @@
                   {vestedAmount} vested
                 </p>
               </div>
-              <button
+              <Button
+                type="custom"
                 class="bg-shitzu-4 text-black py-2 px-6 rounded-lg font-medium hover:bg-shitzu-5 transition-colors leading-6"
-                on:click={handleClaim}
+                onClick={handleClaim}
               >
                 Claim
                 <img
@@ -199,7 +228,7 @@
                   alt="token"
                   class="size-6 bg-white rounded-full text-black ml-1 inline-block"
                 />
-              </button>
+              </Button>
             </div>
           </div>
         {/if}

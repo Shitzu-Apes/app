@@ -8,7 +8,7 @@
   export let meme: Meme;
 </script>
 
-{#if meme.team_allocation_num && meme.team_allocation_num > 0}
+{#if meme.team_allocation_num && meme.team_allocation_num > 0 && meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now()}
   <div
     out:slide
     class="bg-shitzu-4 rounded-md p-4 mb-4 flex flex-col justify-between items-stretch gap-4"

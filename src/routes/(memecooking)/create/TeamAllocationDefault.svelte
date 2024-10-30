@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+  const isTestnet = import.meta.env.VITE_NETWORK_ID === "testnet";
+
   export const ALLOCATION_DEFAULT_OPTIONS: Record<
     "small" | "large",
     Omit<TeamAllocation, "vestingDurationMs" | "cliffDurationMs"> & {
@@ -16,8 +18,8 @@
     large: {
       label: "Vesting Allocation",
       allocationBps: 2000,
-      vestingDurationDays: 7,
-      cliffDurationDays: 2,
+      vestingDurationDays: isTestnet ? 0.005 : 7,
+      cliffDurationDays: isTestnet ? 0.001 : 2,
     },
   };
 </script>
