@@ -77,9 +77,18 @@ export abstract class MemeCooking {
   }
 
   public static getMeme(meme_id: number): Promise<MemeInfo | null> {
+    console.log("[getMeme]", import.meta.env.VITE_MEME_COOKING_CONTRACT_ID);
     return view<MemeInfo>(
       import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
       "get_meme",
+      { meme_id },
+    );
+  }
+
+  public static getFinalizedMeme(meme_id: number): Promise<MemeInfo | null> {
+    return view<MemeInfo>(
+      import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+      "get_finalized_meme",
       { meme_id },
     );
   }
@@ -457,6 +466,57 @@ export abstract class MemeCooking {
       },
       callback,
     );
+  }
+
+  public static async claimVesting(
+    wallet: Wallet,
+    args: { meme: Meme },
+    callback: TransactionCallbacks<FinalExecutionOutcome[]>,
+  ) {
+    const accountId = get(wallet.accountId$);
+    if (!accountId) return;
+
+    const tokenId = getTokenId(args.meme.symbol, args.meme.meme_id);
+    const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
+
+    const transactions: HereCall[] = [];
+
+    if (!isRegistered) {
+      const MIN_STORAGE_DEPOSIT = 1_250_000_000_000_000_000_000n;
+      transactions.push({
+        receiverId: tokenId,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "storage_deposit",
+              args: {},
+              gas: 30_000_000_000_000n.toString(),
+              deposit: MIN_STORAGE_DEPOSIT.toString(),
+            },
+          },
+        ],
+      });
+    }
+
+    transactions.push({
+      receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+      actions: [
+        {
+          type: "FunctionCall",
+          params: {
+            methodName: "claim_vesting",
+            args: {
+              meme_id: args.meme.meme_id,
+            },
+            gas: 100_000_000_000_000n.toString(),
+            deposit: "1",
+          },
+        },
+      ],
+    });
+
+    return wallet.signAndSendTransactions({ transactions }, callback);
   }
 
   public static storageCosts() {
