@@ -366,12 +366,12 @@
         <li
           class="text-sm {$value === 'buy'
             ? 'bg-shitzu-8'
-            : 'bg-rose-5'} px-1 rounded"
+            : 'bg-rose-5'} px-1 rounded flex-1 basis-0 py-2"
         >
           <button
             class="text-white {$value === 'buy'
               ? 'hover:text-shitzu-4'
-              : 'hover:text-rose-2'} flex items-center gap-1"
+              : 'hover:text-rose-2'} flex justify-center items-center w-full gap-1"
             on:click={() => {
               if ($value === "buy") {
                 $inputValue$ = new FixedNumber(
@@ -394,26 +394,43 @@
       {/each}
     </ul>
     {#if expected != null}
-      <div transition:slide class="text-sm text-white my-3 min-h-7">
-        {#await expected}
-          <div class="i-svg-spinners:pulse-3 size-4 my-3 ml-4" />
-        {:then expected}
-          {expected.format({
-            notation: "compact",
-            compactDisplay: "short",
-          })}
-          {#if $value === "buy"}
-            {meme.symbol}
-            <img
-              src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
-              alt={meme.name}
-              class="inline size-5 rounded-full"
-            />
-          {:else}
-            NEAR
-            <Near className="inline size-5 bg-white text-black rounded-full" />
-          {/if}
-        {/await}
+      <div transition:slide class="bg-gray-800 rounded-lg p-4 my-4">
+        <div class="flex justify-between items-center text-sm">
+          <span class="text-gray-400">You will receive</span>
+          <div class="flex items-center gap-2">
+            {#await expected}
+              <div class="i-svg-spinners:pulse-3 size-4" />
+            {:then expected}
+              <span class="text-white font-medium">
+                {expected.format({
+                  notation: "standard",
+                  maximumFractionDigits: 6,
+                })}
+              </span>
+              {#if $value === "buy"}
+                <div class="flex items-center gap-1">
+                  <img
+                    src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
+                    alt={meme.name}
+                    class="size-5 rounded-full"
+                  />
+                  <span class="text-gray-300">{meme.symbol}</span>
+                </div>
+              {:else}
+                <div class="flex items-center gap-1">
+                  <Near className="size-5 bg-white text-black rounded-full" />
+                  <span class="text-gray-300">NEAR</span>
+                </div>
+              {/if}
+            {/await}
+          </div>
+        </div>
+        <div class="text-xs text-gray-500 mt-2">
+          Rate: 1 {$value === "buy" ? "NEAR" : meme.symbol} ≈ {#await expected}...{:then expected}{expected
+              .div($input$ || new FixedNumber(1n, 24))
+              .format({ maximumFractionDigits: 8 })}
+            {$value === "buy" ? meme.symbol : "NEAR"}{/await}
+        </div>
       </div>
     {/if}
 
@@ -449,7 +466,8 @@
         ? 'border-shitzu-5'
         : 'border-rose-5'} active:translate-y-1 my-8"
     >
-      [{$value}]
+      {$value === "buy" ? "Buy" : "Sell"}
+      {meme.symbol}
     </Button>
   </div>
 </div>

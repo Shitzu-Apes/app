@@ -34,14 +34,14 @@
   }
 </script>
 
-<div class="flex flex-col gap-1">
+<div class="flex flex-col gap-1 w-full">
   <label for="slippage" class="text-sm">Slippage: {slippage * 100}%</label>
-  <div class="flex items-center space-x-2">
-    <ul class="flex items-center gap-2">
+  <div class="flex items-center space-x-2 w-full">
+    <ul class="flex items-center gap-2 w-full">
       {#each slippageValues as slippageValue}
-        <li class="text-sm bg-memecooking-5 px-2 rounded">
+        <li class="text-sm bg-memecooking-5 py-2 rounded flex-1 basis-0">
           <button
-            class="text-black hover:text-shitzu-4"
+            class="text-black hover:text-shitzu-4 flex items-center justify-center w-full"
             on:click={() => updateSlippage(slippageValue.value)}
           >
             {slippageValue.label}
@@ -53,7 +53,7 @@
           type="text"
           value={slippage * 100}
           on:input={(e) => updateSlippage(e.currentTarget.value)}
-          class="bg-transparent border border-gray-6 rounded px-2 py-1 w-16 text-sm"
+          class="bg-transparent border border-gray-6 rounded px-2 py-2 w-16 text-sm"
         />
       </li>
     </ul>

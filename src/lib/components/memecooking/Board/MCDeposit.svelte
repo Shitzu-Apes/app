@@ -10,6 +10,7 @@
   import Near from "$lib/assets/Near.svelte";
   import { showWalletSelector } from "$lib/auth";
   import { Button } from "$lib/components";
+  import ToggleSwitch from "$lib/components/ToggleSwitch.svelte";
   import TokenInput from "$lib/components/TokenInput.svelte";
   import {
     closeBottomSheet,
@@ -380,12 +381,12 @@
         <li
           class="text-sm {$value === 'deposit'
             ? 'bg-shitzu-8'
-            : 'bg-rose-5'} px-1 rounded"
+            : 'bg-rose-5'} px-1 py-2 rounded flex-1 basis-0"
         >
           <button
             class="text-white {$value === 'deposit'
               ? 'hover:text-shitzu-4'
-              : 'hover:text-rose-2'} flex items-center gap-1"
+              : 'hover:text-rose-2'} w-full flex justify-center items-center gap-1"
             on:click={() => {
               if ($value === "deposit") {
                 $inputValue$ = new FixedNumber(
@@ -408,14 +409,21 @@
       {/each}
     </ul>
 
-    <label
-      class="flex items-center space-x-2 mt-2 {$value === 'deposit'
+    <div
+      class="{$value === 'deposit'
         ? 'invisible'
-        : ''}"
+        : ''} w-full flex items-center justify-between my-4"
     >
-      <input type="checkbox" bind:checked={unwrapNear} />
       <span class="text-white">Unwrap wNEAR</span>
-    </label>
+      <ToggleSwitch
+        bind:enabled={unwrapNear}
+        on:toggle={() => {
+          if ($value === "withdraw") {
+            unwrapNear = !unwrapNear;
+          }
+        }}
+      />
+    </div>
 
     <Button
       onClick={async () => {
