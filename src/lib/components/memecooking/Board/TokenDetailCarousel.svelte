@@ -4,6 +4,7 @@
   import StakeSheet from "../BottomSheet/StakeSheet.svelte";
   import TokenCommentSheet from "../BottomSheet/TokenCommentSheet.svelte";
 
+  import ActionButtons from "./ActionButtons.svelte";
   import TokenChart from "./TokenChart.svelte";
   import TokenDetail from "./TokenDetail.svelte";
   import TokenHolder from "./TokenHolder.svelte";
@@ -13,13 +14,9 @@
   import { client } from "$lib/api/client";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { wallet } from "$lib/near";
   import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
-  import { shareWithReferral } from "$lib/util/referral";
 
   export let memebid$: Writable<Meme>;
-
-  const { accountId$ } = wallet;
 
   let selected = 0;
 
@@ -127,12 +124,7 @@
           [deposit]
         {/if}
       </button>
-      <button
-        on:click={() => shareWithReferral($accountId$, $memebid$)}
-        class="text-xl tracking-wider text-shitzu-4 hover:font-bold w-[80px]"
-      >
-        <span class="flex items-center justify-center"> [share] </span>
-      </button>
+      <ActionButtons meme={$memebid$} />
     </div>
     <div class="w-full flex items-center mt-2 px-2">
       {#if typeof $memebid$.staker_count === "number"}

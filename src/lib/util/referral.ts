@@ -75,16 +75,6 @@ export async function shareWithReferral($accountId$?: string, meme?: Meme) {
     shareUrl.searchParams.set("referral", $accountId$);
   }
 
-  // if (navigator.share) {
-  //   try {
-  //     await navigator.share({
-  //       title: document.title,
-  //       url: shareUrl.toString(),
-  //     });
-  //   } catch (error) {
-  //     console.error("Error sharing:", error);
-  //   }
-  // } else {
   setTimeout(async () => {
     try {
       await navigator.clipboard.writeText(shareUrl.toString());
@@ -105,5 +95,4 @@ export async function shareWithReferral($accountId$?: string, meme?: Meme) {
       console.error("Error copying to clipboard:", error);
     }
   });
-  // }
 }

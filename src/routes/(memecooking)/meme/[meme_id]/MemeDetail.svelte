@@ -8,6 +8,7 @@
 
   import ExtraDetail from "$lib/components/ExtraDetail.svelte";
   import { addToast } from "$lib/components/Toast.svelte";
+  import ActionButtons from "$lib/components/memecooking/Board/ActionButtons.svelte";
   import TradeTabs from "$lib/components/memecooking/Board/Desktop/TradeTabs.svelte";
   import McActionBox from "$lib/components/memecooking/Board/MCActionBox.svelte";
   import SocialLink from "$lib/components/memecooking/Board/SocialLink.svelte";
@@ -22,7 +23,6 @@
   import { wallet } from "$lib/near";
   import { MCTradeSubscribe } from "$lib/store/memebids";
   import { getTokenId } from "$lib/util/getTokenId";
-  import { shareWithReferral } from "$lib/util/referral";
 
   export let meme$: Writable<Meme>;
   const { projectedMcap } = $meme$;
@@ -134,23 +134,7 @@
 
     <!-- Right Column - Actions & Info -->
     <div class="space-y-6">
-      <!-- Action Buttons -->
-      <div class="flex justify-end gap-4">
-        <a
-          href="https://t.me/bettearbot?start=ref-28757995"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn btn-outline hover:text-shitzu-200"
-        >
-          <div class="i-mdi:bell size-5 text-current" />
-        </a>
-        <button
-          class="btn btn-outline hover:text-shitzu-200"
-          on:click={() => shareWithReferral($accountId$, $meme$)}
-        >
-          <div class="i-mdi:share size-5 text-current" />
-        </button>
-      </div>
+      <ActionButtons meme={$meme$} />
 
       <!-- Trading Status -->
       {#if $meme$.pool_id}
