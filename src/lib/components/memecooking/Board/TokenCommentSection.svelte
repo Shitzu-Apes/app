@@ -146,43 +146,45 @@
 </script>
 
 <div class="h-full w-full p-2 flex flex-col max-h-full {className}">
+  <div
+    class="w-full flex flex-col gap-2 bg-gray-5 p-2 rounded-md text-shitzu-1 mb-6"
+  >
+    <div class="flex items-center justify-between gap-1 text-xs text-shitzu-3">
+      <Chef
+        account={`${meme.owner} (dev)`}
+        class="bg-shitzu-4 text-gray-8 rounded px-1"
+        asLink
+      />
+      <div class="text-xs text-shitzu-3">
+        {new Date(meme.created_timestamp_ms ?? 0).toLocaleString()}
+      </div>
+    </div>
+    <div class="flex items-start gap-3">
+      <img
+        src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
+        class="w-30 rounded-md"
+        alt={meme.name}
+      />
+      <div class="flex flex-col items-start">
+        <div class="text-sm font-bold">
+          {meme.name} (ticker: {meme.symbol})
+        </div>
+        <div class="text-sm text-white">{meme.description}</div>
+      </div>
+    </div>
+  </div>
   {#await replies}
-    <div class="loader size-24" />
+    <div class="w-full flex flex-col bg-gray-5 p-2 rounded-md text-shitzu-1">
+      <div class="flex items-center gap-1 text-xs text-shitzu-3">
+        <div class="i-svg-spinners:3-dots-fade size-4" />
+      </div>
+    </div>
   {:then data}
     <div class="contents max-h-fit">
       <div
         bind:this={scrollContainer}
         class="w-full flex flex-col gap-2 flex-1 h-0 max-h-[50rem] overflow-auto"
       >
-        <div
-          class="w-full flex flex-col gap-2 bg-gray-5 p-2 rounded-md text-shitzu-1"
-        >
-          <div
-            class="flex items-center justify-between gap-1 text-xs text-shitzu-3"
-          >
-            <Chef
-              account={`${meme.owner} (dev)`}
-              class="bg-shitzu-4 text-gray-8 rounded px-1"
-              asLink
-            />
-            <div class="text-xs text-shitzu-3">
-              {new Date(meme.created_timestamp_ms ?? 0).toLocaleString()}
-            </div>
-          </div>
-          <div class="flex items-start gap-1">
-            <img
-              src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
-              class="w-30 rounded-md"
-              alt={meme.name}
-            />
-            <div class="flex flex-col items-start">
-              <div class="text-sm font-bold">
-                {meme.name} (ticker: {meme.symbol})
-              </div>
-              <div class="text-sm text-white">{meme.description}</div>
-            </div>
-          </div>
-        </div>
         {#each data as reply}
           <TokenComment
             reply={{
@@ -238,74 +240,74 @@
         {/if}
       </div>
     </div>
+  {/await}
 
-    <div class="w-full flex flex-row gap-2 mt-6 pb-3">
-      <div class="w-full flex flex-col items-start">
-        {#if replyToId}
-          <button
-            class="text-xs bg-shitzu-3 text-gray-7 mt-1 mb-2 w-fit flex items-start gap-1 px-2 rounded-full"
-            on:click={() => {
-              replyToId = undefined;
-            }}
+  <div class="w-full flex flex-row gap-2 mt-6 pb-3">
+    <div class="w-full flex flex-col items-start">
+      {#if replyToId}
+        <button
+          class="text-xs bg-shitzu-3 text-gray-7 mt-1 mb-2 w-fit flex items-start gap-1 px-2 rounded-full"
+          on:click={() => {
+            replyToId = undefined;
+          }}
+        >
+          replying to reply #{replyToId}
+          <div>x</div>
+        </button>
+      {/if}
+      <div class="w-full flex flex-row">
+        {#await $isLoggedIn$}
+          <input
+            type="text"
+            disabled
+            class="flex-grow max-w-md p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shitzu-4 text-black max-w-none"
+          />
+          <Button
+            class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
+            loading={true}
+            type="custom"
           >
-            replying to reply #{replyToId}
-            <div>x</div>
-          </button>
-        {/if}
-        <div class="w-full flex flex-row">
-          {#await $isLoggedIn$}
-            <input
-              type="text"
-              disabled
-              class="flex-grow max-w-md p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shitzu-4 text-black max-w-none"
-            />
-            <Button
-              class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
-              loading={true}
-              type="custom"
-            >
-              Reply
-            </Button>
-          {:then isLoggedInResult}
-            <input
-              type="text"
-              disabled={!$accountId$ || !isLoggedInResult}
-              bind:value={reply}
-              class="flex-grow max-w-md p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shitzu-4 text-black max-w-none"
-              on:keydown={async (e) => {
-                if (e.key === "Enter") {
-                  handleReply();
-                }
-                if (scrollContainer != null) {
-                  scrollContainer.scrollTo({
-                    top: 100_000,
-                    behavior: "smooth",
-                  });
-                }
-              }}
-            />
-            <Button
-              class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
-              onClick={handleReply}
-              type="custom"
-            >
-              {#if !$accountId$}
-                Connect
-              {:else if isLoggedInResult}
-                {#if postingReply}
-                  <div class="i-svg-spinners:3-dots-fade size-4" />
-                {:else}
-                  Reply
-                {/if}
+            Reply
+          </Button>
+        {:then isLoggedInResult}
+          <input
+            type="text"
+            disabled={!$accountId$ || !isLoggedInResult}
+            bind:value={reply}
+            class="flex-grow max-w-md p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shitzu-4 text-black max-w-none"
+            on:keydown={async (e) => {
+              if (e.key === "Enter") {
+                handleReply();
+              }
+              if (scrollContainer != null) {
+                scrollContainer.scrollTo({
+                  top: 100_000,
+                  behavior: "smooth",
+                });
+              }
+            }}
+          />
+          <Button
+            class="ml-2 px-4 py-2 bg-shitzu-4 text-white rounded-lg hover:bg-shitzu-5"
+            onClick={handleReply}
+            type="custom"
+          >
+            {#if !$accountId$}
+              Connect
+            {:else if isLoggedInResult}
+              {#if postingReply}
+                <div class="i-svg-spinners:3-dots-fade size-4" />
               {:else}
-                Login
+                Reply
               {/if}
-            </Button>
-          {/await}
-        </div>
+            {:else}
+              Login
+            {/if}
+          </Button>
+        {/await}
       </div>
     </div>
-  {/await}
+  </div>
 </div>
 
 <style lang="scss">
