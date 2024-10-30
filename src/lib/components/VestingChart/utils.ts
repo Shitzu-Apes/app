@@ -2,7 +2,7 @@ export const MS_PER_DAY = 24 * 60 * 60 * 1000;
 export const AUCTION_DURATION_MS = 1 * MS_PER_DAY;
 
 export function calculateVestingData(
-  totalDurationMs: number,
+  vestingDurationMs: number,
   cliffDurationMs: number,
   allocationPercentage: number,
   displayDurationMs: number,
@@ -14,7 +14,7 @@ export function calculateVestingData(
     return [];
   }
 
-  const isInstant = totalDurationMs === 0 && cliffDurationMs === 0;
+  const isInstant = vestingDurationMs === 0 && cliffDurationMs === 0;
 
   // Create data points at key breakpoints
   const points = [];
@@ -82,7 +82,7 @@ export function calculateVestingData(
 
     // Add vesting end point
     points.push({
-      time: totalDurationMs,
+      time: vestingDurationMs + cliffDurationMs,
       vested: allocationPercentage * 100,
       liquidityPool: allocationPercentage * 100 + liquidityPoolPercentage,
       depositor:
