@@ -46,7 +46,7 @@
 </script>
 
 <div
-  class="relative min-h-[calc(100vh-19rem)] max-h-[calc(100vh-19rem)] flex flex-col"
+  class="relative min-h-[calc(100vh-19rem)] flex flex-col"
   bind:this={chartElement}
 >
   <div class="overflow-auto flex flex-col flex-1 relative z-1">

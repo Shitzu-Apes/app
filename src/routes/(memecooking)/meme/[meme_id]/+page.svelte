@@ -52,11 +52,15 @@
   }, 20);
 </script>
 
-<div class="w-full p-2 pb-25">
-  <div class="mx-auto flex mb-5">
-    <a href="/board" class="text-white text-2xl mx-auto hover:font-bold"
-      >[go back]</a
+<div class="w-full p-2 pb-25 container mx-auto">
+  <div class="flex mb-5 sm:mb-0">
+    <a
+      href="/board"
+      class="text-white flex items-center gap-1 hover:text-shitzu-3"
     >
+      <div class="i-mdi:chevron-left size-8" />
+      back
+    </a>
   </div>
   {#await meme}
     <div class="w-full text-center text-2xl">Loading...</div>

@@ -35,7 +35,7 @@
   });
 </script>
 
-<div class="flex gap-2 overflow-x-auto scrollbar-none container mx-auto p-2">
+<div class="flex gap-2 overflow-x-auto scrollbar-none p-2">
   {#each notifications as notification (notification.id)}
     <a
       href={`/meme/${notification.meme_id}`}

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { cubicOut } from "svelte/easing";
 
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import { MCMemeSubscribe, memebids$ } from "$lib/store/memebids";
@@ -12,7 +13,23 @@
     at: number;
   } | null = null;
 
-  let shake = false;
+  function slideFromRight(node: Element, { delay = 0, duration = 400 } = {}) {
+    return {
+      delay,
+      duration,
+      easing: cubicOut,
+      css: (t: number) => {
+        const x = (1 - t) * 100;
+        return `
+          position: absolute;
+          transform: translateX(${x}%);
+          left: 0;
+          top: 0;
+          opacity: ${t};
+        `;
+      },
+    };
+  }
 
   $: $memebids$.then((meme) => {
     const firstMeme = meme[0];
@@ -26,8 +43,6 @@
     };
   });
   onMount(() => {
-    console.log("[MemeCreationNotification] memebids$");
-
     const symbol = Symbol("notification");
     MCMemeSubscribe(symbol, (newMemeInfo) => {
       notification = {
@@ -37,45 +52,61 @@
         icon: `${import.meta.env.VITE_IPFS_GATEWAY}/${newMemeInfo.image}`,
         at: newMemeInfo.created_timestamp_ms,
       };
-
-      // Trigger the shake animation
-      shake = true;
-      setTimeout(() => {
-        shake = false;
-      }, 500); // Duration of the shake animation
     });
   });
 </script>
 
-{#if notification !== null}
-  <section
-    class="flex items-center bg-blue-400 text-sm text-dark px-2 py-1 rounded {shake
-      ? 'animate-shake-x animate-duration-500'
-      : ''}"
-  >
-    <img src={SHITZU_POCKET} alt="shitzu pocket" class="size-6 mr-1" />
-    <a
-      href={`/profile/${notification.party}`}
-      class="max-w-20 overflow-hidden text-ellipsis mx-1 hover:font-bold whitespace-nowrap text-memecooking-9"
-    >
-      {notification.party}
-    </a>
-    created
-    <a
-      href={`/meme/${notification.meme_id}`}
-      class="text-shitzu-7 flex items-center ml-1 hover:font-bold"
-    >
-      {notification.ticker}
-      <img
-        src={notification.icon}
-        alt="icon"
-        class="size-6 rounded-full mx-1"
-      />
-    </a>{" "}
-    on {new Date(notification.at).toLocaleString("en-US", {
-      month: "numeric",
-      day: "numeric",
-      year: "numeric",
-    })}
-  </section>
-{/if}
+<div class="w-full h-full relative">
+  {#if notification !== null}
+    {#key notification.meme_id}
+      <!-- Meme Creation Notification -->
+      <a
+        href={`/meme/${notification.meme_id}`}
+        class="flex w-40 h-20 rounded hover:ring-2 bg-blue-400/50 hover:ring-blue-300"
+        in:slideFromRight={{ delay: 300, duration: 400 }}
+        out:slideFromRight={{ duration: 400 }}
+      >
+        <div class="flex h-full">
+          <!-- Image Section -->
+          <div class="relative w-1/3 h-full bg-white">
+            <img
+              src={notification.icon}
+              alt={notification.ticker}
+              class="w-full h-full object-contain"
+            />
+          </div>
+
+          <div class="w-2/3 p-2 flex flex-col justify-between">
+            <!-- Date -->
+            <div class="flex items-center gap-1 text-xs">
+              <span class="w-4 flex justify-center flex-shrink-0">
+                <div class="i-mdi:clock size-3" />
+              </span>
+              <span class="flex-shrink-1 font-medium truncate">
+                {new Date(notification.at).toLocaleDateString()}
+              </span>
+            </div>
+
+            <!-- Ticker -->
+            <div class="flex items-center gap-1 text-xs">
+              <span class="w-4 flex justify-center flex-shrink-0">$</span>
+              <span class="flex-shrink-1 font-medium text-shitzu-4 truncate">
+                {notification.ticker}
+              </span>
+            </div>
+
+            <!-- Creator -->
+            <div class="flex items-center gap-1 text-xs">
+              <span class="w-4 flex justify-center flex-shrink-0">
+                <img src={SHITZU_POCKET} alt="U" class="size-3" />
+              </span>
+              <span class="flex-shrink-1 font-medium truncate">
+                {notification.party}
+              </span>
+            </div>
+          </div>
+        </div>
+      </a>
+    {/key}
+  {/if}
+</div>
