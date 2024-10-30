@@ -5,6 +5,7 @@ import {
   presetTypography,
   presetIcons,
 } from "unocss";
+import { presetExtra } from "unocss-preset-extra";
 import { presetFluid } from "unocss-preset-fluid";
 import { presetScrollbar } from "unocss-preset-scrollbar";
 
@@ -19,6 +20,7 @@ export default defineConfig({
       maxWidth: 448,
     }),
     presetScrollbar(),
+    presetExtra(),
   ],
   theme: {
     colors: {

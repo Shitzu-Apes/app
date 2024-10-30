@@ -45,10 +45,11 @@
         : "failed"
       : "active";
   $: statusColor = {
-    live: "bg-shitzu-3 text-black",
+    live: "bg-gray-1 text-black",
     pending: "bg-amber-4 text-black",
     failed: "bg-rose-4 text-black",
-    active: "bg-gray-600 text-white",
+    active:
+      "bg-shitzu-400 text-black animated animated-heart-beat animated-infinite hover:animate-none",
   }[status];
 
   const { projectedMcap } = memebid;
@@ -260,69 +261,6 @@
           alt={memebid.name}
           class="w-full h-full object-contain"
         />
-      </div>
-
-      <div class="w-2/3 py-2 px-2 flex flex-col">
-        <!-- Status Bar -->
-        <div class="w-full flex justify-between items-center mb-2">
-          <div class="w-full flex justify-between items-center gap-2">
-            <span
-              class={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${statusColor}`}
-            >
-              {status.toUpperCase()}
-            </span>
-            {#if showCook}
-              <div class="text-xs flex flex-shrink-1 min-w-0 overflow-hidden">
-                by <Chef account={memebid.owner} class="font-medium min-w-0" />
-              </div>
-            {/if}
-          </div>
-        </div>
-
-        <!-- Title -->
-        <div class="">
-          <h3 class="text-base font-medium">
-            {memebid.name}
-            <span class="text-shitzu-4">${memebid.symbol}</span>
-          </h3>
-        </div>
-
-        <!-- Description -->
-        <p class="text-sm text-gray-300 line-clamp-2 mb-2">
-          {memebid.description}
-        </p>
-
-        <!-- Stats -->
-        <div class="flex items-center justify-between text-sm mt-auto">
-          <div class="flex items-center gap-4">
-            <div class="flex items-center gap-1">
-              <span class="text-gray-400">MCap:</span>
-              <span class="font-medium">
-                {#if $projectedMcap}
-                  ${$projectedMcap.format({
-                    maximumFractionDigits: 1,
-                    notation: "compact",
-                  })}
-                {:else}-{/if}
-              </span>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-4">
-            {#if typeof memebid.staker_count === "number"}
-              <div class="flex items-center gap-1">
-                <div class="i-mdi:account-multiple text-gray-400" />
-                <span class="font-medium">{memebid.staker_count}</span>
-              </div>
-            {/if}
-            {#if typeof memebid.replies_count === "number"}
-              <div class="flex items-center gap-1">
-                <div class="i-mdi:chat text-gray-400" />
-                <span class="font-medium">{memebid.replies_count}</span>
-              </div>
-            {/if}
-          </div>
-        </div>
 
         {#if depositAmount != null || (isOwnAccount && claimAmount && claimAmount.valueOf() > 0n) || !isEnded || isLaunched}
           <!-- Actions -->
@@ -360,6 +298,71 @@
             {/if}
           </div>
         {/if}
+      </div>
+
+      <div class="w-2/3 py-2 px-2 flex flex-col">
+        <!-- Status Bar -->
+        <div class="w-full flex justify-between items-center mb-2">
+          <div class="w-full flex justify-between items-center gap-2">
+            <span
+              class={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${statusColor}`}
+            >
+              {status.toUpperCase()}
+            </span>
+          </div>
+        </div>
+
+        <!-- Title -->
+        <div class="">
+          <h3 class="text-base font-medium">
+            {memebid.name}
+            <span class="text-shitzu-4">${memebid.symbol}</span>
+          </h3>
+        </div>
+
+        <!-- Description -->
+        <p class="text-sm text-gray-300 line-clamp-2 mb-2">
+          {memebid.description}
+        </p>
+
+        {#if showCook}
+          <div class="text-xs w-full flex mb-2 gap-1 items-center">
+            <div class="flex-shrink-0">by</div>
+            <Chef account={memebid.owner} class="font-medium" />
+          </div>
+        {/if}
+
+        <!-- Stats -->
+        <div class="flex items-center justify-between text-sm mt-auto">
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-1">
+              <span class="text-gray-400">MCap:</span>
+              <span class="font-medium">
+                {#if $projectedMcap}
+                  ${$projectedMcap.format({
+                    maximumFractionDigits: 1,
+                    notation: "compact",
+                  })}
+                {:else}-{/if}
+              </span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            {#if typeof memebid.staker_count === "number"}
+              <div class="flex items-center gap-1">
+                <div class="i-mdi:account-multiple text-gray-400" />
+                <span class="font-medium">{memebid.staker_count}</span>
+              </div>
+            {/if}
+            {#if typeof memebid.replies_count === "number"}
+              <div class="flex items-center gap-1">
+                <div class="i-mdi:chat text-gray-400" />
+                <span class="font-medium">{memebid.replies_count}</span>
+              </div>
+            {/if}
+          </div>
+        </div>
       </div>
     </div>
   </a>

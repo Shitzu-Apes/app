@@ -10885,6 +10885,11 @@ universalify@^2.0.0:
   resolved "https://registry.npmjs.org/universalify/-/universalify-2.0.1.tgz"
   integrity sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==
 
+unocss-preset-extra@^0.5.3:
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/unocss-preset-extra/-/unocss-preset-extra-0.5.3.tgz#eaa703e84f5652f544599f4de424a3a128147174"
+  integrity sha512-rRosBmJ3S8/97o/l4J1lc3AJnSGMSD1FgDs4bvUWmrz2OQvPheuZluL8xULEd5MGwHjw4vAwYkue114pnVelzA==
+
 unocss-preset-fluid@^1.0.2:
   version "1.0.2"
   resolved "https://registry.npmjs.org/unocss-preset-fluid/-/unocss-preset-fluid-1.0.2.tgz"
