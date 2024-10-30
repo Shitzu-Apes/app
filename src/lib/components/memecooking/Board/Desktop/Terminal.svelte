@@ -2,6 +2,8 @@
   import { createWindowVirtualizer } from "@tanstack/svelte-virtual";
   import { onMount } from "svelte";
 
+  import LoadingLambo from "../LoadingLambo.svelte";
+
   import MemePreview from "./MemePreview.svelte";
 
   import Near from "$lib/assets/Near.svelte";
@@ -149,29 +151,8 @@
   </div>
 
   {#await Promise.all([requiredStake, displayedMemebids])}
-    <div
-      class="w-full flex items-center justify-around flex-wrap mt-10 gap-6 mb-10"
-    >
-      <!-- eslint-disable-next-line -->
-      {#each { length: 10 } as _, i (i)}
-        <div
-          class="flex items-start justify-start w-full max-w-sm gap-3 p-2 border border-transparent hover:border-white cursor-pointer"
-        >
-          <div class="w-24 h-24 loader"></div>
-          <div class="flex flex-col items-start justify-start h-full gap-1">
-            <div class="text-xs flex items-center gap-1 loader w-42 h-4"></div>
-            <div class="text-sm w-24 h-4 loader"></div>
-            <div class="text-xs w-24 h-4 loader"></div>
-
-            <div class="flex flex-col gap-1">
-              <span class="text-xs text-shitzu-4">
-                <div class="text-xs text-shitzu-4 loader w-14 h-4"></div>
-              </span>
-              <span class="loader w-10 h-4"></span>
-            </div>
-          </div>
-        </div>
-      {/each}
+    <div class="w-full mt-10 mb-10">
+      <LoadingLambo />
     </div>
   {:then [requiredStake, displayedMemebids]}
     <div class="mt-10 px-1 mb-10">

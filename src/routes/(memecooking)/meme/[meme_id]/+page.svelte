@@ -6,6 +6,7 @@
 
   import { page } from "$app/stores";
   import { client } from "$lib/api/client";
+  import LoadingLambo from "$lib/components/memecooking/Board/LoadingLambo.svelte";
   import TokenDetailCarousel from "$lib/components/memecooking/Board/TokenDetailCarousel.svelte";
   import { memebids$ } from "$lib/store/memebids";
 
@@ -63,7 +64,9 @@
     </a>
   </div>
   {#await meme}
-    <div class="w-full text-center text-2xl">Loading...</div>
+    <div class="my-10">
+      <LoadingLambo />
+    </div>
   {:then detail}
     {#if detail}
       <div class="desktop">
