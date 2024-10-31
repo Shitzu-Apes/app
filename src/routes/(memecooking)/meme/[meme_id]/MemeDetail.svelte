@@ -3,14 +3,17 @@
   import type { Writable } from "svelte/store";
 
   import ClaimBanner from "./ClaimBanner.svelte";
+  import TokenAllocationBanner from "./TokenAllocationBanner.svelte";
   import WithdrawBanner from "./WithdrawBanner.svelte";
 
   import ExtraDetail from "$lib/components/ExtraDetail.svelte";
+  import McIcon from "$lib/components/MCIcon.svelte";
   import { addToast } from "$lib/components/Toast.svelte";
-  import Tooltip from "$lib/components/Tooltip.svelte";
+  import ActionButtons from "$lib/components/memecooking/Board/ActionButtons.svelte";
   import TradeTabs from "$lib/components/memecooking/Board/Desktop/TradeTabs.svelte";
   import McActionBox from "$lib/components/memecooking/Board/MCActionBox.svelte";
   import SocialLink from "$lib/components/memecooking/Board/SocialLink.svelte";
+  import TeamAllocation from "$lib/components/memecooking/Board/TokenAllocation.svelte";
   import TokenChart from "$lib/components/memecooking/Board/TokenChart.svelte";
   import TokenHolder from "$lib/components/memecooking/Board/TokenHolder.svelte";
   import RefWhitelistSheet from "$lib/components/memecooking/BottomSheet/RefWhitelistSheet.svelte";
@@ -21,9 +24,7 @@
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
   import { MCTradeSubscribe } from "$lib/store/memebids";
-  import { FixedNumber } from "$lib/util";
   import { getTokenId } from "$lib/util/getTokenId";
-  import { shareWithReferral } from "$lib/util/referral";
 
   export let meme$: Writable<Meme>;
   const { projectedMcap } = $meme$;
@@ -39,163 +40,165 @@
   });
 </script>
 
-<div class="flex px-2 gap-2">
-  <div class="flex-grow">
+<div class="w-full">
+  <div class="flex mb-5 justify-between w-full">
+    <a href="/board" class="text-white flex items-center hover:text-shitzu-3">
+      <div class="i-mdi:chevron-left size-8" />
+      Back
+    </a>
+    <ActionButtons meme={$meme$} />
+  </div>
+  <!-- Header Section -->
+  <header class="mb-8">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <!-- Token Basic Info -->
+      <div class="flex items-center gap-4">
+        <McIcon meme={$meme$} class="w-16 object-contain bg-white" />
+        <div>
+          <h1 class="text-2xl font-medium">{$meme$.name}</h1>
+          <div class="flex items-center gap-2 text-gray-400">
+            <span class="font-medium text-shitzu-400">${$meme$.symbol}</span>
+            {#if $meme$.pool_id}
+              <div class="flex items-center gap-1">
+                <span class="text-xs">CA:</span>
+                <code class="text-xs bg-gray-800 px-2 py-1 rounded">
+                  {$meme$.token_id}
+                </code>
+                <button
+                  class="p-1 hover:bg-gray-700 rounded"
+                  on:click={() => {
+                    navigator.clipboard.writeText(
+                      getTokenId($meme$.symbol, $meme$.meme_id),
+                    );
+                    addToast({
+                      data: {
+                        type: "simple",
+                        data: {
+                          title: "Copied",
+                          description: "Contract address copied!",
+                          color: "green",
+                        },
+                      },
+                    });
+                  }}
+                >
+                  <div class="i-mdi:content-copy text-lg" />
+                </button>
+              </div>
+            {/if}
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="flex items-center gap-6">
+        <div class="text-center">
+          <div class="text-sm text-gray-400">Market Cap</div>
+          <div class="font-bold text-xl">
+            {#if $projectedMcap}
+              ${$projectedMcap.format({
+                maximumFractionDigits: 1,
+                notation: "compact",
+              })}
+            {:else}
+              -
+            {/if}
+          </div>
+        </div>
+        <div class="text-center">
+          <div class="text-sm text-gray-400">Created By</div>
+          <Chef
+            account={$meme$.owner}
+            asLink
+            class="bg-shitzu-3 text-black px-2 py-1 rounded-full text-sm"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress/Status Bar -->
     {#if !$meme$.pool_id}
-      <div class="w-full mt-4 mb-12">
+      <div class="mt-6">
         <ProgressBar meme={$meme$} />
       </div>
     {/if}
-    <div class="w-full flex items-center gap-3 my-2 text-sm">
-      <span>
-        {$meme$.name}
-      </span>
-      <span class="font-semibold whitespace-nowrap">
-        ticker: {$meme$.symbol}
-      </span>
-      <div class="text-green-400 flex items-center gap-1 flex-wrap">
-        Market cap:{" "}
-        <span class="font-semibold flex items-center gap-1">
-          {#if $projectedMcap}
-            ${$projectedMcap.format({
-              maximumFractionDigits: 1,
-              notation: "compact",
-              compactDisplay: "short",
-            })}
-          {:else}-
-          {/if}{" "}
-          <Tooltip
-            info="total supply {new FixedNumber(
-              $meme$.total_supply,
-              $meme$.decimals,
-            ).format()} {$meme$.symbol}"
-          >
-            <div class="i-mdi:information-outline size-4 text-green-4" />
-          </Tooltip>
-        </span>
+  </header>
+
+  <!-- Main Content -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Left Column - Chart & Trading -->
+    <div class="lg:col-span-2">
+      <div class="bg-gray-800 rounded-lg p-4 mb-6 aspect-ratio-16/9">
+        <TokenChart memebid={$meme$} />
       </div>
+
+      <div class="bg-gray-800 rounded-lg p-4">
+        <TradeTabs meme={$meme$} />
+      </div>
+    </div>
+
+    <!-- Right Column - Actions & Info -->
+    <div class="space-y-6">
+      <!-- Trading Status -->
       {#if $meme$.pool_id}
-        <div class="flex items-center justify-end text-right">
-          <span>CA:</span>
-          <div
-            class="flex items-center justify-end text-right border border-white/25 rounded overflow-hidden ml-2 text-xs"
-          >
-            <span class="bg-dark-8 text-white px-1 py-1">
-              {getTokenId($meme$.symbol, $meme$.meme_id)}
-            </span>
-            <button
-              class="bg-dark-6 text-white px-2 py-1"
-              on:click={() => {
-                navigator.clipboard.writeText(
-                  getTokenId($meme$.symbol, $meme$.meme_id),
-                );
-                addToast({
-                  data: {
-                    type: "simple",
-                    data: {
-                      title: "Copied",
-                      description: "CA copied to clipboard!",
-                      color: "green",
-                    },
-                  },
-                });
-              }}
-            >
-              copy
-            </button>
-          </div>
+        <div
+          class="bg-[rgba(0,214,175,1)] text-black p-4 rounded-lg font-medium text-center"
+        >
+          Trade on Ref via Meme.Cooking
+        </div>
+      {:else if $meme$.end_timestamp_ms}
+        <Countdown to={$meme$.end_timestamp_ms} />
+      {/if}
+
+      <!-- Admin Actions -->
+      {#if $meme$.owner === $accountId$ && $meme$.pool_id}
+        <button
+          on:click={() => openBottomSheet(RefWhitelistSheet, { meme: $meme$ })}
+          class="w-full btn btn-secondary"
+        >
+          Request Ref Finance Whitelist
+        </button>
+      {/if}
+
+      <WithdrawBanner meme={$meme$} />
+      <ClaimBanner meme={$meme$} />
+      {#if $meme$.owner === $accountId$}
+        <TokenAllocationBanner meme={$meme$} />
+      {/if}
+
+      <!-- Trading Box -->
+      <div class="bg-gray-800 rounded-lg p-4">
+        <McActionBox meme={$meme$} />
+      </div>
+
+      <!-- Social Links -->
+      <SocialLink
+        twitterLink={$meme$.twitterLink || ""}
+        telegramLink={$meme$.telegramLink || ""}
+        website={$meme$.website || ""}
+      />
+
+      <!-- Token Details -->
+      <div class="bg-gray-800 rounded-lg p-4">
+        <h3 class="text-lg font-bold mb-4">
+          About
+          <span class="text-shitzu-400 font-medium">${$meme$.symbol}</span>
+        </h3>
+        <p class="text-gray-300 mb-4">{$meme$.description}</p>
+        {#if typeof $meme$.pool_id !== "number"}
+          <ExtraDetail meme={$meme$} />
+        {/if}
+      </div>
+
+      <!-- Token Holders -->
+      {#if $meme$.team_allocation_num && typeof $meme$.vesting_duration_ms === "number" && typeof $meme$.cliff_duration_ms === "number"}
+        <div class="bg-gray-800 rounded-lg p-4">
+          <TeamAllocation meme={$meme$} />
         </div>
       {/if}
-      <div
-        class="ml-auto flex items-center flex-wrap justify-end text-right gap-1"
-      >
-        <span class="whitespace-nowrap">created by</span>
-        <Chef
-          account={$meme$.owner}
-          asLink
-          class="bg-shitzu-3 text-black px-1 rounded"
-        />
+      <div class="bg-gray-800 rounded-lg p-4">
+        <TokenHolder meme={$meme$} />
       </div>
     </div>
-    <div class="w-full aspect-ratio-16/9 max-h-[75vh]">
-      <TokenChart memebid={$meme$} />
-    </div>
-    <div class="flex flex-col w-full h-screen max-h-[40rem]">
-      <TradeTabs meme={$meme$} />
-    </div>
-  </div>
-
-  <div class="w-90 max-w-1/3 p-2 flex flex-col gap-5">
-    <div class="self-end flex items-center gap-2">
-      <a
-        class="hover:font-bold"
-        href="https://t.me/bettearbot?start=ref-28757995"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        [alerts]
-      </a>
-      <button
-        class="hover:font-bold"
-        on:click={() => shareWithReferral($accountId$, $meme$)}
-      >
-        [share]
-      </button>
-    </div>
-    {#if $meme$.pool_id}
-      <div
-        class="flex gap-3 mt-10 bg-[rgba(0,214,175,1)] text-black p-3 rounded-lg font-medium"
-      >
-        Trade on Ref via Meme.Cooking
-      </div>
-    {:else if $meme$.end_timestamp_ms}
-      <Countdown
-        class="mx-auto text-shitzu-4 mb-10 justify-evenly w-full max-w-xl mt-10"
-        to={$meme$.end_timestamp_ms}
-      />
-    {/if}
-    {#if $meme$.owner === $accountId$ && $meme$.pool_id}
-      <button
-        on:click={() => openBottomSheet(RefWhitelistSheet, { meme: $meme$ })}
-        class="w-full text-white hover:font-bold"
-      >
-        [Request Ref Finance Whitelist]
-      </button>
-    {/if}
-
-    <WithdrawBanner meme={$meme$} />
-    <ClaimBanner meme={$meme$} />
-    <div class="w-full min-h-74 border-2 border-shitzu-4 rounded-xl p-2">
-      <McActionBox meme={$meme$} />
-    </div>
-
-    <!-- Link -->
-    <SocialLink
-      twitterLink={$meme$.twitterLink || ""}
-      telegramLink={$meme$.telegramLink || ""}
-      website={$meme$.website || ""}
-    />
-
-    <!-- Token Detail -->
-    <div class="w-full text-gray-3">
-      <div class="flex gap-2">
-        <img
-          src="{import.meta.env.VITE_IPFS_GATEWAY}/{$meme$.image}"
-          alt={$meme$.name}
-          class="w-30 object-contain"
-        />
-        <div class="flex flex-col items-start">
-          <h2>{$meme$.name} <b>(ticker: {$meme$.symbol})</b></h2>
-          <div class="text-sm">{$meme$.description}</div>
-        </div>
-      </div>
-      <ExtraDetail class="text-sm mt-3" meme={$meme$} />
-    </div>
-
-    <!-- Holder -->
-    <div class="w-full">
-      <TokenHolder meme={$meme$} />
-    </div>
-    <!-- End Right Nav -->
   </div>
 </div>

@@ -17,6 +17,7 @@
   import SoftHardCapSlider from "./SoftHardCapSlider.svelte";
 
   import Near from "$lib/assets/Near.svelte";
+  import ToggleSwitch from "$lib/components/ToggleSwitch.svelte";
 
   const NEAR_DECIMALS = 24;
   const NEAR_MULTIPLIER = BigInt(10) ** BigInt(NEAR_DECIMALS);
@@ -37,6 +38,10 @@
     } else if (option === "customize") {
       // Allow customization through the slider
     }
+  }
+
+  function handleToggle() {
+    hardCapEnabled = !hardCapEnabled;
   }
 </script>
 
@@ -87,18 +92,22 @@
     </div>
   </div>
 
-  <label class="flex items-center space-x-2 mt-2">
-    <input type="checkbox" bind:checked={hardCapEnabled} />
-    <span>Enable Hard Cap</span>
-  </label>
+  <div class="self-start w-full flex justify-between items-center gap-2">
+    <label for="hard-cap" class="text-sm text-shitzu-4 font-600">
+      Enable Hard Cap
+    </label>
+    <ToggleSwitch enabled={hardCapEnabled} on:toggle={handleToggle} />
+  </div>
 
   {#if selectedOption === "customize"}
     <SoftHardCapSlider bind:softCap bind:hardCap bind:hardCapEnabled />
   {/if}
 
-  <div class="text-xs text-gray-400 w-full">
-    The Soft Cap of {(Number(softCap) / Number(NEAR_MULTIPLIER)).toFixed(2)} NEAR
-    is the minimum required to launch on ref once the duration is over. {#if hardCapEnabled}
+  <div class="text-sm text-gray-400 w-full bg-gray-800/50 p-4 rounded-lg">
+    <span class="font-semibold text-shitzu-4">Summary:</span> The Soft Cap of {(
+      Number(softCap) / Number(NEAR_MULTIPLIER)
+    ).toFixed(2)} NEAR is the minimum required to launch on ref once the duration
+    is over. {#if hardCapEnabled}
       <span transition:fade
         >If the Hard Cap of {(
           Number(hardCap || 0) / Number(NEAR_MULTIPLIER)

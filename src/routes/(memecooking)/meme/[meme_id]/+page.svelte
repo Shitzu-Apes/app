@@ -6,7 +6,9 @@
 
   import { page } from "$app/stores";
   import { client } from "$lib/api/client";
+  import LoadingLambo from "$lib/components/memecooking/Board/LoadingLambo.svelte";
   import TokenDetailCarousel from "$lib/components/memecooking/Board/TokenDetailCarousel.svelte";
+  import { getExternalMeme } from "$lib/external_memes";
   import { MemeCooking } from "$lib/near/memecooking";
   import { memebids$ } from "$lib/store/memebids";
 
@@ -36,6 +38,13 @@
   });
 
   $: meme = retryPromise(async () => {
+    // First check if meme_id matches an external meme
+    const externalMeme = await getExternalMeme(meme_id);
+    if (externalMeme) {
+      return { meme: externalMeme };
+    }
+
+    // Otherwise proceed with normal meme lookup
     const memebids = await get(memebids$);
     const meme = memebids.find((memebids) => memebids.meme_id === +meme_id);
     const memebid = await MemeCooking.getMeme(Number(meme_id));
@@ -65,29 +74,26 @@
   }, 20);
 </script>
 
-<div class="w-full p-2 pb-25">
-  <div class="mx-auto flex mb-5">
-    <a href="/board" class="text-white text-2xl mx-auto hover:font-bold"
-      >[go back]</a
-    >
+{#await meme}
+  <div class="my-10">
+    <LoadingLambo />
   </div>
-  {#await meme}
-    <div class="w-full text-center text-2xl">Loading...</div>
-  {:then detail}
-    {#if detail}
-      <div class="desktop">
+{:then detail}
+  {#if detail}
+    <div class="desktop">
+      <div class="w-full p-2 pb-25 w-full">
         <MemeDetail meme$={writable(detail.meme)} />
       </div>
-      <div class="mobile">
-        <TokenDetailCarousel focused={true} memebid$={writable(detail.meme)} />
-      </div>
-    {:else}
-      <div>Meme not found</div>
-    {/if}
-  {:catch error}
-    <div>Error: {error.message}</div>
-  {/await}
-</div>
+    </div>
+    <div class="mobile">
+      <TokenDetailCarousel memebid$={writable(detail.meme)} />
+    </div>
+  {:else}
+    <div>Meme not found</div>
+  {/if}
+{:catch error}
+  <div>Error: {error.message}</div>
+{/await}
 
 <style lang="scss">
   .mobile {

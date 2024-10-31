@@ -1,10 +1,14 @@
 <script lang="ts">
-  import { fly } from "svelte/transition";
+  import { createWindowVirtualizer } from "@tanstack/svelte-virtual";
+  import { onMount } from "svelte";
+
+  import LoadingLambo from "../LoadingLambo.svelte";
 
   import MemePreview from "./MemePreview.svelte";
+  import QuickActionConfig from "./QuickActionConfig.svelte";
 
+  import SHITZU_DETECTIVE from "$lib/assets/static/shitzu_detective.png";
   import SelectBox from "$lib/components/SelectBox.svelte";
-  import Toggle from "$lib/components/Toggle.svelte";
   import { requiredStake } from "$lib/near/memecooking";
   import { memebids$, searchQuery$ } from "$lib/store/memebids";
   import {
@@ -14,11 +18,10 @@
   } from "$lib/util/sortMeme";
 
   let selectedSort = sortOptions[0];
-
   let selectedDirection = orderOptions[0];
+  let activeTab: "auction" | "live" | "all" = "all";
+  let quickActionAmount = "5";
 
-  let liveOnly = true;
-  let ref = false;
   $: displayedMemebids = $memebids$.then((memebids) => [
     ...filterAndSortMeme(
       memebids,
@@ -27,113 +30,149 @@
         order: selectedDirection.value,
       },
       $searchQuery$,
-      liveOnly,
-      ref,
+      activeTab === "auction" ? true : false,
+      activeTab === "live",
     ),
   ]);
 
-  let page = 1;
-  let perPage = 21;
+  let numLanes = 4; // Default for large screens
+
+  onMount(() => {
+    updateLanes();
+  });
+
+  function updateLanes() {
+    // Get container width based on Tailwind container class
+    // Container has different max-widths at different breakpoints
+    const width = window.innerWidth;
+    let containerWidth;
+
+    if (width < 640) {
+      // sm
+      containerWidth = width - 32; // Default padding
+    } else if (width < 768) {
+      // md
+      containerWidth = 640;
+    } else if (width < 1024) {
+      // lg
+      containerWidth = 768;
+    } else if (width < 1280) {
+      // xl
+      containerWidth = 1024;
+    } else if (width < 1536) {
+      // 2xl
+      containerWidth = 1280;
+    } else {
+      containerWidth = 1536;
+    }
+
+    // Calculate number of lanes based on target element width of 400px
+    // Account for 10px gap between elements
+    numLanes = Math.max(1, Math.floor((containerWidth + 10) / (400 + 10)));
+  }
+
+  $: virtualizer = createWindowVirtualizer<HTMLDivElement>({
+    count: 200,
+    initialOffset: 300,
+    estimateSize: () => 600, // Approximate height of MemePreview
+    overscan: 15,
+    lanes: numLanes,
+    gap: 10,
+  });
+
+  $: {
+    displayedMemebids.then((data) => {
+      $virtualizer.setOptions({
+        count: data.length,
+        lanes: numLanes,
+      });
+    });
+  }
+
+  function measureElement(element: HTMLDivElement) {
+    $virtualizer.measureElement(element);
+  }
 </script>
 
-<div class="flex flex-wrap gap-3 mt-6 px-4">
-  <SelectBox options={sortOptions} bind:selected={selectedSort} />
-  <SelectBox options={orderOptions} bind:selected={selectedDirection} />
-  <Toggle
-    bind:isOn={liveOnly}
-    on:toggle={({ detail: value }) => {
-      if (value) {
-        ref = false;
-      }
-    }}>live auction:{" "}</Toggle
-  >
-  <Toggle
-    bind:isOn={ref}
-    on:toggle={({ detail: value }) => {
-      if (value) {
-        liveOnly = false;
-      }
-    }}>ref:{" "}</Toggle
-  >
-</div>
+<svelte:window on:resize={updateLanes} />
 
-{#await Promise.all([requiredStake, displayedMemebids])}
-  <div
-    class="w-full flex items-center justify-around flex-wrap mt-10 gap-6 px-5 mb-10"
-  >
-    <!-- eslint-disable-next-line -->
-    {#each { length: 10 } as _, i (i)}
-      <div
-        class="flex items-start justify-start w-full max-w-sm gap-3 p-2 border border-transparent hover:border-white cursor-pointer"
-      >
-        <div class="w-24 h-24 loader"></div>
-        <div class="flex flex-col items-start justify-start h-full gap-1">
-          <div class="text-xs flex items-center gap-1 loader w-42 h-4"></div>
-          <div class="text-sm w-24 h-4 loader"></div>
-          <div class="text-xs w-24 h-4 loader"></div>
-
-          <div class="flex flex-col gap-1">
-            <span class="text-xs text-shitzu-4">
-              <div class="text-xs text-shitzu-4 loader w-14 h-4"></div>
-            </span>
-            <span class="loader w-10 h-4"></span>
-          </div>
-        </div>
-      </div>
-    {/each}
+<div class="w-full">
+  <div class=" flex gap-2 justify-center items-center">
+    <button
+      class="px-4 py-2 rounded-lg {activeTab === 'all'
+        ? 'bg-shitzu-3 text-black'
+        : 'text-gray-400 hover:text-white'}"
+      on:click={() => (activeTab = "all")}
+    >
+      All
+    </button>
+    <button
+      class="px-4 py-2 rounded-lg {activeTab === 'auction'
+        ? 'bg-shitzu-3 text-black'
+        : 'text-gray-400 hover:text-white'}"
+      on:click={() => (activeTab = "auction")}
+    >
+      Live
+    </button>
+    <button
+      class="px-4 py-2 rounded-lg {activeTab === 'live'
+        ? 'bg-shitzu-3 text-black'
+        : 'text-gray-400 hover:text-white'}"
+      on:click={() => (activeTab = "live")}
+    >
+      Launched
+    </button>
   </div>
-{:then [requiredStake, displayedMemebids]}
+
   <div
-    class="w-full flex items-center justify-around flex-wrap mt-10 gap-6 px-5 mb-10"
+    class="w-full flex flex-wrap justify-center sm:justify-start gap-3 mt-6 px-1"
   >
-    {#if displayedMemebids[0]}
-      {#key displayedMemebids[0].meme_id}
-        <div
-          class="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] border-3 border-transparent animate-shake-and-border"
-        >
-          <MemePreview memebid={displayedMemebids[0]} {requiredStake} />
-        </div>
-      {/key}
-    {/if}
-    {#each displayedMemebids.slice(1 + (page - 1) * perPage, page * perPage) as memebid (memebid.meme_id)}
-      <div
-        class="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
-        in:fly
-      >
-        <MemePreview {memebid} {requiredStake} />
-      </div>
-    {/each}
-    <!-- add empty div if not divisible by 3 -->
-    {#if displayedMemebids.slice(1 + (page - 1) * perPage, page * perPage).length % 3 !== 0}
-      {#each Array(3 - (displayedMemebids.slice(1 + (page - 1) * perPage, page * perPage).length % 3)).keys() as i (-i)}
-        <div
-          class="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
-        ></div>
-      {/each}
-    {/if}
-    <div class="flex items-center justify-center w-full gap-10">
-      <button
-        on:click={() => {
-          page = Math.max(1, page - 1);
-        }}
-        class="hover:font-bold"
-      >
-        [prev]
-      </button>
-      <button
-        on:click={() => {
-          page = Math.min(
-            page + 1,
-            Math.ceil(displayedMemebids.length / perPage),
-          );
-        }}
-        class="hover:font-bold"
-      >
-        [next]
-      </button>
+    <SelectBox options={sortOptions} bind:selected={selectedSort} />
+    <SelectBox options={orderOptions} bind:selected={selectedDirection} />
+    <QuickActionConfig bind:quickActionAmount />
+  </div>
+
+  {#await Promise.all([requiredStake, displayedMemebids])}
+    <div class="w-full mt-10 mb-10">
+      <LoadingLambo />
     </div>
-  </div>
-{/await}
+  {:then [requiredStake, displayedMemebids]}
+    <div class="mt-10 px-1 mb-10">
+      {#if displayedMemebids.length === 0}
+        <div
+          class="text-center text-lg text-white flex flex-col items-center justify-center gap-2"
+        >
+          <img src={SHITZU_DETECTIVE} class="w-40" alt="No memes found" />
+          No memes found
+        </div>
+      {/if}
+      <div
+        style="position: relative; height: {$virtualizer.getTotalSize()}px; width: 100%;"
+      >
+        {#each $virtualizer.getVirtualItems() as row (row.index)}
+          <div
+            class="w-full sm:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] {row.index ===
+            0
+              ? 'animate-shake-and-border border-3 border-transparent'
+              : ''}"
+            style="position: absolute; top: 0; left: {(row.lane / numLanes) *
+              100}%; width: calc({100 / numLanes}% - {row.lane === numLanes - 1
+              ? 0
+              : 10}px); transform: translateY({row.start}px);"
+            data-index={row.index}
+            use:measureElement
+          >
+            <MemePreview
+              memebid={displayedMemebids[row.index]}
+              {requiredStake}
+              {quickActionAmount}
+            />
+          </div>
+        {/each}
+      </div>
+    </div>
+  {/await}
+</div>
 
 <style>
   @keyframes shakeAndBorder {
@@ -160,7 +199,7 @@
   }
 
   .animate-shake-and-border {
-    animation: shakeAndBorder 500ms;
-    animation-iteration-count: 3;
+    animation: shakeAndBorder 300ms;
+    animation-iteration-count: 2;
   }
 </style>

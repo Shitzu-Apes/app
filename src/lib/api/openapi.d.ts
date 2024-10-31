@@ -193,6 +193,10 @@ export interface paths {
               total_supply_num: number;
               soft_cap_num: number;
               hard_cap_num?: number | null;
+              team_allocation?: string | null;
+              team_allocation_num?: number | null;
+              vesting_duration_ms?: number | null;
+              cliff_duration_ms?: number | null;
               created_blockheight: number;
               created_timestamp_ms: number;
               total_deposit: string;
@@ -276,6 +280,10 @@ export interface paths {
               total_supply_num: number;
               soft_cap_num: number;
               hard_cap_num?: number | null;
+              team_allocation?: string | null;
+              team_allocation_num?: number | null;
+              vesting_duration_ms?: number | null;
+              cliff_duration_ms?: number | null;
               created_blockheight: number;
               created_timestamp_ms: number;
               total_deposit: string;
@@ -351,6 +359,10 @@ export interface paths {
                 total_supply_num: number;
                 soft_cap_num: number;
                 hard_cap_num?: number | null;
+                team_allocation?: string | null;
+                team_allocation_num?: number | null;
+                vesting_duration_ms?: number | null;
+                cliff_duration_ms?: number | null;
                 created_blockheight: number;
                 created_timestamp_ms: number;
                 total_deposit: string;
@@ -543,6 +555,10 @@ export interface paths {
                 total_supply_num: number;
                 soft_cap_num: number;
                 hard_cap_num?: number | null;
+                team_allocation?: string | null;
+                team_allocation_num?: number | null;
+                vesting_duration_ms?: number | null;
+                cliff_duration_ms?: number | null;
                 created_blockheight: number;
                 created_timestamp_ms: number;
                 total_deposit: string;
@@ -582,6 +598,10 @@ export interface paths {
                 total_supply_num: number;
                 soft_cap_num: number;
                 hard_cap_num?: number | null;
+                team_allocation?: string | null;
+                team_allocation_num?: number | null;
+                vesting_duration_ms?: number | null;
+                cliff_duration_ms?: number | null;
                 created_blockheight: number;
                 created_timestamp_ms: number;
                 total_deposit: string;
@@ -617,6 +637,10 @@ export interface paths {
                 total_supply_num: number;
                 soft_cap_num: number;
                 hard_cap_num?: number | null;
+                team_allocation?: string | null;
+                team_allocation_num?: number | null;
+                vesting_duration_ms?: number | null;
+                cliff_duration_ms?: number | null;
                 created_blockheight: number;
                 created_timestamp_ms: number;
                 total_deposit: string;
@@ -703,6 +727,10 @@ export interface paths {
                       total_supply_num: number;
                       soft_cap_num: number;
                       hard_cap_num?: number | null;
+                      team_allocation?: string | null;
+                      team_allocation_num?: number | null;
+                      vesting_duration_ms?: number | null;
+                      cliff_duration_ms?: number | null;
                       created_blockheight: number;
                       created_timestamp_ms: number;
                       total_deposit: string;
@@ -742,6 +770,10 @@ export interface paths {
                       total_supply_num: number;
                       soft_cap_num: number;
                       hard_cap_num?: number | null;
+                      team_allocation?: string | null;
+                      team_allocation_num?: number | null;
+                      vesting_duration_ms?: number | null;
+                      cliff_duration_ms?: number | null;
                       created_blockheight: number;
                       created_timestamp_ms: number;
                       total_deposit: string;
@@ -779,6 +811,10 @@ export interface paths {
                 total_supply_num: number;
                 soft_cap_num: number;
                 hard_cap_num?: number | null;
+                team_allocation?: string | null;
+                team_allocation_num?: number | null;
+                vesting_duration_ms?: number | null;
+                cliff_duration_ms?: number | null;
                 created_blockheight: number;
                 created_timestamp_ms: number;
                 total_deposit: string;

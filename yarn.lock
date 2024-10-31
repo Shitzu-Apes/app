@@ -2989,6 +2989,18 @@
   dependencies:
     "@swc/counter" "^0.1.3"
 
+"@tanstack/svelte-virtual@^3.10.8":
+  version "3.10.8"
+  resolved "https://registry.yarnpkg.com/@tanstack/svelte-virtual/-/svelte-virtual-3.10.8.tgz#35d831a4ae8e4b5afde880f56b9ea513e42f98c6"
+  integrity sha512-0h3ycxlfvS4BOyRCW/obD5ZgK+IoPaavo96rSIpZkBhVDEBZ14G+FPXyssIAomyEEI9Vx8eIpKkTOSO+lMt8Kw==
+  dependencies:
+    "@tanstack/virtual-core" "3.10.8"
+
+"@tanstack/virtual-core@3.10.8":
+  version "3.10.8"
+  resolved "https://registry.yarnpkg.com/@tanstack/virtual-core/-/virtual-core-3.10.8.tgz#975446a667755222f62884c19e5c3c66d959b8b4"
+  integrity sha512-PBu00mtt95jbKFi6Llk9aik8bnR3tR/oQP1o3TSi+iG//+Q2RTIzCEgKkHG8BB86kxMNW6O8wku+Lmi+QFR6jA==
+
 "@telegraf/types@^7.1.0":
   version "7.1.0"
   resolved "https://registry.npmjs.org/@telegraf/types/-/types-7.1.0.tgz"
@@ -10872,6 +10884,11 @@ universalify@^2.0.0:
   version "2.0.1"
   resolved "https://registry.npmjs.org/universalify/-/universalify-2.0.1.tgz"
   integrity sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==
+
+unocss-preset-extra@^0.5.3:
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/unocss-preset-extra/-/unocss-preset-extra-0.5.3.tgz#eaa703e84f5652f544599f4de424a3a128147174"
+  integrity sha512-rRosBmJ3S8/97o/l4J1lc3AJnSGMSD1FgDs4bvUWmrz2OQvPheuZluL8xULEd5MGwHjw4vAwYkue114pnVelzA==
 
 unocss-preset-fluid@^1.0.2:
   version "1.0.2"

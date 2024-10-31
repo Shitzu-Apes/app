@@ -10,6 +10,7 @@
 
   import FgBanner from "./FGBanner.svelte";
   import SoftcapDefault, { CAP_DEFAULT_OPTIONS } from "./SoftcapDefault.svelte";
+  import TeamAllocationToggle from "./TeamAllocationToggle.svelte";
   import TextAreaField from "./TextAreaField.svelte";
   import TextInputField from "./TextInputField.svelte";
 
@@ -25,7 +26,7 @@
     closeBottomSheet,
     openBottomSheet,
   } from "$lib/layout/BottomSheet/Container.svelte";
-  import type { Meme } from "$lib/models/memecooking";
+  import type { Meme, TeamAllocation } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
   import {
@@ -96,6 +97,9 @@
 
   // Add a new variable for duration
   let durationMs = 1000 * 60 * 60; // Default duration is 24 hours
+
+  // Bind teamAllocation from the new component
+  let teamAllocation: TeamAllocation | null = null;
 
   $: imageReady = imageCID || imageFile;
 
@@ -297,49 +301,54 @@
       referenceCID: string;
       referenceHash: string;
     }) => {
-      return MemeCooking.createMeme(
-        wallet,
-        {
-          name,
-          symbol: ticker,
-          decimals,
-          depositTokenId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
-          durationMs: durationMs.toString(),
-          totalSupply: $totalSupply$!.toU128(),
-          icon: icon!,
-          reference: referenceCID,
-          referenceHash,
-          softCap,
-          hardCap: hardCapEnabled ? hardCap ?? undefined : undefined,
-        },
-        await $storageCost$,
-        {
-          onSuccess: async (outcome) => {
-            function isFinalExecutionStatus(
-              status: FinalExecutionStatus | FinalExecutionStatusBasic,
-            ): status is FinalExecutionStatus {
-              return (
-                typeof status === "object" &&
-                (status.SuccessValue !== undefined ||
-                  status.Failure !== undefined)
-              );
-            }
-
-            // replace with logic to make sure that all the data is ready to be displayed
-            if (outcome) {
-              if (
-                isFinalExecutionStatus(outcome.status) &&
-                typeof outcome.status.SuccessValue === "string"
-              ) {
-                const decodedOutcome = atob(outcome.status.SuccessValue);
-
-                goto(`/meme/${decodedOutcome}`);
-                closeBottomSheet();
+      const createParams = {
+        name,
+        symbol: ticker,
+        decimals,
+        depositTokenId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
+        durationMs: durationMs.toString(),
+        totalSupply: $totalSupply$!.toU128(),
+        icon: icon!,
+        reference: referenceCID,
+        referenceHash,
+        softCap,
+        hardCap: hardCapEnabled ? hardCap ?? undefined : undefined,
+        teamAllocation:
+          teamAllocation && teamAllocation.allocationBps > 0
+            ? {
+                allocationBps: teamAllocation.allocationBps,
+                vestingDurationMs: teamAllocation.vestingDurationMs,
+                cliffDurationMs: teamAllocation.cliffDurationMs,
               }
+            : undefined,
+      };
+
+      return MemeCooking.createMeme(wallet, createParams, await $storageCost$, {
+        onSuccess: async (outcome) => {
+          function isFinalExecutionStatus(
+            status: FinalExecutionStatus | FinalExecutionStatusBasic,
+          ): status is FinalExecutionStatus {
+            return (
+              typeof status === "object" &&
+              (status.SuccessValue !== undefined ||
+                status.Failure !== undefined)
+            );
+          }
+
+          // replace with logic to make sure that all the data is ready to be displayed
+          if (outcome) {
+            if (
+              isFinalExecutionStatus(outcome.status) &&
+              typeof outcome.status.SuccessValue === "string"
+            ) {
+              const decodedOutcome = atob(outcome.status.SuccessValue);
+
+              goto(`/meme/${decodedOutcome}`);
+              closeBottomSheet();
             }
-          },
+          }
         },
-      );
+      });
     };
 
     openBottomSheet(CreateCoinSheet, {
@@ -456,6 +465,8 @@
     <DurationDefault bind:value={durationMs} />
 
     <SoftcapDefault bind:softCap bind:hardCap bind:hardCapEnabled />
+
+    <TeamAllocationToggle bind:teamAllocation />
 
     <TextInputField
       label="twitter link"

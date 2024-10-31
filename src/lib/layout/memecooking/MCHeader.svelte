@@ -76,15 +76,6 @@
     </ul>
   </div>
 
-  <div
-    class="order-last sm:order-none min-w-[80vw] sm:min-w-unset ml-3 mt-3 sm:mt-0 flex-1 flex items-center gap-2 flex-wrap justify-center sm:justify-start"
-  >
-    <Notification />
-    <div class="hidden lg:block">
-      <MemeCreationNotification />
-    </div>
-  </div>
-
   {#if $accountId$}
     <div class="flex flex-col items-end flex-1 sm:flex-none">
       <div class="text-sm inline-flex items-center h-fit">
@@ -115,3 +106,15 @@
     </button>
   {/if}
 </nav>
+
+<div
+  class="flex items-center flex-wrap justify-center w-full bg-gray-800 p-2 rounded my-2"
+>
+  <div class="flex-1 overflow-x-hidden">
+    <Notification />
+  </div>
+  <div class="w-px h-22 bg-white mr-3"></div>
+  <div class="flex-shrink-0 min-w-40 min-h-20">
+    <MemeCreationNotification />
+  </div>
+</div>

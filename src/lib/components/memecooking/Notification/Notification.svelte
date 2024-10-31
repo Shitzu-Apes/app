@@ -1,73 +1,184 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+  import { slide } from "svelte/transition";
+
   import Near from "$lib/assets/Near.svelte";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
-  import { MCTradeSubscribe } from "$lib/store/memebids";
+  import { getToken } from "$lib/store";
+  import { MCTradeSubscribe, memebids$ } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
 
-  let notification: {
+  const ALLOWED_TOKENS = ["token.0xshitzu.near"];
+
+  let notifications: {
     id: string;
-    meme_id: number;
+    meme_id: string;
     amount: string;
     is_deposit: boolean;
     party: string;
     ticker: string;
     icon: string;
-  } | null = null;
-
-  let shake = false;
+  }[] = [];
 
   MCTradeSubscribe(Symbol("notification"), (newMemeInfo) => {
     const amount = (
       BigInt(newMemeInfo.amount) + BigInt(newMemeInfo.fee)
     ).toString();
-    notification = {
-      id: newMemeInfo.receipt_id,
-      meme_id: newMemeInfo.meme_id,
-      amount,
-      is_deposit: newMemeInfo.is_deposit,
-      party: newMemeInfo.account_id,
-      ticker: newMemeInfo.symbol,
-      icon: `${import.meta.env.VITE_IPFS_GATEWAY}/${newMemeInfo.image}`,
+    notifications = [
+      {
+        id: newMemeInfo.receipt_id,
+        meme_id: newMemeInfo.meme_id.toString(),
+        amount,
+        is_deposit: newMemeInfo.is_deposit,
+        party: newMemeInfo.account_id,
+        ticker: newMemeInfo.symbol,
+        icon: `${import.meta.env.VITE_IPFS_GATEWAY}/${newMemeInfo.image}`,
+      },
+      ...notifications.slice(0, 9),
+    ];
+  });
+
+  onMount(() => {
+    console.log("[Notification] mounted");
+    const ws = new WebSocket("wss://ws-events.intear.tech/events/trade_swap");
+
+    ws.onopen = () => {
+      console.log("[Notification] WebSocket connected");
+      ws.send("{}");
     };
 
-    // Trigger the shake animation
-    shake = true;
-    setTimeout(() => {
-      shake = false;
-    }, 500); // Duration of the shake animation
+    ws.onmessage = async (event) => {
+      try {
+        console.log(
+          "[Notification] event.data",
+          JSON.stringify(JSON.parse(event.data), null, 2),
+        );
+        const data = JSON.parse(event.data);
+        const balanceChanges = data.balance_changes;
+
+        // Check if any of the tokens include the meme cooking contract or allowed tokens
+        const relevantToken = Object.keys(balanceChanges).find(
+          (token) =>
+            token.includes("meme-cooking") || ALLOWED_TOKENS.includes(token),
+        );
+
+        if (relevantToken) {
+          const amount = balanceChanges[relevantToken];
+          const isDeposit = !amount.startsWith("-");
+
+          if (relevantToken.includes("meme-cooking")) {
+            // Handle meme cooking tokens
+            const memeId = parseInt(relevantToken.split("-")[1]);
+            console.log("[Notification] memeId", memeId);
+            const memeInfo = (await $memebids$).find(
+              (meme) => meme.meme_id === memeId,
+            );
+            console.log("[Notification] memeInfo", memeInfo);
+
+            if (!memeInfo) return;
+            notifications = [
+              {
+                id: data.receipt_id,
+                meme_id: memeInfo.meme_id.toString(),
+                amount: amount.replace("-", ""),
+                is_deposit: isDeposit,
+                party: data.trader,
+                ticker: memeInfo.symbol,
+                icon: `${import.meta.env.VITE_IPFS_GATEWAY}/${memeInfo.image}`,
+              },
+              ...notifications.slice(0, 9),
+            ];
+          } else {
+            // Handle allowed tokens
+            const tokenInfo = await getToken(relevantToken);
+            notifications = [
+              {
+                id: data.receipt_id,
+                meme_id: "token.0xshitzu.near", // Use -1 for non-meme tokens
+                amount: amount.replace("-", ""),
+                is_deposit: isDeposit,
+                party: data.trader,
+                ticker: tokenInfo.symbol,
+                icon: tokenInfo.icon || SHITZU_POCKET, // Fallback to SHITZU_POCKET if no icon
+              },
+              ...notifications.slice(0, 9),
+            ];
+          }
+        }
+      } catch (error) {
+        console.error(
+          "[Notification] Error processing WebSocket message:",
+          error,
+        );
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error("[Notification] WebSocket error:", error);
+    };
+
+    ws.onclose = () => {
+      console.log("[Notification] WebSocket closed");
+    };
+
+    return () => {
+      ws.close();
+    };
   });
 </script>
 
-{#if notification !== null}
-  <section
-    class="flex items-center {notification.is_deposit
-      ? 'bg-shitzu-3'
-      : 'bg-rose-3'} text-sm text-dark px-2 py-1 rounded {shake
-      ? 'animate-shake-x animate-duration-500'
-      : ''}"
-  >
-    <img src={SHITZU_POCKET} alt="shitzu pocket" class="size-6 mr-1" />
-    <a
-      href={`/profile/${notification.party}`}
-      class="max-w-25 overflow-hidden whitespace-nowrap text-ellipsis mx-1 hover:font-bold"
-    >
-      {notification.party}
-    </a>
-    {notification.is_deposit ? "deposited" : "withdrew"}
-    <Near className="size-6 ml-1" />
-    {new FixedNumber(notification.amount, 24).format({
-      maximumSignificantDigits: 4,
-    })} for
+<div class="flex gap-2 overflow-x-auto scrollbar-none p-2">
+  {#each notifications as notification (notification.id)}
     <a
       href={`/meme/${notification.meme_id}`}
-      class="text-shitzu-7 flex items-center ml-1 hover:font-bold"
+      class="flex-shrink-0 w-40 h-20 rounded hover:ring-2 overflow-hidden {notification.is_deposit
+        ? 'bg-shitzu-4/50 hover:ring-shitzu-3'
+        : 'bg-rose-4/50 hover:ring-rose-3'} animate-slide-in-from-left animate-duration-300"
+      in:slide={{ axis: "x", delay: 100 }}
     >
-      {notification.ticker}
-      <img
-        src={notification.icon}
-        alt="icon"
-        class="size-6 rounded-full ml-1"
-      />
+      <div class="flex h-full">
+        <!-- Image Section -->
+        <div class="relative w-1/3 h-full bg-white">
+          <img
+            src={notification.icon}
+            alt={notification.ticker}
+            class="w-full h-full object-contain"
+          />
+        </div>
+
+        <div class="w-2/3 p-2 flex flex-col justify-between">
+          <!-- Amount -->
+          <div class="flex items-center gap-1 text-xs">
+            <span class="w-4 flex justify-center flex-shrink-0">
+              <Near className="size-3 bg-white text-black rounded-full" />
+            </span>
+            <span class="flex-shrink-1 font-medium">
+              {new FixedNumber(notification.amount, 24).format({
+                maximumSignificantDigits: 3,
+                notation: "compact",
+              })}
+            </span>
+          </div>
+
+          <!-- Ticker -->
+          <div class="flex items-center gap-1 text-xs">
+            <span class="w-4 flex justify-center flex-shrink-0">$</span>
+            <span class="flex-shrink-1 font-medium text-shitzu-4 truncate">
+              {notification.ticker}
+            </span>
+          </div>
+
+          <!-- Party -->
+          <div class="flex items-center gap-1 text-xs">
+            <span class="w-4 flex justify-center flex-shrink-0">
+              <img src={SHITZU_POCKET} alt="U" class="size-3" />
+            </span>
+            <span class="flex-shrink-1 font-medium truncate">
+              {notification.party}
+            </span>
+          </div>
+        </div>
+      </div>
     </a>
-  </section>
-{/if}
+  {/each}
+</div>

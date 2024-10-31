@@ -48,7 +48,7 @@
 </script>
 
 <div use:melt={$root}>
-  <div use:melt={$list} class="flex gap-1 my-4">
+  <div use:melt={$list} class="flex gap-1 mb-4">
     {#each tabs as tab}
       <button
         use:melt={$trigger(tab.id)}

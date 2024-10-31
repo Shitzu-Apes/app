@@ -14,6 +14,7 @@ import type {
   MCReference,
   MemeInfoWithReference,
   Meme,
+  TeamAllocation,
 } from "$lib/models/memecooking";
 import {
   awaitIndexerBlockHeight,
@@ -76,9 +77,18 @@ export abstract class MemeCooking {
   }
 
   public static getMeme(meme_id: number): Promise<MemeInfo | null> {
+    console.log("[getMeme]", import.meta.env.VITE_MEME_COOKING_CONTRACT_ID);
     return view<MemeInfo>(
       import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
       "get_meme",
+      { meme_id },
+    );
+  }
+
+  public static getFinalizedMeme(meme_id: number): Promise<MemeInfo | null> {
+    return view<MemeInfo>(
+      import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+      "get_finalized_meme",
       { meme_id },
     );
   }
@@ -140,6 +150,7 @@ export abstract class MemeCooking {
       depositTokenId: string;
       softCap: string;
       hardCap?: string;
+      teamAllocation?: TeamAllocation;
     },
     deposit: string,
     callback: TransactionCallbacks<FinalExecutionOutcome> = {},
@@ -180,6 +191,13 @@ export abstract class MemeCooking {
           deposit_token_id: args.depositTokenId,
           soft_cap: args.softCap,
           hard_cap: args.hardCap,
+          team_allocation: args.teamAllocation
+            ? [
+                args.teamAllocation.allocationBps,
+                args.teamAllocation.vestingDurationMs,
+                args.teamAllocation.cliffDurationMs,
+              ]
+            : undefined,
         },
         gas: 250_000_000_000_000n.toString(),
         deposit,
@@ -328,7 +346,7 @@ export abstract class MemeCooking {
   public static async claim(
     wallet: Wallet,
     args: {
-      memes: Meme[];
+      meme: Meme;
       isWithdraw?: boolean;
       unwrapNear?: boolean;
       unwrapAmount?: string;
@@ -336,16 +354,16 @@ export abstract class MemeCooking {
     callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
   ) {
     const transactions: HereCall[] = [];
+    const { meme, isWithdraw, unwrapNear, unwrapAmount } = args;
 
     const MIN_STORAGE_DEPOSIT = 1_250_000_000_000_000_000_000n;
     const accountId = get(wallet.accountId$);
     if (!accountId) return;
 
-    if (!args.isWithdraw) {
-      for (const meme of args.memes) {
-        const tokenId = getTokenId(meme.symbol, meme.meme_id);
-        const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
-        if (isRegistered) continue;
+    if (!isWithdraw) {
+      const tokenId = getTokenId(meme.symbol, meme.meme_id);
+      const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
+      if (!isRegistered) {
         transactions.push({
           receiverId: tokenId,
           actions: [
@@ -362,12 +380,10 @@ export abstract class MemeCooking {
         });
       }
     } else {
-      for (const meme of args.memes) {
-        const tokenId = getTokenId(meme.symbol, meme.meme_id);
-        const accountExists = await checkIfAccountExists(tokenId);
-        if (accountExists) {
-          throw new Error("Trying to withdraw, but token exists");
-        }
+      const tokenId = getTokenId(meme.symbol, meme.meme_id);
+      const accountExists = await checkIfAccountExists(tokenId);
+      if (accountExists) {
+        throw new Error("Trying to withdraw, but token exists");
       }
     }
 
@@ -379,7 +395,7 @@ export abstract class MemeCooking {
           params: {
             methodName: "claim",
             args: {
-              meme_ids: args.memes.map(({ meme_id }) => meme_id),
+              meme_id: meme.meme_id,
             },
             gas: 50_000_000_000_000n.toString(),
             deposit: "1",
@@ -388,7 +404,7 @@ export abstract class MemeCooking {
       ],
     });
 
-    if (args.unwrapNear) {
+    if (unwrapNear) {
       transactions.push({
         receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
         actions: [
@@ -397,7 +413,7 @@ export abstract class MemeCooking {
             params: {
               methodName: "near_withdraw",
               args: {
-                amount: args.unwrapAmount,
+                amount: unwrapAmount,
               },
               gas: 20_000_000_000_000n.toString(),
               deposit: "1",
@@ -451,6 +467,57 @@ export abstract class MemeCooking {
       },
       callback,
     );
+  }
+
+  public static async claimVesting(
+    wallet: Wallet,
+    args: { meme: Meme },
+    callback: TransactionCallbacks<FinalExecutionOutcome[]>,
+  ) {
+    const accountId = get(wallet.accountId$);
+    if (!accountId) return;
+
+    const tokenId = getTokenId(args.meme.symbol, args.meme.meme_id);
+    const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
+
+    const transactions: HereCall[] = [];
+
+    if (!isRegistered) {
+      const MIN_STORAGE_DEPOSIT = 1_250_000_000_000_000_000_000n;
+      transactions.push({
+        receiverId: tokenId,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "storage_deposit",
+              args: {},
+              gas: 30_000_000_000_000n.toString(),
+              deposit: MIN_STORAGE_DEPOSIT.toString(),
+            },
+          },
+        ],
+      });
+    }
+
+    transactions.push({
+      receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+      actions: [
+        {
+          type: "FunctionCall",
+          params: {
+            methodName: "claim_vesting",
+            args: {
+              meme_id: args.meme.meme_id,
+            },
+            gas: 100_000_000_000_000n.toString(),
+            deposit: "1",
+          },
+        },
+      ],
+    });
+
+    return wallet.signAndSendTransactions({ transactions }, callback);
   }
 
   public static storageCosts() {

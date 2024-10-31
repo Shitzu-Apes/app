@@ -19,23 +19,27 @@
   );
 </script>
 
-<div class="my-6">
+<div class="my-6 flex flex-col items-center justify-between">
   {#if coins && coins.length > 0}
-    <ul class="flex flex-col gap-2 justify-center items-center">
-      {#await requiredStake}
-        <div transition:slide class="i-svg-spinners:pulse-3 size-40" />
-      {:then requiredStake}
-        {#each coins as claim (claim.meme_id)}
-          <MemePreview
-            memebid={claim}
-            {requiredStake}
-            showCook={false}
-            {isOwnAccount}
-            {update}
-          />
-        {/each}
-      {/await}
-    </ul>
+    <div class="mt-10 px-1 mb-10">
+      <div class="flex flex-wrap gap-4 justify-evenly">
+        {#await requiredStake}
+          <div transition:slide class="i-svg-spinners:pulse-3 size-40" />
+        {:then requiredStake}
+          {#each coins as coin (coin.meme_id)}
+            <div class="w-full sm:w-[calc(50%-16px)] lg:w-[calc(33%-16px)]">
+              <MemePreview
+                memebid={coin}
+                {requiredStake}
+                showCook={false}
+                {isOwnAccount}
+                {update}
+              />
+            </div>
+          {/each}
+        {/await}
+      </div>
+    </div>
   {:else}
     <div>No Token Created</div>
   {/if}

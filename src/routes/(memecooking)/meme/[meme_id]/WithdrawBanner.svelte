@@ -20,6 +20,8 @@
 
   $: if ($mcAccount$ && meme) {
     updateDepositAmount($mcAccount$, meme);
+  } else {
+    depositAmount = null;
   }
   async function updateDepositAmount(
     a: Promise<McAccount | undefined>,
@@ -41,7 +43,7 @@
       await MemeCooking.claim(
         wallet,
         {
-          memes: [meme],
+          meme,
           isWithdraw: true,
           unwrapNear: true,
           unwrapAmount: depositAmount.toU128(),
