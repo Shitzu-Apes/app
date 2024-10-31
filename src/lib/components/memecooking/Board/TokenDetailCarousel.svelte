@@ -5,6 +5,7 @@
   import TokenCommentSheet from "../BottomSheet/TokenCommentSheet.svelte";
 
   import ActionButtons from "./ActionButtons.svelte";
+  import StatusBar from "./StatusBar.svelte";
   import TokenChart from "./TokenChart.svelte";
   import TokenDetail from "./TokenDetail.svelte";
   import TokenHolder from "./TokenHolder.svelte";
@@ -48,6 +49,13 @@
       Back
     </a>
     <ActionButtons meme={$memebid$} />
+  </div>
+
+  <!-- Status Bar -->
+  <div class="px-2 mb-4">
+    <div class="bg-gray-800 rounded-lg p-4 pb-0">
+      <StatusBar meme={$memebid$} />
+    </div>
   </div>
 
   <!-- Token Info -->
