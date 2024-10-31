@@ -62,7 +62,7 @@
       <!-- Meme Creation Notification -->
       <a
         href={`/meme/${notification.meme_id}`}
-        class="flex w-40 h-20 rounded hover:ring-2 bg-blue-400/50 hover:ring-blue-300"
+        class="flex w-40 h-20 rounded hover:ring-2 bg-blue-400/50 hover:ring-blue-300 overflow-hidden"
         in:slideFromRight={{ delay: 300, duration: 400 }}
         out:slideFromRight={{ duration: 400 }}
       >

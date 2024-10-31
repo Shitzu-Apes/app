@@ -4,12 +4,15 @@
 
   import Near from "$lib/assets/Near.svelte";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
+  import { getToken } from "$lib/store";
   import { MCTradeSubscribe, memebids$ } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
 
+  const ALLOWED_TOKENS = ["token.0xshitzu.near"];
+
   let notifications: {
     id: string;
-    meme_id: number;
+    meme_id: string;
     amount: string;
     is_deposit: boolean;
     party: string;
@@ -24,7 +27,7 @@
     notifications = [
       {
         id: newMemeInfo.receipt_id,
-        meme_id: newMemeInfo.meme_id,
+        meme_id: newMemeInfo.meme_id.toString(),
         amount,
         is_deposit: newMemeInfo.is_deposit,
         party: newMemeInfo.account_id,
@@ -46,39 +49,61 @@
 
     ws.onmessage = async (event) => {
       try {
-        console.log("[Notification] event.data", event.data);
+        console.log(
+          "[Notification] event.data",
+          JSON.stringify(JSON.parse(event.data), null, 2),
+        );
         const data = JSON.parse(event.data);
         const balanceChanges = data.balance_changes;
 
-        // Check if any of the tokens include the meme cooking contract
-        const memeCookingToken = Object.keys(balanceChanges).find((token) =>
-          token.includes("meme-cooking"),
+        // Check if any of the tokens include the meme cooking contract or allowed tokens
+        const relevantToken = Object.keys(balanceChanges).find(
+          (token) =>
+            token.includes("meme-cooking") || ALLOWED_TOKENS.includes(token),
         );
 
-        if (memeCookingToken) {
-          const amount = balanceChanges[memeCookingToken];
+        if (relevantToken) {
+          const amount = balanceChanges[relevantToken];
           const isDeposit = !amount.startsWith("-");
-          // "gnuff-283.meme-cooking.near" -> 283
-          const memeId = parseInt(memeCookingToken.split("-")[1]);
-          console.log("[Notification] memeId", memeId);
-          const memeInfo = (await $memebids$).find(
-            (meme) => meme.meme_id === memeId,
-          );
-          console.log("[Notification] memeInfo", memeInfo);
 
-          if (!memeInfo) return;
-          notifications = [
-            {
-              id: data.receipt_id,
-              meme_id: memeInfo.meme_id,
-              amount: amount.replace("-", ""),
-              is_deposit: isDeposit,
-              party: data.trader,
-              ticker: memeInfo.symbol,
-              icon: `${import.meta.env.VITE_IPFS_GATEWAY}/${memeInfo.image}`,
-            },
-            ...notifications.slice(0, 9),
-          ];
+          if (relevantToken.includes("meme-cooking")) {
+            // Handle meme cooking tokens
+            const memeId = parseInt(relevantToken.split("-")[1]);
+            console.log("[Notification] memeId", memeId);
+            const memeInfo = (await $memebids$).find(
+              (meme) => meme.meme_id === memeId,
+            );
+            console.log("[Notification] memeInfo", memeInfo);
+
+            if (!memeInfo) return;
+            notifications = [
+              {
+                id: data.receipt_id,
+                meme_id: memeInfo.meme_id.toString(),
+                amount: amount.replace("-", ""),
+                is_deposit: isDeposit,
+                party: data.trader,
+                ticker: memeInfo.symbol,
+                icon: `${import.meta.env.VITE_IPFS_GATEWAY}/${memeInfo.image}`,
+              },
+              ...notifications.slice(0, 9),
+            ];
+          } else {
+            // Handle allowed tokens
+            const tokenInfo = await getToken(relevantToken);
+            notifications = [
+              {
+                id: data.receipt_id,
+                meme_id: "token.0xshitzu.near", // Use -1 for non-meme tokens
+                amount: amount.replace("-", ""),
+                is_deposit: isDeposit,
+                party: data.trader,
+                ticker: tokenInfo.symbol,
+                icon: tokenInfo.icon || SHITZU_POCKET, // Fallback to SHITZU_POCKET if no icon
+              },
+              ...notifications.slice(0, 9),
+            ];
+          }
         }
       } catch (error) {
         console.error(
@@ -100,15 +125,13 @@
       ws.close();
     };
   });
-
-  $: console.log("[Notification] notifications", notifications);
 </script>
 
 <div class="flex gap-2 overflow-x-auto scrollbar-none p-2">
   {#each notifications as notification (notification.id)}
     <a
       href={`/meme/${notification.meme_id}`}
-      class="flex-shrink-0 w-40 h-20 rounded hover:ring-2 {notification.is_deposit
+      class="flex-shrink-0 w-40 h-20 rounded hover:ring-2 overflow-hidden {notification.is_deposit
         ? 'bg-shitzu-4/50 hover:ring-shitzu-3'
         : 'bg-rose-4/50 hover:ring-rose-3'} animate-slide-in-from-left animate-duration-300"
       in:slide={{ axis: "x", delay: 100 }}

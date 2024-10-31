@@ -9,6 +9,7 @@
 
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import SHITZU_STONK from "$lib/assets/static/shitzu_stonk.png";
+  import McIcon from "$lib/components/MCIcon.svelte";
   import { addToast } from "$lib/components/Toast.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
@@ -64,11 +65,7 @@
 
   <!-- Token Basic Info -->
   <div class="flex items-start gap-4 py-4">
-    <img
-      src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
-      class="size-16 bg-white object-contain"
-      alt={memebid.name}
-    />
+    <McIcon meme={memebid} class="size-16 bg-white object-contain" />
     <div class="flex-1">
       <h1 class="text-2xl font-medium">{memebid.name}</h1>
       <div class="flex items-center gap-2 text-gray-400 flex-wrap">
@@ -77,7 +74,7 @@
           <div class="flex items-center gap-1">
             <span class="text-xs">CA:</span>
             <code class="text-xs bg-gray-800 px-2 py-1 rounded">
-              {getTokenId(memebid.symbol, memebid.meme_id)}
+              {memebid.token_id}
             </code>
             <button
               class="p-1 hover:bg-gray-700 rounded"

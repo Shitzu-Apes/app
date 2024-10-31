@@ -2,6 +2,7 @@
   import { addToast } from "../../Toast.svelte";
 
   import Near from "$lib/assets/Near.svelte";
+  import McIcon from "$lib/components/MCIcon.svelte";
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
@@ -66,11 +67,7 @@
   </slot>
   <div class="flex flex-col items-center text-white px-4 py-6 space-y-6">
     <div class="flex items-center space-x-4">
-      <img
-        src={`${import.meta.env.VITE_IPFS_GATEWAY}/${meme.image}`}
-        alt={meme.name}
-        class="w-16 h-16 rounded-full border-2 border-shitzu-4"
-      />
+      <McIcon {meme} class="w-16 h-16 rounded-full border-2 border-shitzu-4" />
       <div class="text-left">
         <h2 class="text-2xl font-bold text-shitzu-4">{meme.name}</h2>
         <p class="text-lg">Deposit Successful!</p>

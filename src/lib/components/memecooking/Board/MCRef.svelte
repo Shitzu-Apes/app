@@ -10,6 +10,7 @@
   import Near from "$lib/assets/Near.svelte";
   import { showWalletSelector } from "$lib/auth";
   import { Button } from "$lib/components";
+  import McIcon from "$lib/components/MCIcon.svelte";
   import ToggleSwitch from "$lib/components/ToggleSwitch.svelte";
   import TokenInput from "$lib/components/TokenInput.svelte";
   import MCRefSlippage from "$lib/components/memecooking/Board/MCRefSlippage.svelte";
@@ -316,11 +317,7 @@
         {#if $value === "buy"}
           <Near className="w-6 h-6 bg-white text-black rounded-full" />
         {:else}
-          <img
-            src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
-            alt={meme.name}
-            class="w-6 h-6 rounded-full"
-          />
+          <McIcon {meme} class="w-6 h-6 rounded-full" />
         {/if}
       </div>
       <TokenInput
@@ -410,11 +407,7 @@
               </span>
               {#if $value === "buy"}
                 <div class="flex items-center gap-1">
-                  <img
-                    src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
-                    alt={meme.name}
-                    class="size-5 rounded-full"
-                  />
+                  <McIcon {meme} class="size-5 rounded-full" />
                   <span class="text-gray-300">{meme.symbol}</span>
                 </div>
               {:else}

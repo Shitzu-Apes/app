@@ -5,6 +5,7 @@
 
   import Near from "$lib/assets/Near.svelte";
   import { showWalletSelector } from "$lib/auth";
+  import McIcon from "$lib/components/MCIcon.svelte";
   import { addToast } from "$lib/components/Toast.svelte";
   import ReferralSheet from "$lib/components/memecooking/BottomSheet/ReferralSheet.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
@@ -230,11 +231,7 @@
     on:click={claim}
   >
     Claim {claimAmount.format({ notation: "compact" })}
-    <img
-      src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
-      alt="token"
-      class="size-4 bg-white rounded-full text-black"
-    />
+    <McIcon meme={memebid} class="size-4 bg-white rounded-full text-black" />
   </button>
 {:else if isLaunched && isOwnAccount && memebid.team_allocation_num && memebid.team_allocation_num > 0}
   <button
@@ -242,11 +239,7 @@
     on:click={claimTeamAllocation}
   >
     Claim Team Allocation
-    <img
-      src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
-      alt="token"
-      class="size-4 bg-white rounded-full text-black"
-    />
+    <McIcon meme={memebid} class="size-4 bg-white rounded-full text-black" />
   </button>
 {:else if !isEnded || isLaunched}
   <button

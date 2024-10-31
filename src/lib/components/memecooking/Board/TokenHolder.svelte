@@ -186,7 +186,9 @@
           class="flex justify-between items-center mb-3 text-sm text-gray-400 px-2"
         >
           <span>Total Holders</span>
-          <span>{holders.length}</span>
+          <span>
+            {holders.length}
+          </span>
         </div>
         <div class="space-y-3">
           {#each holders as [address, percentage] (address)}

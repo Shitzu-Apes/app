@@ -9,7 +9,6 @@
 
   import SHITZU_DETECTIVE from "$lib/assets/static/shitzu_detective.png";
   import SelectBox from "$lib/components/SelectBox.svelte";
-  import Toggle from "$lib/components/Toggle.svelte";
   import { requiredStake } from "$lib/near/memecooking";
   import { memebids$, searchQuery$ } from "$lib/store/memebids";
   import {
@@ -21,7 +20,6 @@
   let selectedSort = sortOptions[0];
   let selectedDirection = orderOptions[0];
   let activeTab: "auction" | "live" | "all" = "all";
-  let liveOnly = true;
   let quickActionAmount = "5";
 
   $: displayedMemebids = $memebids$.then((memebids) => [
@@ -32,7 +30,7 @@
         order: selectedDirection.value,
       },
       $searchQuery$,
-      activeTab === "auction" ? liveOnly : false,
+      activeTab === "auction" ? true : false,
       activeTab === "live",
     ),
   ]);
@@ -114,7 +112,7 @@
         : 'text-gray-400 hover:text-white'}"
       on:click={() => (activeTab = "auction")}
     >
-      Auction
+      Live
     </button>
     <button
       class="px-4 py-2 rounded-lg {activeTab === 'live'
@@ -122,7 +120,7 @@
         : 'text-gray-400 hover:text-white'}"
       on:click={() => (activeTab = "live")}
     >
-      Live
+      Launched
     </button>
   </div>
 
@@ -131,9 +129,6 @@
   >
     <SelectBox options={sortOptions} bind:selected={selectedSort} />
     <SelectBox options={orderOptions} bind:selected={selectedDirection} />
-    {#if activeTab === "auction"}
-      <Toggle bind:isOn={liveOnly}>live auction:{" "}</Toggle>
-    {/if}
     <QuickActionConfig bind:quickActionAmount />
   </div>
 

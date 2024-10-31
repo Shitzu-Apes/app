@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
 
+  import McIcon from "$lib/components/MCIcon.svelte";
   import ActionButton from "$lib/components/memecooking/Board/Desktop/ActionButton.svelte";
   import ProgressBarSmall from "$lib/components/memecooking/Board/Desktop/ProgressBarSmall.svelte";
   import Chef from "$lib/components/memecooking/Chef.svelte";
@@ -27,18 +28,18 @@
     memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now(),
   );
   $: status = isLaunched
-    ? "live"
+    ? "launched"
     : isEnded
       ? reachedMcap
         ? "pending"
         : "failed"
       : "active";
   $: statusColor = {
-    live: "bg-gray-1 text-black",
+    launched: "bg-shitzu-4 text-black",
     pending: "bg-amber-4 text-black",
     failed: "bg-rose-4 text-black",
     active:
-      "bg-shitzu-400 text-black animated animated-heart-beat animated-infinite animated-duration-1000 hover:animate-none",
+      "bg-memecooking-400 text-black animated animated-heart-beat animated-infinite animated-duration-1000 hover:animate-none",
   }[status];
 
   const { projectedMcap } = memebid;
@@ -49,11 +50,7 @@
     <div class="flex items-stretch">
       <!-- Image Section -->
       <div class="relative w-1/3 h-fit bg-white">
-        <img
-          src={`${import.meta.env.VITE_IPFS_GATEWAY}/${memebid.image}`}
-          alt={memebid.name}
-          class="w-full h-full object-contain"
-        />
+        <McIcon meme={memebid} class="w-full h-full object-contain" />
       </div>
 
       <div class="w-2/3 py-2 px-2 flex flex-col">
@@ -65,7 +62,7 @@
             >
               {#if status === "active"}
                 {#if memebid.end_timestamp_ms}
-                  <div class="flex items-center gap-1 text-white">
+                  <div class="flex items-center gap-1 text-black">
                     <div class="i-mdi:clock" />
                     <Countdown
                       class="text-base"

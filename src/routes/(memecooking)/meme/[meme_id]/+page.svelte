@@ -8,6 +8,7 @@
   import { client } from "$lib/api/client";
   import LoadingLambo from "$lib/components/memecooking/Board/LoadingLambo.svelte";
   import TokenDetailCarousel from "$lib/components/memecooking/Board/TokenDetailCarousel.svelte";
+  import { getExternalMeme } from "$lib/external_memes";
   import { memebids$ } from "$lib/store/memebids";
 
   // page data
@@ -36,6 +37,13 @@
   });
 
   $: meme = retryPromise(async () => {
+    // First check if meme_id matches an external meme
+    const externalMeme = await getExternalMeme(meme_id);
+    if (externalMeme) {
+      return { meme: externalMeme };
+    }
+
+    // Otherwise proceed with normal meme lookup
     const memebids = await get(memebids$);
     const meme = memebids.find((memebids) => memebids.meme_id === +meme_id);
 

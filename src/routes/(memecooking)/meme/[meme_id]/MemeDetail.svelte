@@ -7,6 +7,7 @@
   import WithdrawBanner from "./WithdrawBanner.svelte";
 
   import ExtraDetail from "$lib/components/ExtraDetail.svelte";
+  import McIcon from "$lib/components/MCIcon.svelte";
   import { addToast } from "$lib/components/Toast.svelte";
   import ActionButtons from "$lib/components/memecooking/Board/ActionButtons.svelte";
   import TradeTabs from "$lib/components/memecooking/Board/Desktop/TradeTabs.svelte";
@@ -51,11 +52,7 @@
     <div class="flex flex-wrap items-center justify-between gap-4">
       <!-- Token Basic Info -->
       <div class="flex items-center gap-4">
-        <img
-          src="{import.meta.env.VITE_IPFS_GATEWAY}/{$meme$.image}"
-          alt={$meme$.name}
-          class="w-16 object-contain bg-white"
-        />
+        <McIcon meme={$meme$} class="w-16 object-contain bg-white" />
         <div>
           <h1 class="text-2xl font-medium">{$meme$.name}</h1>
           <div class="flex items-center gap-2 text-gray-400">
@@ -64,7 +61,7 @@
               <div class="flex items-center gap-1">
                 <span class="text-xs">CA:</span>
                 <code class="text-xs bg-gray-800 px-2 py-1 rounded">
-                  {getTokenId($meme$.symbol, $meme$.meme_id)}
+                  {$meme$.token_id}
                 </code>
                 <button
                   class="p-1 hover:bg-gray-700 rounded"
@@ -187,7 +184,9 @@
           <span class="text-shitzu-400 font-medium">${$meme$.symbol}</span>
         </h3>
         <p class="text-gray-300 mb-4">{$meme$.description}</p>
-        <ExtraDetail meme={$meme$} />
+        {#if typeof $meme$.pool_id !== "number"}
+          <ExtraDetail meme={$meme$} />
+        {/if}
       </div>
 
       <!-- Token Holders -->

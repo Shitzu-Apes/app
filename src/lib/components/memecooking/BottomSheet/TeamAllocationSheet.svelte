@@ -4,6 +4,7 @@
 
   import type { Meme } from "$lib/api/client";
   import { Button } from "$lib/components";
+  import McIcon from "$lib/components/MCIcon.svelte";
   import VestingChart from "$lib/components/VestingChart";
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
@@ -223,9 +224,8 @@
                 onClick={handleClaim}
               >
                 Claim
-                <img
-                  src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
-                  alt="token"
+                <McIcon
+                  {meme}
                   class="size-6 bg-white rounded-full text-black ml-1 inline-block"
                 />
               </Button>

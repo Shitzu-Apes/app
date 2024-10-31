@@ -13,6 +13,7 @@
   import { showWalletSelector } from "$lib/auth";
   import { isLoggedIn$ } from "$lib/auth/login";
   import { Button } from "$lib/components";
+  import McIcon from "$lib/components/MCIcon.svelte";
   import { ScreenSize } from "$lib/models";
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
@@ -160,11 +161,7 @@
       </div>
     </div>
     <div class="flex items-start gap-3">
-      <img
-        src="{import.meta.env.VITE_IPFS_GATEWAY}/{meme.image}"
-        class="w-30 rounded-md"
-        alt={meme.name}
-      />
+      <McIcon {meme} class="w-30 rounded-md" />
       <div class="flex flex-col items-start">
         <div class="text-sm font-bold">
           {meme.name} (ticker: {meme.symbol})
