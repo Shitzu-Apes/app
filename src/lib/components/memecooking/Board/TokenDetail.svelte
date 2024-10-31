@@ -117,9 +117,9 @@
       <div class="flex h-full">
         <div class="w-full flex flex-col gap-4">
           <!-- Description -->
-          <div class="flex items-center gap-1 text-sm">
+          <div class="flex gap-1 text-sm">
             <span class="w-6 flex justify-center flex-shrink-0">
-              <div class="i-mdi:text text-memecooking-400" />
+              <div class="i-mdi:text size-5 text-memecooking-400" />
             </span>
             <span class="flex-1 text-gray-200">
               {memebid.description}

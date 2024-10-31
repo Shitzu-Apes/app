@@ -21,12 +21,14 @@
   function updateDimensions() {
     width = container?.clientWidth;
     height = width / 2; // Half of the width for half-circle
-    innerRadius = width * 0.25;
+    innerRadius = width * 0.375;
     outerRadius = width * 0.5;
   }
 
   export let meme: Meme;
   export let props: ReturnType<typeof createProgressBarData>;
+  export let startAngle = -Math.PI * 0.5; // Default to -90 degrees
+  export let spanAngle = Math.PI; // Default to 180 degrees (half circle)
 
   let { hardCap, softcapProgress, hardCapProgress, softHardCapRatio } = props;
   $: ({ hardCap, softcapProgress, hardCapProgress, softHardCapRatio } = props);
@@ -34,9 +36,8 @@
   const gapAngle = 0.02; // Gap angle in radians
 
   // Calculate angles in radians
-  const startAngle = -Math.PI / 2;
-  const softCapAngle = Math.PI * softHardCapRatio;
-  const hardCapAngle = Math.PI * (1 - softHardCapRatio);
+  const softCapAngle = spanAngle * softHardCapRatio;
+  const hardCapAngle = spanAngle * (1 - softHardCapRatio);
 
   $: softCapProgressAngle =
     startAngle + softCapAngle * Math.min(softcapProgress, 1);
@@ -44,27 +45,27 @@
   $: hardCapStartAngle = startAngle + softCapAngle + gapAngle;
   $: hardCapProgressAngle = hardCapStartAngle + hardCapAngle * hardCapProgress;
   $: hardCapEndAngle = hardCapStartAngle + hardCapAngle;
-  $: singleArcEndAngle = startAngle + Math.PI * softcapProgress;
+  $: singleArcEndAngle = startAngle + spanAngle * softcapProgress;
 
   // Arc paths
   $: backgroundArcPath = arc()({
     innerRadius,
     outerRadius,
-    startAngle: -Math.PI / 2,
-    endAngle: Math.PI / 2,
+    startAngle,
+    endAngle: startAngle + spanAngle,
   });
 
   $: softCapArcPath = arc()({
     innerRadius,
     outerRadius,
-    startAngle: -Math.PI / 2,
+    startAngle,
     endAngle: softCapEndAngle,
   });
 
   $: softCapProgressArcPath = arc()({
     innerRadius,
     outerRadius,
-    startAngle: -Math.PI / 2,
+    startAngle,
     endAngle: softCapProgressAngle,
   });
 
@@ -85,7 +86,7 @@
   $: singleArcPath = arc()({
     innerRadius,
     outerRadius,
-    startAngle: -Math.PI / 2,
+    startAngle,
     endAngle: singleArcEndAngle,
   });
 </script>
@@ -96,7 +97,12 @@
   </slot>
 
   <div bind:this={container} class="w-full h-full">
-    <svg {width} {height} viewBox="-{width * 0.1} 0 {width * 1.2} {height}">
+    <svg
+      {width}
+      {height}
+      viewBox="-{width * 0.1} 0 {width * 1.2} {height}"
+      class="w-full h-full"
+    >
       <defs>
         <linearGradient id="softCapGradient" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" style="stop-color:#FF0000;stop-opacity:1" />
@@ -107,7 +113,7 @@
           <stop offset="100%" style="stop-color:#00FF00;stop-opacity:1" />
         </linearGradient>
       </defs>
-      {#if hardCap}
+      {#if hardCap && hardCap.valueOf() !== props.softCap.valueOf()}
         <g transform="translate({width / 2}, {height})">
           <!-- Soft cap border -->
           <path

@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
 
   import LoadingLambo from "../LoadingLambo.svelte";
+  import Tabs from "../Tabs.svelte";
 
   import MemePreview from "./MemePreview.svelte";
   import QuickActionConfig from "./QuickActionConfig.svelte";
@@ -21,6 +22,12 @@
   let selectedDirection = orderOptions[0];
   let activeTab: "auction" | "live" | "all" = "all";
   let quickActionAmount = "5";
+
+  const tabs = [
+    { id: "all", label: "All" },
+    { id: "auction", label: "Live" },
+    { id: "live", label: "Launched" },
+  ];
 
   $: displayedMemebids = $memebids$.then((memebids) => [
     ...filterAndSortMeme(
@@ -97,35 +104,10 @@
 <svelte:window on:resize={updateLanes} />
 
 <div class="w-full">
-  <div class=" flex gap-2 justify-center items-center">
-    <button
-      class="px-4 py-2 rounded-lg {activeTab === 'all'
-        ? 'bg-shitzu-3 text-black'
-        : 'text-gray-400 hover:text-white'}"
-      on:click={() => (activeTab = "all")}
-    >
-      All
-    </button>
-    <button
-      class="px-4 py-2 rounded-lg {activeTab === 'auction'
-        ? 'bg-shitzu-3 text-black'
-        : 'text-gray-400 hover:text-white'}"
-      on:click={() => (activeTab = "auction")}
-    >
-      Live
-    </button>
-    <button
-      class="px-4 py-2 rounded-lg {activeTab === 'live'
-        ? 'bg-shitzu-3 text-black'
-        : 'text-gray-400 hover:text-white'}"
-      on:click={() => (activeTab = "live")}
-    >
-      Launched
-    </button>
-  </div>
+  <Tabs {tabs} bind:activeTab />
 
   <div
-    class="w-full flex flex-wrap justify-center sm:justify-start gap-3 mt-6 px-1"
+    class="w-full flex flex-wrap justify-center sm:justify-start gap-3 px-1 mb-6"
   >
     <SelectBox options={sortOptions} bind:selected={selectedSort} />
     <SelectBox options={orderOptions} bind:selected={selectedDirection} />
@@ -133,11 +115,11 @@
   </div>
 
   {#await Promise.all([requiredStake, displayedMemebids])}
-    <div class="w-full mt-10 mb-10">
+    <div class="w-full my-10">
       <LoadingLambo />
     </div>
   {:then [requiredStake, displayedMemebids]}
-    <div class="mt-10 px-1 mb-10">
+    <div class="px-1">
       {#if displayedMemebids.length === 0}
         <div
           class="text-center text-lg text-white flex flex-col items-center justify-center gap-2"
