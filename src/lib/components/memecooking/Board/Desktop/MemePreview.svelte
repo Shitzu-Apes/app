@@ -38,32 +38,13 @@
     pending: "bg-amber-4 text-black",
     failed: "bg-rose-4 text-black",
     active:
-      "bg-shitzu-400 text-black animated animated-heart-beat animated-infinite hover:animate-none",
+      "bg-shitzu-400 text-black animated animated-heart-beat animated-infinite animated-duration-1000 hover:animate-none",
   }[status];
 
   const { projectedMcap } = memebid;
 </script>
 
 <div class="w-full rounded hover:ring-2 hover:ring-shitzu-3 bg-gray-800">
-  {#if !isEnded}
-    <div class="flex justify-between items-center p-1">
-      {#if memebid.end_timestamp_ms}
-        <div class="flex items-center gap-1">
-          <div class="i-mdi:clock text-shitzu-4" />
-          <Countdown
-            class="text-shitzu-4 text-base"
-            to={memebid.end_timestamp_ms}
-            format="compact"
-          />
-        </div>
-      {/if}
-      {#if !isLaunched}
-        <div class="flex-shrink-0 w-10 h-fit">
-          <ProgressBarSmall meme={memebid} />
-        </div>
-      {/if}
-    </div>
-  {/if}
   <a href={`/meme/${memebid.meme_id}`} class="block">
     <div class="flex items-stretch">
       <!-- Image Section -->
@@ -82,9 +63,31 @@
             <span
               class={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${statusColor}`}
             >
-              {status.toUpperCase()}
+              {#if status === "active"}
+                {#if memebid.end_timestamp_ms}
+                  <div class="flex items-center gap-1 text-white">
+                    <div class="i-mdi:clock" />
+                    <Countdown
+                      class="text-base"
+                      to={memebid.end_timestamp_ms}
+                      format="compact"
+                    />
+                  </div>
+                {/if}
+              {:else}
+                {status.toUpperCase()}
+              {/if}
             </span>
           </div>
+          {#if !isEnded}
+            <div class="flex items-center p-1 gap-2">
+              {#if !isLaunched}
+                <div class="flex-shrink-0 w-10 h-fit flex items-center">
+                  <ProgressBarSmall meme={memebid} />
+                </div>
+              {/if}
+            </div>
+          {/if}
         </div>
 
         <!-- Title -->
