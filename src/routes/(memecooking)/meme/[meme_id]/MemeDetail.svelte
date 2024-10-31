@@ -38,7 +38,14 @@
   });
 </script>
 
-<div class="container mx-auto px-4 py-6">
+<div class="w-full">
+  <div class="flex mb-5 justify-between w-full">
+    <a href="/board" class="text-white flex items-center hover:text-shitzu-3">
+      <div class="i-mdi:chevron-left size-8" />
+      Back
+    </a>
+    <ActionButtons meme={$meme$} />
+  </div>
   <!-- Header Section -->
   <header class="mb-8">
     <div class="flex flex-wrap items-center justify-between gap-4">
@@ -134,8 +141,6 @@
 
     <!-- Right Column - Actions & Info -->
     <div class="space-y-6">
-      <ActionButtons meme={$meme$} />
-
       <!-- Trading Status -->
       {#if $meme$.pool_id}
         <div

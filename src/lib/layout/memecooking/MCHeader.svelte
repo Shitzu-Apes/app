@@ -108,7 +108,7 @@
 </nav>
 
 <div
-  class="flex items-center flex-wrap justify-center container mx-auto bg-gray-800 p-2 rounded my-2"
+  class="flex items-center flex-wrap justify-center w-full bg-gray-800 p-2 rounded my-2"
 >
   <div class="flex-1 overflow-x-hidden">
     <Notification />

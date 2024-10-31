@@ -98,7 +98,7 @@
 
 <svelte:window on:resize={updateLanes} />
 
-<div class="container mx-auto">
+<div class="w-full">
   <div class=" flex gap-2 justify-center items-center">
     <button
       class="px-4 py-2 rounded-lg {activeTab === 'all'

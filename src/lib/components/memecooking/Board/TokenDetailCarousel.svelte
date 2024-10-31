@@ -20,8 +20,6 @@
 
   let selected = 0;
 
-  let chartElement: HTMLElement | undefined;
-
   const trades = client
     .GET("/trades", {
       params: {
@@ -46,7 +44,14 @@
 </script>
 
 <div class="flex-[1_1_0] flex flex-col items-stretch">
-  <div class="flex-[1_1_0] h-0 relative flex flex-col" bind:this={chartElement}>
+  <div class="flex mb-5 justify-between w-full px-2">
+    <a href="/board" class="text-white flex items-center hover:text-shitzu-3">
+      <div class="i-mdi:chevron-left size-8" />
+      Back
+    </a>
+    <ActionButtons meme={$memebid$} />
+  </div>
+  <div class="flex-[1_1_0] h-0 relative flex flex-col">
     <div class="overflow-auto flex flex-col flex-1 relative z-1">
       {#if selected === 0}
         <div
@@ -124,7 +129,6 @@
             [deposit]
           {/if}
         </button>
-        <ActionButtons meme={$memebid$} />
       </div>
       <div class="w-full flex items-center mt-2 px-2">
         {#if typeof $memebid$.staker_count === "number"}

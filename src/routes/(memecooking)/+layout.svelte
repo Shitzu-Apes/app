@@ -190,7 +190,7 @@
   <div
     in:blur={{ duration: 500, delay: 500, easing: cubicIn }}
     out:blur={{ duration: 500, easing: cubicOut }}
-    class="w-full h-screen bg-dark"
+    class="w-full container mx-auto h-screen bg-dark"
   >
     <div class="text-white min-h-screen flex flex-col">
       <MCHeader />
