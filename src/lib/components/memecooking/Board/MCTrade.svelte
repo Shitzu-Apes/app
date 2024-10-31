@@ -39,7 +39,15 @@
           class="flex justify-between items-center p-2 bg-gray-600 rounded-lg text-white loader h-8"
         ></li>
       {:then trades}
-        <Trades {trades} {meme_id} {paginated} />
+        {#if trades.length > 0}
+          <Trades {trades} {meme_id} {paginated} />
+        {:else}
+          <div
+            class="flex justify-center items-center p-2 bg-gray-600 rounded-lg text-white"
+          >
+            No trades found
+          </div>
+        {/if}
       {/await}
     </ul>
   </button>

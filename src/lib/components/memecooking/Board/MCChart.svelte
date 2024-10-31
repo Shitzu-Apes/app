@@ -74,6 +74,8 @@
         "header_screenshot",
         "header_saveload",
         "header_indicators",
+        "header_widget",
+        "left_toolbar",
       ],
       enabled_features: [],
       charts_storage_url: "https://saveload.tradingview.com",

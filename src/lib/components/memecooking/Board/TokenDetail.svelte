@@ -130,6 +130,6 @@
         class="w-full h-full max-h-[25rem] object-contain"
       />
     </div>
-    <ExtraDetail meme={memebid} class="text-white relative z-30" />
+    <ExtraDetail meme={memebid} class="text-white relative z-10" />
   </div>
 </div>

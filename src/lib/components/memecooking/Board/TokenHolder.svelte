@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
+  import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
+  import SHITZU_STONK from "$lib/assets/static/shitzu_stonk.png";
   import Tooltip from "$lib/components/Tooltip.svelte";
   import TeamAllocation from "$lib/components/memecooking/Board/TokenAllocation.svelte";
   import type { Meme } from "$lib/models/memecooking";
@@ -145,46 +147,66 @@
   });
 </script>
 
-<div class="w-full px-4 overflow-auto my-3 gap-2">
+<div class="w-full space-y-4">
   {#if meme.team_allocation_num && typeof meme.vesting_duration_ms === "number" && typeof meme.cliff_duration_ms === "number"}
-    <div class="w-full my-2">
-      <h2 class="text-xl flex items-center gap-1">Token Allocation</h2>
+    <div class="bg-gray-700/50 rounded-lg p-4">
+      <h2 class="text-lg font-medium mb-3 flex items-center gap-2">
+        Token Allocation
+      </h2>
       <TeamAllocation {meme} />
     </div>
   {/if}
-  <h2 class="text-xl flex items-center gap-1">
-    Holders
 
-    <Tooltip>
-      <slot slot="info">
-        <div class="px-4 py-1">
-          Prelaunch: depositors distribution
-          <br />
-          Successfully launched: actual list of current holders
-        </div>
-      </slot>
-      <div class="i-mdi:information-outline" />
-    </Tooltip>
-  </h2>
-
-  {#await holders}
-    <div class="loader w-40 h-4" />
-  {:then holders}
-    {#if holders === null || holders.length === 0}
-      <p>No holders</p>
-    {:else}
-      <div class="w-full h-full flex flex-col gap-2 items-center">
-        {#each holders as holder (holder[0])}
-          <div class="w-full flex justify-between items-center">
-            <p class="w-1/2 overflow-hidden text-ellipsis">
-              {holder[0]}
-            </p>
-            <p class="flex items-center">
-              {holder[1]}%
-            </p>
+  <div class="bg-gray-700/50 rounded-lg p-4">
+    <h2 class="text-lg font-medium mb-3 flex items-center gap-2 text-shitzu-4">
+      <img src={SHITZU_STONK} alt="Shitzu Stonk" class="size-10" />
+      Holders
+      <Tooltip>
+        <slot slot="info">
+          <div class="px-3 py-2 text-sm">
+            <p>Prelaunch: depositors distribution</p>
+            <p>Successfully launched: actual list of current holders</p>
           </div>
-        {/each}
+        </slot>
+        <div
+          class="i-mdi:information-outline text-gray-400 hover:text-white transition-colors"
+        />
+      </Tooltip>
+    </h2>
+
+    {#await holders}
+      <div class="flex justify-center py-4">
+        <div class="loader w-8 h-8" />
       </div>
-    {/if}
-  {/await}
+    {:then holders}
+      {#if holders === null || holders.length === 0}
+        <div class="text-center text-gray-400 py-4">No holders yet</div>
+      {:else}
+        <div class="space-y-3">
+          {#each holders as [address, percentage] (address)}
+            <a
+              href={`/profile/${address}`}
+              class="flex items-center justify-between py-1 px-2 rounded hover:bg-gray-600/30 transition-colors"
+            >
+              <div class="flex items-center gap-2">
+                {#if address === "pool" || address === "v2.ref-finance.near"}
+                  <div class="i-mdi:pool text-shitzu-4" />
+                {:else if address === "team" || address === import.meta.env.VITE_MEME_COOKING_CONTRACT_ID}
+                  <div class="i-mdi:account-group text-shitzu-4" />
+                {:else}
+                  <img src={SHITZU_POCKET} alt="Account" class="size-4" />
+                {/if}
+                <span class="font-medium truncate max-w-[200px]">
+                  {address}
+                </span>
+              </div>
+              <span class="font-medium text-shitzu-4">
+                {percentage}%
+              </span>
+            </a>
+          {/each}
+        </div>
+      {/if}
+    {/await}
+  </div>
 </div>

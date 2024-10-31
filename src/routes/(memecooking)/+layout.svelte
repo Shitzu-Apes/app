@@ -195,7 +195,9 @@
     <div class="text-white min-h-screen flex flex-col">
       <MCHeader />
       <slot />
-      <div class="fixed bottom-0 right-0 p-2 text-xs text-white bg-gray-800/70">
+      <div
+        class="fixed bottom-0 right-0 p-2 text-xs text-white bg-gray-800/70 hidden sm:block"
+      >
         <div class="flex items-center gap-1">
           <Tooltip
             info="Red: Indexer >105 blocks behind. Green: Indexer up-to-date or slightly behind."

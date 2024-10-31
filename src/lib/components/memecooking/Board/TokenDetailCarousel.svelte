@@ -18,8 +18,6 @@
 
   export let memebid$: Writable<Meme>;
 
-  let selected = 0;
-
   const trades = client
     .GET("/trades", {
       params: {
@@ -39,11 +37,9 @@
 
       return trades.sort((a, b) => b.timestamp_ms - a.timestamp_ms);
     });
-
-  const tabs = ["[detail]", "[chart]", "[trade]", "[holder]"];
 </script>
 
-<div class="flex-[1_1_0] flex flex-col items-stretch">
+<div class="flex-[1_1_0] flex flex-col items-stretch pb-30">
   <div class="flex mb-5 justify-between w-full px-2">
     <a href="/board" class="text-white flex items-center hover:text-shitzu-3">
       <div class="i-mdi:chevron-left size-8" />
@@ -51,120 +47,83 @@
     </a>
     <ActionButtons meme={$memebid$} />
   </div>
-  <div class="flex-[1_1_0] h-0 relative flex flex-col">
-    <div class="overflow-auto flex flex-col flex-1 relative z-1">
-      {#if selected === 0}
-        <div
-          class="flex flex-col justify-start items-center h-full text-shitzu-4 gap-6"
-        >
-          <TokenDetail memebid={$memebid$} />
-        </div>
-      {:else if selected === 1}
-        <div class="flex flex-col flex-1">
-          <TokenChart memebid={$memebid$} />
-        </div>
-      {:else if selected === 2}
-        <div class="flex flex-col flex-1">
-          <div class="flex flex-col flex-1">
-            <TokenTrade memebid={$memebid$} {trades} paginated={false} />
-          </div>
-        </div>
-      {:else if selected === 3}
-        <div class="flex flex-col flex-1">
-          <div class="flex-1 overflow-auto">
-            <TokenHolder meme={$memebid$} />
-          </div>
-        </div>
-      {/if}
+
+  <!-- Main Content -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 px-2">
+    <!-- Left Column - Chart & Trading -->
+    <div class="lg:col-span-2">
+      <div class="bg-gray-800 rounded-lg p-2 mb-6 aspect-ratio-3/4">
+        <TokenChart memebid={$memebid$} />
+      </div>
+
+      <div class="bg-gray-800 rounded-lg p-4">
+        <TokenTrade memebid={$memebid$} {trades} paginated={false} />
+      </div>
+    </div>
+
+    <!-- Right Column - Info -->
+    <div class="space-y-6">
+      <!-- Token Details -->
+      <div class="bg-gray-800 rounded-lg p-4">
+        <TokenDetail memebid={$memebid$} />
+      </div>
+
+      <!-- Token Holders -->
+      <div class="bg-gray-800 rounded-lg p-4">
+        <TokenHolder meme={$memebid$} />
+      </div>
     </div>
   </div>
 
-  <div class="flex-0">
-    <div
-      class="w-full h-8 flex justify-evenly border-b bg-shitzu-4 text-black items-center"
-    >
-      {#each tabs as tab, i}
-        <button
-          class="cursor-pointer border-r border-dark w-[33%] last:border-transparent"
-          class:font-bold={selected === i}
-          on:click={() => {
-            selected = i;
-          }}
-        >
-          {tab}
-        </button>
-      {/each}
-    </div>
-
-    <div
-      class="w-full flex flex-col justify-center items-center pb-2 px-2 mt-3"
-    >
-      <div class="flex w-full gap-2">
-        <button
-          on:click={(e) => {
-            e.preventDefault();
-            if (
-              !$memebid$.pool_id &&
-              $memebid$.end_timestamp_ms &&
-              $memebid$.end_timestamp_ms < Date.now()
-            ) {
-              goto(`/create`);
-
-              localStorage.setItem("meme_to_cto", JSON.stringify($memebid$));
-            } else {
-              openBottomSheet(StakeSheet, { meme: $memebid$ });
-            }
-          }}
-          class="{!$memebid$.pool_id &&
-          $memebid$.end_timestamp_ms &&
-          $memebid$.end_timestamp_ms < Date.now()
-            ? 'bg-memecooking-5 border-memecooking-6'
-            : 'bg-shitzu-4 border-shitzu-6'} flex-grow py-2 rounded text-xl tracking-wider text-black"
-        >
-          {#if $memebid$.pool_id}
-            [buy]
-          {:else if $memebid$.end_timestamp_ms && $memebid$.end_timestamp_ms < Date.now()}
-            [relaunch]
-          {:else}
-            [deposit]
-          {/if}
-        </button>
-      </div>
-      <div class="w-full flex items-center mt-2 px-2">
-        {#if typeof $memebid$.staker_count === "number"}
-          <button
-            class="text-base flex justify-center items-center gap-1 flex-grow basis-0 py-2"
-            on:click={() => {
-              selected = 3;
-            }}
-          >
-            <span class="hover:font-bold">
-              [{$memebid$.staker_count}
-              {$memebid$.staker_count <= 1 ? "depositor" : "depositors"}]
-            </span>
-          </button>
+  <!-- Fixed Bottom Action Area -->
+  <div
+    class="fixed bottom-0 left-0 right-0 bg-dark border-t border-gray-800 p-4 lg:hidden z-20"
+  >
+    <div class="flex gap-2">
+      <button
+        on:click={(e) => {
+          e.preventDefault();
+          if (
+            !$memebid$.pool_id &&
+            $memebid$.end_timestamp_ms &&
+            $memebid$.end_timestamp_ms < Date.now()
+          ) {
+            goto(`/create`);
+            localStorage.setItem("meme_to_cto", JSON.stringify($memebid$));
+          } else {
+            openBottomSheet(StakeSheet, { meme: $memebid$ });
+          }
+        }}
+        class="{!$memebid$.pool_id &&
+        $memebid$.end_timestamp_ms &&
+        $memebid$.end_timestamp_ms < Date.now()
+          ? 'bg-memecooking-5 border-memecooking-6'
+          : 'bg-shitzu-4 border-shitzu-6'} flex-1 py-2 rounded text-xl tracking-wider text-black"
+      >
+        {#if $memebid$.pool_id}
+          [buy]
+        {:else if $memebid$.end_timestamp_ms && $memebid$.end_timestamp_ms < Date.now()}
+          [relaunch]
+        {:else}
+          [deposit]
         {/if}
-        <div class="w-px h-6 bg-white" />
-        {#if typeof $memebid$.replies_count === "number"}
-          <button
-            class="text-base flex justify-center items-center gap-1 flex-grow basis-0 py-2"
-            on:click={() => {
-              openBottomSheet(
-                TokenCommentSheet,
-                {
-                  meme: $memebid$,
-                },
-                "l",
-              );
-            }}
-          >
-            <span class="hover:font-bold">
-              [{$memebid$.replies_count}
-              {$memebid$.replies_count <= 1 ? "comment" : "comments"}]
-            </span>
-          </button>
-        {/if}
-      </div>
+      </button>
+
+      <button
+        class="border border-shitzu-4 text-shitzu-4 px-2 rounded flex items-center gap-1 hover:bg-shitzu-4/10"
+        on:click={() => {
+          openBottomSheet(
+            TokenCommentSheet,
+            {
+              meme: $memebid$,
+            },
+            "l",
+          );
+        }}
+      >
+        <div class="i-mdi:comment-outline size-4" />
+        {$memebid$.replies_count}
+      </button>
     </div>
   </div>
 </div>

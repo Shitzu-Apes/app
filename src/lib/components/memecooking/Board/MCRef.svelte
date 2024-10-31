@@ -10,6 +10,7 @@
   import Near from "$lib/assets/Near.svelte";
   import { showWalletSelector } from "$lib/auth";
   import { Button } from "$lib/components";
+  import ToggleSwitch from "$lib/components/ToggleSwitch.svelte";
   import TokenInput from "$lib/components/TokenInput.svelte";
   import MCRefSlippage from "$lib/components/memecooking/Board/MCRefSlippage.svelte";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
@@ -434,14 +435,21 @@
       </div>
     {/if}
 
-    <label
-      class="flex items-center space-x-2 mt-2 {$value === 'buy'
+    <div
+      class="{$value === 'buy'
         ? 'invisible'
-        : ''}"
+        : ''} w-full flex items-center justify-between my-4"
     >
-      <input type="checkbox" bind:checked={unwrapNear} />
       <span class="text-white">Unwrap wNEAR</span>
-    </label>
+      <ToggleSwitch
+        bind:enabled={unwrapNear}
+        on:toggle={() => {
+          if ($value === "sell") {
+            unwrapNear = !unwrapNear;
+          }
+        }}
+      />
+    </div>
 
     <MCRefSlippage
       bind:slippage

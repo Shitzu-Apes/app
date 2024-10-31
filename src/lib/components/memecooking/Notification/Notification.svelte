@@ -46,6 +46,7 @@
 
     ws.onmessage = async (event) => {
       try {
+        console.log("[Notification] event.data", event.data);
         const data = JSON.parse(event.data);
         const balanceChanges = data.balance_changes;
 
@@ -99,6 +100,8 @@
       ws.close();
     };
   });
+
+  $: console.log("[Notification] notifications", notifications);
 </script>
 
 <div class="flex gap-2 overflow-x-auto scrollbar-none p-2">
