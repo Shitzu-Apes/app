@@ -1,14 +1,13 @@
 <script lang="ts">
-  import { createTabs, melt } from "@melt-ui/svelte";
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
   import { onDestroy, onMount } from "svelte";
   import { derived } from "svelte/store";
-  import { slide } from "svelte/transition";
   import { match } from "ts-pattern";
 
   import { page } from "$app/stores";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
-  import Tooltip from "$lib/components/Tooltip.svelte";
+  import LoadingLambo from "$lib/components/memecooking/Board/LoadingLambo.svelte";
+  import Tabs from "$lib/components/memecooking/Board/Tabs.svelte";
   import ClaimList from "$lib/components/memecooking/Profile/ClaimList.svelte";
   import CoinCreated from "$lib/components/memecooking/Profile/CoinCreated.svelte";
   import DepositList from "$lib/components/memecooking/Profile/DepositList.svelte";
@@ -26,6 +25,10 @@
   const { accountId$ } = wallet;
 
   $: isOwnAccount = accountId === $accountId$;
+  $: displayAccountId =
+    accountId.length > 24
+      ? `${accountId.substring(0, 6)}...${accountId.slice(-4)}`
+      : accountId;
 
   let account: McAccount | undefined;
   const unsubscribe = derived([accountId$, page], (res) => res).subscribe(
@@ -45,151 +48,116 @@
     updateMcAccount($accountId$);
   });
 
+  let activeTab = isOwnAccount ? "not-finalized" : "created";
   $: tabs = match(isOwnAccount)
     .with(true, () => [
       {
         id: "not-finalized",
-        label: "withdraw",
-        info: "All ongoing deposits and unsuccessful launches",
-        component: DepositList,
+        label: "Withdraw",
       },
       {
         id: "finalized",
-        label: "claim Token",
-        info: "Successful launches",
-        component: ClaimList,
+        label: "Claim Token",
       },
       {
         id: "created",
-        label: "created Token",
-        info: "All tokens created by this account",
-        component: CoinCreated,
+        label: "Created Token",
       },
     ])
     .with(false, () => [
       {
         id: "created",
-        label: "created Token",
-        info: "All tokens created by this account",
-        component: CoinCreated,
+        label: "Created Token",
       },
     ])
     .exhaustive();
-
-  const {
-    elements: { root, list, content, trigger },
-    states: { value },
-  } = createTabs();
 
   async function update(
     outcome: FinalExecutionOutcome | FinalExecutionOutcome[] | undefined,
   ) {
     if (outcome == null) return;
-    // adding +5 here becauce of receipts being delayed
-    const ownAccountId = await $accountId$;
+    const ownAccountId = $accountId$;
     if (!ownAccountId) return;
     const blockHeight = await fetchBlockHeight(outcome);
     updateMcAccount(ownAccountId, true, blockHeight + 5);
   }
 </script>
 
-<section class="w-full flex flex-col items-center justify-center">
-  <div class="my-6">
-    <div class="flex">
+<section class="w-full flex flex-col items-center justify-center px-4 py-8">
+  <!-- Welcome Banner -->
+  <div class="w-full max-w-4xl mx-auto bg-gray-800 rounded-lg p-6 mb-8">
+    <div class="flex items-center gap-4">
       <img
         src={SHITZU_POCKET}
         alt="shitzu pocket"
-        class="size-16 mr-1 text-shitzu-4"
+        class="size-20 text-shitzu-4"
       />
-      <div>
-        <p class="text-lg">
-          {accountId.length > 24
-            ? `${accountId.substring(0, 6)}...${accountId.slice(-4)}`
-            : accountId}
-        </p>
+      <div class="flex flex-col gap-2">
+        <h1 class="text-3xl font-bold text-white">
+          {#if isOwnAccount}
+            Welcome, {displayAccountId}!
+          {:else}
+            {displayAccountId}'s Profile
+          {/if}
+        </h1>
         <a
           href="https://pikespeak.ai/wallet-explorer/{accountId}/"
           target="_blank"
           rel="noopener noreferrer"
-          class="text-sm text-shitzu-4 hover:underline hover:text-shitzu-5 hover:font-bold"
-          >[view on explorer]</a
+          class="text-shitzu-4 hover:text-shitzu-5 hover:underline flex items-center gap-1"
         >
+          <span>View on Explorer</span>
+          <div class="i-mdi:external-link text-lg" />
+        </a>
       </div>
     </div>
   </div>
 
-  {#await $mcAccount$}
-    <div transition:slide class="i-svg-spinners:pulse-3 size-20 mt-[80px]" />
-  {:then info}
-    {#if isOwnAccount}
-      <Revenue
-        revenue={info?.revenue}
-        shitstarClaim={info?.shitstarClaim}
-        referralFees={info?.referralFees}
-        withdrawFees={info?.withdrawFees}
-        {update}
-        {isOwnAccount}
-      />
-    {:else}
-      <Revenue
-        revenue={account?.revenue}
-        shitstarClaim={account?.shitstarClaim}
-        referralFees={account?.referralFees}
-        withdrawFees={account?.withdrawFees}
-        {update}
-        {isOwnAccount}
-      />
-    {/if}
+  <div class="w-full">
+    {#await $mcAccount$}
+      <LoadingLambo />
+    {:then info}
+      <div class="w-full flex gap-8">
+        <!-- Left Panel with Tabs -->
+        <div class="w-2/3">
+          <Tabs {tabs} bind:activeTab class="w-full" />
 
-    <div use:melt={$root}>
-      <div use:melt={$list} class="flex gap-1">
-        {#each tabs as tab, index}
-          <Tooltip info={tab.info}>
-            <button
-              use:melt={$trigger(tab.id)}
-              class="flex items-center {tab.id !== $value
-                ? 'text-shitzu-4 bg-transparent'
-                : 'text-dark bg-shitzu-4'} font-400 px-2 rounded"
-            >
-              {tab.label}
-              {#if info != null}
-                {#if index === 0 && info.deposits.filter((deposit) => deposit.meme.end_timestamp_ms != null && deposit.meme.end_timestamp_ms < Date.now()).length > 0}
-                  <div class="ml-1 flex items-center text-sm text-red-4">
-                    <div class="i-line-md:bell-twotone-alert-loop size-4" />
-                    {info.deposits.filter(
-                      (deposit) =>
-                        deposit.meme.end_timestamp_ms != null &&
-                        deposit.meme.end_timestamp_ms < Date.now(),
-                    ).length}
-                  </div>
-                {:else if index === 1 && info.claims.filter((claim) => claim.amount.valueOf() > 0n).length > 0}
-                  <div class="ml-1 flex items-center text-sm text-red-4">
-                    <div class="i-line-md:bell-twotone-alert-loop size-4" />
-                    {info.claims.filter((claim) => claim.amount.valueOf() > 0n)
-                      .length}
-                  </div>
-                {/if}
-              {/if}
-            </button>
-          </Tooltip>
-        {/each}
-      </div>
-    </div>
-
-    {#if info && isOwnAccount}
-      {#each tabs as tab}
-        <section class="w-full" use:melt={$content(tab.id)}>
-          {#if tab.component === DepositList}
-            <DepositList deposits={info.deposits} {update} />
-          {:else if tab.component === ClaimList}
-            <ClaimList claims={info.claims} {isOwnAccount} {update} />
-          {:else if tab.component === CoinCreated}
-            <CoinCreated coins={info.created} {isOwnAccount} {update} />
+          {#if info && isOwnAccount}
+            {#if activeTab === "not-finalized"}
+              <DepositList deposits={info.deposits} {update} />
+            {:else if activeTab === "finalized"}
+              <ClaimList claims={info.claims} {isOwnAccount} {update} />
+            {:else if activeTab === "created"}
+              <CoinCreated coins={info.created} {isOwnAccount} {update} />
+            {/if}
+          {:else if account != null}
+            <CoinCreated coins={account.created} {isOwnAccount} {update} />
           {/if}
-        </section>
-      {/each}
-    {:else if account != null}
-      <CoinCreated coins={account.created} {isOwnAccount} {update} />
-    {/if}
-  {/await}
+        </div>
+
+        <!-- Right Panel with Revenue -->
+        <div class="flex-shrink-0 w-1/3">
+          {#if isOwnAccount}
+            <Revenue
+              revenue={info?.revenue}
+              shitstarClaim={info?.shitstarClaim}
+              referralFees={info?.referralFees}
+              withdrawFees={info?.withdrawFees}
+              {update}
+              {isOwnAccount}
+            />
+          {:else}
+            <Revenue
+              revenue={account?.revenue}
+              shitstarClaim={account?.shitstarClaim}
+              referralFees={account?.referralFees}
+              withdrawFees={account?.withdrawFees}
+              {update}
+              {isOwnAccount}
+            />
+          {/if}
+        </div>
+      </div>
+    {/await}
+  </div>
 </section>

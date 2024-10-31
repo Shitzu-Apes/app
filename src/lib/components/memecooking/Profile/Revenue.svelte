@@ -93,68 +93,91 @@
   }
 </script>
 
-<div class="my-10 w-[350px] p-5 bg-shitzu-5/90 rounded-lg shadow-md">
-  <h2
-    class="text-2xl font-bold text-gray-100 mb-5 flex items-center justify-between"
-  >
-    Revenue Earned
+<div class="flex flex-col w-full gap-4 bg-gray-800 p-5 rounded-lg">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <h2 class="text-2xl font-medium">Revenue Earned</h2>
     <button
-      class="i-mdi:information-outline text-lg"
+      class="p-1 hover:bg-gray-700 rounded"
       on:click={() => openBottomSheet(RevenueShare)}
       aria-label="Revenue information"
-    />
-  </h2>
+    >
+      <div class="i-mdi:information-outline text-lg" />
+    </button>
+  </div>
 
+  <!-- Currency Note -->
+  <div class="flex items-center gap-2 text-gray-400">
+    <Near className="size-5 bg-white rounded-full text-black" />
+    <span class="text-sm">All amounts in NEAR</span>
+  </div>
+
+  <!-- Revenue Breakdown -->
   <div class="flex flex-col gap-4">
-    <div class="flex items-center justify-between text-white">
-      <Near className="size-6 bg-white rounded-full text-black" />
-      <span class="text-sm font-medium">All amounts in NEAR</span>
-    </div>
+    {#if referralFees != null}
+      <div class="flex items-center gap-1">
+        <span class="w-6 flex justify-center flex-shrink-0">
+          <div class="i-mdi:account-multiple text-memecooking-400" />
+        </span>
+        <span class="text-memecooking-400 text-sm font-medium">Referral:</span>
+        <span class="font-medium ml-auto">{referralFees.format()}</span>
+      </div>
+    {/if}
 
-    <div class="space-y-2 text-white">
-      {#if referralFees != null}
-        <div class="flex justify-between items-center">
-          <span class="text-sm">Referral:</span>
-          <span class="font-semibold">{referralFees.format()}</span>
-        </div>
-      {/if}
-      {#if withdrawFees != null}
-        <div class="flex justify-between items-center">
-          <span class="text-sm">Withdrawal:</span>
-          <span class="font-semibold">{withdrawFees.format()}</span>
-        </div>
-      {/if}
-    </div>
+    {#if withdrawFees != null}
+      <div class="flex items-center gap-1">
+        <span class="w-6 flex justify-center flex-shrink-0">
+          <div class="i-mdi:cash text-memecooking-400" />
+        </span>
+        <span class="text-memecooking-400 text-sm font-medium">Withdrawal:</span
+        >
+        <span class="font-medium ml-auto">{withdrawFees.format()}</span>
+      </div>
+    {/if}
 
     {#if referralFees != null && withdrawFees != null}
-      <div class="border-t border-white/20 pt-2 mt-2">
-        <div class="flex justify-between items-center text-white">
-          <span class="text-lg font-bold">Total:</span>
-          <span class="text-xl font-bold"
-            >{referralFees.add(withdrawFees).format()}</span
-          >
-        </div>
+      <div class="flex items-center gap-1 border-t border-gray-700 pt-4">
+        <span class="w-6 flex justify-center flex-shrink-0">
+          <div class="i-mdi:calculator text-memecooking-400" />
+        </span>
+        <span class="text-memecooking-400 text-sm font-medium">Total:</span>
+        <span class="font-medium ml-auto"
+          >{referralFees.add(withdrawFees).format()}</span
+        >
       </div>
     {/if}
 
     {#if isOwnAccount}
-      <div class="border-t border-white/20 pt-2 mt-2">
-        <div class="flex justify-between items-center text-white">
-          <span class="text-sm font-medium">Claimable:</span>
-          <span class="font-semibold">
-            {new FixedNumber(amount, 24).format()}
+      <div class="flex flex-col gap-2 border-t border-gray-700 pt-4">
+        <div class="flex items-center gap-1">
+          <span class="w-6 flex justify-center flex-shrink-0">
+            <div class="i-mdi:wallet text-memecooking-400" />
           </span>
+          <span class="text-memecooking-400 text-sm font-medium"
+            >Claimable:</span
+          >
+          <span class="font-medium ml-auto"
+            >{new FixedNumber(amount, 24).format()}</span
+          >
         </div>
-        <div class="flex justify-between items-center text-white">
-          <span class="text-sm font-medium">
+
+        <div class="flex items-center gap-1">
+          <span class="w-6 flex justify-center flex-shrink-0">
+            <div class="i-mdi:star text-memecooking-400" />
+          </span>
+          <span
+            class="text-memecooking-400 text-sm font-medium flex items-center gap-1"
+          >
             Shitstars
             <button
-              class="i-mdi:information-outline text-sm"
+              class="p-1 hover:bg-gray-700 rounded"
               on:click={() => openBottomSheet(ShitstarSheet)}
-              aria-label="Revenue information"
-            />:</span
-          >
-          <span class="font-semibold">
+              aria-label="Shitstar information"
+            >
+              <div class="i-mdi:information-outline text-sm" />
+            </button>
+          </span>
+          <span class="font-medium ml-auto">
             {#if shitstarClaim != null && shitstarClaim.valueOf() > 0}
               {shitstarClaim.format()}
             {:else}
@@ -167,18 +190,18 @@
   </div>
 
   {#if isOwnAccount}
-    <div class="mt-6 flex justify-between items-center">
+    <div class="flex items-center justify-between gap-4 mt-2">
       <button
-        class="bg-white text-shitzu-5 px-4 py-2 rounded-md text-sm font-semibold transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-shitzu-5 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="flex-1 bg-memecooking-400 text-black py-2 rounded font-medium hover:bg-memecooking-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         on:click={claim}
       >
         Claim Revenue
       </button>
       <button
-        class="text-white text-sm hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
+        class="text-memecooking-400 hover:text-memecooking-300 transition-colors"
         on:click={() => shareWithReferral($accountId$)}
       >
-        [Share Referral Link]
+        <div class="i-mdi:share text-xl" />
       </button>
     </div>
   {/if}
