@@ -5,7 +5,6 @@
   import Countdown from "../Countdown.svelte";
 
   import RadialProgressBar from "./Desktop/RadialProgressBar.svelte";
-  import SocialLink from "./SocialLink.svelte";
 
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import SHITZU_STONK from "$lib/assets/static/shitzu_stonk.png";
@@ -175,6 +174,60 @@
               {/if}
             </span>
           </div>
+
+          {#if memebid.twitterLink && (memebid.twitterLink.startsWith("https://twitter.com/") || memebid.twitterLink.startsWith("https://x.com/"))}
+            <div class="flex items-center gap-1">
+              <span class="w-6 flex justify-center flex-shrink-0">
+                <div class="i-mdi:twitter text-memecooking-400" />
+              </span>
+              <span class="text-memecooking-400 text-sm font-medium">𝕏:</span>
+              <a
+                href={memebid.twitterLink}
+                class="text-blue-400 underline text-sm hover:text-shitzu-4 truncate"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {memebid.twitterLink.replace(
+                  /https:\/\/(twitter|x)\.com\//,
+                  "",
+                )}
+              </a>
+            </div>
+          {/if}
+
+          {#if memebid.telegramLink && memebid.telegramLink.startsWith("https://t.me/")}
+            <div class="flex items-center gap-1">
+              <span class="w-6 flex justify-center flex-shrink-0">
+                <div class="i-mdi:telegram text-memecooking-400" />
+              </span>
+              <span class="text-memecooking-400 text-sm font-medium">TG:</span>
+              <a
+                href={memebid.telegramLink}
+                class="text-blue-400 underline text-sm hover:text-shitzu-4 truncate"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {memebid.telegramLink.replace("https://t.me/", "")}
+              </a>
+            </div>
+          {/if}
+
+          {#if memebid.website && memebid.website.startsWith("https://")}
+            <div class="flex items-center gap-1">
+              <span class="w-6 flex justify-center flex-shrink-0">
+                <div class="i-mdi:web text-memecooking-400" />
+              </span>
+              <span class="text-memecooking-400 text-sm font-medium">Web:</span>
+              <a
+                href={memebid.website}
+                class="text-blue-400 underline text-sm hover:text-shitzu-4 truncate"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {memebid.website.replace("https://", "")}
+              </a>
+            </div>
+          {/if}
         </div>
       </div>
     </div>
@@ -187,14 +240,5 @@
     {#if $accountId$ === memebid.owner}
       <TokenAllocationBanner meme={memebid} />
     {/if}
-  </div>
-
-  <!-- Social Links -->
-  <div class="flex justify-center">
-    <SocialLink
-      twitterLink={memebid.twitterLink || ""}
-      telegramLink={memebid.telegramLink || ""}
-      website={memebid.website || ""}
-    />
   </div>
 </div>
