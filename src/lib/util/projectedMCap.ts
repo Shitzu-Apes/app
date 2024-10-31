@@ -51,7 +51,7 @@ async function getTokenPrice(
 export const nearPrice = writable<bigint>(0n);
 
 let cachePrice = { price: 0n, expiry: 0 };
-let fetchPromise: Promise<Response> | null = null;
+let fetchPromise: Promise<Writable<bigint>> | null = null;
 
 export async function getNearPrice(): Promise<Writable<bigint>> {
   if (cachePrice.expiry > Date.now()) {
@@ -63,24 +63,23 @@ export async function getNearPrice(): Promise<Writable<bigint>> {
     if (!fetchPromise) {
       fetchPromise = fetch(
         `https://api.dexscreener.com/latest/dex/pairs/near/refv1-4512`,
-      );
+      ).then(async (response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        cachePrice = {
+          price: BigInt(1e24 / parseFloat(data.pair.priceNative)),
+          expiry: Date.now() + 1000 * 60 * 5,
+        };
+        nearPrice.set(cachePrice.price);
+        fetchPromise = null;
+        return nearPrice;
+      });
     }
 
-    const response = await fetchPromise;
-    fetchPromise = null;
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    cachePrice = {
-      price: BigInt(1e24 / parseFloat(data.pair.priceNative)),
-      expiry: Date.now() + 1000 * 60 * 5,
-    };
-    nearPrice.set(cachePrice.price);
-    return nearPrice;
+    return await fetchPromise;
   } catch (error) {
-    console.error("Failed to fetch NEAR price:", error);
     if (cachePrice.price !== 0n) {
       nearPrice.set(cachePrice.price);
       return nearPrice;
