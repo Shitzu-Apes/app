@@ -4,7 +4,6 @@
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import SHITZU_STONK from "$lib/assets/static/shitzu_stonk.png";
   import Tooltip from "$lib/components/Tooltip.svelte";
-  import TeamAllocation from "$lib/components/memecooking/Board/TokenAllocation.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { MemeCooking } from "$lib/near/memecooking";
   import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
@@ -147,17 +146,8 @@
   });
 </script>
 
-<div class="w-full space-y-4">
-  {#if meme.team_allocation_num && typeof meme.vesting_duration_ms === "number" && typeof meme.cliff_duration_ms === "number"}
-    <div class="bg-gray-700/50 rounded-lg p-4 w-full">
-      <h2 class="text-lg font-medium mb-3 flex items-center gap-2">
-        Token Allocation
-      </h2>
-      <TeamAllocation {meme} />
-    </div>
-  {/if}
-
-  <div class="bg-gray-700/50 rounded-lg p-4">
+<div class="w-full">
+  <div class="">
     <h2 class="text-lg font-medium mb-3 flex items-center gap-2 text-shitzu-4">
       <img src={SHITZU_STONK} alt="Shitzu Stonk" class="size-10" />
       Holders

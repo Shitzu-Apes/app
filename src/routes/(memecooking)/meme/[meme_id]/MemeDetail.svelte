@@ -13,6 +13,7 @@
   import TradeTabs from "$lib/components/memecooking/Board/Desktop/TradeTabs.svelte";
   import McActionBox from "$lib/components/memecooking/Board/MCActionBox.svelte";
   import SocialLink from "$lib/components/memecooking/Board/SocialLink.svelte";
+  import TeamAllocation from "$lib/components/memecooking/Board/TokenAllocation.svelte";
   import TokenChart from "$lib/components/memecooking/Board/TokenChart.svelte";
   import TokenHolder from "$lib/components/memecooking/Board/TokenHolder.svelte";
   import RefWhitelistSheet from "$lib/components/memecooking/BottomSheet/RefWhitelistSheet.svelte";
@@ -190,6 +191,11 @@
       </div>
 
       <!-- Token Holders -->
+      {#if $meme$.team_allocation_num && typeof $meme$.vesting_duration_ms === "number" && typeof $meme$.cliff_duration_ms === "number"}
+        <div class="bg-gray-800 rounded-lg p-4">
+          <TeamAllocation meme={$meme$} />
+        </div>
+      {/if}
       <div class="bg-gray-800 rounded-lg p-4">
         <TokenHolder meme={$meme$} />
       </div>
