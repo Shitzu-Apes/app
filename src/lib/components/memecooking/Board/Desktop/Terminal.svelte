@@ -5,8 +5,8 @@
   import LoadingLambo from "../LoadingLambo.svelte";
 
   import MemePreview from "./MemePreview.svelte";
+  import QuickActionConfig from "./QuickActionConfig.svelte";
 
-  import Near from "$lib/assets/Near.svelte";
   import SHITZU_DETECTIVE from "$lib/assets/static/shitzu_detective.png";
   import SelectBox from "$lib/components/SelectBox.svelte";
   import Toggle from "$lib/components/Toggle.svelte";
@@ -134,20 +134,7 @@
     {#if activeTab === "auction"}
       <Toggle bind:isOn={liveOnly}>live auction:{" "}</Toggle>
     {/if}
-    <div class="ml-0 sm:ml-auto flex items-center gap-2">
-      <span class="text-sm text-white">Quick Buy/Deposit:</span>
-      <div class="relative w-24">
-        <input
-          type="number"
-          bind:value={quickActionAmount}
-          class="w-full pl-7 pr-2 py-1 bg-transparent border border-gray-100 text-white rounded focus:border-shitzu-3 focus:outline-none"
-          placeholder="5.00"
-        />
-        <Near
-          className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-white text-gray-700 rounded-full"
-        />
-      </div>
-    </div>
+    <QuickActionConfig bind:quickActionAmount />
   </div>
 
   {#await Promise.all([requiredStake, displayedMemebids])}
@@ -174,7 +161,7 @@
               ? 'animate-shake-and-border border-3 border-transparent'
               : ''}"
             style="position: absolute; top: 0; left: {(row.lane / numLanes) *
-              100}%; width: calc({100 / numLanes}% - {numLanes === 1
+              100}%; width: calc({100 / numLanes}% - {row.lane === numLanes - 1
               ? 0
               : 10}px); transform: translateY({row.start}px);"
             data-index={row.index}
