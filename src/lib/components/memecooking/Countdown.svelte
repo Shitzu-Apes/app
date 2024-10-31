@@ -41,7 +41,7 @@
 </script>
 
 {#if format === "compact"}
-  <div class="flex gap-2 text-6xl justify-center items-start {className}">
+  <div class="flex gap-2 justify-center items-start {className}">
     {#if started}
       {padZero(hours)}:{padZero(minutes)}:{padZero(seconds)}
     {:else}

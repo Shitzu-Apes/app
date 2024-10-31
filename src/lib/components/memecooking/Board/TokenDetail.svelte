@@ -1,135 +1,187 @@
 <script lang="ts">
   import ClaimBanner from "../../../../routes/(memecooking)/meme/[meme_id]/ClaimBanner.svelte";
+  import TokenAllocationBanner from "../../../../routes/(memecooking)/meme/[meme_id]/TokenAllocationBanner.svelte";
   import WithdrawBanner from "../../../../routes/(memecooking)/meme/[meme_id]/WithdrawBanner.svelte";
-  import Chef from "../Chef.svelte";
   import Countdown from "../Countdown.svelte";
-  import ProgressBarMobile from "../ProgressBarMobile.svelte";
 
+  import ProgressBarSmall from "./Desktop/ProgressBarSmall.svelte";
   import SocialLink from "./SocialLink.svelte";
 
-  import ExtraDetail from "$lib/components/ExtraDetail.svelte";
-  import Squircle from "$lib/components/Squircle.svelte";
+  import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
+  import SHITZU_STONK from "$lib/assets/static/shitzu_stonk.png";
+  import { addToast } from "$lib/components/Toast.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { timesAgo } from "$lib/util/timesAgo";
+  import { wallet } from "$lib/near";
+  import { getTokenId } from "$lib/util/getTokenId";
 
   export let memebid: Meme;
+  const { accountId$ } = wallet;
 
   $: reachedMcap =
     BigInt(memebid.total_deposit) >= BigInt(memebid.soft_cap ?? "0");
   const { projectedMcap } = memebid;
 </script>
 
-<div class="flex flex-col w-full h-full items-center">
+<div class="flex flex-col w-full h-full">
+  <!-- Status Bar -->
   <div class="w-full flex gap-4">
     {#if memebid.pool_id}
-      <a
-        href="{import.meta.env.VITE_REF_APP_URL}/#near|{memebid.token_id}"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="w-full text-xs self-end px-1 tracking-tight bg-shitzu-3 py-1 text-black flex items-center justify-center"
+      <div
+        class="w-full bg-[rgba(0,214,175,1)] text-black p-2 text-center font-medium"
       >
-        live on ref <div class="i-mdi:open-in-new" />
-      </a>
+        Trade on Ref via Meme.Cooking
+      </div>
     {:else if memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now()}
       {#if reachedMcap}
-        <div
-          class="w-full text-xs p-1 tracking-tight bg-amber-4 text-white text-center"
-        >
+        <div class="w-full text-center p-2 bg-amber-4 text-white">
           pending launch
         </div>
       {:else}
-        <div
-          class="w-full text-xs p-1 tracking-tight bg-rose-4 text-white text-center"
-        >
-          didn&apos;t make it
+        <div class="w-full text-center p-2 bg-rose-4 text-white">
+          didn't make it
         </div>
       {/if}
     {:else}
-      <ProgressBarMobile meme={memebid} />
+      <div class="flex w-full justify-between items-center">
+        {#if memebid.end_timestamp_ms && memebid.pool_id === null}
+          <div class="w-1/2 flex flex-col justify-start items-start">
+            <div class="text-gray-400">Remaining Time</div>
+            <Countdown
+              to={memebid.end_timestamp_ms}
+              class="text-shitzu-4 justify-evenly text-4xl"
+              format="compact"
+            />
+          </div>
+        {/if}
+        <div class="flex-shrink-1 w-1/2 flex justify-end h-full">
+          <div class="w-full max-w-25 h-full flex items-center">
+            <ProgressBarSmall meme={memebid} />
+          </div>
+        </div>
+      </div>
     {/if}
   </div>
-  <h2 class="flex flex-col text-2xl mt-4 justify-start items-start w-full px-2">
-    <div class="flex items-start w-full">
-      <div class="w-full flex items-center gap-2 mb-4">
-        <Squircle
-          src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
-          class="size-12 rounded-full"
-          stroke={false}
-        />
-        <div class="flex-1 flex flex-col">
-          <h4 class="text-base font-medium flex items-center gap-1">
-            {memebid.name}
-            <span class="font-semibold">
-              ({memebid.symbol})
-            </span>
-            <div
-              class="ml-auto flex items-center text-shitzu-2 text-sm rounded"
+
+  <!-- Token Basic Info -->
+  <div class="flex items-start gap-4 py-4">
+    <img
+      src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
+      class="size-16 bg-white object-contain"
+      alt={memebid.name}
+    />
+    <div class="flex-1">
+      <h1 class="text-2xl font-medium">{memebid.name}</h1>
+      <div class="flex items-center gap-2 text-gray-400 flex-wrap">
+        <span class="font-medium text-shitzu-400">${memebid.symbol}</span>
+        {#if memebid.pool_id}
+          <div class="flex items-center gap-1">
+            <span class="text-xs">CA:</span>
+            <code class="text-xs bg-gray-800 px-2 py-1 rounded">
+              {getTokenId(memebid.symbol, memebid.meme_id)}
+            </code>
+            <button
+              class="p-1 hover:bg-gray-700 rounded"
+              on:click={() => {
+                navigator.clipboard.writeText(
+                  getTokenId(memebid.symbol, memebid.meme_id),
+                );
+                addToast({
+                  data: {
+                    type: "simple",
+                    data: {
+                      title: "Copied",
+                      description: "Contract address copied!",
+                      color: "green",
+                    },
+                  },
+                });
+              }}
             >
-              MCap:
+              <div class="i-mdi:content-copy text-lg" />
+            </button>
+          </div>
+        {/if}
+      </div>
+    </div>
+  </div>
+  <!-- Description & Image -->
+  <div class="flex gap-2">
+    <div class="w-full">
+      <div class="flex h-full">
+        <div class="w-full flex flex-col gap-4">
+          <!-- Description -->
+          <div class="flex items-center gap-1 text-sm">
+            <span class="w-6 flex justify-center flex-shrink-0">
+              <div class="i-mdi:text size-4" />
+            </span>
+            <span class="flex-1 text-gray-200">
+              {memebid.description}
+            </span>
+          </div>
+
+          <!-- Market Cap -->
+          <div class="flex items-center gap-1">
+            <span class="w-6 flex justify-center flex-shrink-0">
+              <div class="i-mdi:chart-line size-4" />
+            </span>
+            <span class="text-gray-400">MC:</span>
+            <span class="font-medium">
               {#if $projectedMcap}
                 ${$projectedMcap.format({
                   maximumFractionDigits: 1,
                   notation: "compact",
-                  compactDisplay: "short",
                 })}
-              {:else}-
+              {:else}
+                -
               {/if}
-            </div>
-          </h4>
-          <div class="w-full flex items-center text-xs gap-1 text-shitzu-6">
-            <div class="whitespace-nowrap">created by</div>
-            <a href={`/profile/${memebid.owner}`}>
-              <Chef
-                account={memebid.owner}
-                class="text-sm overflow-hidden text-ellipsis"
-              />
-            </a>
-            <div class="i-mdi:circle-medium size-4" />
-            <div class="text-xs">
-              {timesAgo(new Date(memebid.created_timestamp_ms))}
-            </div>
+            </span>
+          </div>
+
+          <!-- Created By -->
+          <div class="flex items-center gap-1">
+            <span class="w-6 flex justify-center flex-shrink-0">
+              <img src={SHITZU_POCKET} alt="Shitzu Pocket" class="size-6" />
+            </span>
+            <span class="text-gray-400 flex-shrink-0">Created By:</span>
+            <span class="text-white text-sm truncate flex-shrink-1">
+              {memebid.owner}
+            </span>
+          </div>
+
+          <!-- Holders -->
+          <div class="flex items-center gap-1">
+            <span class="w-6 flex justify-center flex-shrink-0">
+              <img src={SHITZU_STONK} alt="Shitzu Stonk" class="size-6" />
+            </span>
+            <span class="text-gray-400">Holders:</span>
+            <span class="font-medium">
+              {#if memebid.staker_count}
+                {memebid.staker_count}
+              {:else}
+                -
+              {/if}
+            </span>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="flex flex-col w-full">
-      {#if memebid.end_timestamp_ms && memebid.pool_id === null}
-        <div class="my-2">
-          <Countdown
-            to={memebid.end_timestamp_ms}
-            class="text-shitzu-4 justify-evenly"
-          />
-        </div>
-      {/if}
-      <WithdrawBanner meme={memebid} />
-      <ClaimBanner meme={memebid} />
-    </div>
-  </h2>
+  <!-- Countdown & Banners -->
+  <div class="flex flex-col w-full px-4">
+    <WithdrawBanner meme={memebid} />
+    <ClaimBanner meme={memebid} />
+    {#if $accountId$ === memebid.owner}
+      <TokenAllocationBanner meme={memebid} />
+    {/if}
+  </div>
 
+  <!-- Social Links -->
   <div class="flex justify-center">
     <SocialLink
       twitterLink={memebid.twitterLink || ""}
       telegramLink={memebid.telegramLink || ""}
       website={memebid.website || ""}
     />
-  </div>
-
-  <div class="w-full flex flex-col gap-5 pb-4">
-    <div class="w-full">
-      <div class="px-4 py-2">
-        <p class="text-sm text-gray-200">
-          {memebid.description}
-        </p>
-      </div>
-    </div>
-    <div class="w-full h-auto relative">
-      <img
-        src="{import.meta.env.VITE_IPFS_GATEWAY}/{memebid.image}"
-        alt="{memebid.name} icon"
-        class="w-full h-full max-h-[25rem] object-contain"
-      />
-    </div>
-    <ExtraDetail meme={memebid} class="text-white relative z-10" />
   </div>
 </div>

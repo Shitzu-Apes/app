@@ -19,11 +19,11 @@
 <svelte:element
   this={asLink ? "a" : "div"}
   href={asLink ? `/profile/${account.replace(" (dev)", "")}` : undefined}
-  class="flex flex-1 overflow-hidden text-ellipsis {asLink
+  class="w-full flex flex-1 overflow-hidden text-ellipsis {asLink
     ? 'hover:font-bold'
     : ''}"
 >
-  <div class="flex items-center gap-1 flex-1">
+  <div class="w-full flex items-center gap-1 flex-1">
     <slot>
       {#if !hideAvatar}
         <img src={SHITZU_POCKET} alt="Shitzu Pocket" class="size-4" />

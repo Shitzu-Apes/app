@@ -12,6 +12,7 @@
 
   import { goto } from "$app/navigation";
   import { client } from "$lib/api/client";
+  import ExtraDetail from "$lib/components/ExtraDetail.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
@@ -40,7 +41,7 @@
 </script>
 
 <div class="flex-[1_1_0] flex flex-col items-stretch pb-30">
-  <div class="flex mb-5 justify-between w-full px-2">
+  <div class="flex mb-3 justify-between w-full px-2">
     <a href="/board" class="text-white flex items-center hover:text-shitzu-3">
       <div class="i-mdi:chevron-left size-8" />
       Back
@@ -48,11 +49,18 @@
     <ActionButtons meme={$memebid$} />
   </div>
 
+  <!-- Token Info -->
+  <div class="px-2 mb-4">
+    <div class="bg-gray-800 rounded-lg p-4">
+      <TokenDetail memebid={$memebid$} />
+    </div>
+  </div>
+
   <!-- Main Content -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 px-2">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 px-2">
     <!-- Left Column - Chart & Trading -->
     <div class="lg:col-span-2">
-      <div class="bg-gray-800 rounded-lg p-2 mb-6 aspect-ratio-3/4">
+      <div class="bg-gray-800 rounded-lg p-2 mb-4 aspect-ratio-3/4">
         <TokenChart memebid={$memebid$} />
       </div>
 
@@ -62,10 +70,10 @@
     </div>
 
     <!-- Right Column - Info -->
-    <div class="space-y-6">
-      <!-- Token Details -->
+    <div class="space-y-4">
+      <!-- Extra Details -->
       <div class="bg-gray-800 rounded-lg p-4">
-        <TokenDetail memebid={$memebid$} />
+        <ExtraDetail meme={$memebid$} class="text-white relative z-10" />
       </div>
 
       <!-- Token Holders -->

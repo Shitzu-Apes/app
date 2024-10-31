@@ -182,6 +182,12 @@
       {#if holders === null || holders.length === 0}
         <div class="text-center text-gray-400 py-4">No holders yet</div>
       {:else}
+        <div
+          class="flex justify-between items-center mb-3 text-sm text-gray-400 px-2"
+        >
+          <span>Total Holders</span>
+          <span>{holders.length}</span>
+        </div>
         <div class="space-y-3">
           {#each holders as [address, percentage] (address)}
             <a
