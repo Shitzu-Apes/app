@@ -49,10 +49,6 @@
 
     ws.onmessage = async (event) => {
       try {
-        console.log(
-          "[Notification] event.data",
-          JSON.stringify(JSON.parse(event.data), null, 2),
-        );
         const data = JSON.parse(event.data);
         const balanceChanges = data.balance_changes;
 
@@ -69,12 +65,9 @@
           if (relevantToken.includes("meme-cooking")) {
             // Handle meme cooking tokens
             const memeId = parseInt(relevantToken.split("-")[1]);
-            console.log("[Notification] memeId", memeId);
             const memeInfo = (await $memebids$).find(
               (meme) => meme.meme_id === memeId,
             );
-            console.log("[Notification] memeInfo", memeInfo);
-
             if (!memeInfo) return;
             notifications = [
               {

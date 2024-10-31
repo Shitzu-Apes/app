@@ -79,7 +79,7 @@
           {#if !isEnded}
             <div class="flex items-center p-1 gap-2">
               {#if !isLaunched}
-                <div class="flex-shrink-0 w-10 h-fit flex items-center">
+                <div class="flex-shrink-0 h-fit flex items-center">
                   <ProgressBarSmall meme={memebid} />
                 </div>
               {/if}

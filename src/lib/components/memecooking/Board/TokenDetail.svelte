@@ -4,7 +4,7 @@
   import WithdrawBanner from "../../../../routes/(memecooking)/meme/[meme_id]/WithdrawBanner.svelte";
   import Countdown from "../Countdown.svelte";
 
-  import ProgressBarSmall from "./Desktop/ProgressBarSmall.svelte";
+  import RadialProgressBar from "./Desktop/RadialProgressBar.svelte";
   import SocialLink from "./SocialLink.svelte";
 
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
@@ -14,6 +14,7 @@
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
   import { getTokenId } from "$lib/util/getTokenId";
+  import { createProgressBarData } from "$lib/util/progressBarLogic";
 
   export let memebid: Meme;
   const { accountId$ } = wallet;
@@ -21,6 +22,9 @@
   $: reachedMcap =
     BigInt(memebid.total_deposit) >= BigInt(memebid.soft_cap ?? "0");
   const { projectedMcap } = memebid;
+
+  let props = createProgressBarData(memebid);
+  $: props = createProgressBarData(memebid);
 </script>
 
 <div class="flex flex-col w-full h-full">
@@ -55,8 +59,14 @@
           </div>
         {/if}
         <div class="flex-shrink-1 w-1/2 flex justify-end h-full">
+          <div class="flex flex-col justify-center items-end gap-1 pr-4">
+            <div class="text-gray-400">Progress</div>
+            <div class="text-2xl font-medium text-memecooking-400">
+              {Math.round(props.progress * 100).toFixed(2)}%
+            </div>
+          </div>
           <div class="w-full max-w-25 h-full flex items-center">
-            <ProgressBarSmall meme={memebid} />
+            <RadialProgressBar meme={memebid} {props} />
           </div>
         </div>
       </div>
