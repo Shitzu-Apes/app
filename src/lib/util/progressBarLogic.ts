@@ -7,16 +7,16 @@ export function createProgressBarData(meme: Meme) {
   const totalDeposit = new FixedNumber(meme.total_deposit, 24);
 
   const progress = hardCap
-    ? totalDeposit.div(hardCap).toNumber()
-    : totalDeposit.div(softCap).toNumber();
+    ? meme.total_deposit_num / meme.hard_cap_num!
+    : meme.total_deposit_num / meme.soft_cap_num!;
 
-  const softcapProgress = totalDeposit.div(softCap).toNumber();
+  const softcapProgress = meme.total_deposit_num / meme.soft_cap_num!;
 
   const hardCapProgress =
     hardCap && hardCap.valueOf() !== softCap.valueOf()
       ? Number(
-          ((totalDeposit.toBigInt() - softCap.toBigInt()) * 10000n) /
-            (hardCap.toBigInt() - softCap.toBigInt()),
+          ((meme.total_deposit_num - meme.soft_cap_num!) * 10000) /
+            (meme.hard_cap_num! - meme.soft_cap_num!),
         ) / 10000
       : 0;
 

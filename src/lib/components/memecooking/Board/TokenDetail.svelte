@@ -59,10 +59,10 @@
           </div>
         {/if}
         <div class="flex-shrink-1 w-1/2 flex justify-end h-full">
-          <div class="flex flex-col justify-center items-end gap-1 pr-4">
+          <div class="flex flex-col justify-center items-start gap-1 pr-4">
             <div class="text-gray-400">Progress</div>
             <div class="text-2xl font-medium text-memecooking-400">
-              {Math.round(props.progress * 100).toFixed(2)}%
+              {(props.progress * 100).toFixed(2)}%
             </div>
           </div>
           <div class="w-full max-w-25 h-full flex items-center">
