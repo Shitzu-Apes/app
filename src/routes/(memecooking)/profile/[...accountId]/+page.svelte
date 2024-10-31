@@ -117,9 +117,9 @@
     {#await $mcAccount$}
       <LoadingLambo />
     {:then info}
-      <div class="w-full flex gap-8">
+      <div class="w-full flex flex-col md:flex-row gap-8">
         <!-- Left Panel with Tabs -->
-        <div class="w-2/3">
+        <div class="w-full md:w-2/3">
           <Tabs {tabs} bind:activeTab class="w-full" />
 
           {#if info && isOwnAccount}
@@ -136,7 +136,7 @@
         </div>
 
         <!-- Right Panel with Revenue -->
-        <div class="flex-shrink-0 w-1/3">
+        <div class="w-full md:w-1/3 order-first md:order-last">
           {#if isOwnAccount}
             <Revenue
               revenue={info?.revenue}
