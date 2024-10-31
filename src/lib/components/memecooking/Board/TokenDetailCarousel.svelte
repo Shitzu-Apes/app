@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import type { Writable } from "svelte/store";
 
   import StakeSheet from "../BottomSheet/StakeSheet.svelte";
@@ -17,9 +18,19 @@
   import TeamAllocation from "$lib/components/memecooking/Board/TokenAllocation.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
+  import { MCTradeSubscribe } from "$lib/store/memebids";
   import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
 
   export let memebid$: Writable<Meme>;
+
+  const MCSymbol = Symbol();
+  onMount(() => {
+    MCTradeSubscribe(MCSymbol, (data) => {
+      if (data.meme_id === $memebid$.meme_id) {
+        $memebid$ = data;
+      }
+    });
+  });
 
   const trades = client
     .GET("/trades", {
