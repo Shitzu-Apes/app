@@ -114,7 +114,7 @@
         <div class="flex items-center justify-between text-sm mt-auto">
           <div class="flex items-center gap-4">
             <div class="flex items-center gap-1">
-              <span class="text-gray-400">MCap:</span>
+              <span class="text-memecooking-400">MC:</span>
               <span class="font-medium">
                 {#if $projectedMcap}
                   ${$projectedMcap.format({
@@ -129,13 +129,13 @@
           <div class="flex items-center gap-4">
             {#if typeof memebid.staker_count === "number"}
               <div class="flex items-center gap-1">
-                <div class="i-mdi:account-multiple text-gray-400" />
+                <div class="i-mdi:account-multiple text-memecooking-400" />
                 <span class="font-medium">{memebid.staker_count}</span>
               </div>
             {/if}
             {#if typeof memebid.replies_count === "number"}
               <div class="flex items-center gap-1">
-                <div class="i-mdi:chat text-gray-400" />
+                <div class="i-mdi:comment text-memecooking-400" />
                 <span class="font-medium">{memebid.replies_count}</span>
               </div>
             {/if}

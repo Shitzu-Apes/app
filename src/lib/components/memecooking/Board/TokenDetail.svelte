@@ -112,7 +112,7 @@
           <!-- Description -->
           <div class="flex items-center gap-1 text-sm">
             <span class="w-6 flex justify-center flex-shrink-0">
-              <div class="i-mdi:text size-4" />
+              <div class="i-mdi:text text-memecooking-400" />
             </span>
             <span class="flex-1 text-gray-200">
               {memebid.description}
@@ -122,9 +122,9 @@
           <!-- Market Cap -->
           <div class="flex items-center gap-1">
             <span class="w-6 flex justify-center flex-shrink-0">
-              <div class="i-mdi:chart-line size-4" />
+              <div class="i-mdi:chart-line text-memecooking-400" />
             </span>
-            <span class="text-gray-400">MC:</span>
+            <span class="text-memecooking-400 text-sm font-medium">MC:</span>
             <span class="font-medium">
               {#if $projectedMcap}
                 ${$projectedMcap.format({
@@ -142,7 +142,11 @@
             <span class="w-6 flex justify-center flex-shrink-0">
               <img src={SHITZU_POCKET} alt="Shitzu Pocket" class="size-6" />
             </span>
-            <span class="text-gray-400 flex-shrink-0">Created By:</span>
+            <span
+              class="text-memecooking-400 flex-shrink-0 text-sm font-medium"
+            >
+              By:
+            </span>
             <span class="text-white text-sm truncate flex-shrink-1">
               {memebid.owner}
             </span>
@@ -153,7 +157,9 @@
             <span class="w-6 flex justify-center flex-shrink-0">
               <img src={SHITZU_STONK} alt="Shitzu Stonk" class="size-6" />
             </span>
-            <span class="text-gray-400">Holders:</span>
+            <span class="text-memecooking-400 text-sm font-medium"
+              >Holders:</span
+            >
             <span class="font-medium">
               {#if memebid.staker_count}
                 {memebid.staker_count}
