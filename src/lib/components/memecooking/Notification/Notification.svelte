@@ -14,7 +14,9 @@
     id: string;
     meme_id: string;
     amount: string;
+    decimals: number;
     is_deposit: boolean;
+    is_mc: boolean;
     party: string;
     ticker: string;
     icon: string;
@@ -29,7 +31,9 @@
         id: newMemeInfo.receipt_id,
         meme_id: newMemeInfo.meme_id.toString(),
         amount,
+        decimals: 24,
         is_deposit: newMemeInfo.is_deposit,
+        is_mc: true,
         party: newMemeInfo.account_id,
         ticker: newMemeInfo.symbol,
         icon: `${import.meta.env.VITE_IPFS_GATEWAY}/${newMemeInfo.image}`,
@@ -74,7 +78,9 @@
                 id: data.receipt_id,
                 meme_id: memeInfo.meme_id.toString(),
                 amount: amount.replace("-", ""),
+                decimals: memeInfo.decimals,
                 is_deposit: isDeposit,
+                is_mc: false,
                 party: data.trader,
                 ticker: memeInfo.symbol,
                 icon: `${import.meta.env.VITE_IPFS_GATEWAY}/${memeInfo.image}`,
@@ -87,9 +93,11 @@
             notifications = [
               {
                 id: data.receipt_id,
-                meme_id: "token.0xshitzu.near", // Use -1 for non-meme tokens
+                meme_id: relevantToken,
                 amount: amount.replace("-", ""),
+                decimals: tokenInfo.decimal,
                 is_deposit: isDeposit,
+                is_mc: false,
                 party: data.trader,
                 ticker: tokenInfo.symbol,
                 icon: tokenInfo.icon || SHITZU_POCKET, // Fallback to SHITZU_POCKET if no icon
@@ -142,15 +150,41 @@
         <div class="w-2/3 p-2 flex flex-col justify-between">
           <!-- Amount -->
           <div class="flex items-center gap-1 text-xs">
-            <span class="w-4 flex justify-center flex-shrink-0">
-              <Near className="size-3 bg-white text-black rounded-full" />
-            </span>
-            <span class="flex-shrink-1 font-medium">
-              {new FixedNumber(notification.amount, 24).format({
-                maximumSignificantDigits: 3,
-                notation: "compact",
-              })}
-            </span>
+            {#if notification.is_mc}
+              <span class="w-4 flex justify-center flex-shrink-0">
+                <Near className="size-3 bg-white text-black rounded-full" />
+              </span>
+              <span class="flex-shrink-1 font-medium">
+                {new FixedNumber(
+                  notification.amount,
+                  notification.decimals,
+                ).format({
+                  maximumSignificantDigits: 3,
+                  maximumFractionDigits: 1,
+                  notation: "compact",
+                  compactDisplay: "short",
+                })}
+              </span>
+            {:else}
+              <span class="w-4 flex justify-center flex-shrink-0">
+                <img
+                  class="size-3 bg-white text-black rounded-full"
+                  src={notification.icon}
+                  alt={notification.ticker}
+                />
+              </span>
+              <span class="flex-shrink-1 font-medium">
+                {new FixedNumber(
+                  notification.amount,
+                  notification.decimals,
+                ).format({
+                  maximumSignificantDigits: 3,
+                  maximumFractionDigits: 1,
+                  notation: "compact",
+                  compactDisplay: "short",
+                })}
+              </span>
+            {/if}
           </div>
 
           <!-- Ticker -->
