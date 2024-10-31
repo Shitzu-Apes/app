@@ -13,8 +13,8 @@
   #dexscreener-embed {
     position: relative;
     width: 100%;
-    height: 100%;
-    min-height: 300px;
+    min-height: 25rem;
+    max-height: 25rem;
   }
   #dexscreener-embed iframe {
     position: absolute;

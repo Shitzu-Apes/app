@@ -16,7 +16,7 @@
   let isInteracted = false || !touchToStart;
 </script>
 
-<div class="relative w-full h-full">
+<div class="relative w-full h-full max-h-[25rem] sm:max-h-unset overflow-auto">
   <button
     class="flex w-full overflow-x-auto h-full relative"
     on:click|stopPropagation
