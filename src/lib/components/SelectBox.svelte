@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createSelect, melt } from "@melt-ui/svelte";
+  import { onMount } from "svelte";
   import { fade } from "svelte/transition";
 
   type ListboxOption = {
@@ -8,63 +8,80 @@
   };
 
   export let options: ListboxOption[];
-
-  let selectedOption: ListboxOption;
-
+  export let selected: ListboxOption;
   export let sameWidth = false;
 
-  export { selectedOption as selected };
+  let isOpen = false;
+  let triggerEl: HTMLButtonElement;
+  let menuEl: HTMLDivElement;
 
-  const {
-    elements: { trigger, menu, option },
-    states: { selectedLabel, open, selected },
-    helpers: { isSelected },
-  } = createSelect<string>({
-    forceVisible: true,
-    positioning: {
-      placement: "bottom",
-      fitViewport: true,
-      sameWidth,
-    },
-    defaultSelected: selectedOption,
+  function handleTriggerClick() {
+    isOpen = !isOpen;
+  }
+
+  function handleOptionClick(option: ListboxOption) {
+    selected = option;
+    isOpen = false;
+  }
+
+  function handleClickOutside(event: MouseEvent) {
+    if (
+      !triggerEl?.contains(event.target as Node) &&
+      !menuEl?.contains(event.target as Node)
+    ) {
+      isOpen = false;
+    }
+  }
+
+  onMount(() => {
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
   });
-
-  $: selectedOption = $selected as ListboxOption;
 </script>
 
-<div class="flex flex-col gap-1 text-sm">
+<div class="relative flex flex-col gap-1 text-sm">
   <button
+    bind:this={triggerEl}
     class="flex h-10 items-center justify-between rounded-lg bg-shitzu-4 px-2 py-1
-  text-black shadow transition-opacity hover:opacity-90"
-    use:melt={$trigger}
+    text-black shadow transition-opacity hover:opacity-90"
+    on:click={handleTriggerClick}
     aria-label="Select Box"
+    aria-expanded={isOpen}
+    aria-haspopup="listbox"
   >
-    {$selectedLabel}
+    {selected?.label}
     <div class="i-mdi:chevron-down size-5" />
   </button>
-  {#if $open}
+
+  {#if isOpen}
     <div
-      class="z-10 flex max-h-[300px] flex-col overflow-y-auto rounded-lg bg-shitzu-4 p-1 shadow focus:!ring-0 text-sm"
-      use:melt={$menu}
+      bind:this={menuEl}
+      class="absolute top-full left-0 z-10 flex max-h-[300px] translate-y-1 flex-col overflow-y-auto rounded-lg bg-shitzu-4 p-1 shadow focus:!ring-0 text-sm"
+      style={sameWidth ? "width: 100%" : ""}
+      role="listbox"
       transition:fade={{ duration: 150 }}
     >
       {#each options as item}
-        <div
+        <button
           class="relative cursor-pointer rounded-lg py-1 px-1 text-black
               hover:bg-white hover:text-black focus:z-10
               focus:text-magnum-700
               data-[highlighted]:bg-magnum-200 data-[highlighted]:text-magnum-900
-              data-[disabled]:opacity-50 flex items-center gap-2"
-          use:melt={$option(item)}
+              data-[disabled]:opacity-50 flex items-center gap-2 whitespace-nowrap"
+          role="option"
+          tabindex="0"
+          aria-selected={selected?.value === item.value}
+          on:click={() => handleOptionClick(item)}
         >
           <div
-            class="i-mdi:check size-4 {$isSelected(item.value)
+            class="i-mdi:check size-4 {selected?.value === item.value
               ? 'opacity-100'
               : 'opacity-0'}"
           />
-
           {item.label}
-        </div>
+        </button>
       {/each}
     </div>
   {/if}

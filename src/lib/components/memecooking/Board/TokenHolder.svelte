@@ -184,7 +184,7 @@
           {#each holders as [address, percentage] (address)}
             <a
               href={`/profile/${address}`}
-              class="flex items-center justify-between py-1 px-2 rounded hover:bg-gray-600/30 transition-colors"
+              class="flex items-center justify-between py-1 px-2 rounded hover:bg-gray-600/30"
             >
               <div class="flex items-center gap-2">
                 {#if address === "pool" || address === "v2.ref-finance.near"}
