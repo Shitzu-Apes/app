@@ -29,7 +29,7 @@
   >
     <ul class="w-full flex flex-col gap-1 text-xs">
       <li
-        class="flex [&>*]:mx-[0.1rem] justify-between items-center p-2 bg-gray-600 rounded-lg text-white text-xs"
+        class="flex [&>*]:mx-[0.1rem] justify-between items-center p-2 text-white text-xs"
       >
         <span class="flex-[0.15_0_3rem] text-start">time</span>
         <span class="flex-[0.1_0_2rem] text-start">type</span>
@@ -41,15 +41,13 @@
       </li>
       {#await trades}
         <li
-          class="flex justify-between items-center p-2 bg-gray-600 rounded-lg text-white loader h-8"
+          class="flex justify-between items-center p-2 text-white loader h-8"
         ></li>
       {:then trades}
         {#if trades.length > 0}
           <Trades {trades} {meme_id} {paginated} />
         {:else}
-          <div
-            class="flex justify-center items-center p-2 bg-gray-600 rounded-lg text-white"
-          >
+          <div class="flex justify-center items-center p-2 text-white">
             No deposits or withdrawals found
           </div>
         {/if}

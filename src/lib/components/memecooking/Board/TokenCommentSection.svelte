@@ -147,9 +147,7 @@
 </script>
 
 <div class="h-full w-full p-2 flex flex-col max-h-full {className}">
-  <div
-    class="w-full flex flex-col gap-2 bg-gray-5 p-2 rounded-md text-shitzu-1 mb-6"
-  >
+  <div class="w-full flex flex-col gap-2 rounded-md text-shitzu-1 mb-6">
     <div class="flex items-center justify-between gap-1 text-xs text-shitzu-3">
       <Chef
         account={`${meme.owner} (dev)`}
@@ -164,15 +162,15 @@
       <McIcon {meme} class="w-30 rounded-md" />
       <div class="flex flex-col items-start">
         <div class="text-sm font-bold">
-          {meme.name} (ticker: {meme.symbol})
+          {meme.name} ${meme.symbol}
         </div>
         <div class="text-sm text-white">{meme.description}</div>
       </div>
     </div>
   </div>
   {#await replies}
-    <div class="w-full flex flex-col bg-gray-5 p-2 rounded-md text-shitzu-1">
-      <div class="flex items-center gap-1 text-xs text-shitzu-3">
+    <div class="w-full flex flex-col p-2 text-shitzu-1">
+      <div class="flex justify-center items-center gap-1 text-xs text-shitzu-3">
         <div class="i-svg-spinners:3-dots-fade size-4" />
       </div>
     </div>

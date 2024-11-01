@@ -3,6 +3,7 @@
   import type { Writable } from "svelte/store";
 
   import ClaimBanner from "../../../../routes/(memecooking)/meme/[meme_id]/ClaimBanner.svelte";
+  import RefWhitelistBanner from "../../../../routes/(memecooking)/meme/[meme_id]/RefWhitelistBanner.svelte";
   import TokenAllocationBanner from "../../../../routes/(memecooking)/meme/[meme_id]/TokenAllocationBanner.svelte";
   import WithdrawBanner from "../../../../routes/(memecooking)/meme/[meme_id]/WithdrawBanner.svelte";
   import StakeSheet from "../BottomSheet/StakeSheet.svelte";
@@ -60,6 +61,8 @@
 
   <!-- Banners -->
   <div class="flex flex-col w-full px-2">
+    <!-- Admin Actions -->
+    <RefWhitelistBanner meme={$memebid$} />
     <WithdrawBanner meme={$memebid$} />
     <ClaimBanner meme={$memebid$} />
     {#if $accountId$ === $memebid$.owner}

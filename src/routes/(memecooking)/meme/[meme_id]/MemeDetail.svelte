@@ -3,6 +3,7 @@
   import type { Writable } from "svelte/store";
 
   import ClaimBanner from "./ClaimBanner.svelte";
+  import RefWhitelistBanner from "./RefWhitelistBanner.svelte";
   import TokenAllocationBanner from "./TokenAllocationBanner.svelte";
   import WithdrawBanner from "./WithdrawBanner.svelte";
 
@@ -16,17 +17,13 @@
   import TeamAllocation from "$lib/components/memecooking/Board/TokenAllocation.svelte";
   import TokenChart from "$lib/components/memecooking/Board/TokenChart.svelte";
   import TokenHolder from "$lib/components/memecooking/Board/TokenHolder.svelte";
-  import RefWhitelistSheet from "$lib/components/memecooking/BottomSheet/RefWhitelistSheet.svelte";
   import Chef from "$lib/components/memecooking/Chef.svelte";
-  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { wallet } from "$lib/near";
   import { MCTradeSubscribe } from "$lib/store/memebids";
   import { getTokenId } from "$lib/util/getTokenId";
 
   export let meme$: Writable<Meme>;
   const { projectedMcap } = $meme$;
-  const { accountId$ } = wallet;
 
   const MCSymbol = Symbol();
   onMount(() => {
@@ -131,15 +128,7 @@
     <!-- Right Column - Actions & Info -->
     <div class="space-y-4">
       <!-- Admin Actions -->
-      {#if $meme$.owner === $accountId$ && $meme$.pool_id}
-        <button
-          on:click={() => openBottomSheet(RefWhitelistSheet, { meme: $meme$ })}
-          class="w-full btn btn-secondary"
-        >
-          Request Ref Finance Whitelist
-        </button>
-      {/if}
-
+      <RefWhitelistBanner meme={$meme$} />
       <WithdrawBanner meme={$meme$} />
       <ClaimBanner meme={$meme$} />
       <TokenAllocationBanner meme={$meme$} />

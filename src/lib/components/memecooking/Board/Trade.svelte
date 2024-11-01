@@ -37,7 +37,7 @@
 </script>
 
 <li
-  class="flex [&>*]:mx-[0.1rem] justify-between items-center p-2 bg-gray-600 rounded-lg text-white text-xs"
+  class="flex [&>*]:mx-[0.1rem] justify-between items-center p-2 text-white text-xs"
 >
   <span class="flex-[0.15_0_3rem] text-start">
     {timeAgoText}

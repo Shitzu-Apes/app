@@ -32,6 +32,6 @@
     target="_blank"
     class="btn btn-outline hover:text-shitzu-200"
   >
-    <div class="i-mdi:twitter-circle size-5 text-current" />
+    <div class="i-mdi:twitter size-5 text-current" />
   </a>
 </div>
