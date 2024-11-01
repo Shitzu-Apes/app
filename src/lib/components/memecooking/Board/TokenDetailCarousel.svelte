@@ -16,13 +16,11 @@
   import TokenHolder from "./TokenHolder.svelte";
 
   import { goto } from "$app/navigation";
-  import { client } from "$lib/api/client";
   import TeamAllocation from "$lib/components/memecooking/Board/TokenAllocation.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
   import { MCTradeSubscribe } from "$lib/store/memebids";
-  import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
   const { accountId$ } = wallet;
 
   export let memebid$: Writable<Meme>;
@@ -35,26 +33,6 @@
       }
     });
   });
-
-  const trades = client
-    .GET("/trades", {
-      params: {
-        query: {
-          meme_id: $memebid$.meme_id.toString(),
-        },
-      },
-    })
-    .then((trade) => {
-      console.log("[trade]", trade);
-      if (!trade.data) return [];
-
-      const trades = trade.data.map((trade) => ({
-        ...trade,
-        tokenAmount: predictedTokenAmount({ ...trade, ...$memebid$ }),
-      }));
-
-      return trades.sort((a, b) => b.timestamp_ms - a.timestamp_ms);
-    });
 </script>
 
 <div class="flex-[1_1_0] flex flex-col items-stretch pb-30">
