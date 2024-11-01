@@ -4,11 +4,14 @@
   import TeamAllocationSheet from "$lib/components/memecooking/BottomSheet/TeamAllocationSheet.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
+  import { wallet } from "$lib/near";
+
+  const { accountId$ } = wallet;
 
   export let meme: Meme;
 </script>
 
-{#if meme.team_allocation_num && meme.team_allocation_num > 0 && meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now() && meme.end_timestamp_ms > Date.now()}
+{#if meme.team_allocation_num && meme.team_allocation_num > 0 && meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now() && meme.end_timestamp_ms > Date.now() && meme.owner === $accountId$}
   <div
     out:slide
     class="bg-shitzu-4 rounded-md p-4 mb-4 flex flex-col justify-between items-stretch gap-4"

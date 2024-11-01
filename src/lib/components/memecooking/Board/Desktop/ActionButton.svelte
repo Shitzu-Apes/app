@@ -233,7 +233,7 @@
     Claim {claimAmount.format({ notation: "compact" })}
     <McIcon meme={memebid} class="size-4 bg-white rounded-full text-black" />
   </button>
-{:else if isLaunched && isOwnAccount && memebid.team_allocation_num && memebid.team_allocation_num > 0}
+{:else if isLaunched && isOwnAccount && memebid.owner === $accountId$ && memebid.team_allocation_num && memebid.team_allocation_num > 0}
   <button
     class="px-3 py-2 w-full bg-shitzu-3 text-black hover:brightness-110 rounded-sm flex items-center justify-center gap-1 leading-4 text-sm"
     on:click={claimTeamAllocation}
