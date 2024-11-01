@@ -180,7 +180,7 @@
     <div class="contents max-h-fit">
       <div
         bind:this={scrollContainer}
-        class="w-full flex flex-col gap-2 flex-1 h-0 max-h-[50rem] overflow-auto"
+        class="w-full flex flex-col gap-2 flex-1 h-0 max-h-[50rem] overflow-auto scrollbar-none"
       >
         {#each data as reply}
           <TokenComment

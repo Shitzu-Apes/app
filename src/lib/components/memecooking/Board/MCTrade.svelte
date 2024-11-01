@@ -2,6 +2,7 @@
   import Trades from "./Trades.svelte";
 
   import type { paths } from "$lib/api/openapi";
+  import Near from "$lib/assets/Near.svelte";
 
   export let meme_id: number;
   export let trades: Promise<
@@ -16,7 +17,9 @@
   let isInteracted = false || !touchToStart;
 </script>
 
-<div class="relative w-full h-full max-h-[25rem] sm:max-h-unset overflow-auto">
+<div
+  class="relative w-full h-full max-h-[25rem] sm:max-h-unset overflow-auto scrollbar-none"
+>
   <button
     class="flex w-full overflow-x-auto h-full relative"
     on:click|stopPropagation
@@ -24,15 +27,17 @@
     on:touchstart|stopPropagation
     on:pointerdown|stopPropagation
   >
-    <ul class="w-full flex flex-col gap-1 text-xs min-w-[500px]">
+    <ul class="w-full flex flex-col gap-1 text-xs">
       <li
-        class="flex [&>*]:mx-[0.1rem] justify-between items-center p-2 bg-gray-600 rounded-lg text-white"
+        class="flex [&>*]:mx-[0.1rem] justify-between items-center p-2 bg-gray-600 rounded-lg text-white text-xs"
       >
-        <span class="flex-[0.5_1_5rem] text-start">account</span>
-        <span class="flex-[0_0_3rem] text-start">type</span>
-        <span class="flex-[0.1_0_5rem] text-start">NEAR</span>
-        <span class="flex-[0.1_0_5rem] text-start">date</span>
-        <span class="flex-[0.2_0_5rem] text-start">transaction</span>
+        <span class="flex-[0.15_0_3rem] text-start">time</span>
+        <span class="flex-[0.1_0_2rem] text-start">type</span>
+        <span class="flex-[0.2_0_4rem] text-start flex items-center gap-1"
+          ><Near className="size-3 bg-white text-black rounded-full" /> NEAR</span
+        >
+        <span class="flex-[0.2_0_4rem] text-start">account</span>
+        <span class="flex-[0.2_0_4rem] text-start">tx</span>
       </li>
       {#await trades}
         <li
@@ -45,7 +50,7 @@
           <div
             class="flex justify-center items-center p-2 bg-gray-600 rounded-lg text-white"
           >
-            No trades found
+            No deposits or withdrawals found
           </div>
         {/if}
       {/await}
@@ -61,7 +66,7 @@
     >
       <div class="text-white text-2xl flex flex-col items-center gap-4">
         <div class="i-mdi:fingerprint size-24" />
-        Tap to start explore the trades
+        Tap to start exploring deposits and withdrawals
       </div>
     </button>
   {/if}
