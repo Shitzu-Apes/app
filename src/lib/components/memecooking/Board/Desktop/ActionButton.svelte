@@ -217,7 +217,7 @@
 
 {#if depositAmount != null}
   <button
-    class="px-3 py-2 w-full bg-gray-700 hover:bg-gray-600 rounded-sm flex items-center justify-center gap-1 leading-4 text-sm"
+    class="px-3 py-2 w-full bg-rose-700 hover:bg-rose-600 rounded-sm flex items-center justify-center gap-1 leading-4 text-sm"
     on:click={withdraw}
   >
     Withdraw {new FixedNumber(depositAmount, 24).format({

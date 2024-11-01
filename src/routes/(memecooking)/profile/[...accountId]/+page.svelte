@@ -8,9 +8,7 @@
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import LoadingLambo from "$lib/components/memecooking/Board/LoadingLambo.svelte";
   import Tabs from "$lib/components/memecooking/Board/Tabs.svelte";
-  import ClaimList from "$lib/components/memecooking/Profile/ClaimList.svelte";
-  import CoinCreated from "$lib/components/memecooking/Profile/CoinCreated.svelte";
-  import DepositList from "$lib/components/memecooking/Profile/DepositList.svelte";
+  import MemeList from "$lib/components/memecooking/Profile/MemeList.svelte";
   import Revenue from "$lib/components/memecooking/Profile/Revenue.svelte";
   import { wallet } from "$lib/near";
   import {
@@ -123,15 +121,21 @@
           <Tabs {tabs} bind:activeTab class="w-full" />
 
           {#if info && isOwnAccount}
-            {#if activeTab === "not-finalized"}
-              <DepositList deposits={info.deposits} {update} />
-            {:else if activeTab === "finalized"}
-              <ClaimList claims={info.claims} {isOwnAccount} {update} />
-            {:else if activeTab === "created"}
-              <CoinCreated coins={info.created} {isOwnAccount} {update} />
-            {/if}
+            <MemeList
+              props={activeTab === "not-finalized"
+                ? { type: "not-finalized", data: info.deposits }
+                : activeTab === "finalized"
+                  ? { type: "finalized", data: info.claims }
+                  : { type: "created", data: info.created }}
+              {isOwnAccount}
+              {update}
+            />
           {:else if account != null}
-            <CoinCreated coins={account.created} {isOwnAccount} {update} />
+            <MemeList
+              props={{ type: "created", data: account.created }}
+              {isOwnAccount}
+              {update}
+            />
           {/if}
         </div>
 
