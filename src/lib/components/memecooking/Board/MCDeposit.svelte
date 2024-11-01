@@ -317,7 +317,7 @@
     }}
     class="w-full mx-auto"
   />
-  <div class="px-3">
+  <div class="w-full px-3">
     <div class="relative my-6">
       <div class="absolute inset-y-0 left-0 flex items-center pl-2">
         <Near className="w-6 h-6 bg-white text-black rounded-full" />

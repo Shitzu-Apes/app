@@ -294,7 +294,7 @@
     on:change={(e) => handleTabChange(e.detail)}
     class="w-full mx-auto"
   />
-  <div class="px-3">
+  <div class="w-full px-3">
     <div class="relative my-6">
       <div class="absolute inset-y-0 left-0 flex items-center pl-2">
         {#if activeTab === "buy"}
