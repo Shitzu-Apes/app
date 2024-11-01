@@ -31,8 +31,10 @@
     };
   }
 
-  $: $memebids$.then((meme) => {
-    const firstMeme = meme[0];
+  $: $memebids$.then((memes) => {
+    const firstMeme = memes.sort(
+      (a, b) => b.created_timestamp_ms - a.created_timestamp_ms,
+    )[0];
     console.log("[MemeCreationNotification] meme", firstMeme);
     notification = {
       meme_id: firstMeme.meme_id,
