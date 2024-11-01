@@ -61,13 +61,13 @@
       },
       {
         id: "finalized",
-        label: "Claim Token",
+        label: "Claim",
         getCount: (info: McAccount) =>
           info.claims.filter((claim) => claim.amount.valueOf() > 0n).length,
       },
       {
         id: "created",
-        label: "Created Token",
+        label: "Created",
         getCount: () => 0,
       },
     ])
