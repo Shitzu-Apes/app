@@ -14,7 +14,7 @@
   export let depositAmount: string | undefined = undefined;
   export let isOwnAccount: boolean = false;
   export let claimAmount: FixedNumber | undefined = undefined;
-  export let quickActionAmount: string = "5";
+  export let quickActionAmount: string | undefined = undefined;
   export let update:
     | ((
         outcome: FinalExecutionOutcome | FinalExecutionOutcome[] | undefined,
@@ -140,7 +140,7 @@
           </div>
         </div>
 
-        {#if depositAmount != null || (isOwnAccount && claimAmount && claimAmount.valueOf() > 0n) || !isEnded || isLaunched}
+        {#if quickActionAmount != undefined || depositAmount != undefined || (isOwnAccount && claimAmount && claimAmount.valueOf() > 0n) || !isEnded || isLaunched}
           <div class="mt-2 w-full">
             <!-- Actions -->
             <ActionButton

@@ -30,7 +30,7 @@
   export let claimAmount: FixedNumber | undefined = undefined;
   export let isEnded: boolean;
   export let isLaunched: boolean;
-  export let quickActionAmount: string = "5";
+  export let quickActionAmount: string | undefined = undefined;
 
   async function withdraw(ev: Event) {
     ev.preventDefault();
@@ -241,7 +241,7 @@
     Claim Team Allocation
     <McIcon meme={memebid} class="size-4 bg-white rounded-full text-black" />
   </button>
-{:else if !isEnded || isLaunched}
+{:else if quickActionAmount != undefined && (!isEnded || isLaunched)}
   <button
     class="px-3 py-2 w-full bg-shitzu-3 text-black hover:brightness-110 rounded-sm flex items-center justify-center gap-1 text-sm"
     on:click={quickAction}
