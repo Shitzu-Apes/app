@@ -14,7 +14,6 @@
   import TokenChart from "./TokenChart.svelte";
   import TokenDetail from "./TokenDetail.svelte";
   import TokenHolder from "./TokenHolder.svelte";
-  import TokenTrade from "./TokenTrade.svelte";
 
   import { goto } from "$app/navigation";
   import { client } from "$lib/api/client";
