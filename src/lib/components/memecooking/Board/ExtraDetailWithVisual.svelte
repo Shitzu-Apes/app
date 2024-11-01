@@ -108,10 +108,10 @@
             <span class="text-memecooking-400 text-sm font-medium">Team:</span>
             <span class="font-medium ml-auto">
               <span class="text-xs text-gray-400 mr-1"
-                >({teamAllocationPercentage}%)</span
+                >({teamAllocationPercentage.toFixed(2)}%)</span
               >
               {totalSupply
-                .mul(new FixedNumber(BigInt(teamAllocationBps), 4))
+                .mul(new FixedNumber(BigInt(Math.round(teamAllocationBps)), 4))
                 .format()}
             </span>
           </div>
