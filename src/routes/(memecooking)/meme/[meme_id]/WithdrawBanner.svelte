@@ -2,6 +2,7 @@
   import { slide } from "svelte/transition";
 
   import Near from "$lib/assets/Near.svelte";
+  import SHITZU_MC from "$lib/assets/static/shitzu_mc.png";
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
   import {
@@ -64,22 +65,31 @@
 </script>
 
 {#if depositAmount && depositAmount.valueOf() > 0n && meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now()}
-  <div
-    out:slide
-    class="bg-shitzu-4 rounded-md p-4 mb-4 flex flex-col justify-between items-stretch gap-4"
-  >
-    <p class="text-gray-8 text-center sm:text-left">
-      Launch failed. Please withdraw your Near
-    </p>
-    <button
-      on:click={withdraw}
-      class="bg-gray-1 hover:bg-memecooking-1 text-black font-bold py-2 px-4 rounded transition duration-300 ease-in-out w-full sm:w-auto"
-    >
-      [withdraw {depositAmount.format({
-        compactDisplay: "short",
-        notation: "compact",
-      })}
-      <Near className="size-8 inline" />]
-    </button>
+  <div out:slide class="bg-gray-800 rounded-lg p-4 mb-4">
+    <div class="grid grid-cols-3 gap-4">
+      <div class="flex items-center justify-center">
+        <img src={SHITZU_MC} class="w-full" alt="Shitzu Mc" />
+      </div>
+      <div class="col-span-2 h-full">
+        <div class="flex flex-col gap-6 justify-between h-full p-2">
+          <div class="flex flex-col gap-3">
+            <div class="flex items-center gap-3">
+              <div class="i-mdi:alert text-rose-500 text-3xl" />
+              <h3 class="text-xl font-semibold text-g-300">Launch Failed</h3>
+            </div>
+          </div>
+
+          <button
+            on:click={withdraw}
+            class="px-4 py-2 w-full bg-rose-700 hover:bg-rose-600 transition-colors duration-200 rounded-md flex items-center justify-center gap-2 text-white font-medium shadow-lg hover:shadow-xl"
+          >
+            Withdraw {depositAmount.format({
+              notation: "compact",
+            })}
+            <Near className="size-5 bg-white rounded-full text-black" />
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 {/if}

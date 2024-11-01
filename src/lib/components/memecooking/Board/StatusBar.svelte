@@ -23,17 +23,17 @@
   <div class="w-full flex gap-4">
     {#if meme.pool_id}
       <div
-        class="w-full bg-[rgba(0,214,175,1)] text-black p-2 text-center font-medium"
+        class="w-full bg-[rgba(0,214,175,1)] text-black p-2 text-center font-medium mb-4"
       >
         Trade on Ref via Meme.Cooking
       </div>
     {:else if meme.end_timestamp_ms && meme.end_timestamp_ms < Date.now()}
       {#if reachedMcap}
-        <div class="w-full text-center p-2 bg-amber-4 text-white">
+        <div class="w-full text-center p-2 mb-4 bg-amber-4 text-white">
           pending launch
         </div>
       {:else}
-        <div class="w-full text-center p-2 bg-rose-4 text-white">
+        <div class="w-full text-center p-2 mb-4 bg-rose-4 text-white">
           didn't make it
         </div>
       {/if}

@@ -162,9 +162,7 @@
 
       <WithdrawBanner meme={$meme$} />
       <ClaimBanner meme={$meme$} />
-      {#if $meme$.owner === $accountId$}
-        <TokenAllocationBanner meme={$meme$} />
-      {/if}
+      <TokenAllocationBanner meme={$meme$} />
 
       <!-- Trading Box -->
       <div class="bg-gray-800 rounded-lg p-4">

@@ -2,6 +2,9 @@
   import { onMount } from "svelte";
   import type { Writable } from "svelte/store";
 
+  import ClaimBanner from "../../../../routes/(memecooking)/meme/[meme_id]/ClaimBanner.svelte";
+  import TokenAllocationBanner from "../../../../routes/(memecooking)/meme/[meme_id]/TokenAllocationBanner.svelte";
+  import WithdrawBanner from "../../../../routes/(memecooking)/meme/[meme_id]/WithdrawBanner.svelte";
   import StakeSheet from "../BottomSheet/StakeSheet.svelte";
   import TokenCommentSheet from "../BottomSheet/TokenCommentSheet.svelte";
 
@@ -18,8 +21,10 @@
   import TeamAllocation from "$lib/components/memecooking/Board/TokenAllocation.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
+  import { wallet } from "$lib/near";
   import { MCTradeSubscribe } from "$lib/store/memebids";
   import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
+  const { accountId$ } = wallet;
 
   export let memebid$: Writable<Meme>;
 
@@ -74,6 +79,15 @@
     <div class="bg-gray-800 rounded-lg p-4">
       <TokenDetail memebid={$memebid$} />
     </div>
+  </div>
+
+  <!-- Banners -->
+  <div class="flex flex-col w-full px-2">
+    <WithdrawBanner meme={$memebid$} />
+    <ClaimBanner meme={$memebid$} />
+    {#if $accountId$ === $memebid$.owner}
+      <TokenAllocationBanner meme={$memebid$} />
+    {/if}
   </div>
 
   <!-- Main Content -->

@@ -1,18 +1,12 @@
 <script lang="ts">
-  import ClaimBanner from "../../../../routes/(memecooking)/meme/[meme_id]/ClaimBanner.svelte";
-  import TokenAllocationBanner from "../../../../routes/(memecooking)/meme/[meme_id]/TokenAllocationBanner.svelte";
-  import WithdrawBanner from "../../../../routes/(memecooking)/meme/[meme_id]/WithdrawBanner.svelte";
-
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import SHITZU_STONK from "$lib/assets/static/shitzu_stonk.png";
   import McIcon from "$lib/components/MCIcon.svelte";
   import { addToast } from "$lib/components/Toast.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { wallet } from "$lib/near";
   import { getTokenId } from "$lib/util/getTokenId";
 
   export let memebid: Meme;
-  const { accountId$ } = wallet;
 
   const { projectedMcap } = memebid;
 </script>
@@ -177,14 +171,5 @@
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Countdown & Banners -->
-  <div class="flex flex-col w-full px-4">
-    <WithdrawBanner meme={memebid} />
-    <ClaimBanner meme={memebid} />
-    {#if $accountId$ === memebid.owner}
-      <TokenAllocationBanner meme={memebid} />
-    {/if}
   </div>
 </div>

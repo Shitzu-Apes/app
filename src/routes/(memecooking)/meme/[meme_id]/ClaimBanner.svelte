@@ -1,6 +1,8 @@
 <script lang="ts">
   import { slide } from "svelte/transition";
 
+  import SHITZU_LIKE from "$lib/assets/static/shitzu_like.png";
+  import McIcon from "$lib/components/MCIcon.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
   import { MemeCooking, updateMcAccount } from "$lib/near/memecooking";
@@ -47,24 +49,34 @@
 </script>
 
 {#if claimAmount && claimAmount.valueOf() > 0n}
-  <div
-    out:slide
-    class="bg-shitzu-4 rounded-md p-4 mb-4 flex flex-col justify-between items-stretch gap-4"
-  >
-    <p class="text-gray-8 text-center sm:text-left">
-      <span class="text-xl text-center"
-        >{claimAmount.format({
-          compactDisplay: "short",
-          notation: "compact",
-        })}
-        {meme.symbol}</span
-      >
-    </p>
-    <button
-      on:click={claim}
-      class="bg-gray-1 hover:bg-memecooking-1 text-black font-bold py-2 px-4 rounded transition duration-300 ease-in-out w-full sm:w-auto"
-    >
-      [Claim Now]
-    </button>
+  <div out:slide class="bg-gray-800 rounded-lg p-4 mb-4">
+    <div class="grid grid-cols-3 gap-4">
+      <div class="flex items-center justify-center">
+        <img src={SHITZU_LIKE} class="w-full" alt="Shitzu Like" />
+      </div>
+      <div class="col-span-2 h-full">
+        <div class="flex flex-col gap-6 justify-between h-full p-2">
+          <div class="flex flex-col gap-3">
+            <div class="flex items-center gap-3">
+              <div class="i-mdi:check-circle text-shitzu-3 text-3xl" />
+              <h3 class="text-xl font-semibold text-gray-300">
+                Launched on Ref
+              </h3>
+            </div>
+          </div>
+
+          <button
+            on:click={claim}
+            class="px-4 py-2 w-full bg-shitzu-3 text-black hover:brightness-110 transition-colors duration-200 rounded-md flex items-center justify-center gap-2 font-medium shadow-lg hover:shadow-xl"
+          >
+            Claim {claimAmount.format({
+              notation: "compact",
+            })}
+            <McIcon {meme} class="size-4 bg-white rounded-full text-black" />
+            {meme.symbol}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 {/if}
