@@ -10,7 +10,6 @@
   import { FixedNumber } from "$lib/util";
 
   export let memebid: Meme;
-  export let requiredStake: FixedNumber;
   export let showCook = true;
   export let depositAmount: string | undefined = undefined;
   export let isOwnAccount: boolean = false;
@@ -22,7 +21,9 @@
       ) => void)
     | undefined = undefined;
 
-  $: reachedMcap = new FixedNumber(memebid.total_deposit, 24) >= requiredStake;
+  $: reachedMcap =
+    new FixedNumber(memebid.total_deposit, 24) >=
+    new FixedNumber(memebid.soft_cap, 24);
   $: isLaunched = typeof memebid.pool_id === "number";
   $: isEnded = Boolean(
     memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now(),

@@ -28,9 +28,9 @@
   />
   {#each tabs as tab}
     <button
-      class="px-4 py-2 relative z-10 {activeTab === tab.id
+      class="py-2 relative z-10 {activeTab === tab.id
         ? 'text-black'
-        : 'text-gray-400 hover:text-white'} flex-grow basis-0 cursor-pointer"
+        : 'text-gray-400 hover:text-white'} flex-grow basis-0 cursor-pointer whitespace-nowrap"
       on:click={() => handleTabClick(tab.id)}
     >
       {tab.label}

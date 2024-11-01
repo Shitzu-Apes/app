@@ -636,10 +636,6 @@ export abstract class MemeCooking {
   }
 }
 
-export const requiredStake = MemeCooking.requiredStake(
-  import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
-).then((requiredStake) => new FixedNumber(requiredStake, 24));
-
 const _mcAccount$: Writable<Promise<McAccount | undefined>> = writable(
   new Promise<never>(() => {}),
 );

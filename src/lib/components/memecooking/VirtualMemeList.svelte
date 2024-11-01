@@ -3,12 +3,9 @@
   import { createWindowVirtualizer } from "@tanstack/svelte-virtual";
   import { onMount } from "svelte";
 
-  import LoadingLambo from "./Board/LoadingLambo.svelte";
-
   import type { Meme } from "$lib/api/client";
   import SHITZU_DETECTIVE from "$lib/assets/static/shitzu_detective.png";
   import MemePreview from "$lib/components/memecooking/Board/Desktop/MemePreview.svelte";
-  import { requiredStake } from "$lib/near/memecooking";
   import type { FixedNumber } from "$lib/util";
 
   export let items: Array<{
@@ -69,18 +66,12 @@
       newNumLanes = 4;
     }
 
-    if (newNumLanes !== numLanes) {
-      numLanes = newNumLanes;
-      // Re-measure all elements when lanes change
-      measuredElements.forEach((element) => {
-        $virtualizer.measureElement(element);
-      });
-    }
+    numLanes = newNumLanes;
   }
 
   $: virtualizer = createWindowVirtualizer<HTMLDivElement>({
     count: items.length,
-    estimateSize: () => 600,
+    estimateSize: () => 200,
     overscan: 15,
     lanes: numLanes,
     gap: 16,
@@ -90,6 +81,10 @@
     $virtualizer.setOptions({
       count: items.length,
       lanes: numLanes,
+    });
+    // Re-measure elements when items change
+    measuredElements.forEach((element) => {
+      $virtualizer.measureElement(element);
     });
   }
 
@@ -103,49 +98,41 @@
 
 <svelte:window on:resize={updateLanes} />
 
-<div bind:this={containerElement} class="w-full">
-  {#await Promise.all([requiredStake, items])}
-    <div class="w-full my-10">
-      <LoadingLambo />
+<div bind:this={containerElement} class="w-full min-h-screen">
+  {#if items.length === 0}
+    <div
+      class="text-center text-lg text-white flex flex-col items-center justify-center gap-2 my-10"
+    >
+      <img src={SHITZU_DETECTIVE} class="w-40" alt="No memes found" />
+      {emptyMessage}
     </div>
-  {:then [requiredStake, items]}
-    {#if items.length === 0}
+  {:else}
+    <div class="my-6 w-full {className}">
       <div
-        class="text-center text-lg text-white flex flex-col items-center justify-center gap-2"
+        style="position: relative; height: {$virtualizer.getTotalSize()}px; width: 100%;"
       >
-        <img src={SHITZU_DETECTIVE} class="w-40" alt="No memes found" />
-        {emptyMessage}
+        {#each $virtualizer.getVirtualItems() as row ((row.index, items[row.index].meme.meme_id))}
+          <div
+            style="position: absolute; top: 0; left: {(row.lane / numLanes) *
+              100}%; width: calc({100 / numLanes}% - {row.lane === numLanes - 1
+              ? (16 * (numLanes - 1)) / numLanes
+              : (16 * (numLanes - 1)) /
+                numLanes}px); transform: translateY({row.start}px);"
+            data-index={row.index}
+            use:measureElement
+          >
+            <MemePreview
+              memebid={items[row.index].meme}
+              depositAmount={items[row.index].amount}
+              claimAmount={items[row.index].claimAmount}
+              {showCook}
+              {isOwnAccount}
+              {update}
+              {quickActionAmount}
+            />
+          </div>
+        {/each}
       </div>
-    {:else}
-      <div class="my-6 w-full {className}">
-        <div
-          style="position: relative; height: {$virtualizer.getTotalSize()}px; width: 100%;"
-        >
-          {#each $virtualizer.getVirtualItems() as row (row.index)}
-            <div
-              style="position: absolute; top: 0; left: {(row.lane / numLanes) *
-                100}%; width: calc({100 / numLanes}% - {row.lane ===
-              numLanes - 1
-                ? (16 * (numLanes - 1)) / numLanes
-                : (16 * (numLanes - 1)) /
-                  numLanes}px); transform: translateY({row.start}px);"
-              data-index={row.index}
-              use:measureElement
-            >
-              <MemePreview
-                memebid={items[row.index].meme}
-                {requiredStake}
-                depositAmount={items[row.index].amount}
-                claimAmount={items[row.index].claimAmount}
-                {showCook}
-                {isOwnAccount}
-                {update}
-                {quickActionAmount}
-              />
-            </div>
-          {/each}
-        </div>
-      </div>
-    {/if}
-  {/await}
+    </div>
+  {/if}
 </div>

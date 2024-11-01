@@ -53,7 +53,12 @@
     {new FixedNumber(trade.amount, 24).format()}
   </span>
   <span class="flex-[0.2_0_4rem] text-start overflow-hidden text-ellipsis">
-    {trade.account_id}
+    <a
+      href="/profile/{trade.account_id}"
+      class="hover:text-shitzu-4 hover:underline hover:font-bold"
+    >
+      {trade.account_id}
+    </a>
   </span>
   <a
     href="{import.meta.env.VITE_NEARBLOCKS_URL}/hash/{trade.receipt_id}"
