@@ -51,21 +51,31 @@
     .with(true, () => [
       {
         id: "not-finalized",
-        label: "Withdraw",
+        label: `Withdraw`,
+        getCount: (info: McAccount) =>
+          info.deposits.filter(
+            (deposit) =>
+              deposit.meme.end_timestamp_ms != null &&
+              deposit.meme.end_timestamp_ms < Date.now(),
+          ).length,
       },
       {
         id: "finalized",
         label: "Claim Token",
+        getCount: (info: McAccount) =>
+          info.claims.filter((claim) => claim.amount.valueOf() > 0n).length,
       },
       {
         id: "created",
         label: "Created Token",
+        getCount: () => 0,
       },
     ])
     .with(false, () => [
       {
         id: "created",
         label: "Created Token",
+        getCount: () => 0,
       },
     ])
     .exhaustive();
@@ -83,7 +93,7 @@
 
 <section class="w-full flex flex-col items-center justify-center px-4 py-8">
   <!-- Welcome Banner -->
-  <div class="w-full max-w-4xl mx-auto bg-gray-800 rounded-lg p-6 mb-8">
+  <div class="w-full bg-gray-800 rounded-lg p-6 mb-8">
     <div class="flex items-center gap-4">
       <img
         src={SHITZU_POCKET}
@@ -91,9 +101,9 @@
         class="size-20 text-shitzu-4"
       />
       <div class="flex flex-col gap-2">
-        <h1 class="text-3xl font-bold text-white">
+        <h1 class="text-xl font-bold text-white">
           {#if isOwnAccount}
-            Welcome, {displayAccountId}!
+            gm, {displayAccountId}!
           {:else}
             {displayAccountId}'s Profile
           {/if}
@@ -118,7 +128,14 @@
       <div class="w-full flex flex-col md:flex-row gap-8">
         <!-- Left Panel with Tabs -->
         <div class="w-full md:w-2/3">
-          <Tabs {tabs} bind:activeTab class="w-full" />
+          <Tabs
+            tabs={tabs.map((tab) => ({
+              ...tab,
+              label: `${tab.label} (${info ? tab.getCount(info) : 0})`,
+            }))}
+            bind:activeTab
+            class="w-full"
+          />
 
           {#if info && isOwnAccount}
             <MemeList
