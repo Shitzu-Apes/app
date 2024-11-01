@@ -16,7 +16,7 @@
       : 0;
   const teamAllocationPercentage = teamAllocationBps / 100;
   const teamAllocation = totalSupply.mul(
-    new FixedNumber(BigInt(teamAllocationBps), 4),
+    new FixedNumber(BigInt(Math.round(teamAllocationBps)), 4),
   );
 
   function formatDuration(ms: number): string {
@@ -65,7 +65,7 @@
             >
             <span class="font-medium ml-auto">
               <span class="text-xs text-gray-400 mr-1"
-                >({teamAllocationPercentage}%)</span
+                >({teamAllocationPercentage.toFixed(2)}%)</span
               >
               {teamAllocation.format()}
             </span>
