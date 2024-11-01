@@ -39,9 +39,10 @@
     startAngle + softCapAngle * Math.min(softcapProgress, 1);
   $: softCapEndAngle = startAngle + softCapAngle - gapAngle;
   $: hardCapStartAngle = startAngle + softCapAngle + gapAngle;
-  $: hardCapProgressAngle = hardCapStartAngle + hardCapAngle * hardCapProgress;
+  $: hardCapProgressAngle =
+    hardCapStartAngle + hardCapAngle * Math.min(hardCapProgress, 1);
   $: hardCapEndAngle = hardCapStartAngle + hardCapAngle;
-  $: singleArcEndAngle = startAngle + spanAngle * softcapProgress;
+  $: singleArcEndAngle = startAngle + spanAngle * Math.min(softcapProgress, 1);
 
   // Arc paths
   $: backgroundArcPath = arc()({
