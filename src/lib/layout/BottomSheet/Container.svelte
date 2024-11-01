@@ -55,15 +55,15 @@
 
 {#if mounted}
   <div
-    class="fixed bg-black bottom-0 left-0 right-0 w-full max-w-[min(30rem,100%)] mx-auto {$size$ ===
+    class="fixed bottom-0 left-0 right-0 w-full max-w-[min(30rem,100%)] mx-auto {$size$ ===
     'm'
       ? 'h-[90svh]'
       : 'h-[95svh]'} z-40 transform {$open
       ? 'translate-y-0 lg:translate-y-[-50%] '
       : 'translate-y-full opacity-0'} transition ease-out duration-200 rounded-t-xl border-3 border-b-0 {variant ===
     'lime'
-      ? 'border-lime'
-      : 'border-shitzu-4'} lg:max-h-[70vh] lg:top-1/2 lg:rounded-xl lg:border-3"
+      ? 'border-lime bg-black'
+      : 'border-shitzu-4 bg-dark'} lg:max-h-[70vh] lg:top-1/2 lg:rounded-xl lg:border-3"
   >
     <div class="h-full">
       <button

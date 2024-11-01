@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { createTabs, melt } from "@melt-ui/svelte";
   import { onDestroy } from "svelte";
   import { writable } from "svelte/store";
   import { match, P } from "ts-pattern";
 
   import { addToast } from "../../Toast.svelte";
   import ReferralSheet from "../BottomSheet/ReferralSheet.svelte";
+
+  import Tabs from "./Tabs.svelte";
 
   import Near from "$lib/assets/Near.svelte";
   import { showWalletSelector } from "$lib/auth";
@@ -27,9 +28,11 @@
   import { getReferral } from "$lib/util/referral";
 
   const tabs = [
-    { id: "deposit", label: "deposit" },
-    { id: "withdraw", label: "withdraw" },
+    { id: "deposit", label: "Deposit" },
+    { id: "withdraw", label: "Withdraw" },
   ];
+
+  let activeTab = "deposit";
 
   const { accountId$ } = wallet;
 
@@ -51,13 +54,6 @@
       $depositAmount$ = new FixedNumber(deposit?.amount ?? "0", 24);
     });
   }
-
-  const {
-    elements: { root, list, trigger },
-    states: { value },
-  } = createTabs({
-    defaultValue: "deposit",
-  });
 
   $: finished =
     meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now();
@@ -84,7 +80,7 @@
   }
 
   $: hasEnoughTokens = match([
-    $value,
+    activeTab,
     [$input$, $depositAmount$, $totalNearBalance$],
   ])
     .with(
@@ -119,7 +115,7 @@
       return;
     }
 
-    if ($value === "deposit") {
+    if (activeTab === "deposit") {
       // Check storage balance before depositing
       const [
         storageBalance,
@@ -265,7 +261,7 @@
   }
 
   function setMax() {
-    if ($value === "deposit") {
+    if (activeTab === "deposit") {
       if ($totalNearBalance$) {
         let input = $totalNearBalance$.sub(new FixedNumber(5n, 1));
 
@@ -312,32 +308,22 @@
   ];
 </script>
 
-<div
-  use:melt={$root}
-  class="w-full h-full flex flex-col justify-start items-center"
->
-  <div use:melt={$list} class="flex justify-between items-stretch gap-6 w-full">
-    {#each tabs as tab}
-      <button
-        use:melt={$trigger(tab.id)}
-        on:click={() => {
-          $inputValue$ = "";
-        }}
-        class="w-1/2 py-1 {tab.id === $value
-          ? 'text-shitzu-4 border-current'
-          : 'text-gray-4 border-transparent'} border-b-4 font-600"
-      >
-        {tab.label}
-      </button>
-    {/each}
-  </div>
+<div class="w-full h-full flex flex-col justify-start items-center">
+  <Tabs
+    {tabs}
+    bind:activeTab
+    on:change={() => {
+      $inputValue$ = "";
+    }}
+    class="w-full mx-auto"
+  />
   <div class="px-3">
     <div class="relative my-6">
       <div class="absolute inset-y-0 left-0 flex items-center pl-2">
         <Near className="w-6 h-6 bg-white text-black rounded-full" />
       </div>
       <TokenInput
-        class="bg-transparent rounded-xl w-full py-6 text-center text-2xl px-14 appearance-none outline-none {$value ===
+        class="bg-transparent rounded-xl w-full py-6 text-center text-2xl px-14 appearance-none outline-none {activeTab ===
         'deposit'
           ? 'text-shitzu-4'
           : 'text-rose-5'}"
@@ -351,7 +337,7 @@
       >
         <div class="flex-grow basis-0" />
         <button
-          class="text-sm cursor-pointer bg-gray-3 px-2 rounded-full border border-gray-6 {$value ===
+          class="text-sm cursor-pointer bg-gray-3 px-2 rounded-full border border-gray-6 {activeTab ===
           'deposit'
             ? 'text-shitzu-7'
             : 'text-rose-5'}"
@@ -360,11 +346,11 @@
           <div class="">Max</div>
         </button>
         <div
-          class="{$value === 'deposit'
+          class="{activeTab === 'deposit'
             ? 'text-shitzu-4'
             : 'text-rose-4'} flex-grow basis-0"
         >
-          {#if $value === "withdraw"}
+          {#if activeTab === "withdraw"}
             {#if $depositAmount$ != null}
               {$depositAmount$.format()}
             {:else}
@@ -379,38 +365,38 @@
     <ul class="flex items-center w-full gap-2">
       {#each defaultValues as defaultValue}
         <li
-          class="text-sm {$value === 'deposit'
+          class="text-sm {activeTab === 'deposit'
             ? 'bg-shitzu-8'
             : 'bg-rose-5'} px-1 py-2 rounded flex-1 basis-0"
         >
           <button
-            class="text-white {$value === 'deposit'
+            class="text-white {activeTab === 'deposit'
               ? 'hover:text-shitzu-4'
               : 'hover:text-rose-2'} w-full flex justify-center items-center gap-1"
             on:click={() => {
-              if ($value === "deposit") {
+              if (activeTab === "deposit") {
                 $inputValue$ = new FixedNumber(
-                  defaultValue[$value].value,
+                  defaultValue[activeTab].value,
                   24,
                 ).toString();
               } else {
                 if ($depositAmount$ == null) return;
-                const bps = new FixedNumber(defaultValue[$value].value, 2);
+                const bps = new FixedNumber(defaultValue[activeTab].value, 2);
                 $inputValue$ = $depositAmount$.mul(bps).toString();
               }
             }}
           >
-            {#if defaultValue[$value].value !== "0" && $value === "deposit"}
+            {#if defaultValue[activeTab].value !== "0" && activeTab === "deposit"}
               <Near className="size-4" />
             {/if}
-            {defaultValue[$value].label}
+            {defaultValue[activeTab].label}
           </button>
         </li>
       {/each}
     </ul>
 
     <div
-      class="{$value === 'deposit'
+      class="{activeTab === 'deposit'
         ? 'invisible'
         : ''} w-full flex items-center justify-between my-4"
     >
@@ -418,7 +404,7 @@
       <ToggleSwitch
         bind:enabled={unwrapNear}
         on:toggle={() => {
-          if ($value === "withdraw") {
+          if (activeTab === "withdraw") {
             unwrapNear = !unwrapNear;
           }
         }}
@@ -438,17 +424,17 @@
         $input$.toNumber() == 0 ||
         finished ||
         !hasEnoughTokens}
-      class="{$value === 'deposit'
+      class="{activeTab === 'deposit'
         ? 'bg-shitzu-4'
-        : 'bg-rose-4'} w-full py-2 rounded text-xl tracking-wider text-black {$value ===
+        : 'bg-rose-4'} w-full py-2 rounded text-xl tracking-wider text-black {activeTab ===
       'deposit'
         ? 'border-shitzu-5'
-        : 'border-rose-5'} active:translate-y-1 my-4"
+        : 'border-rose-5'} active:translate-y-1 my-4 capitalize"
     >
       {#if finished}
-        [finished]
+        finished
       {:else}
-        [{$value}]
+        {activeTab}
       {/if}
     </Button>
   </div>

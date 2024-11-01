@@ -12,5 +12,7 @@
     <h2 class="prose prose-invert prose-shitzu px-4 text-2xl">Deposit</h2>
   </slot>
 
-  <McActionBox {meme} />
+  <div class="bg-gray-800 h-full p-4">
+    <McActionBox {meme} />
+  </div>
 </BottomSheetContent>

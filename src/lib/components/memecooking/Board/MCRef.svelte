@@ -34,8 +34,8 @@
   import { getTokenId } from "$lib/util/getTokenId";
 
   const tabs = [
-    { id: "buy", label: "buy" },
-    { id: "sell", label: "sell" },
+    { id: "buy", label: "Buy" },
+    { id: "sell", label: "Sell" },
   ];
 
   const { accountId$ } = wallet;

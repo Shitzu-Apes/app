@@ -6,7 +6,6 @@
   import TokenAllocationBanner from "../../../../routes/(memecooking)/meme/[meme_id]/TokenAllocationBanner.svelte";
   import WithdrawBanner from "../../../../routes/(memecooking)/meme/[meme_id]/WithdrawBanner.svelte";
   import StakeSheet from "../BottomSheet/StakeSheet.svelte";
-  import TokenCommentSheet from "../BottomSheet/TokenCommentSheet.svelte";
 
   import ActionButtons from "./ActionButtons.svelte";
   import TradeTabs from "./Desktop/TradeTabs.svelte";
@@ -16,6 +15,7 @@
   import TokenHolder from "./TokenHolder.svelte";
 
   import { goto } from "$app/navigation";
+  import McIcon from "$lib/components/MCIcon.svelte";
   import TeamAllocation from "$lib/components/memecooking/Board/TokenAllocation.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
@@ -94,12 +94,20 @@
       </div>
     </div>
   </div>
-
   <!-- Fixed Bottom Action Area -->
   <div
-    class="fixed bottom-0 left-0 right-0 bg-dark border-t border-gray-800 p-4 lg:hidden z-20"
+    class="fixed bottom-6 inset-x-4 bg-dark/80 backdrop-blur-sm border border-memecooking-6 p-2 lg:hidden z-20 rounded-lg"
   >
-    <div class="flex gap-2">
+    <div class="w-full h-full flex justify-between items-center">
+      <div class="flex justify-between items-center gap-2">
+        <McIcon meme={$memebid$} class="size-10 bg-white object-contain" />
+        <div class="flex-1 min-w-0">
+          <h2 class="text-base font-medium truncate leading-none">
+            {$memebid$.name}
+          </h2>
+          <span class="text-xs text-shitzu-400">${$memebid$.symbol}</span>
+        </div>
+      </div>
       <button
         on:click={(e) => {
           e.preventDefault();
@@ -118,31 +126,15 @@
         $memebid$.end_timestamp_ms &&
         $memebid$.end_timestamp_ms < Date.now()
           ? 'bg-memecooking-5 border-memecooking-6'
-          : 'bg-shitzu-4 border-shitzu-6'} flex-1 py-2 rounded text-xl tracking-wider text-black"
+          : 'bg-shitzu-4 border-shitzu-6'} flex-1 py-1.5 rounded text-lg tracking-wide text-black max-w-32"
       >
         {#if $memebid$.pool_id}
-          [buy]
+          Buy
         {:else if $memebid$.end_timestamp_ms && $memebid$.end_timestamp_ms < Date.now()}
-          [relaunch]
+          Relaunch
         {:else}
-          [deposit]
+          Deposit
         {/if}
-      </button>
-
-      <button
-        class="border border-shitzu-4 text-shitzu-4 px-2 rounded flex items-center gap-1 hover:bg-shitzu-4/10"
-        on:click={() => {
-          openBottomSheet(
-            TokenCommentSheet,
-            {
-              meme: $memebid$,
-            },
-            "l",
-          );
-        }}
-      >
-        <div class="i-mdi:comment-outline size-4" />
-        {$memebid$.replies_count}
       </button>
     </div>
   </div>
