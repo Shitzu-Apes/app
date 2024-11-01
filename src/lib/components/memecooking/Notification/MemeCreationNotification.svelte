@@ -72,7 +72,7 @@
             <img
               src={notification.icon}
               alt={notification.ticker}
-              class="w-full h-full object-contain"
+              class="w-full h-full object-cover"
             />
           </div>
 

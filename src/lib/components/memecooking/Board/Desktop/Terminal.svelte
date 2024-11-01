@@ -42,11 +42,13 @@
 </script>
 
 <div class="w-full">
-  <Tabs {tabs} bind:activeTab class="w-full max-w-md mx-auto mt-2 mb-6" />
-  <div
-    class="w-full flex flex-wrap justify-center sm:justify-start gap-3 px-1 mb-6"
-  >
+  <div class="mx-auto w-full max-w-sm">
     <SearchBox />
+  </div>
+  <div
+    class="w-full flex flex-wrap justify-center sm:justify-start gap-3 px-1 my-6"
+  >
+    <Tabs {tabs} bind:activeTab class="w-full max-w-md" />
     <SelectBox options={sortOptions} bind:selected={selectedSort} />
     <SelectBox options={orderOptions} bind:selected={selectedDirection} />
     <QuickActionConfig bind:quickActionAmount />
