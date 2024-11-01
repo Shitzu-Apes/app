@@ -7,7 +7,7 @@ import type {
   ResolutionString,
 } from "$lib/charting_library/charting_library";
 import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
-import { FixedNumber } from "$lib/util";
+import { getProjectedMemePriceInNear } from "$lib/util/getProjectedMemePriceInNear";
 
 const lastBarsCache: Map<
   string,
@@ -194,13 +194,8 @@ const MemeCookingDataFeed: IBasicDataFeed = {
         return;
       }
 
-      const total_supply = new FixedNumber(
-        data.total_supply,
-        data.decimals,
-      ).toNumber();
-      const total_deposit = new FixedNumber(data.total_deposit, 24).toNumber();
-      const price = total_deposit / (total_supply / 2);
-
+      const priceInNear = getProjectedMemePriceInNear(data);
+      const price = Number(priceInNear) / 1e24;
       if (data.timestamp_ms >= nextBarTime) {
         console.log("[subscribeBars]: Create new bar");
         bar = {

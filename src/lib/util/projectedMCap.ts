@@ -1,6 +1,7 @@
 import { derived, writable, type Readable, type Writable } from "svelte/store";
 
 import { FixedNumber } from "./FixedNumber";
+import { getProjectedMemePriceInNear } from "./getProjectedMemePriceInNear";
 
 import type { Meme } from "$lib/api/client";
 import { Ref } from "$lib/near";
@@ -23,34 +24,14 @@ export function projectedMCap(meme: Meme): Readable<FixedNumber> {
     return derived(nearPrice, (price) => {
       getNearPrice();
 
-      // Calculate liquidity pool allocation (delta = 1/1.98 of non-team allocation)
-      const delta = 1 / 1.98;
-      const teamAllocationBps =
-        (meme.team_allocation_num || 0) / (meme.total_supply_num || 1);
-      const teamAllocationPercent = teamAllocationBps;
-      const nonTeamAllocationPercent = 1 - teamAllocationPercent;
-      const liquidityPoolPercent = nonTeamAllocationPercent * delta;
-
-      // Calculate number of tokens in liquidity pool
+      const pricePerTokenInNear = getProjectedMemePriceInNear(meme);
       const totalSupply = BigInt(meme.total_supply || 0);
-      const tokensInLiquidityPool =
-        (totalSupply * BigInt(Math.floor(liquidityPoolPercent * 10000))) /
-        10000n;
-
-      // Calculate NEAR in liquidity pool (total deposits)
-      const nearInLiquidityPool =
-        (BigInt(meme.total_deposit) * BigInt(98)) / BigInt(100);
-
-      // Calculate price per token in NEAR
-      const pricePerTokenInNear =
-        nearInLiquidityPool === 0n
-          ? 0n
-          : (nearInLiquidityPool * 10n ** 24n) / tokensInLiquidityPool;
 
       // Convert to USD using NEAR price and multiply by total supply
-      return new FixedNumber(pricePerTokenInNear * totalSupply, 48).mul(
-        new FixedNumber(price, 24),
-      );
+      return new FixedNumber(
+        pricePerTokenInNear * totalSupply,
+        24 + meme.decimals,
+      ).mul(new FixedNumber(price, 24));
     });
   }
 }
