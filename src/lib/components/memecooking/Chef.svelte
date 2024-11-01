@@ -20,7 +20,7 @@
   this={asLink ? "a" : "div"}
   href={asLink ? `/profile/${account.replace(" (dev)", "")}` : undefined}
   class="w-full flex flex-1 overflow-hidden text-ellipsis {asLink
-    ? 'hover:font-bold'
+    ? 'hover:underline hover:text-shitzu-3'
     : ''}"
 >
   <div class="w-full flex items-center gap-1 flex-1">

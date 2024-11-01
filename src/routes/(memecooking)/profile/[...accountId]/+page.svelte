@@ -91,7 +91,15 @@
   }
 </script>
 
-<section class="w-full flex flex-col items-center justify-center px-4 py-8">
+<a
+  href="/board"
+  class="text-white flex items-center hover:text-shitzu-3 mb-4 w-fit"
+>
+  <div class="i-mdi:chevron-left size-8" />
+  Back
+</a>
+
+<section class="w-full flex flex-col items-center justify-center">
   <!-- Welcome Banner -->
   <div class="w-full bg-gray-800 rounded-lg p-6 mb-8">
     <div class="flex items-center gap-4">

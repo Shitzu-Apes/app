@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { createDropdownMenu, melt } from "@melt-ui/svelte";
+
   import { openBottomSheet } from "../BottomSheet/Container.svelte";
 
   import MEMECOOKING_LOGO from "$lib/assets/logo/meme-cooking.webp";
@@ -11,100 +13,173 @@
   import { wallet } from "$lib/near";
 
   const { accountId$, iconUrl$, walletName$ } = wallet;
+
+  const {
+    elements: { trigger, item, menu },
+    states: { open },
+  } = createDropdownMenu();
 </script>
 
-<nav class="py-2 px-2 w-full flex flex-wrap justify-between">
-  <div class="flex gap-4 items-center">
-    <a href="/board">
-      <img src={MEMECOOKING_LOGO} class="size-8" alt="Shitzu face" />
-    </a>
-    <ul class="text-sm">
-      <div class="flex gap-2">
-        <li class="mr-2">
-          <a
-            href="https://x.com/memedotcooking"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="hover:font-bold hover:underline"
-          >
-            [𝕏]
-          </a>
-        </li>
-        <li class="mr-2">
-          <a
-            href="https://docs.meme.cooking"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="hover:font-bold hover:underline"
-          >
-            [docs]
-          </a>
-        </li>
-        <li>
-          <button
-            on:click={() => {
-              openBottomSheet(BridgeSheet);
-            }}
-            class="hover:font-bold"
-          >
-            [bridge]
-          </button>
-        </li>
-      </div>
-      <div class="flex gap-2">
-        <li>
-          <a
-            href="https://t.me/+wIFBaPQJmAcwYTc0"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="hover:font-bold hover:underline"
-          >
-            [telegram]
-          </a>
-        </li>
-        <li>
-          <button
-            on:click={() => {
-              openBottomSheet(HowItWorkSheet);
-            }}
-            class="hover:font-bold"
-          >
-            [how it works]
-          </button>
-        </li>
-      </div>
-    </ul>
-  </div>
+<nav class="w-full px-2">
+  <div class="">
+    <div class="flex justify-between h-16 items-center">
+      <!-- Left section: Logo and primary navigation -->
+      <div class="flex items-center gap-4">
+        <!-- Logo -->
+        <a href="/board" class="flex items-center">
+          <img
+            src={MEMECOOKING_LOGO}
+            class="h-8 w-auto"
+            alt="Meme Cooking Logo"
+          />
+        </a>
 
-  {#if $accountId$}
-    <div class="flex flex-col items-end flex-1 sm:flex-none">
-      <div class="text-sm inline-flex items-center h-fit">
-        {#await Promise.all( [$iconUrl$, $walletName$], ) then [iconUrl, walletName]}
-          [
-          <Chef account={$accountId$} class="mr-1 text-shitzu-4 w-fit" asLink>
-            <img
-              src={iconUrl}
-              alt={walletName}
-              class={`size-4 object-contain ${(walletName ?? "").replaceAll(" ", "-").toLowerCase()}`}
-            />
-          </Chef>
-          ]
-        {/await}
+        <!-- Primary Navigation -->
+        <div class="relative">
+          <button
+            use:melt={$trigger}
+            class="text-shitzu-300 rounded-full text-sm flex items-center gap-1 p-1"
+          >
+            <div class="i-mdi:view-grid-outline text-xl" />
+          </button>
+
+          <div
+            use:melt={$menu}
+            class="grid grid-cols-3 gap-2 absolute top-full left-0 mt-2 w-64 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-30 p-2"
+          >
+            <button
+              use:melt={$item}
+              on:click={() => {
+                openBottomSheet(BridgeSheet);
+                $open = false;
+              }}
+              class="flex flex-col items-center justify-center p-2 text-gray-300 hover:text-white transition-colors"
+            >
+              <div
+                class="size-6 mb-1 rounded flex items-center justify-center bg-[#84cc16]"
+              >
+                <div class="i-mdi:bridge text-2xl text-black size-4" />
+              </div>
+              <span class="text-[10px] text-center whitespace-nowrap"
+                >Bridge</span
+              >
+            </button>
+
+            <button
+              use:melt={$item}
+              on:click={() => {
+                openBottomSheet(HowItWorkSheet);
+                $open = false;
+              }}
+              class="flex flex-col items-center justify-center p-2 text-gray-300 hover:text-white transition-colors"
+            >
+              <div
+                class="size-6 mb-1 rounded flex items-center justify-center bg-[#84cc16]"
+              >
+                <div
+                  class="i-mdi:help-circle-outline text-2xl text-black size-4"
+                />
+              </div>
+              <span class="text-[10px] text-center whitespace-nowrap"
+                >How it Works</span
+              >
+            </button>
+
+            <a
+              use:melt={$item}
+              href="https://docs.meme.cooking"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex flex-col items-center justify-center p-2 text-gray-300 hover:text-white transition-colors"
+            >
+              <div
+                class="size-6 mb-1 rounded flex items-center justify-center bg-[#84cc16]"
+              >
+                <div class="i-mdi:document text-2xl text-black size-4" />
+              </div>
+              <span class="text-[10px] text-center whitespace-nowrap">Docs</span
+              >
+            </a>
+
+            <a
+              use:melt={$item}
+              href="https://x.com/memedotcooking"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex flex-col items-center justify-center p-2 text-gray-300 hover:text-white transition-colors"
+            >
+              <div
+                class="size-6 mb-1 rounded flex items-center justify-center bg-black"
+              >
+                <div class="i-mdi:twitter text-2xl text-white size-4" />
+              </div>
+              <span class="text-[10px] text-center whitespace-nowrap"
+                >Twitter</span
+              >
+            </a>
+
+            <a
+              use:melt={$item}
+              href="https://t.me/+wIFBaPQJmAcwYTc0"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex flex-col items-center justify-center p-2 text-gray-300 hover:text-white transition-colors"
+            >
+              <div
+                class="size-6 mb-1 rounded flex items-center justify-center bg-[#26A5E4]"
+              >
+                <div class="i-mdi:telegram text-2xl text-white size-4" />
+              </div>
+              <span class="text-[10px] text-center whitespace-nowrap"
+                >Telegram</span
+              >
+            </a>
+          </div>
+        </div>
       </div>
-      <button class="text-xs w-fit hover:font-bold" on:click={wallet.signOut}
-        >[logout]</button
-      >
+
+      <!-- Right section: Account -->
+      <div class="flex items-center gap-4">
+        <!-- Account Section -->
+        {#if $accountId$}
+          <div class="flex items-center gap-2">
+            {#await Promise.all( [$iconUrl$, $walletName$], ) then [iconUrl, walletName]}
+              <div
+                class="flex items-center gap-2 px-3 py-2 rounded-full bg-gray-800"
+              >
+                <Chef
+                  account={$accountId$}
+                  class="text-shitzu-4 text-sm"
+                  asLink
+                >
+                  <img
+                    src={iconUrl}
+                    alt={walletName}
+                    class={`size-5 rounded-full ${(walletName ?? "").replaceAll(" ", "-").toLowerCase()}`}
+                  />
+                </Chef>
+                <button
+                  class="text-gray-300 hover:text-white text-sm"
+                  on:click={wallet.signOut}
+                >
+                  <div class="i-mdi:logout text-xl" />
+                </button>
+              </div>
+            {/await}
+          </div>
+        {:else}
+          <button
+            class="px-4 py-2 rounded-full bg-shitzu-4 text-black font-medium hover:bg-shitzu-5 transition-colors duration-200"
+            on:click={wallet.isTG
+              ? wallet.loginViaHere
+              : () => showWalletSelector("shitzu")}
+          >
+            Connect Wallet
+          </button>
+        {/if}
+      </div>
     </div>
-  {:else}
-    <button
-      class="text-sm flex-1 sm:flex-none flex items-center justify-end"
-      on:click={wallet.isTG
-        ? wallet.loginViaHere
-        : () => showWalletSelector("shitzu")}
-    >
-      [connect]
-    </button>
-  {/if}
+  </div>
 </nav>
 
 <div
