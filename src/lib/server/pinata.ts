@@ -1,4 +1,4 @@
-const JWT = import.meta.env.VITE_PINATA_JWT;
+import { PINATA_JWT } from "$env/static/private";
 
 export default abstract class Pinata {
   static async pinFileToIPFS(file: File): Promise<{
@@ -11,7 +11,7 @@ export default abstract class Pinata {
     const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${JWT}`,
+        Authorization: `Bearer ${PINATA_JWT}`,
       },
       body: pinataForm,
     });
@@ -36,7 +36,7 @@ export default abstract class Pinata {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${JWT}`,
+        Authorization: `Bearer ${PINATA_JWT}`,
       },
       body: JSON.stringify(json),
     });

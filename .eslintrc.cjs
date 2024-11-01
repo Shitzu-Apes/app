@@ -60,7 +60,13 @@ module.exports = {
       "error",
       {
         // FIXME
-        ignore: ["\\$app/.*", "\\$lib/.*", "svelte/.*", "virtual:.*"],
+        ignore: [
+          "\\$app/.*",
+          "\\$lib/.*",
+          "svelte/.*",
+          "virtual:.*",
+          "\\$env/.*",
+        ],
       },
     ],
     "@typescript-eslint/no-unused-vars": [

@@ -13,3 +13,5 @@ abi-gen
 src/lib/charting_library
 src/lib/datafeeds
 static/charting_library
+
+.near-credentials

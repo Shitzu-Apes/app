@@ -3,8 +3,17 @@ export async function view<T>(
   method: string,
   args: Record<string, unknown>,
 ): Promise<T> {
+  return viewWithNode(import.meta.env.VITE_NODE_URL, contract, method, args);
+}
+
+export async function viewWithNode<T>(
+  node: string,
+  contract: string,
+  method: string,
+  args: Record<string, unknown>,
+): Promise<T> {
   try {
-    const res = await fetch(import.meta.env.VITE_NODE_URL, {
+    const res = await fetch(node, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

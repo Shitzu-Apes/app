@@ -73,9 +73,9 @@
         in:slideFromRight={{ delay: 300, duration: 400 }}
         out:slideFromRight={{ duration: 400 }}
       >
-        <div class="flex h-full">
+        <div class="flex h-full w-full">
           <!-- Image Section -->
-          <div class="relative w-1/3 h-full bg-white">
+          <div class="relative w-1/3 h-full bg-white overflow-hidden">
             <img
               src={notification.icon}
               alt={notification.ticker}
