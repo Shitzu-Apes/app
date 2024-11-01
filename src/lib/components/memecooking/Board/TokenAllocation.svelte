@@ -24,6 +24,10 @@
     const months = Math.floor(days / 30);
     return months > 0 ? `${months} months` : `${days} days`;
   }
+
+  function formatDate(timestamp: number): string {
+    return new Date(timestamp).toLocaleDateString();
+  }
 </script>
 
 <div class="{className} w-full">
@@ -69,14 +73,33 @@
 
           <div class="flex items-center gap-1">
             <span class="w-6 flex justify-center flex-shrink-0">
+              <div class="i-mdi:gavel text-memecooking-400" />
+            </span>
+            <span class="text-memecooking-400 text-sm font-medium"
+              >Auction End:</span
+            >
+            <span class="font-medium ml-auto">
+              {#if meme.end_timestamp_ms}
+                {formatDate(meme.end_timestamp_ms)}
+              {/if}
+            </span>
+          </div>
+
+          <div class="flex items-center gap-1">
+            <span class="w-6 flex justify-center flex-shrink-0">
               <div class="i-mdi:clock text-memecooking-400" />
             </span>
             <span class="text-memecooking-400 text-sm font-medium"
-              >Cliff Period:</span
+              >Cliff End:</span
             >
-            <span class="font-medium ml-auto"
-              >{formatDuration(meme.cliff_duration_ms)}</span
-            >
+            <span class="font-medium ml-auto">
+              <span class="text-xs text-gray-400 mr-1"
+                >({formatDuration(meme.cliff_duration_ms)})</span
+              >
+              {#if meme.end_timestamp_ms}
+                {formatDate(meme.end_timestamp_ms + meme.cliff_duration_ms)}
+              {/if}
+            </span>
           </div>
 
           <div class="flex items-center gap-1">
@@ -84,11 +107,16 @@
               <div class="i-mdi:calendar text-memecooking-400" />
             </span>
             <span class="text-memecooking-400 text-sm font-medium"
-              >Vesting Duration:</span
+              >Vesting End:</span
             >
-            <span class="font-medium ml-auto"
-              >{formatDuration(meme.vesting_duration_ms)}</span
-            >
+            <span class="font-medium ml-auto">
+              <span class="text-xs text-gray-400 mr-1"
+                >({formatDuration(meme.vesting_duration_ms)})</span
+              >
+              {#if meme.end_timestamp_ms}
+                {formatDate(meme.end_timestamp_ms + meme.vesting_duration_ms)}
+              {/if}
+            </span>
           </div>
         </div>
       </div>

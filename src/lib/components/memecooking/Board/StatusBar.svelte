@@ -68,9 +68,9 @@
           </div>
         </div>
         <!-- Arrow -->
-        <div class="flex justify-center mt-1">
+        <div class="flex justify-center mt-2 border-t border-gray-700">
           <div
-            class="i-mdi:chevron-down size-6 text-gray-400 transition-transform duration-200 ease-in-out"
+            class="i-mdi:chevron-down size-6 text-gray-300 transition-transform duration-200 ease-in-out"
             style="transform: rotate({expanded ? '180deg' : '0deg'})"
           />
         </div>

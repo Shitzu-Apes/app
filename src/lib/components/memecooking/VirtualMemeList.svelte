@@ -98,7 +98,7 @@
 
 <svelte:window on:resize={updateLanes} />
 
-<div bind:this={containerElement} class="w-full min-h-screen">
+<div bind:this={containerElement} class="w-full">
   {#if items.length === 0}
     <div
       class="text-center text-lg text-white flex flex-col items-center justify-center gap-2 my-10"

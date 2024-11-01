@@ -21,6 +21,15 @@
       (t / 100) * (height - margin.top - margin.bottom),
     label: `${t}%`,
   }));
+
+  $: cliffEndPosition = xScale(cliffDurationMs);
+  $: auctionEndPosition = xScale(0);
+  $: vestingEndPosition = xScale(totalDurationMs);
+
+  $: isCliffCloseToAuctionEnd =
+    Math.abs(cliffEndPosition - auctionEndPosition) < width * 0.1;
+  $: isCliffCloseToVestingEnd =
+    Math.abs(cliffEndPosition - vestingEndPosition) < width * 0.1;
 </script>
 
 <!-- Y-axis -->
@@ -62,7 +71,7 @@
     <text
       x={xScale(0)}
       y={margin.top - 5}
-      text-anchor="middle"
+      text-anchor={isCliffCloseToAuctionEnd ? "end" : "middle"}
       font-size={fontSize}
       fill="currentColor">Auction end</text
     >
@@ -133,14 +142,22 @@
       <text
         x={xScale(cliffDurationMs)}
         y={margin.top - 5}
-        text-anchor={xScale(cliffDurationMs) < width * 0.1 ? "start" : "middle"}
+        text-anchor={isCliffCloseToAuctionEnd
+          ? "start"
+          : isCliffCloseToVestingEnd
+            ? "end"
+            : "middle"}
         font-size={fontSize}
         fill="currentColor">Cliff end</text
       >
       <text
         x={xScale(cliffDurationMs)}
         y={height - margin.bottom + height * 0.067}
-        text-anchor={xScale(cliffDurationMs) < width * 0.1 ? "start" : "middle"}
+        text-anchor={isCliffCloseToAuctionEnd
+          ? "start"
+          : isCliffCloseToVestingEnd
+            ? "end"
+            : "middle"}
         font-size={fontSize}
         fill="currentColor">{Math.round(cliffDurationMs / MS_PER_DAY)}d</text
       >
@@ -161,14 +178,14 @@
     <text
       x={xScale(totalDurationMs)}
       y={margin.top - 5}
-      text-anchor="middle"
+      text-anchor={isCliffCloseToVestingEnd ? "start" : "middle"}
       font-size={fontSize}
       fill="currentColor">Vesting end</text
     >
     <text
       x={xScale(totalDurationMs)}
       y={height - margin.bottom + height * 0.067}
-      text-anchor="middle"
+      text-anchor={isCliffCloseToVestingEnd ? "start" : "middle"}
       font-size={fontSize}
       fill="currentColor">{Math.round(totalDurationMs / MS_PER_DAY)}d</text
     >
