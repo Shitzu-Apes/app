@@ -3,7 +3,7 @@
 
   export let tabs: { id: string; label: string }[] = [];
   export let activeTab: string;
-  let className = "w-full max-w-md mx-auto my-6";
+  let className = "";
   export { className as class };
 
   const dispatch = createEventDispatcher<{
