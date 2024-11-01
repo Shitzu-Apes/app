@@ -13,13 +13,12 @@
   import TradeTabs from "$lib/components/memecooking/Board/Desktop/TradeTabs.svelte";
   import McActionBox from "$lib/components/memecooking/Board/MCActionBox.svelte";
   import SocialLink from "$lib/components/memecooking/Board/SocialLink.svelte";
+  import StatusBar from "$lib/components/memecooking/Board/StatusBar.svelte";
   import TeamAllocation from "$lib/components/memecooking/Board/TokenAllocation.svelte";
   import TokenChart from "$lib/components/memecooking/Board/TokenChart.svelte";
   import TokenHolder from "$lib/components/memecooking/Board/TokenHolder.svelte";
   import RefWhitelistSheet from "$lib/components/memecooking/BottomSheet/RefWhitelistSheet.svelte";
   import Chef from "$lib/components/memecooking/Chef.svelte";
-  import Countdown from "$lib/components/memecooking/Countdown.svelte";
-  import ProgressBar from "$lib/components/memecooking/ProgressBar.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
@@ -41,7 +40,7 @@
 </script>
 
 <div class="w-full">
-  <div class="flex mb-5 justify-between w-full">
+  <div class="flex mb-4 justify-between w-full">
     <a href="/board" class="text-white flex items-center hover:text-shitzu-3">
       <div class="i-mdi:chevron-left size-8" />
       Back
@@ -49,7 +48,7 @@
     <ActionButtons meme={$meme$} />
   </div>
   <!-- Header Section -->
-  <header class="mb-8">
+  <header class="mb-4 bg-gray-800 rounded-lg p-4">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <!-- Token Basic Info -->
       <div class="flex items-center gap-4">
@@ -115,20 +114,13 @@
         </div>
       </div>
     </div>
-
-    <!-- Progress/Status Bar -->
-    {#if !$meme$.pool_id}
-      <div class="mt-6">
-        <ProgressBar meme={$meme$} />
-      </div>
-    {/if}
   </header>
 
   <!-- Main Content -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
     <!-- Left Column - Chart & Trading -->
     <div class="lg:col-span-2">
-      <div class="bg-gray-800 rounded-lg p-4 mb-6 aspect-ratio-16/9">
+      <div class="bg-gray-800 rounded-lg p-4 mb-4 aspect-ratio-16/9">
         <TokenChart memebid={$meme$} />
       </div>
 
@@ -138,18 +130,7 @@
     </div>
 
     <!-- Right Column - Actions & Info -->
-    <div class="space-y-6">
-      <!-- Trading Status -->
-      {#if $meme$.pool_id}
-        <div
-          class="bg-[rgba(0,214,175,1)] text-black p-4 rounded-lg font-medium text-center"
-        >
-          Trade on Ref via Meme.Cooking
-        </div>
-      {:else if $meme$.end_timestamp_ms}
-        <Countdown to={$meme$.end_timestamp_ms} />
-      {/if}
-
+    <div class="space-y-4">
       <!-- Admin Actions -->
       {#if $meme$.owner === $accountId$ && $meme$.pool_id}
         <button
@@ -164,17 +145,15 @@
       <ClaimBanner meme={$meme$} />
       <TokenAllocationBanner meme={$meme$} />
 
+      <!-- Trading Status -->
+      <div class="bg-gray-800 rounded-lg p-4 pb-0">
+        <StatusBar meme={$meme$} />
+      </div>
+
       <!-- Trading Box -->
       <div class="bg-gray-800 rounded-lg p-4">
         <McActionBox meme={$meme$} />
       </div>
-
-      <!-- Social Links -->
-      <SocialLink
-        twitterLink={$meme$.twitterLink || ""}
-        telegramLink={$meme$.telegramLink || ""}
-        website={$meme$.website || ""}
-      />
 
       <!-- Token Details -->
       <div class="bg-gray-800 rounded-lg p-4">
@@ -183,9 +162,12 @@
           <span class="text-shitzu-400 font-medium">${$meme$.symbol}</span>
         </h3>
         <p class="text-gray-300 mb-4">{$meme$.description}</p>
-        {#if typeof $meme$.pool_id !== "number"}
-          <ExtraDetail meme={$meme$} />
-        {/if}
+        <!-- Social Links -->
+        <SocialLink
+          twitterLink={$meme$.twitterLink || ""}
+          telegramLink={$meme$.telegramLink || ""}
+          website={$meme$.website || ""}
+        />
       </div>
 
       <!-- Token Holders -->

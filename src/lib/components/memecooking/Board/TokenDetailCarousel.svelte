@@ -17,7 +17,6 @@
 
   import { goto } from "$app/navigation";
   import { client } from "$lib/api/client";
-  import ExtraDetail from "$lib/components/ExtraDetail.svelte";
   import TeamAllocation from "$lib/components/memecooking/Board/TokenAllocation.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
@@ -105,13 +104,6 @@
 
     <!-- Right Column - Info -->
     <div class="space-y-4">
-      <!-- Extra Details -->
-      {#if typeof $memebid$.pool_id !== "number"}
-        <div class="bg-gray-800 rounded-lg p-4">
-          <ExtraDetail meme={$memebid$} class="text-white relative z-10" />
-        </div>
-      {/if}
-
       {#if $memebid$.team_allocation_num && typeof $memebid$.vesting_duration_ms === "number" && typeof $memebid$.cliff_duration_ms === "number"}
         <div class="bg-gray-800 rounded-lg p-4">
           <TeamAllocation meme={$memebid$} />

@@ -5,8 +5,9 @@
   import Countdown from "../Countdown.svelte";
 
   import RadialProgressBar from "./Desktop/RadialProgressBar.svelte";
+  import ExtraDetailWithVisual from "./ExtraDetailWithVisual.svelte";
 
-  import ExtraDetail from "$lib/components/ExtraDetail.svelte";
+  import REF_LOGO from "$lib/assets/logo/ref.png";
   import type { Meme } from "$lib/models/memecooking";
   import { createProgressBarData } from "$lib/util/progressBarLogic";
 
@@ -23,9 +24,10 @@
   <div class="w-full flex gap-4">
     {#if meme.pool_id}
       <div
-        class="w-full bg-[rgba(0,214,175,1)] text-black p-2 text-center font-medium mb-4"
+        class="w-full text-white p-2 text-center font-medium mb-4 flex items-center justify-center gap-2"
       >
-        Trade on Ref via Meme.Cooking
+        <img src={REF_LOGO} alt="Ref Logo" class="size-6" />
+        <span>Trade on Ref via Meme.Cooking</span>
       </div>
     {:else if meme.end_timestamp_ms && meme.end_timestamp_ms < Date.now()}
       {#if reachedMcap}
@@ -61,7 +63,7 @@
               </div>
             </div>
             <div class="w-full max-w-25 h-full flex items-center">
-              <RadialProgressBar {meme} {props} />
+              <RadialProgressBar {props} />
             </div>
           </div>
         </div>
@@ -77,8 +79,8 @@
   </div>
 
   {#if expanded && !meme.pool_id}
-    <div transition:slide={{ duration: 300, easing: quintOut }}>
-      <ExtraDetail {meme} class="text-gray-300 text-sm" />
+    <div class="mb-4" transition:slide={{ duration: 300, easing: quintOut }}>
+      <ExtraDetailWithVisual {meme} />
     </div>
   {/if}
 </div>

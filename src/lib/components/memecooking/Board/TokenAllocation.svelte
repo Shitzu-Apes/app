@@ -2,25 +2,96 @@
   import SHITZU_SUIT from "$lib/assets/static/shitzu_suit.png";
   import VestingChart from "$lib/components/VestingChart";
   import type { Meme } from "$lib/models/memecooking";
+  import { FixedNumber } from "$lib/util";
 
   export let meme: Meme;
+
+  let className: string = "";
+  export { className as class };
+
+  const totalSupply = new FixedNumber(meme.total_supply, meme.decimals);
+  const teamAllocationBps =
+    meme.team_allocation_num && meme.total_supply_num
+      ? (meme.team_allocation_num / meme.total_supply_num) * 10000
+      : 0;
+  const teamAllocationPercentage = teamAllocationBps / 100;
+  const teamAllocation = totalSupply.mul(
+    new FixedNumber(BigInt(teamAllocationBps), 4),
+  );
+
+  function formatDuration(ms: number): string {
+    const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+    const months = Math.floor(days / 30);
+    return months > 0 ? `${months} months` : `${days} days`;
+  }
 </script>
 
-<div class="w-full">
+<div class="{className} w-full">
   {#if meme.team_allocation_num && typeof meme.vesting_duration_ms === "number" && typeof meme.cliff_duration_ms === "number"}
-    <h2 class="text-lg font-medium mb-3 flex items-center gap-2 text-shitzu-4">
-      <img src={SHITZU_SUIT} alt="Shitzu Suit" class="size-10 scale-x-[-1]" />
-      Token Allocation
-    </h2>
-    <div class="w-full my-2">
-      <VestingChart
-        teamAllocation={{
-          allocationBps:
-            (meme.team_allocation_num / meme.total_supply_num) * 10000,
-          vestingDurationMs: meme.vesting_duration_ms,
-          cliffDurationMs: meme.cliff_duration_ms,
-        }}
-      />
+    <div class="space-y-6">
+      <div class="space-y-6">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-medium flex items-center gap-2 text-shitzu-4">
+            <img
+              src={SHITZU_SUIT}
+              alt="Shitzu Suit"
+              class="size-10 scale-x-[-1]"
+            />
+            Team Token Vesting
+          </h3>
+        </div>
+
+        <div class="w-full">
+          <VestingChart
+            teamAllocation={{
+              allocationBps: teamAllocationBps,
+              vestingDurationMs: meme.vesting_duration_ms,
+              cliffDurationMs: meme.cliff_duration_ms,
+            }}
+          />
+        </div>
+
+        <div class="flex flex-col gap-4 mt-4">
+          <div class="flex items-center gap-1">
+            <span class="w-6 flex justify-center flex-shrink-0">
+              <div class="i-mdi:account-group text-memecooking-400" />
+            </span>
+            <span class="text-memecooking-400 text-sm font-medium"
+              >Team Allocation:</span
+            >
+            <span class="font-medium ml-auto">
+              <span class="text-xs text-gray-400 mr-1"
+                >({teamAllocationPercentage}%)</span
+              >
+              {teamAllocation.format()}
+            </span>
+          </div>
+
+          <div class="flex items-center gap-1">
+            <span class="w-6 flex justify-center flex-shrink-0">
+              <div class="i-mdi:clock text-memecooking-400" />
+            </span>
+            <span class="text-memecooking-400 text-sm font-medium"
+              >Cliff Period:</span
+            >
+            <span class="font-medium ml-auto"
+              >{formatDuration(meme.cliff_duration_ms)}</span
+            >
+          </div>
+
+          <div class="flex items-center gap-1">
+            <span class="w-6 flex justify-center flex-shrink-0">
+              <div class="i-mdi:calendar text-memecooking-400" />
+            </span>
+            <span class="text-memecooking-400 text-sm font-medium"
+              >Vesting Duration:</span
+            >
+            <span class="font-medium ml-auto"
+              >{formatDuration(meme.vesting_duration_ms)}</span
+            >
+          </div>
+        </div>
+      </div>
     </div>
   {/if}
 </div>

@@ -18,6 +18,6 @@
   </div>
 
   <div class="w-14 h-fit flex items-center">
-    <RadialProgressBar {meme} {props} />
+    <RadialProgressBar {props} />
   </div>
 </div>

@@ -4,8 +4,7 @@
   export let website: string;
 </script>
 
-<div class="bg-gray-800 rounded-lg p-4">
-  <h3 class="text-lg font-bold text-shitzu-400 mb-4">Social Links</h3>
+<div class="">
   <div class="flex flex-col gap-4">
     {#if twitterLink && (twitterLink.startsWith("https://twitter.com/") || twitterLink.startsWith("https://x.com/"))}
       <div class="flex items-center gap-1">
