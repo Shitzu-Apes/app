@@ -42,8 +42,19 @@
 </script>
 
 <div class="w-full">
-  <div class="mx-auto w-full max-w-sm">
-    <SearchBox />
+  <div class="w-full flex justify-center items-center">
+    <div class="w-full flex justify-between items-stretch gap-2">
+      <div class="w-full max-w-sm">
+        <SearchBox />
+      </div>
+      <a
+        href="/create"
+        class="px-2 bg-memecooking-400 text-black hover:brightness-110 rounded-md flex items-center justify-center gap-1 font-medium text-sm whitespace-nowrap"
+      >
+        <div class="i-mdi:plus size-6" />
+        Create Token
+      </a>
+    </div>
   </div>
   <div
     class="w-full flex flex-wrap justify-center sm:justify-start gap-3 px-1 my-6"

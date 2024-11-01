@@ -3,7 +3,7 @@
   import { searchQuery$ } from "$lib/store/memebids";
 </script>
 
-<div class="relative w-full max-w-sm">
+<div class="relative w-full">
   <input
     type="text"
     class="w-full h-10 pl-10 pr-4 bg-transparent border border-gray-100 text-white rounded focus:border-shitzu-3 focus:outline-none placeholder:text-gray-400"
