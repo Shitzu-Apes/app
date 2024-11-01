@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { createTabs, melt } from "@melt-ui/svelte";
-
+  import Tabs from "../Tabs.svelte";
   import TokenCommentSection from "../TokenCommentSection.svelte";
   import TokenTrade from "../TokenTrade.svelte";
 
@@ -14,6 +13,8 @@
     { id: "thread", label: "Thread" },
     { id: "trade", label: "Trade" },
   ];
+
+  let activeTab = tabs[0].id;
 
   const trades = client
     .GET("/trades", {
@@ -38,39 +39,16 @@
 
       return trades.sort((a, b) => b.timestamp_ms - a.timestamp_ms);
     });
-
-  const {
-    elements: { root, list, content, trigger },
-    states: { value },
-  } = createTabs({
-    defaultValue: tabs[0].id,
-  });
 </script>
 
-<div use:melt={$root}>
-  <div use:melt={$list} class="flex gap-1 mb-4">
-    {#each tabs as tab}
-      <button
-        use:melt={$trigger(tab.id)}
-        class="{tab.id !== $value
-          ? 'text-shitzu-4 bg-transparent'
-          : 'text-dark bg-shitzu-4'} font-400 px-2 rounded"
-      >
-        {tab.label}
-      </button>
-    {/each}
-  </div>
-</div>
+<Tabs {tabs} bind:activeTab class="w-full max-w-md mx-auto mb-2" />
 
-<section
-  class="{$value === 'thread' ? 'flex' : ''} flex-col flex-1"
-  use:melt={$content(tabs[0].id)}
->
-  <TokenCommentSection {meme} />
-</section>
-<section
-  class="{$value === 'trade' ? 'flex' : ''} flex-col flex-1"
-  use:melt={$content(tabs[1].id)}
->
-  <TokenTrade memebid={meme} {trades} paginated />
-</section>
+{#if activeTab === "thread"}
+  <div class="flex flex-col flex-1">
+    <TokenCommentSection {meme} />
+  </div>
+{:else if activeTab === "trade"}
+  <div class="flex flex-col flex-1">
+    <TokenTrade memebid={meme} {trades} paginated />
+  </div>
+{/if}

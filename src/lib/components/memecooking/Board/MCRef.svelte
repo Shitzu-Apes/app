@@ -1,9 +1,7 @@
 <script lang="ts">
-  import { createTabs, melt } from "@melt-ui/svelte";
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
   import { writable } from "svelte/store";
   import { slide } from "svelte/transition";
-  import { match } from "ts-pattern";
 
   import { addToast } from "../../Toast.svelte";
 
@@ -14,6 +12,7 @@
   import ToggleSwitch from "$lib/components/ToggleSwitch.svelte";
   import TokenInput from "$lib/components/TokenInput.svelte";
   import MCRefSlippage from "$lib/components/memecooking/Board/MCRefSlippage.svelte";
+  import Tabs from "$lib/components/memecooking/Board/Tabs.svelte";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import {
@@ -37,7 +36,7 @@
   const tabs = [
     { id: "buy", label: "buy" },
     { id: "sell", label: "sell" },
-  ] as const;
+  ];
 
   const { accountId$ } = wallet;
 
@@ -68,9 +67,10 @@
   }
 
   let expected: Promise<FixedNumber> | undefined = undefined;
+  let activeTab = "buy";
   $: {
     if (meme.pool_id) {
-      const decimals = $value === "buy" ? 24 : meme.decimals;
+      const decimals = activeTab === "buy" ? 24 : meme.decimals;
       console.log("[$input$?.toString()]: ", $input$?.toU128());
       let amount = ($input$?.toBigInt() || 0n).toString();
 
@@ -78,7 +78,7 @@
       const amountIn = new FixedNumber(amount, decimals);
       if (amountIn.valueOf() > 0n) {
         let tokenIn, tokenOut;
-        if ($value === "buy") {
+        if (activeTab === "buy") {
           tokenIn = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
           tokenOut = getTokenId(meme.symbol, meme.meme_id);
         } else {
@@ -91,7 +91,7 @@
           tokenOut,
           tokenIn,
           poolId: meme.pool_id,
-          decimals: $value === "buy" ? meme.decimals : 24,
+          decimals: activeTab === "buy" ? meme.decimals : 24,
         }).then((value) => {
           console.log("[getReturn]: ", value);
           return value;
@@ -101,13 +101,6 @@
       }
     }
   }
-
-  const {
-    elements: { root, list, trigger },
-    states: { value },
-  } = createTabs({
-    defaultValue: "buy",
-  });
 
   let totalNearBalance$ = writable($nearBalance);
   // let wrapNearBalance: FixedNumber | null = null;
@@ -156,11 +149,11 @@
           const log = refReceipt.outcome.logs[0];
           const inAmount = new FixedNumber(
             log.split("Swapped ")[1].split(" ")[0],
-            $value === "buy" ? 24 : meme.decimals,
+            activeTab === "buy" ? 24 : meme.decimals,
           );
           const outAmount = new FixedNumber(
             log.split(" for ")[1].split(" ")[0],
-            $value === "buy" ? meme.decimals : 24,
+            activeTab === "buy" ? meme.decimals : 24,
           );
           addToast({
             data: {
@@ -170,13 +163,13 @@
                 description: `You successfully swapped ${inAmount.format({
                   compactDisplay: "short",
                   notation: "compact",
-                })} ${$value === "buy" ? "NEAR" : meme.symbol} for ${outAmount.format(
+                })} ${activeTab === "buy" ? "NEAR" : meme.symbol} for ${outAmount.format(
                   {
                     compactDisplay: "short",
                     notation: "compact",
                     maximumFractionDigits: 3,
                   },
-                )} ${$value === "buy" ? meme.symbol : "NEAR"}`,
+                )} ${activeTab === "buy" ? meme.symbol : "NEAR"}`,
               },
             },
             closeDelay: 8_000,
@@ -194,7 +187,7 @@
         refreshTokenBalance($accountId$);
       },
     };
-    if ($value === "buy") {
+    if (activeTab === "buy") {
       return handleBuy(
         $input$,
         $accountId$,
@@ -217,7 +210,7 @@
   }
 
   function setMax() {
-    if ($value === "buy") {
+    if (activeTab === "buy") {
       if ($totalNearBalance$) {
         let input = $totalNearBalance$.sub(new FixedNumber(5n, 1));
 
@@ -281,51 +274,41 @@
       },
     });
   }
+
+  function handleTabChange(tabId: string) {
+    activeTab = tabId;
+    $inputValue$ = "";
+    if (!$accountId$) return;
+    if (tabId === "buy") {
+      refreshNearBalance($accountId$);
+    } else if (tabId === "sell") {
+      refreshTokenBalance($accountId$);
+    }
+  }
 </script>
 
-<div
-  use:melt={$root}
-  class="w-full h-full flex flex-col justify-start items-center text-white"
->
-  <div use:melt={$list} class="flex justify-between items-stretch gap-6 w-full">
-    {#each tabs as tab}
-      <button
-        use:melt={$trigger(tab.id)}
-        on:click={() => {
-          $inputValue$ = "";
-          if (!$accountId$) return;
-          match(tab.id)
-            .with("buy", () => {
-              refreshNearBalance($accountId$);
-            })
-            .with("sell", () => {
-              refreshTokenBalance($accountId$);
-            })
-            .exhaustive();
-        }}
-        class="w-1/2 py-1 {tab.id === $value
-          ? 'text-shitzu-4 border-current'
-          : 'text-gray-4 border-transparent'} border-b-4 font-600"
-      >
-        {tab.label}
-      </button>
-    {/each}
-  </div>
+<div class="w-full h-full flex flex-col justify-start items-center text-white">
+  <Tabs
+    {tabs}
+    bind:activeTab
+    on:change={(e) => handleTabChange(e.detail)}
+    class="w-full mx-auto"
+  />
   <div class="px-3">
     <div class="relative my-6">
       <div class="absolute inset-y-0 left-0 flex items-center pl-2">
-        {#if $value === "buy"}
+        {#if activeTab === "buy"}
           <Near className="w-6 h-6 bg-white text-black rounded-full" />
         {:else}
           <McIcon {meme} class="w-6 h-6 rounded-full" />
         {/if}
       </div>
       <TokenInput
-        class="bg-transparent rounded-xl w-full py-6 text-center text-2xl px-14 appearance-none outline-none {$value ===
+        class="bg-transparent rounded-xl w-full py-6 text-center text-2xl px-14 appearance-none outline-none {activeTab ===
         'buy'
           ? 'text-shitzu-4'
           : 'text-rose-5'}"
-        decimals={$value === "buy" ? 24 : meme.decimals}
+        decimals={activeTab === "buy" ? 24 : meme.decimals}
         bind:this={input}
         bind:value={$inputValue$}
       />
@@ -334,7 +317,7 @@
       >
         <div class="flex-grow basis-0" />
         <button
-          class="text-sm cursor-pointer bg-gray-3 px-2 rounded-full border border-gray-6 {$value ===
+          class="text-sm cursor-pointer bg-gray-3 px-2 rounded-full border border-gray-6 {activeTab ===
           'buy'
             ? 'text-shitzu-7'
             : 'text-rose-5'}"
@@ -343,11 +326,11 @@
           <div class="">Max</div>
         </button>
         <div
-          class="{$value === 'buy'
+          class="{activeTab === 'buy'
             ? 'text-shitzu-4'
             : 'text-rose-4'} flex-grow basis-0"
         >
-          {#if $value === "sell"}
+          {#if activeTab === "sell"}
             {#if $tokenBalance != null}
               {$tokenBalance.format()}
             {:else}
@@ -362,31 +345,31 @@
     <ul class="flex items-center w-full gap-2">
       {#each defaultValues as defaultValue}
         <li
-          class="text-sm {$value === 'buy'
+          class="text-sm {activeTab === 'buy'
             ? 'bg-shitzu-8'
             : 'bg-rose-5'} px-1 rounded flex-1 basis-0 py-2"
         >
           <button
-            class="text-white {$value === 'buy'
+            class="text-white {activeTab === 'buy'
               ? 'hover:text-shitzu-4'
               : 'hover:text-rose-2'} flex justify-center items-center w-full gap-1"
             on:click={() => {
-              if ($value === "buy") {
+              if (activeTab === "buy") {
                 $inputValue$ = new FixedNumber(
-                  defaultValue[$value].value,
+                  defaultValue[activeTab].value,
                   24,
                 ).toString();
               } else {
                 if ($tokenBalance == null) return;
-                const bps = new FixedNumber(defaultValue[$value].value, 2);
+                const bps = new FixedNumber(defaultValue[activeTab].value, 2);
                 $inputValue$ = $tokenBalance.mul(bps).toString();
               }
             }}
           >
-            {#if defaultValue[$value].value !== "0" && $value === "buy"}
+            {#if defaultValue[activeTab].value !== "0" && activeTab === "buy"}
               <Near className="size-4" />
             {/if}
-            {defaultValue[$value].label}
+            {defaultValue[activeTab].label}
           </button>
         </li>
       {/each}
@@ -405,7 +388,7 @@
                   maximumFractionDigits: 6,
                 })}
               </span>
-              {#if $value === "buy"}
+              {#if activeTab === "buy"}
                 <div class="flex items-center gap-1">
                   <McIcon {meme} class="size-5 rounded-full" />
                   <span class="text-gray-300">{meme.symbol}</span>
@@ -420,16 +403,16 @@
           </div>
         </div>
         <div class="text-xs text-gray-500 mt-2">
-          Rate: 1 {$value === "buy" ? "NEAR" : meme.symbol} ≈ {#await expected}...{:then expected}{expected
+          Rate: 1 {activeTab === "buy" ? "NEAR" : meme.symbol} ≈ {#await expected}...{:then expected}{expected
               .div($input$ || new FixedNumber(1n, 24))
               .format({ maximumFractionDigits: 8 })}
-            {$value === "buy" ? meme.symbol : "NEAR"}{/await}
+            {activeTab === "buy" ? meme.symbol : "NEAR"}{/await}
         </div>
       </div>
     {/if}
 
     <div
-      class="{$value === 'buy'
+      class="{activeTab === 'buy'
         ? 'invisible'
         : ''} w-full flex items-center justify-between my-4"
     >
@@ -437,7 +420,7 @@
       <ToggleSwitch
         bind:enabled={unwrapNear}
         on:toggle={() => {
-          if ($value === "sell") {
+          if (activeTab === "sell") {
             unwrapNear = !unwrapNear;
           }
         }}
@@ -460,14 +443,14 @@
       }}
       type="custom"
       disabled={$input$ == null || $input$.toNumber() == 0}
-      class="{$value === 'buy'
+      class="{activeTab === 'buy'
         ? 'bg-shitzu-4'
         : 'bg-rose-4'} w-full py-2 rounded text-xl tracking-wider text-black
-        {$value === 'buy'
+        {activeTab === 'buy'
         ? 'border-shitzu-5'
         : 'border-rose-5'} active:translate-y-1 my-8"
     >
-      {$value === "buy" ? "Buy" : "Sell"}
+      {activeTab === "buy" ? "Buy" : "Sell"}
       {meme.symbol}
     </Button>
   </div>

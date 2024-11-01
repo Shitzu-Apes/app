@@ -9,6 +9,7 @@
   import TokenCommentSheet from "../BottomSheet/TokenCommentSheet.svelte";
 
   import ActionButtons from "./ActionButtons.svelte";
+  import TradeTabs from "./Desktop/TradeTabs.svelte";
   import StatusBar from "./StatusBar.svelte";
   import TokenChart from "./TokenChart.svelte";
   import TokenDetail from "./TokenDetail.svelte";
@@ -98,7 +99,7 @@
       </div>
 
       <div class="bg-gray-800 rounded-lg p-4">
-        <TokenTrade memebid={$memebid$} {trades} paginated={false} />
+        <TradeTabs meme={$memebid$} />
       </div>
     </div>
 

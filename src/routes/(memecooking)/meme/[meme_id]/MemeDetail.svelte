@@ -6,7 +6,6 @@
   import TokenAllocationBanner from "./TokenAllocationBanner.svelte";
   import WithdrawBanner from "./WithdrawBanner.svelte";
 
-  import ExtraDetail from "$lib/components/ExtraDetail.svelte";
   import McIcon from "$lib/components/MCIcon.svelte";
   import { addToast } from "$lib/components/Toast.svelte";
   import ActionButtons from "$lib/components/memecooking/Board/ActionButtons.svelte";
