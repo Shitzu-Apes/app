@@ -6,7 +6,7 @@
   import Tooltip from "$lib/components/Tooltip.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { MemeCooking } from "$lib/near/memecooking";
-  import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
+  import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/MCWebSocket";
   import { FixedNumber } from "$lib/util";
 
   export let meme: Meme;

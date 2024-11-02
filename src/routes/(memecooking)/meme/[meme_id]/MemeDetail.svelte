@@ -19,7 +19,7 @@
   import TokenHolder from "$lib/components/memecooking/Board/TokenHolder.svelte";
   import Chef from "$lib/components/memecooking/Chef.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { MCTradeSubscribe } from "$lib/store/memebids";
+  import { MCTradeSubscribe } from "$lib/store/MCWebSocket";
   import { getTokenId } from "$lib/util/getTokenId";
 
   export let meme$: Writable<Meme>;

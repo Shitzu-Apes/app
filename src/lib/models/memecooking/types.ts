@@ -42,6 +42,7 @@ export type MCReference = {
 
 export type Meme = MemeType & {
   projectedMcap?: Readable<FixedNumber>;
+  animate?: boolean;
 };
 
 export type MemeInfoWithReference = MemeInfo & MCReference;

@@ -21,7 +21,7 @@
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
-  import { MCTradeSubscribe } from "$lib/store/memebids";
+  import { MCTradeSubscribe } from "$lib/store/MCWebSocket";
   const { accountId$ } = wallet;
 
   export let memebid$: Writable<Meme>;

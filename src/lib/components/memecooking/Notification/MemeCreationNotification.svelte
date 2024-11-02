@@ -3,7 +3,8 @@
   import { cubicOut } from "svelte/easing";
 
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
-  import { MCMemeSubscribe, memebids$ } from "$lib/store/memebids";
+  import { MCMemeSubscribe } from "$lib/store/MCWebSocket";
+  import { memebids$ } from "$lib/store/memebids";
 
   let notification: {
     meme_id: number;

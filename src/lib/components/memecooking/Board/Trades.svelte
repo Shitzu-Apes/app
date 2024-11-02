@@ -4,7 +4,7 @@
   import Trade from "./Trade.svelte";
 
   import type { Trade as TTrade } from "$lib/api/client";
-  import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
+  import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/MCWebSocket";
   import { predictedTokenAmount } from "$lib/util/predictedTokenAmount";
 
   export let trades: Array<TTrade & { tokenAmount: number }>;

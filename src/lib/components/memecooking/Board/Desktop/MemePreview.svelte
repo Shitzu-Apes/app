@@ -7,7 +7,6 @@
   import Chef from "$lib/components/memecooking/Chef.svelte";
   import Countdown from "$lib/components/memecooking/Countdown.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { memebids$ } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
 
   export let memebid: Meme;
@@ -21,18 +20,6 @@
         outcome: FinalExecutionOutcome | FinalExecutionOutcome[] | undefined,
       ) => void)
     | undefined = undefined;
-
-  let isAnimating = false;
-
-  $: {
-    const firstMeme = $memebids$[0];
-    if (firstMeme && firstMeme.meme_id === memebid.meme_id) {
-      isAnimating = true;
-      setTimeout(() => {
-        isAnimating = false;
-      }, 250);
-    }
-  }
 
   $: reachedMcap =
     new FixedNumber(memebid.total_deposit, 24) >=
@@ -60,7 +47,7 @@
 </script>
 
 <div
-  class="w-full rounded overflow-hidden hover:ring-2 hover:ring-shitzu-3 bg-gray-800 {isAnimating
+  class="w-full rounded overflow-hidden hover:ring-2 hover:ring-shitzu-3 bg-gray-800 {memebid.animate
     ? 'animated animated-shake animated-infinite animated-duration-250 border-2 border-memecooking-400'
     : ''}"
 >

@@ -7,8 +7,9 @@
   import Near from "$lib/assets/Near.svelte";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import { getToken } from "$lib/store";
+  import { MCTradeSubscribe } from "$lib/store/MCWebSocket";
   import { EXTTradeSubscribe } from "$lib/store/externalTrades";
-  import { MCTradeSubscribe, memebids$ } from "$lib/store/memebids";
+  import { memebids$ } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
 
   const ALLOWED_TOKENS = tokens.map(({ token_id }) => token_id);

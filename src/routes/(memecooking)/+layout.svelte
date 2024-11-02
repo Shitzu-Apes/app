@@ -25,18 +25,17 @@
   import { wagmiConfig, wallet } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
   import { screenSize$ } from "$lib/screen-size";
+  import {
+    initializeWebsocket,
+    MCMemeSubscribe,
+    ws,
+  } from "$lib/store/MCWebSocket";
   import { initializeExternalWebsocket } from "$lib/store/externalTrades";
   import {
     indexer_last_block_height$,
     node_last_block_height$,
   } from "$lib/store/indexer";
-  import {
-    appendNewMeme,
-    initializeWebsocket,
-    MCMemeSubscribe,
-    updateMemebids,
-    ws,
-  } from "$lib/store/memebids";
+  import { appendNewMeme, updateMemebids } from "$lib/store/memebids";
   import { readAndSetReferral } from "$lib/util/referral";
 
   // eslint-disable-next-line import/no-named-as-default-member

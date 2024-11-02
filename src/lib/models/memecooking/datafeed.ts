@@ -6,7 +6,7 @@ import type {
   LibrarySymbolInfo,
   ResolutionString,
 } from "$lib/charting_library/charting_library";
-import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/memebids";
+import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/MCWebSocket";
 import { getProjectedMemePriceInNear } from "$lib/util/getProjectedMemePriceInNear";
 
 const lastBarsCache: Map<
