@@ -6,7 +6,9 @@
   import LoadingLambo from "../LoadingLambo.svelte";
   import Tabs from "../Tabs.svelte";
 
+  import LiveToggle from "./LiveToggle.svelte";
   import QuickActionConfig from "./QuickActionConfig.svelte";
+  import SortToggle from "./SortToggle.svelte";
 
   import SelectBox from "$lib/components/SelectBox.svelte";
   import { external_memes } from "$lib/external_memes";
@@ -24,13 +26,14 @@
 
   let selectedSort = sortOptions[0];
   let selectedDirection = orderOptions[0];
-  let activeTab: "auction" | "live" | "all" | "other" = "all";
+  let activeTab: "launched" | "all" | "other" = "all";
   let quickActionAmount = "5";
+
+  let liveOnly = false;
 
   const tabs = [
     { id: "all", label: "All" },
-    { id: "auction", label: "Live" },
-    { id: "live", label: "Launched" },
+    { id: "launched", label: "Launched" },
     { id: "other", label: "Ecosystem" },
   ];
 
@@ -57,8 +60,8 @@
           order: selectedDirection.value,
         },
         $searchQuery$,
-        activeTab === "auction" ? true : false,
-        activeTab === "live",
+        liveOnly,
+        activeTab === "launched",
       ).map((meme) => ({
         meme,
       })),
@@ -81,12 +84,13 @@
     </div>
   </div>
   <div
-    class="w-full flex flex-wrap justify-center sm:justify-start gap-3 px-1 my-6"
+    class="w-full flex flex-wrap justify-center items-center sm:justify-start gap-3 px-1 my-6"
   >
-    <Tabs {tabs} bind:activeTab class="w-full max-w-md" />
+    <LiveToggle bind:liveOnly />
+    <Tabs {tabs} bind:activeTab class="w-full max-w-sm text-sm" />
     <SelectBox options={sortOptions} bind:selected={selectedSort} />
-    <SelectBox options={orderOptions} bind:selected={selectedDirection} />
     <QuickActionConfig bind:quickActionAmount />
+    <SortToggle bind:selectedDirection />
   </div>
 
   {#if $memebidsLoading$}

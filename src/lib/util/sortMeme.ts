@@ -3,9 +3,9 @@ import { get } from "svelte/store";
 import type { Meme } from "$lib/models/memecooking";
 
 export const sortOptions = [
-  { label: "sort: bump order", value: "bump order" },
-  { label: "sort: market cap", value: "market cap" },
-  { label: "sort: creation time", value: "creation time" },
+  { label: "bump order", value: "bump order" },
+  { label: "market cap", value: "market cap" },
+  { label: "creation time", value: "creation time" },
 ];
 
 export const orderOptions = [
