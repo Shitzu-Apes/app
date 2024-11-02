@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
+  import { onMount } from "svelte";
 
   import McIcon from "$lib/components/MCIcon.svelte";
   import ActionButton from "$lib/components/memecooking/Board/Desktop/ActionButton.svelte";
@@ -7,6 +8,7 @@
   import Chef from "$lib/components/memecooking/Chef.svelte";
   import Countdown from "$lib/components/memecooking/Countdown.svelte";
   import type { Meme } from "$lib/models/memecooking";
+  import { memebids$ } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
 
   export let memebid: Meme;
@@ -20,6 +22,19 @@
         outcome: FinalExecutionOutcome | FinalExecutionOutcome[] | undefined,
       ) => void)
     | undefined = undefined;
+
+  let isAnimating = false;
+
+  onMount(() => {
+    const firstMeme = $memebids$[0];
+    if (firstMeme && firstMeme.meme_id === memebid.meme_id) {
+      console.log("[MemePreview] firstMeme", firstMeme);
+      isAnimating = true;
+      setTimeout(() => {
+        isAnimating = false;
+      }, 250);
+    }
+  });
 
   $: reachedMcap =
     new FixedNumber(memebid.total_deposit, 24) >=
@@ -47,7 +62,9 @@
 </script>
 
 <div
-  class="w-full rounded overflow-hidden hover:ring-2 hover:ring-shitzu-3 bg-gray-800"
+  class="w-full rounded overflow-hidden hover:ring-2 hover:ring-shitzu-3 bg-gray-800 {isAnimating
+    ? 'animated animated-shake animated-infinite animated-duration-100 border-2 border-memecooking-400'
+    : ''}"
 >
   <a
     href={`/meme/${memebid.meme_id >= 0 ? memebid.meme_id : memebid.token_id}`}
