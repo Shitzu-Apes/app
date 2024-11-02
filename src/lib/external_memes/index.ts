@@ -61,9 +61,9 @@ for (const token of tokens) {
   };
 }
 
-export async function getExternalMeme(
+export function getExternalMeme(
   tokenId: string,
-): Promise<(Meme & { projectedMcap: Readable<FixedNumber> }) | null> {
+): (Meme & { projectedMcap: Readable<FixedNumber> }) | null {
   const meme = external_memes[tokenId];
   if (!meme) {
     return null;
@@ -73,3 +73,5 @@ export async function getExternalMeme(
     projectedMcap: projectedMCap(meme),
   };
 }
+
+export const EXTERNAL_MEMES = Object.values(external_memes);

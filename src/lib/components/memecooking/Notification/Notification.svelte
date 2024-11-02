@@ -2,17 +2,14 @@
   import { onMount } from "svelte";
   import { slide } from "svelte/transition";
 
-  import tokens from "../../../../tokens.json";
-
   import Near from "$lib/assets/Near.svelte";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
+  import { EXTERNAL_MEMES } from "$lib/external_memes";
   import { getToken } from "$lib/store";
   import { MCTradeSubscribe } from "$lib/store/MCWebSocket";
   import { EXTTradeSubscribe } from "$lib/store/externalTrades";
   import { memebids$ } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
-
-  const ALLOWED_TOKENS = tokens.map(({ token_id }) => token_id);
 
   let notifications: {
     id: string;
@@ -56,7 +53,8 @@
         // Check if any of the tokens include the meme cooking contract or allowed tokens
         const relevantToken = Object.keys(balanceChanges).find(
           (token) =>
-            token.includes("meme-cooking") || ALLOWED_TOKENS.includes(token),
+            token.includes("meme-cooking") ||
+            EXTERNAL_MEMES.map((meme) => meme?.token_id).includes(token),
         );
 
         if (relevantToken) {
@@ -112,7 +110,7 @@
 </script>
 
 <div class="flex gap-2 overflow-x-auto scrollbar-none p-2">
-  {#each notifications as notification (notification.id)}
+  {#each notifications as notification (notification.id + notification.amount)}
     <a
       href={`/meme/${notification.meme_id}`}
       class="flex-shrink-0 w-40 h-20 rounded hover:ring-2 overflow-hidden {notification.is_deposit

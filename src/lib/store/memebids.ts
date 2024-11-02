@@ -1,7 +1,7 @@
 import { derived, get, writable } from "svelte/store";
 
-import { browser } from "$app/environment";
 import { client } from "$lib/api/client";
+import { EXTERNAL_MEMES } from "$lib/external_memes";
 import { type Meme, type MemeInfo } from "$lib/models/memecooking";
 import { MemeCooking } from "$lib/near/memecooking";
 import { projectedMCap } from "$lib/util/projectedMCap";
@@ -70,6 +70,12 @@ export async function updateMemebids() {
         projectedMcap: projectedMCap(meme),
       };
     });
+    EXTERNAL_MEMES.forEach((meme) => {
+      console.log("[updateMemebids::EXTERNAL_MEMES] meme", meme);
+      if (meme) {
+        memes.push(meme);
+      }
+    });
     console.log("[+page] memebids", memes);
     _memebids$.set(memes);
   } catch (error) {
@@ -118,6 +124,12 @@ export async function updateMemebids() {
         replies_count: 0,
         staker_count: 0,
       }));
+      EXTERNAL_MEMES.forEach((meme) => {
+        console.log("[updateMemebids::EXTERNAL_MEMES] meme", meme);
+        if (meme) {
+          adaptedMemes.push(meme);
+        }
+      });
       _memebids$.set(adaptedMemes);
     } catch (error) {
       console.error("Failed to fetch backup memebids", error);
@@ -138,8 +150,4 @@ export async function updateProjectedMcap(meme_id: number) {
     projectedMcap: projectedMCap(memes[index]),
   };
   _memebids$.set([...updatedMemes]);
-}
-
-if (browser) {
-  updateMemebids();
 }

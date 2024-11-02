@@ -5,7 +5,7 @@
 </script>
 
 <button
-  class="size-8 rounded-full border border-gray-700 hover:border-gray-600 transition-colors bg-gray-800 flex items-center justify-center"
+  class="size-8 rounded-xl border border-gray-700 hover:border-gray-600 transition-colors bg-gray-800 flex items-center justify-center"
   on:click={() => {
     const currentIndex = orderOptions.indexOf(selectedDirection);
     selectedDirection = orderOptions[(currentIndex + 1) % orderOptions.length];

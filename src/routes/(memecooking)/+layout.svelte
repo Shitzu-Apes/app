@@ -12,7 +12,6 @@
   import { derived, get } from "svelte/store";
   import { blur } from "svelte/transition";
 
-  import { onNavigate } from "$app/navigation";
   import { client } from "$lib/api/client";
   import Toast from "$lib/components/Toast.svelte";
   import Tooltip from "$lib/components/Tooltip.svelte";
@@ -43,10 +42,8 @@
   // eslint-disable-next-line import/no-named-as-default-member
   dayjs.extend(relativeTime);
 
-  onNavigate((navigate) => {
-    if (navigate.to?.url.pathname === "/board") {
-      updateMemebids();
-    }
+  onMount(() => {
+    updateMemebids();
   });
 
   onMount(() => {

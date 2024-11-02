@@ -46,7 +46,7 @@
   const accountColor = getColorFromAccountId(reply.account_id);
 </script>
 
-<div class="w-full flex flex-col p-2 rounded-md text-shitzu-1">
+<div class="w-full flex flex-col p-2 text-shitzu-1">
   <div class="flex items-center justify-between gap-1 text-xs text-shitzu-3">
     <Chef
       account={`${reply.account_id}${reply.account_id === owner ? " (dev)" : ""}`}

@@ -142,7 +142,7 @@
               label: `${tab.label} (${info ? tab.getCount(info) : 0})`,
             }))}
             bind:activeTab
-            class="w-full"
+            class="w-full text-sm"
           />
 
           {#if info && isOwnAccount}

@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import { bumpMeme } from "./memebids";
 
+import { EXTERNAL_MEMES } from "$lib/external_memes";
+
 const ExternalTradeSchema = z.object({
   balance_changes: z.record(z.string(), z.string()),
   block_height: z.number(),
@@ -65,13 +67,25 @@ export function EXTunsubscribe(id: string | symbol) {
 EXTTradeSubscribe(Symbol("external_feed"), async (data) => {
   try {
     const balanceChanges = data.balance_changes;
-    const relevantToken = Object.keys(balanceChanges).find((token) =>
-      token.includes("meme-cooking"),
+    const relevantToken = Object.keys(balanceChanges).find(
+      (token) =>
+        token.includes("meme-cooking") ||
+        EXTERNAL_MEMES.map((meme) => meme?.token_id).includes(token),
     );
 
     if (relevantToken) {
-      const memeId = parseInt(relevantToken.split("-")[1]);
-      bumpMeme(memeId);
+      if (relevantToken.includes("meme-cooking")) {
+        const memeId = parseInt(relevantToken.split("-")[1]);
+        bumpMeme(memeId);
+      } else {
+        // For external memes, find the matching meme and bump using negative index
+        const externalMeme = EXTERNAL_MEMES.find(
+          (meme) => meme?.token_id === relevantToken,
+        );
+        if (externalMeme) {
+          bumpMeme(externalMeme.meme_id);
+        }
+      }
     }
   } catch (error) {
     console.error("[ExternalWebsocket] Error processing trade:", error);

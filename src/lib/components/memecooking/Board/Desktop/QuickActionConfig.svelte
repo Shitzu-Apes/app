@@ -34,9 +34,9 @@
 
 <div class="ml-0 sm:ml-auto flex items-center gap-2">
   <div class="flex flex-col">
-    <span class="text-sm text-white">Quick Buy/Deposit:</span>
+    <span class="text-sm text-shitzu-1">Quick Buy/Deposit:</span>
     <button
-      class="text-xs text-gray-400 cursor-pointer w-fit"
+      class="text-xs text-shitzu-3 hover:text-shitzu-4 cursor-pointer w-fit transition-colors"
       on:click={setMaxAmount}
     >
       max: {formattedBalance} Ⓝ
@@ -46,11 +46,11 @@
     <TokenInput
       bind:value={quickActionAmount}
       decimals={24}
-      class="w-full pl-7 pr-2 py-1 bg-transparent border border-gray-100 text-white rounded focus:border-shitzu-3 focus:outline-none"
+      class="w-full pl-7 pr-2 py-1 bg-gray-800/50 border border-gray-700 text-shitzu-1 rounded-lg focus:border-shitzu-4 focus:outline-none transition-colors"
       placeholder="5.00"
     />
     <Near
-      className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-white text-gray-700 rounded-full"
+      className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-white text-gray-800 rounded-full"
     />
   </div>
 </div>
