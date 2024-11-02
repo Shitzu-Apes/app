@@ -6,20 +6,27 @@ import { getProjectedMemePriceInNear } from "./getProjectedMemePriceInNear";
 import type { Meme } from "$lib/api/client";
 import { Ref } from "$lib/near";
 
+export function projectedMCapFromPool(
+  meme: Pick<Meme, "pool_id" | "total_supply" | "decimals">,
+): Readable<FixedNumber> {
+  if (!meme.pool_id) throw new Error();
+  const tokenPrice = writable<bigint>(0n);
+  getTokenPrice(meme.pool_id, meme.decimals).then((price) =>
+    tokenPrice.set(price),
+  );
+
+  return derived([nearPrice, tokenPrice], ([$nearPrice, $tokenPrice]) => {
+    getNearPrice();
+    return new FixedNumber(
+      $tokenPrice * BigInt(meme.total_supply!),
+      meme.decimals + 24,
+    ).mul(new FixedNumber($nearPrice, 24));
+  });
+}
+
 export function projectedMCap(meme: Meme): Readable<FixedNumber> {
   if (meme.pool_id) {
-    const tokenPrice = writable<bigint>(0n);
-    getTokenPrice(meme.pool_id, meme.decimals).then((price) =>
-      tokenPrice.set(price),
-    );
-
-    return derived([nearPrice, tokenPrice], ([$nearPrice, $tokenPrice]) => {
-      getNearPrice();
-      return new FixedNumber(
-        $tokenPrice * BigInt(meme.total_supply!),
-        meme.decimals + 24,
-      ).mul(new FixedNumber($nearPrice, 24));
-    });
+    return projectedMCapFromPool(meme);
   } else {
     return derived(nearPrice, (price) => {
       getNearPrice();

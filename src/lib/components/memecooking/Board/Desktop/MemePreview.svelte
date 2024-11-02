@@ -49,7 +49,10 @@
 <div
   class="w-full rounded overflow-hidden hover:ring-2 hover:ring-shitzu-3 bg-gray-800"
 >
-  <a href={`/meme/${memebid.meme_id}`} class="block">
+  <a
+    href={`/meme/${memebid.meme_id >= 0 ? memebid.meme_id : memebid.token_id}`}
+    class="block"
+  >
     <div class="flex items-stretch">
       <!-- Image Section -->
       <div class="relative w-1/3 bg-white/20">

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { match } from "ts-pattern";
+
   import SearchBox from "../../SearchBox.svelte";
   import VirtualMemeList from "../../VirtualMemeList.svelte";
   import LoadingLambo from "../LoadingLambo.svelte";
@@ -7,6 +9,7 @@
   import QuickActionConfig from "./QuickActionConfig.svelte";
 
   import SelectBox from "$lib/components/SelectBox.svelte";
+  import { external_memes } from "$lib/external_memes";
   import { memebids$, searchQuery$ } from "$lib/store/memebids";
   import {
     orderOptions,
@@ -16,29 +19,49 @@
 
   let selectedSort = sortOptions[0];
   let selectedDirection = orderOptions[0];
-  let activeTab: "auction" | "live" | "all" = "all";
+  let activeTab: "auction" | "live" | "all" | "other" = "all";
   let quickActionAmount = "5";
 
   const tabs = [
     { id: "all", label: "All" },
     { id: "auction", label: "Live" },
     { id: "live", label: "Launched" },
+    { id: "other", label: "Ecosystem" },
   ];
 
-  $: displayedMemebids = $memebids$.then((memebids) =>
-    filterAndSortMeme(
-      memebids,
-      {
-        sort: selectedSort.value,
-        order: selectedDirection.value,
-      },
-      $searchQuery$,
-      activeTab === "auction" ? true : false,
-      activeTab === "live",
-    ).map((meme) => ({
-      meme,
-    })),
-  );
+  $: displayedMemebids = match(activeTab)
+    .with("other", () =>
+      Promise.resolve(
+        filterAndSortMeme(
+          Object.values(external_memes),
+          {
+            sort: selectedSort.value,
+            order: selectedDirection.value,
+          },
+          $searchQuery$,
+          false,
+          false,
+        ).map((meme) => ({
+          meme,
+        })),
+      ),
+    )
+    .otherwise(() =>
+      $memebids$.then((memebids) =>
+        filterAndSortMeme(
+          memebids,
+          {
+            sort: selectedSort.value,
+            order: selectedDirection.value,
+          },
+          $searchQuery$,
+          activeTab === "auction" ? true : false,
+          activeTab === "live",
+        ).map((meme) => ({
+          meme,
+        })),
+      ),
+    );
 </script>
 
 <div class="w-full">

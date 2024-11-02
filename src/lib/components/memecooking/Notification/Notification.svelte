@@ -2,13 +2,15 @@
   import { onMount } from "svelte";
   import { slide } from "svelte/transition";
 
+  import tokens from "../../../../tokens.json";
+
   import Near from "$lib/assets/Near.svelte";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import { getToken } from "$lib/store";
   import { MCTradeSubscribe, memebids$ } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
 
-  const ALLOWED_TOKENS = ["token.0xshitzu.near"];
+  const ALLOWED_TOKENS = tokens.map(({ token_id }) => token_id);
 
   let notifications: {
     id: string;
