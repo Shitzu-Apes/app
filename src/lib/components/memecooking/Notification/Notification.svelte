@@ -116,8 +116,8 @@
       href={`/meme/${notification.meme_id}`}
       class="flex-shrink-0 w-40 h-20 rounded hover:ring-2 overflow-hidden {notification.is_deposit
         ? 'bg-shitzu-4/50 hover:ring-shitzu-3'
-        : 'bg-rose-4/50 hover:ring-rose-3'} animate-slide-in-from-left animate-duration-300"
-      in:slide={{ axis: "x", delay: 100 }}
+        : 'bg-rose-4/50 hover:ring-rose-3'}"
+      in:slide={{ axis: "x" }}
     >
       <div class="flex h-full">
         <!-- Image Section -->

@@ -45,16 +45,6 @@ export function filterAndSortMeme<T extends Meme>(
   switch (sort.sort) {
     case "bump order":
       return memes.sort((a, b) => {
-        // First compare live/launched vs failed status
-        const aIsActive = a.end_timestamp_ms && a.end_timestamp_ms > Date.now();
-        const bIsActive = b.end_timestamp_ms && b.end_timestamp_ms > Date.now();
-        const aIsLaunched = a.pool_id !== null;
-        const bIsLaunched = b.pool_id !== null;
-
-        if ((aIsActive || aIsLaunched) && !(bIsActive || bIsLaunched))
-          return -1;
-        if (!(aIsActive || aIsLaunched) && (bIsActive || bIsLaunched)) return 1;
-
         // Then sort by bump order
         if (sort.order === "asc") {
           return a.last_change_ms - b.last_change_ms;

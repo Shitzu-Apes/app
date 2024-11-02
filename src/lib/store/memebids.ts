@@ -72,7 +72,7 @@ export async function updateMemebids() {
         deposit_token_id: meme.deposit_token_id,
         soft_cap: "0",
         soft_cap_num: 0,
-        last_change_ms: Date.now(),
+        last_change_ms: 0,
         total_supply_num: parseFloat(meme.total_supply),
         created_blockheight: 0,
         created_timestamp_ms: 0,
@@ -139,15 +139,7 @@ export function MCTradeSubscribe(
 ) {
   const cb = async (data: LiveData) => {
     if (data.action === "new_trade") {
-      const response = await client.GET("/meme/{id}", {
-        params: {
-          path: {
-            id: String(data.data.meme_id),
-          },
-        },
-      });
-      const meme = response.data?.meme;
-      if (meme == null) return;
+      const meme = data.data;
       const memes = get(_memebids$);
       const index = memes.findIndex(({ meme_id }) => meme.meme_id === meme_id);
       if (index !== -1) {
@@ -178,15 +170,7 @@ export function MCSubscribe(
 ) {
   const cb = async (data: LiveData) => {
     if (data.action === "new_trade") {
-      const response = await client.GET("/meme/{id}", {
-        params: {
-          path: {
-            id: String(data.data.meme_id),
-          },
-        },
-      });
-      const meme = response.data?.meme;
-      if (meme == null) return;
+      const meme = data.data;
       callback({ action: "new_trade", data: { ...meme, ...data.data } });
     } else if (data.action === "new_meme") {
       callback({ action: "new_meme", data: data.data });
@@ -226,7 +210,8 @@ MCSubscribe(symbol, async (data) => {
   meme.last_change_ms = Date.now();
   meme.projectedMcap = projectedMCap(meme);
 
-  _memebids$.set([meme, ...memebids.filter((b) => b.meme_id !== meme.meme_id)]);
+  _memebids$.set(memebids);
+  bumpMeme(meme.meme_id);
 });
 
 export const ws = writable(
@@ -241,3 +226,47 @@ export const ws = writable(
     return ws;
   })(),
 );
+
+// For development/testing - press 'c' to simulate a new trade
+if (import.meta.env.DEV) {
+  window.addEventListener("keydown", (e) => {
+    if (e.key.toLowerCase() === "c") {
+      const memebids = get(_memebids$);
+      if (memebids.length === 0) return;
+
+      // Pick a random meme from existing memebids
+      const randomMeme = memebids[Math.floor(Math.random() * memebids.length)];
+      console.log("randomMeme", randomMeme);
+
+      bumpMeme(randomMeme.meme_id);
+      console.log("randomMeme", randomMeme);
+      // Create mock trade data
+      const mockTrade: LiveData = {
+        action: "new_trade",
+        data: {
+          ...randomMeme,
+          total_deposit: (
+            BigInt(randomMeme.total_deposit || "0") +
+            BigInt("1000000000000000000000000")
+          ).toString(),
+          total_deposit_fees: (
+            BigInt(randomMeme.total_deposit_fees || "0") +
+            BigInt("100000000000000000000000")
+          ).toString(),
+          is_deposit: true,
+          account_id: "test.near",
+          amount: "1000000000000000000000000",
+          amount_num: 100,
+          fee: "100000000000000000000000",
+          fee_num: 1,
+          timestamp_ms: Date.now(),
+          receipt_id: Math.random().toString(36).substring(2, 15),
+        },
+      };
+
+      callbacks.forEach((callback) => {
+        callback(mockTrade as LiveData);
+      });
+    }
+  });
+}

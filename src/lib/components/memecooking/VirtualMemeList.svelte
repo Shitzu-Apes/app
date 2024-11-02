@@ -115,9 +115,8 @@
           <div
             style="position: absolute; top: 0; left: {(row.lane / numLanes) *
               100}%; width: calc({100 / numLanes}% - {row.lane === numLanes - 1
-              ? (16 * (numLanes - 1)) / numLanes
-              : (16 * (numLanes - 1)) /
-                numLanes}px); transform: translateY({row.start}px);"
+              ? 0
+              : 16}px); transform: translateY({row.start}px);"
             data-index={row.index}
             use:measureElement
           >
