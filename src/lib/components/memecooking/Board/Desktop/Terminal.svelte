@@ -34,7 +34,7 @@
   const tabs = [
     { id: "all", label: "All" },
     { id: "launched", label: "Launched" },
-    { id: "other", label: "Ecosystem" },
+    { id: "other", label: "External" },
   ];
 
   $: displayedMemebids = match(activeTab)

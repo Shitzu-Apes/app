@@ -28,17 +28,21 @@
   $: isEnded = Boolean(
     memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now(),
   );
-  $: status = isLaunched
-    ? "launched"
-    : isEnded
-      ? reachedMcap
-        ? "pending"
-        : "failed"
-      : "active";
+  $: status =
+    memebid.meme_id < 0
+      ? "og"
+      : isLaunched
+        ? "launched"
+        : isEnded
+          ? reachedMcap
+            ? "pending"
+            : "failed"
+          : "active";
   $: statusColor = {
     launched: "bg-shitzu-4 text-black",
     pending: "bg-amber-4 text-black",
     failed: "bg-rose-4 text-black",
+    og: "bg-yellow-3 text-black",
     active:
       "bg-memecooking-400 text-black animated animated-heart-beat animated-infinite animated-duration-1000 hover:animate-none",
   }[status];
