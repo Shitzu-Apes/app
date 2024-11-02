@@ -4,6 +4,7 @@
   import { openBottomSheet } from "../BottomSheet/Container.svelte";
 
   import MEMECOOKING_LOGO from "$lib/assets/logo/meme-cooking.webp";
+  import SHITZU_LOGO from "$lib/assets/logo/shitzu.webp";
   import { showWalletSelector } from "$lib/auth";
   import BridgeSheet from "$lib/components/memecooking/BottomSheet/BridgeSheet.svelte";
   import HowItWorkSheet from "$lib/components/memecooking/BottomSheet/HowItWorkSheet.svelte";
@@ -22,17 +23,27 @@
 
 <nav class="w-full px-2">
   <div class="">
-    <div class="flex justify-between h-16 items-center">
+    <div class="flex justify-between h-fit py-2 items-center">
       <!-- Left section: Logo and primary navigation -->
       <div class="flex items-center gap-4">
         <!-- Logo -->
-        <a href="/board" class="flex items-center">
-          <img
-            src={MEMECOOKING_LOGO}
-            class="h-8 w-auto"
-            alt="Meme Cooking Logo"
-          />
-        </a>
+        <div class="flex items-center gap-4">
+          <a href="/board" class="flex items-center">
+            <img
+              src={MEMECOOKING_LOGO}
+              class="h-8 w-auto"
+              alt="Meme Cooking Logo"
+            />
+          </a>
+          <div class="flex flex-col text-xs text-gray-400">
+            <div class="flex items-center gap-1">
+              made with <div class="i-mdi:heart text-rose-500" />
+            </div>
+            <div class="flex items-center gap-1">
+              by <img src={SHITZU_LOGO} class="h-4 w-4" alt="Shitzu Logo" /> shitzu
+            </div>
+          </div>
+        </div>
 
         <!-- Primary Navigation -->
         <div class="relative">
@@ -134,6 +145,19 @@
                 >Telegram</span
               >
             </a>
+
+            <a
+              use:melt={$item}
+              href="https://app.shitzuapes.xyz"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex flex-col items-center justify-center p-2 text-gray-300 hover:text-white transition-colors"
+            >
+              <img src={SHITZU_LOGO} class="size-6 mb-1" alt="Shitzu Logo" />
+              <span class="text-[10px] text-center whitespace-nowrap"
+                >Shitzu</span
+              >
+            </a>
           </div>
         </div>
       </div>
@@ -183,7 +207,7 @@
 </nav>
 
 <div
-  class="flex items-center flex-wrap justify-center w-full bg-gray-800 rounded my-2 overflow-hidden"
+  class="flex items-center flex-wrap justify-center w-full bg-gray-800 rounded mb-2 overflow-hidden"
 >
   <div class="flex-1 overflow-x-hidden pl-2">
     <Notification />
