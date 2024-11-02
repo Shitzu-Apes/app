@@ -23,6 +23,15 @@ export async function appendNewMeme(meme: Meme) {
   _memebids$.set(Promise.resolve(memes));
 }
 
+export async function bumpMeme(meme_id: number) {
+  const memes = await get(_memebids$);
+  const meme = memes.find((m) => m.meme_id === meme_id);
+  if (!meme) return;
+  meme.last_change_ms = Date.now();
+  meme.projectedMcap = projectedMCap(meme);
+  _memebids$.set(Promise.resolve(memes));
+}
+
 export function updateMemebids() {
   return client
     .GET("/meme")
