@@ -10,7 +10,12 @@
 
   import SelectBox from "$lib/components/SelectBox.svelte";
   import { external_memes } from "$lib/external_memes";
-  import { memebids$, searchQuery$ } from "$lib/store/memebids";
+  import {
+    memebids$,
+    memebidsLoading$,
+    memebidsError$,
+    searchQuery$,
+  } from "$lib/store/memebids";
   import {
     orderOptions,
     filterAndSortMeme,
@@ -84,18 +89,22 @@
     <QuickActionConfig bind:quickActionAmount />
   </div>
 
-  {#await displayedMemebids}
+  {#if $memebidsLoading$}
     <div class="w-full my-10">
       <LoadingLambo />
     </div>
-  {:then items}
+  {:else if $memebidsError$}
+    <div class="w-full my-10">
+      {$memebidsError$.message}
+    </div>
+  {:else}
     <VirtualMemeList
-      {items}
+      items={displayedMemebids}
       showCook={true}
       {quickActionAmount}
       emptyMessage="No memes found"
       update={() => {}}
       className="px-1"
     />
-  {/await}
+  {/if}
 </div>

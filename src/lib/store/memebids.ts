@@ -8,95 +8,101 @@ import { projectedMCap } from "$lib/util/projectedMCap";
 
 export const searchQuery$ = writable("");
 
-const _memebids$ = writable<Promise<Meme[]>>(new Promise<never>(() => {}));
+// Stores the actual memes array, not a promise
+const _memebids$ = writable<Meme[]>([]);
 export const memebids$ = derived(_memebids$, (m) => m);
-export const memeMap$ = derived(memebids$, async (memes) => {
-  const memeMap = new Map<number, Meme>(
-    (await memes).map((m) => [m.meme_id, m]),
-  );
+export const memeMap$ = derived(memebids$, (memes) => {
+  const memeMap = new Map<number, Meme>(memes.map((m) => [m.meme_id, m]));
   return memeMap;
 });
 
-export async function appendNewMeme(meme: Meme) {
-  const memes = await get(_memebids$);
+export const memebidsLoading$ = writable(false);
+export const memebidsError$ = writable<Error | null>(null);
+
+export function appendNewMeme(meme: Meme) {
+  const memes = get(_memebids$);
   memes.push(meme);
-  _memebids$.set(Promise.resolve(memes));
+  _memebids$.set(memes);
 }
 
-export async function bumpMeme(meme_id: number) {
-  const memes = await get(_memebids$);
+export function bumpMeme(meme_id: number) {
+  const memes = get(_memebids$);
   const meme = memes.find((m) => m.meme_id === meme_id);
   if (!meme) return;
   meme.last_change_ms = Date.now();
   meme.projectedMcap = projectedMCap(meme);
-  _memebids$.set(Promise.resolve(memes));
+  _memebids$.set(memes);
 }
 
-export function updateMemebids() {
-  return client
-    .GET("/meme")
-    .then((res) => {
-      if (!res.data) return;
-      const memes: Meme[] = res.data.map((meme) => {
-        return {
-          ...meme,
-          projectedMcap: projectedMCap(meme),
-        };
-      });
-      console.log("[+page] memebids", memes);
-      _memebids$.set(Promise.resolve(memes));
-      return memes;
-    })
-    .catch(() => {
-      console.log("[updateMemebids]: Error");
-      MemeCooking.getLatestMeme().then((res) => {
-        // use this as a backup
-
-        console.log("fetching backup memebids");
-        const filteredMemes = res.filter(
-          (meme): meme is MemeInfo => meme !== null,
-        );
-        const adaptedMemes: Meme[] = filteredMemes.map((meme) => ({
-          meme_id: meme.id,
-          owner: meme.owner,
-          end_timestamp_ms: meme.end_timestamp_ms
-            ? parseInt(meme.end_timestamp_ms)
-            : null,
-          name: meme.name,
-          symbol: meme.symbol,
-          decimals: meme.decimals,
-          total_supply: meme.total_supply,
-          reference: meme.reference,
-          reference_hash: meme.reference_hash,
-          deposit_token_id: meme.deposit_token_id,
-          soft_cap: "0",
-          soft_cap_num: 0,
-          last_change_ms: Date.now(), // Placeholder, adjust as needed
-          total_supply_num: parseFloat(meme.total_supply),
-          created_blockheight: 0, // Placeholder, adjust as needed
-          created_timestamp_ms: 0, // Placeholder, adjust as needed
-          total_deposit: meme.total_staked,
-          total_deposit_num: parseFloat(meme.total_staked),
-          total_deposit_fees: "0", // Placeholder, adjust as needed
-          total_deposit_fees_num: 0, // Placeholder, adjust as needed
-          total_withdraw_fees: meme.total_withdrawal_fees,
-          total_withdraw_fees_num: parseFloat(meme.total_withdrawal_fees),
-          is_finalized: null, // Placeholder, adjust as needed
-          token_id: null, // Placeholder, adjust as needed
-          pool_id: null, // Placeholder, adjust as needed
-          description: null, // Placeholder, adjust as needed
-          twitterLink: null, // Placeholder, adjust as needed
-          telegramLink: null, // Placeholder, adjust as needed
-          website: null, // Placeholder, adjust as needed
-          image: meme.icon,
-          coronated_at_ms: null, // Placeholder, adjust as needed
-          replies_count: 0, // Placeholder, adjust as needed
-          staker_count: 0, // Placeholder, adjust as needed
-        }));
-        _memebids$.set(Promise.resolve(adaptedMemes));
-      });
+export async function updateMemebids() {
+  memebidsLoading$.set(true);
+  memebidsError$.set(null);
+  try {
+    const res = await client.GET("/meme");
+    if (!res.data) return;
+    const memes: Meme[] = res.data.map((meme) => {
+      return {
+        ...meme,
+        projectedMcap: projectedMCap(meme),
+      };
     });
+    console.log("[+page] memebids", memes);
+    _memebids$.set(memes);
+  } catch (error) {
+    console.log("[updateMemebids]: Error", error);
+    memebidsError$.set(error as Error);
+    try {
+      const res = await MemeCooking.getLatestMeme();
+      console.log("fetching backup memebids");
+      const filteredMemes = res.filter(
+        (meme): meme is MemeInfo => meme !== null,
+      );
+      const adaptedMemes: Meme[] = filteredMemes.map((meme) => ({
+        meme_id: meme.id,
+        owner: meme.owner,
+        end_timestamp_ms: meme.end_timestamp_ms
+          ? parseInt(meme.end_timestamp_ms)
+          : null,
+        name: meme.name,
+        symbol: meme.symbol,
+        decimals: meme.decimals,
+        total_supply: meme.total_supply,
+        reference: meme.reference,
+        reference_hash: meme.reference_hash,
+        deposit_token_id: meme.deposit_token_id,
+        soft_cap: "0",
+        soft_cap_num: 0,
+        last_change_ms: Date.now(),
+        total_supply_num: parseFloat(meme.total_supply),
+        created_blockheight: 0,
+        created_timestamp_ms: 0,
+        total_deposit: meme.total_staked,
+        total_deposit_num: parseFloat(meme.total_staked),
+        total_deposit_fees: "0",
+        total_deposit_fees_num: 0,
+        total_withdraw_fees: meme.total_withdrawal_fees,
+        total_withdraw_fees_num: parseFloat(meme.total_withdrawal_fees),
+        is_finalized: null,
+        token_id: null,
+        pool_id: null,
+        description: null,
+        twitterLink: null,
+        telegramLink: null,
+        website: null,
+        image: meme.icon,
+        coronated_at_ms: null,
+        replies_count: 0,
+        staker_count: 0,
+      }));
+      _memebids$.set(adaptedMemes);
+    } catch (error) {
+      console.error("Failed to fetch backup memebids", error);
+    }
+  } finally {
+    memebidsLoading$.set(false);
+  }
 }
+
 if (browser) {
   updateMemebids();
 }
@@ -110,11 +116,12 @@ type LiveData =
       action: "new_meme";
       data: Meme;
     };
+
 const callbacks: Map<string | symbol, (data: LiveData) => void> = new Map();
+
 export function initializeWebsocket(ws: WebSocket) {
   ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
-
     console.log("[ws.onmessage]:", data);
     callbacks.forEach((callback) => {
       callback(data);
@@ -141,11 +148,11 @@ export function MCTradeSubscribe(
       });
       const meme = response.data?.meme;
       if (meme == null) return;
-      const memes = await get(_memebids$);
+      const memes = get(_memebids$);
       const index = memes.findIndex(({ meme_id }) => meme.meme_id === meme_id);
       if (index !== -1) {
         memes[index] = { ...meme, projectedMcap: projectedMCap(meme) };
-        _memebids$.set(Promise.resolve(memes));
+        _memebids$.set(memes);
       }
       callback({ ...meme, ...data.data });
     }
@@ -205,27 +212,21 @@ MCSubscribe(symbol, async (data) => {
     };
   }
 
-  let memebids = await get(memebids$);
+  const memebids = get(_memebids$);
   const idx = memebids.findIndex((b) => b.meme_id === newMemeInfo.meme_id);
   let meme = memebids[idx];
   if (meme == null) {
-    const update = await updateMemebids();
-    if (update != null) {
-      memebids = update;
-      meme = memebids[idx];
-    }
+    await updateMemebids();
+    meme = get(_memebids$)[idx];
   }
+  if (!meme) return;
+
   meme.total_deposit = newMemeInfo.total_deposit;
   meme.total_deposit_fees = newMemeInfo.total_deposit_fees;
   meme.last_change_ms = Date.now();
   meme.projectedMcap = projectedMCap(meme);
 
-  _memebids$.set(
-    Promise.resolve([
-      meme,
-      ...memebids.filter((b) => b.meme_id !== meme.meme_id),
-    ]),
-  );
+  _memebids$.set([meme, ...memebids.filter((b) => b.meme_id !== meme.meme_id)]);
 });
 
 export const ws = writable(

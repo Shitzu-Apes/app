@@ -45,7 +45,7 @@
     }
 
     // Otherwise proceed with normal meme lookup
-    const memebids = await get(memebids$);
+    const memebids = get(memebids$);
     const meme = memebids.find((memebids) => memebids.meme_id === +meme_id);
     const memebid = await MemeCooking.getMeme(Number(meme_id));
 

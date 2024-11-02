@@ -65,9 +65,7 @@
           if (relevantToken.includes("meme-cooking")) {
             // Handle meme cooking tokens
             const memeId = parseInt(relevantToken.split("-")[1]);
-            const memeInfo = (await $memebids$).find(
-              (meme) => meme.meme_id === memeId,
-            );
+            const memeInfo = $memebids$.find((meme) => meme.meme_id === memeId);
             if (!memeInfo) return;
             notifications = [
               {

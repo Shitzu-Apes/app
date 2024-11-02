@@ -31,19 +31,22 @@
     };
   }
 
-  $: $memebids$.then((memes) => {
-    const firstMeme = memes.sort(
-      (a, b) => b.created_timestamp_ms - a.created_timestamp_ms,
-    )[0];
-    console.log("[MemeCreationNotification] meme", firstMeme);
-    notification = {
-      meme_id: firstMeme.meme_id,
-      party: firstMeme.owner,
-      ticker: firstMeme.symbol,
-      icon: `${import.meta.env.VITE_IPFS_GATEWAY}/${firstMeme.image}`,
-      at: firstMeme.created_timestamp_ms,
-    };
-  });
+  $: {
+    const memes = $memebids$;
+    if (memes.length > 0) {
+      const firstMeme = memes.sort(
+        (a, b) => b.created_timestamp_ms - a.created_timestamp_ms,
+      )[0];
+      console.log("[MemeCreationNotification] meme", firstMeme);
+      notification = {
+        meme_id: firstMeme.meme_id,
+        party: firstMeme.owner,
+        ticker: firstMeme.symbol,
+        icon: `${import.meta.env.VITE_IPFS_GATEWAY}/${firstMeme.image}`,
+        at: firstMeme.created_timestamp_ms,
+      };
+    }
+  }
   onMount(() => {
     const symbol = Symbol("notification");
     MCMemeSubscribe(symbol, (newMemeInfo) => {
