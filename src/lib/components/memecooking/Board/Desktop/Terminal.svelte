@@ -31,36 +31,32 @@
 
   $: displayedMemebids = match(activeTab)
     .with("other", () =>
-      Promise.resolve(
-        filterAndSortMeme(
-          Object.values(external_memes),
-          {
-            sort: selectedSort.value,
-            order: selectedDirection.value,
-          },
-          $searchQuery$,
-          false,
-          false,
-        ).map((meme) => ({
-          meme,
-        })),
-      ),
+      filterAndSortMeme(
+        Object.values(external_memes),
+        {
+          sort: selectedSort.value,
+          order: selectedDirection.value,
+        },
+        $searchQuery$,
+        false,
+        false,
+      ).map((meme) => ({
+        meme,
+      })),
     )
     .otherwise(() =>
-      $memebids$.then((memebids) =>
-        filterAndSortMeme(
-          memebids,
-          {
-            sort: selectedSort.value,
-            order: selectedDirection.value,
-          },
-          $searchQuery$,
-          activeTab === "auction" ? true : false,
-          activeTab === "live",
-        ).map((meme) => ({
-          meme,
-        })),
-      ),
+      filterAndSortMeme(
+        $memebids$,
+        {
+          sort: selectedSort.value,
+          order: selectedDirection.value,
+        },
+        $searchQuery$,
+        activeTab === "auction" ? true : false,
+        activeTab === "live",
+      ).map((meme) => ({
+        meme,
+      })),
     );
 </script>
 
