@@ -25,6 +25,7 @@
   import { wagmiConfig, wallet } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
   import { screenSize$ } from "$lib/screen-size";
+  import { initializeExternalWebsocket } from "$lib/store/externalTrades";
   import {
     indexer_last_block_height$,
     node_last_block_height$,
@@ -55,6 +56,7 @@
     };
 
     initWebSocket(); // Initialize WebSocket immediately
+    const externalWs = initializeExternalWebsocket(); // Initialize external trades websocket
     readAndSetReferral();
 
     const fetchLastBlockHeight = async () => {
@@ -97,6 +99,7 @@
     return () => {
       clearInterval(blockHeightInterval);
       clearInterval(wsCheckInterval);
+      externalWs.close();
     };
   });
 

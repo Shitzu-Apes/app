@@ -7,6 +7,7 @@
   import Near from "$lib/assets/Near.svelte";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import { getToken } from "$lib/store";
+  import { EXTTradeSubscribe } from "$lib/store/externalTrades";
   import { MCTradeSubscribe, memebids$ } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
 
@@ -46,16 +47,9 @@
 
   onMount(() => {
     console.log("[Notification] mounted");
-    const ws = new WebSocket("wss://ws-events.intear.tech/events/trade_swap");
 
-    ws.onopen = () => {
-      console.log("[Notification] WebSocket connected");
-      ws.send("{}");
-    };
-
-    ws.onmessage = async (event) => {
+    EXTTradeSubscribe(Symbol("notification"), async (data) => {
       try {
-        const data = JSON.parse(event.data);
         const balanceChanges = data.balance_changes;
 
         // Check if any of the tokens include the meme cooking contract or allowed tokens
@@ -114,19 +108,7 @@
           error,
         );
       }
-    };
-
-    ws.onerror = (error) => {
-      console.error("[Notification] WebSocket error:", error);
-    };
-
-    ws.onclose = () => {
-      console.log("[Notification] WebSocket closed");
-    };
-
-    return () => {
-      ws.close();
-    };
+    });
   });
 </script>
 
