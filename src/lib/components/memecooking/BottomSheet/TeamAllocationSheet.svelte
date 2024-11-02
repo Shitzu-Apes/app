@@ -165,6 +165,18 @@
   </slot>
 
   <section class="text-white px-4 py-6">
+    <div
+      class="bg-yellow-900/20 border border-yellow-500/50 rounded-lg p-4 mb-6"
+    >
+      <div class="flex items-center gap-2">
+        <div class="i-mdi:alert text-yellow-500 text-xl" />
+        <p class="text-yellow-400">
+          The displayed information may be inaccurate. Our team is working on
+          fixing this issue.
+        </p>
+      </div>
+    </div>
+
     <!-- {#if loading}
       <div class="flex justify-center items-center h-40">
         <p class="text-gray-400">Loading allocation details...</p>
