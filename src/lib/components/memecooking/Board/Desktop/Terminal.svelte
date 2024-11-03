@@ -70,7 +70,7 @@
 
 <div class="w-full">
   <div class="w-full flex justify-center items-center">
-    <div class="w-full flex justify-between items-stretch gap-2">
+    <div class="w-full flex justify-between items-stretch gap-2 px-1">
       <div class="w-full max-w-sm">
         <SearchBox />
       </div>
@@ -84,13 +84,19 @@
     </div>
   </div>
   <div
-    class="w-full flex flex-wrap justify-center items-center sm:justify-start gap-3 px-1 my-6"
+    class="w-full flex flex-wrap justify-center items-center md:justify-start gap-3 px-1 my-6"
   >
     <LiveToggle bind:liveOnly />
     <Tabs {tabs} bind:activeTab class="w-full max-w-sm text-sm" />
-    <SelectBox options={sortOptions} bind:selected={selectedSort} />
-    <QuickActionConfig bind:quickActionAmount />
-    <SortToggle bind:selectedDirection />
+
+    <div class="flex items-center gap-3">
+      <SelectBox options={sortOptions} bind:selected={selectedSort} />
+      <SortToggle bind:selectedDirection />
+    </div>
+
+    <div class="ml-0 md:ml-auto">
+      <QuickActionConfig bind:quickActionAmount />
+    </div>
   </div>
 
   {#if $memebidsLoading$}

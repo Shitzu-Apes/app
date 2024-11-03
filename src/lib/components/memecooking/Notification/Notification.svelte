@@ -109,7 +109,7 @@
   });
 </script>
 
-<div class="flex gap-2 overflow-x-auto scrollbar-none p-2">
+<div class="flex gap-2 overflow-x-auto scrollbar-none py-2">
   {#each notifications as notification (notification.id + notification.amount)}
     <a
       href={`/meme/${notification.meme_id}`}

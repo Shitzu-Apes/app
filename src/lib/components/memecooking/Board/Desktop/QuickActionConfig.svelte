@@ -32,9 +32,9 @@
   }
 </script>
 
-<div class="ml-0 sm:ml-auto flex items-center gap-2">
+<div class="flex items-center gap-2">
   <div class="flex flex-col">
-    <span class="text-sm text-shitzu-1">Quick Buy/Deposit:</span>
+    <span class="text-sm text-shitzu-1">Quick Buy:</span>
     <button
       class="text-xs text-shitzu-3 hover:text-shitzu-4 cursor-pointer w-fit transition-colors"
       on:click={setMaxAmount}

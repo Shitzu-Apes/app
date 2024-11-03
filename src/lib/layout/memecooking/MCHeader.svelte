@@ -212,13 +212,13 @@
   <div class="flex-1 overflow-x-hidden pl-2">
     <Notification />
   </div>
-  <div class="w-px h-22 bg-white mr-3 my-2"></div>
+  <div class="w-px h-22 bg-white mr-2 my-2"></div>
   <div class="flex-shrink-0 min-w-40 min-h-20 mr-2">
     <MemeCreationNotification />
   </div>
   <a
     href="/create"
-    class="w-10 h-26 flex items-center justify-center bg-memecooking-500 text-black"
+    class="w-6 sm:w-9 h-26 flex items-center justify-center bg-memecooking-500 text-black"
   >
     <div
       class="i-mdi:plus size-8 text-black animated animated-flash animated-infinite animated-duration-1000 hover:animate-none"
