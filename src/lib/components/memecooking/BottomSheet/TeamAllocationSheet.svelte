@@ -22,32 +22,31 @@
   let memeOnchain: MemeInfo | null = null;
   let claimable = 0n;
   let claimed = 0n;
-  // let loading = true;
-  // let error: string | null = null;
+  let loading = true;
+  let error: string | null = null;
   let updateInterval: number | null = null;
 
   async function loadData() {
     try {
       const accountId = get(wallet.accountId$);
       if (!accountId) {
-        // error = "Please connect wallet first";
+        error = "Please connect wallet first";
         return;
       }
 
-      // memeOnchain = await MemeCooking.getFinalizedMeme(meme.meme_id).catch(
-      //   (...args) => {
-      //     console.error("Failed to load meme", args);
-      //     return null;
-      //   },
-      // );
-
+      memeOnchain = await MemeCooking.getFinalizedMeme(meme.meme_id).catch(
+        (...args) => {
+          console.error("Failed to load meme", args);
+          return null;
+        },
+      );
       if (!memeOnchain) {
-        // error = "Meme not found";
+        error = "Meme not found";
         return;
       }
 
       if (!meme.team_allocation) {
-        // error = "No team allocation for this meme";
+        error = "No team allocation for this meme";
         return;
       }
 
@@ -77,9 +76,9 @@
           ) - claimed;
       }
 
-      // loading = false;
+      loading = false;
     } catch (e) {
-      // error = "Failed to load vesting data";
+      error = "Failed to load vesting data";
       console.error("Failed to load vesting data", e);
     }
   }
@@ -147,9 +146,9 @@
     cliffDurationMs: meme.cliff_duration_ms,
   };
 
-  // $: claimableAmount = claimable
-  //   ? new FixedNumber(claimable, meme?.decimals || 0).format()
-  //   : "0";
+  $: claimableAmount = claimable
+    ? new FixedNumber(claimable, meme?.decimals || 0).format()
+    : "0";
   $: claimedAmount = new FixedNumber(claimed, meme?.decimals || 0).format();
   $: vestedAmount = new FixedNumber(
     BigInt(meme.team_allocation ?? "0") - claimed - claimable,
@@ -165,7 +164,7 @@
   </slot>
 
   <section class="text-white px-4 py-6">
-    <!-- {#if loading}
+    {#if loading}
       <div class="flex justify-center items-center h-40">
         <p class="text-gray-400">Loading allocation details...</p>
       </div>
@@ -173,68 +172,72 @@
       <div class="bg-red-900/20 border border-red-500/50 rounded-lg p-4">
         <p class="text-red-400">{error}</p>
       </div>
-    {:else if teamAllocation} -->
-    <div class="space-y-8">
-      <!-- Vesting Schedule Chart -->
-      <div class="bg-gray-800/50 rounded-lg p-4">
-        <h3 class="text-lg font-medium text-shitzu-4 mb-4">Vesting Schedule</h3>
-        <VestingChart {teamAllocation} />
-      </div>
-
-      <!-- Allocation Stats -->
-      <div class="grid grid-cols-2 gap-4">
+    {:else if teamAllocation}
+      <div class="space-y-8">
+        <!-- Vesting Schedule Chart -->
         <div class="bg-gray-800/50 rounded-lg p-4">
-          <h4 class="text-sm text-gray-400">Total Allocation</h4>
-          <p class="text-xl font-medium text-shitzu-4 mt-1">
-            {(teamAllocation.allocationBps / 100).toFixed(2)}%
-          </p>
-          <p class="text-sm text-gray-400 mt-1">
-            {new FixedNumber(
-              BigInt(meme.team_allocation_num),
-              meme?.decimals || 0,
-            ).format()}
-          </p>
+          <h3 class="text-lg font-medium text-shitzu-4 mb-4">
+            Vesting Schedule
+          </h3>
+          <VestingChart {teamAllocation} />
         </div>
 
-        <div class="bg-gray-800/50 rounded-lg p-4">
-          <h4 class="text-sm text-gray-400">Tokens Claimed</h4>
-          <p class="text-xl font-medium text-shitzu-4 mt-1">
-            {claimedAmount}
-          </p>
-        </div>
-      </div>
-
-      <!-- Claimable Section -->
-      <!-- {#if claimable && Number(claimable) > 0} -->
-      <div class="bg-shitzu-4/10 rounded-lg p-4">
-        <div class="flex justify-between items-center mb-4">
-          <div>
-            <h4 class="text-sm text-gray-400">Available to Claim</h4>
-            <p class="text-xl font-medium text-shitzu-4 mt-1">-</p>
+        <!-- Allocation Stats -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-gray-800/50 rounded-lg p-4">
+            <h4 class="text-sm text-gray-400">Total Allocation</h4>
+            <p class="text-xl font-medium text-shitzu-4 mt-1">
+              {(teamAllocation.allocationBps / 100).toFixed(2)}%
+            </p>
             <p class="text-sm text-gray-400 mt-1">
-              {vestedAmount} vested
+              {new FixedNumber(
+                BigInt(meme.team_allocation_num),
+                meme?.decimals || 0,
+              ).format()}
             </p>
           </div>
-          <Button
-            type="custom"
-            class="bg-shitzu-4 text-black py-2 px-6 rounded-lg font-medium hover:bg-shitzu-5 transition-colors leading-6"
-            onClick={handleClaim}
-          >
-            Claim
-            <McIcon
-              {meme}
-              class="size-6 bg-white rounded-full text-black ml-1 inline-block"
-            />
-          </Button>
+
+          <div class="bg-gray-800/50 rounded-lg p-4">
+            <h4 class="text-sm text-gray-400">Tokens Claimed</h4>
+            <p class="text-xl font-medium text-shitzu-4 mt-1">
+              {claimedAmount}
+            </p>
+          </div>
         </div>
+
+        <!-- Claimable Section -->
+        {#if claimable && Number(claimable) > 0}
+          <div class="bg-shitzu-4/10 rounded-lg p-4">
+            <div class="flex justify-between items-center mb-4">
+              <div>
+                <h4 class="text-sm text-gray-400">Available to Claim</h4>
+                <p class="text-xl font-medium text-shitzu-4 mt-1">
+                  {claimableAmount}
+                </p>
+                <p class="text-sm text-gray-400 mt-1">
+                  {vestedAmount} vested
+                </p>
+              </div>
+              <Button
+                type="custom"
+                class="bg-shitzu-4 text-black py-2 px-6 rounded-lg font-medium hover:bg-shitzu-5 transition-colors leading-6"
+                onClick={handleClaim}
+              >
+                Claim
+                <McIcon
+                  {meme}
+                  class="size-6 bg-white rounded-full text-black ml-1 inline-block"
+                />
+              </Button>
+            </div>
+          </div>
+        {/if}
       </div>
-      <!-- {/if} -->
-    </div>
-    <!-- {:else}
+    {:else}
       <div class="flex justify-center items-center h-40">
         <p class="text-gray-400">No team allocation configured for this meme</p>
       </div>
-    {/if} -->
+    {/if}
   </section>
 
   <div class="px-4 py-3 border-t border-gray-700">
