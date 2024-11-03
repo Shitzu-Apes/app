@@ -6,7 +6,7 @@
 
   export let meme: Meme;
 
-  const tokenId = getTokenId(meme.symbol, meme.meme_id);
+  const tokenId = getTokenId(meme);
   const launchDate = new Date(
     (meme.end_timestamp_ms ?? meme.created_timestamp_ms) * 1000,
   ).toLocaleDateString();

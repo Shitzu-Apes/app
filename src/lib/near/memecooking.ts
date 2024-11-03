@@ -361,7 +361,7 @@ export abstract class MemeCooking {
     if (!accountId) return;
 
     if (!isWithdraw) {
-      const tokenId = getTokenId(meme.symbol, meme.meme_id);
+      const tokenId = getTokenId(meme);
       const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
       if (!isRegistered) {
         transactions.push({
@@ -380,7 +380,7 @@ export abstract class MemeCooking {
         });
       }
     } else {
-      const tokenId = getTokenId(meme.symbol, meme.meme_id);
+      const tokenId = getTokenId(meme);
       const accountExists = await checkIfAccountExists(tokenId);
       if (accountExists) {
         throw new Error("Trying to withdraw, but token exists");
@@ -477,7 +477,7 @@ export abstract class MemeCooking {
     const accountId = get(wallet.accountId$);
     if (!accountId) return;
 
-    const tokenId = getTokenId(args.meme.symbol, args.meme.meme_id);
+    const tokenId = getTokenId(args.meme);
     const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
 
     const transactions: HereCall[] = [];
@@ -721,7 +721,7 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
         // find meme id from data
         const meme = meme_map.get(meme_id.toString());
         if (!meme) return null;
-        const token_id = getTokenId(meme.symbol, meme.meme_id);
+        const token_id = getTokenId(meme);
         const amount = await MemeCooking.getClaimable(accountId, meme.meme_id);
         if (amount === null) return null;
         return {
@@ -753,7 +753,7 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
         const meme = profile.coins_held.find((m) => m.meme_id === meme_id);
         if (meme)
           return {
-            token_id: getTokenId(meme.symbol, meme.meme_id),
+            token_id: getTokenId(meme),
             amount: new FixedNumber(0n, meme.decimals),
             meme: {
               ...meme,

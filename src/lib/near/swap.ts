@@ -16,7 +16,7 @@ export async function handleBuy(
   callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
 ) {
   if (!input || !accountId) return;
-  const tokenId = getTokenId(meme.symbol, meme.meme_id);
+  const tokenId = getTokenId(meme);
 
   const slippageFixedNumber = new FixedNumber((slippage * 100).toString(), 2);
   const min_amount_out = expected

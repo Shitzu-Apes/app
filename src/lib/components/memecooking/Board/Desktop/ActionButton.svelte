@@ -94,7 +94,7 @@
 
       const expected = await Ref.getReturn({
         amountIn: input,
-        tokenOut: getTokenId(memebid.symbol, memebid.meme_id),
+        tokenOut: getTokenId(memebid),
         tokenIn: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
         poolId: memebid.pool_id,
         decimals: memebid.decimals,

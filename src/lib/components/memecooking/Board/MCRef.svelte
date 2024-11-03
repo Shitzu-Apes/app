@@ -57,11 +57,7 @@
   }
 
   function refreshTokenBalance(accountId: string) {
-    Ft.balanceOf(
-      getTokenId(meme.symbol, meme.meme_id),
-      accountId,
-      meme.decimals,
-    ).then((balance) => {
+    Ft.balanceOf(getTokenId(meme), accountId, meme.decimals).then((balance) => {
       $tokenBalance = balance;
     });
   }
@@ -80,9 +76,9 @@
         let tokenIn, tokenOut;
         if (activeTab === "buy") {
           tokenIn = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
-          tokenOut = getTokenId(meme.symbol, meme.meme_id);
+          tokenOut = getTokenId(meme);
         } else {
-          tokenIn = getTokenId(meme.symbol, meme.meme_id);
+          tokenIn = getTokenId(meme);
           tokenOut = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
         }
 

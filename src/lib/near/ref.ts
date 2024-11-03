@@ -54,6 +54,7 @@ export abstract class Ref {
       amount_in: amountIn.toU128(),
       token_out: tokenOut,
     };
+    console.log("args", args);
     const out = await view<string>(
       import.meta.env.VITE_REF_CONTRACT_ID,
       "get_return",
