@@ -85,8 +85,7 @@
   }
 
   async function handleClaim() {
-    if (!meme) return;
-    // || !claimable) return;
+    if (!meme || !claimable) return;
 
     await MemeCooking.claimVesting(
       wallet,
