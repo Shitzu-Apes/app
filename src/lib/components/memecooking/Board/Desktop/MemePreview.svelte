@@ -8,6 +8,7 @@
   import Countdown from "$lib/components/memecooking/Countdown.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { FixedNumber } from "$lib/util";
+  import { timesAgo } from "$lib/util/timesAgo";
 
   export let memebid: Meme;
   export let showCook = true;
@@ -136,7 +137,14 @@
           </div>
 
           <div class="flex items-center gap-4">
-            {#if typeof memebid.staker_count === "number"}
+            {#if isLaunched}
+              <div class="flex items-center gap-1">
+                <div class="i-mdi:clock text-memecooking-400" />
+                <span class="font-medium"
+                  >{timesAgo(new Date(memebid.created_timestamp_ms))}</span
+                >
+              </div>
+            {:else if typeof memebid.staker_count === "number"}
               <div class="flex items-center gap-1">
                 <div class="i-mdi:account-multiple text-memecooking-400" />
                 <span class="font-medium">{memebid.staker_count}</span>

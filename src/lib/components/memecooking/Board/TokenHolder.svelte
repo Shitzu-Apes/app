@@ -150,7 +150,7 @@
   <div class="">
     <h2 class="text-lg font-medium mb-3 flex items-center gap-2 text-shitzu-4">
       <img src={SHITZU_STONK} alt="Shitzu Stonk" class="size-10" />
-      Holders
+      Top 100 Holders
       <Tooltip>
         <slot slot="info">
           <div class="px-3 py-2 text-sm">
@@ -177,7 +177,7 @@
         >
           <span>Total Holders</span>
           <span>
-            {holders.length}
+            {holders.length >= 98 ? "100+" : holders.length}
           </span>
         </div>
         <div class="space-y-3">
