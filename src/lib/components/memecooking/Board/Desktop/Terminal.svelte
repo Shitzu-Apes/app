@@ -32,9 +32,9 @@
   let liveOnly = false;
 
   const tabs = [
-    { id: "all", label: "All" },
-    { id: "launched", label: "Launched" },
-    { id: "other", label: "External" },
+    { id: "all", label: "Menu" },
+    { id: "launched", label: "Served" },
+    { id: "other", label: "Imported" },
   ];
 
   $: displayedMemebids = match(activeTab)
@@ -86,7 +86,9 @@
   <div
     class="w-full flex flex-wrap justify-center items-center md:justify-start gap-3 px-1 my-6"
   >
-    <LiveToggle bind:liveOnly />
+    <div class="w-full md:w-fit flex justify-center">
+      <LiveToggle bind:liveOnly />
+    </div>
     <Tabs {tabs} bind:activeTab class="w-full max-w-sm text-sm" />
 
     <div class="flex items-center gap-3">

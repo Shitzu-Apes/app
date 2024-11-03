@@ -5,6 +5,7 @@
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import { MCMemeSubscribe } from "$lib/store/MCWebSocket";
   import { memebids$ } from "$lib/store/memebids";
+  import { timesAgo } from "$lib/util/timesAgo";
 
   let notification: {
     meme_id: number;
@@ -89,7 +90,7 @@
                 <div class="i-mdi:clock size-3" />
               </span>
               <span class="flex-shrink-1 font-medium truncate">
-                {new Date(notification.at).toLocaleDateString()}
+                {timesAgo(new Date(notification.at))}
               </span>
             </div>
 

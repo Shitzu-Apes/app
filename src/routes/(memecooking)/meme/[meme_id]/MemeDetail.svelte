@@ -48,7 +48,7 @@
     <div class="flex flex-wrap items-center justify-between gap-4">
       <!-- Token Basic Info -->
       <div class="flex items-center gap-4">
-        <McIcon meme={$meme$} class="w-16 object-contain bg-white" />
+        <McIcon meme={$meme$} class="w-16 object-contain" />
         <div>
           <h1 class="text-2xl font-medium">{$meme$.name}</h1>
           <div class="flex items-center gap-2 text-gray-400">

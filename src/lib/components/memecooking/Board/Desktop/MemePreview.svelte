@@ -31,20 +31,20 @@
   );
   $: status =
     memebid.meme_id < 0
-      ? "og"
+      ? "imported"
       : isLaunched
-        ? "launched"
+        ? "served"
         : isEnded
           ? reachedMcap
-            ? "pending"
-            : "failed"
-          : "active";
+            ? "ready"
+            : "spoiled"
+          : "cooking";
   $: statusColor = {
-    launched: "bg-shitzu-4 text-black",
-    pending: "bg-amber-4 text-black",
-    failed: "bg-rose-4 text-black",
-    og: "bg-yellow-3 text-black",
-    active:
+    served: "bg-shitzu-4 text-black",
+    ready: "bg-amber-4 text-black",
+    spoiled: "bg-rose-4 text-black",
+    imported: "bg-yellow-3 text-black",
+    cooking:
       "bg-memecooking-400 text-black animated animated-heart-beat animated-infinite animated-duration-1000 hover:animate-none",
   }[status];
 
@@ -71,9 +71,9 @@
         <div class="w-full flex justify-between items-center mb-2">
           <div class="w-full flex justify-between items-center gap-2">
             <span
-              class={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${statusColor}`}
+              class={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${statusColor} capitalize`}
             >
-              {#if status === "active"}
+              {#if status === "cooking"}
                 {#if memebid.end_timestamp_ms}
                   <div class="flex items-center gap-1 text-black">
                     <div class="i-mdi:clock" />
@@ -85,7 +85,7 @@
                   </div>
                 {/if}
               {:else}
-                {status.toUpperCase()}
+                {status}
               {/if}
             </span>
           </div>

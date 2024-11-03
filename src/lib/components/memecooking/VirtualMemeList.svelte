@@ -74,7 +74,7 @@
     estimateSize: () => 200,
     overscan: 15,
     lanes: numLanes,
-    gap: 16,
+    gap: 8,
   });
 
   $: {
@@ -116,7 +116,7 @@
             style="position: absolute; top: 0; left: {(row.lane / numLanes) *
               100}%; width: calc({100 / numLanes}% - {row.lane === numLanes - 1
               ? 0
-              : 16}px); transform: translateY({row.start}px);"
+              : 8}px); transform: translateY({row.start}px);"
             data-index={row.index}
             use:measureElement
           >
