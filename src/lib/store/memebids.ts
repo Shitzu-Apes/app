@@ -55,7 +55,7 @@ export function bumpMeme(meme_id: number) {
     updatedMemesAfter[memeIndex] = updatedMemeAfter;
 
     _memebids$.set(updatedMemesAfter);
-  }, 500);
+  }, 300);
 }
 
 export async function updateMemebids() {
