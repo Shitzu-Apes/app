@@ -30,6 +30,8 @@
           screenSize$.set(ScreenSize.Phone);
         } else if (inlineSize <= ScreenSize.Mobile) {
           screenSize$.set(ScreenSize.Mobile);
+        } else if (inlineSize <= ScreenSize.Tablet) {
+          screenSize$.set(ScreenSize.Tablet);
         } else if (inlineSize <= ScreenSize.Laptop) {
           screenSize$.set(ScreenSize.Laptop);
         } else if (inlineSize <= ScreenSize.DesktopLg) {

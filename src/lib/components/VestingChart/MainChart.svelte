@@ -238,7 +238,7 @@
   <Svg
     {width}
     {height}
-    class="bg-gray-700 rounded-lg border border-white"
+    class=""
     on:mouseX={({ detail: mouseX }) => handleMove(mouseX)}
   >
     <ChartLegend {selected} {margin} {width} {fontSize} />

@@ -9,7 +9,9 @@
   import LoadingLambo from "$lib/components/memecooking/Board/LoadingLambo.svelte";
   import TokenDetailCarousel from "$lib/components/memecooking/Board/TokenDetailCarousel.svelte";
   import { getExternalMeme } from "$lib/external_memes";
+  import { ScreenSize } from "$lib/models";
   import { MemeCooking } from "$lib/near/memecooking";
+  import { screenSize$ } from "$lib/screen-size";
   import { memebids$ } from "$lib/store/memebids";
 
   // page data
@@ -80,35 +82,16 @@
   </div>
 {:then detail}
   {#if detail}
-    <div class="desktop">
+    {#if $screenSize$ > ScreenSize.Tablet}
       <div class="w-full p-2 pb-25 w-full">
         <MemeDetail meme$={writable(detail.meme)} />
       </div>
-    </div>
-    <div class="mobile">
+    {:else}
       <TokenDetailCarousel memebid$={writable(detail.meme)} />
-    </div>
+    {/if}
   {:else}
     <div>Meme not found</div>
   {/if}
 {:catch error}
   <div>Error: {error.message}</div>
 {/await}
-
-<style lang="scss">
-  .mobile {
-    display: none;
-  }
-  .desktop {
-    display: contents;
-  }
-
-  @include breakpoint(mobile, max) {
-    .mobile {
-      display: contents;
-    }
-    .desktop {
-      display: none;
-    }
-  }
-</style>
