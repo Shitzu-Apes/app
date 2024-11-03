@@ -33,6 +33,7 @@ export function initializeExternalWebsocket() {
   ws.onmessage = (event) => {
     try {
       const data = ExternalTradeSchema.parse(JSON.parse(event.data));
+      console.log("[ExternalWebsocket] Received trade:", data);
       callbacks.forEach((callback) => {
         callback(data);
       });
@@ -67,26 +68,20 @@ export function EXTunsubscribe(id: string | symbol) {
 EXTTradeSubscribe(Symbol("external_feed"), async (data) => {
   try {
     const balanceChanges = data.balance_changes;
-    const relevantToken = Object.keys(balanceChanges).find(
-      (token) =>
-        token.includes("meme-cooking") ||
-        EXTERNAL_MEMES.map((meme) => meme?.token_id).includes(token),
-    );
-
-    if (relevantToken) {
-      if (relevantToken.includes("meme-cooking")) {
-        const memeId = parseInt(relevantToken.split("-")[1]);
+    Object.keys(balanceChanges).forEach((token) => {
+      if (token.includes("meme-cooking")) {
+        const memeId = parseInt(token.split("-")[1]);
         bumpMeme(memeId);
-      } else {
+      } else if (EXTERNAL_MEMES.map((meme) => meme?.token_id).includes(token)) {
         // For external memes, find the matching meme and bump using negative index
         const externalMeme = EXTERNAL_MEMES.find(
-          (meme) => meme?.token_id === relevantToken,
+          (meme) => meme?.token_id === token,
         );
         if (externalMeme) {
           bumpMeme(externalMeme.meme_id);
         }
       }
-    }
+    });
   } catch (error) {
     console.error("[ExternalWebsocket] Error processing trade:", error);
   }

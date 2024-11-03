@@ -4,8 +4,7 @@
 
   import Near from "$lib/assets/Near.svelte";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
-  import { EXTERNAL_MEMES } from "$lib/external_memes";
-  import { getToken } from "$lib/store";
+  import { external_memes, EXTERNAL_MEMES } from "$lib/external_memes";
   import { MCTradeSubscribe } from "$lib/store/MCWebSocket";
   import { EXTTradeSubscribe } from "$lib/store/externalTrades";
   import { memebids$ } from "$lib/store/memebids";
@@ -82,18 +81,18 @@
             ];
           } else {
             // Handle allowed tokens
-            const tokenInfo = await getToken(relevantToken);
+            const tokenInfo = external_memes[relevantToken];
             notifications = [
               {
                 id: data.receipt_id,
                 meme_id: relevantToken,
                 amount: amount.replace("-", ""),
-                decimals: tokenInfo.decimal,
+                decimals: tokenInfo.decimals,
                 is_deposit: isDeposit,
                 is_mc: false,
                 party: data.trader,
                 ticker: tokenInfo.symbol,
-                icon: tokenInfo.icon || SHITZU_POCKET, // Fallback to SHITZU_POCKET if no icon
+                icon: tokenInfo.image || SHITZU_POCKET, // Fallback to SHITZU_POCKET if no icon
               },
               ...notifications.slice(0, 9),
             ];
