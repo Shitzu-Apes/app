@@ -96,6 +96,22 @@
     }
     return true;
   }
+
+  function handleKeyPress(e: KeyboardEvent) {
+    if (e.key === "z") {
+      addToast({
+        type: "foreground",
+        data: {
+          type: "simple",
+          data: {
+            title: "Test Toast",
+            description: "This is a test toast message",
+            color: "bg-green-500",
+          },
+        },
+      });
+    }
+  }
 </script>
 
 <script lang="ts">
@@ -109,28 +125,34 @@
 
 <div
   use:portal
-  class="fixed right-0 top-0 z-50 m-4 flex flex-col items-end gap-2 md:bottom-0 md:top-auto"
+  class="fixed left-1/2 top-4 z-50 -translate-x-1/2 flex flex-col items-center gap-2"
 >
   {#each $toasts as { id, data } (id)}
     <div
       use:melt={$content(id)}
-      in:fly={{ x: "50%", duration: 500 }}
+      in:fly={{ y: "-100%", duration: 300 }}
       out:slide
-      class="relative rounded-lg bg-neutral-800 text-white border border-red-200"
+      class="relative rounded-lg bg-gray-800 text-white border border-gray-700 shadow-lg"
     >
-      <div
-        class="relative flex w-[24rem] max-w-[calc(100vw-2rem)] items-center justify-between gap-4 p-5 pt-6"
-      >
+      <div class="relative flex w-80 items-center gap-3 p-3">
         {#if data.type === "simple"}
           <div>
             <h3
               use:melt={$title(id)}
-              class="flex items-center gap-2 font-semibold"
+              class="flex items-center gap-2 text-sm font-medium text-shitzu-4"
             >
+              {#if data.data.color}
+                <div class="relative">
+                  <div
+                    class="absolute inset-0 rounded-full {data.data
+                      .color} opacity-50 animate-ping"
+                  ></div>
+                  <div class="size-2 rounded-full {data.data.color}"></div>
+                </div>
+              {/if}
               {data.data.title}
-              <span class="size-1.5 rounded-full {data.data.color}" />
             </h3>
-            <div use:melt={$description(id)}>
+            <div use:melt={$description(id)} class="text-sm text-gray-300">
               {data.data.description}
             </div>
           </div>
@@ -140,10 +162,9 @@
         {#if data.type === "simple" || data.canClose}
           <button
             use:melt={$close(id)}
-            class="absolute right-4 top-4 grid size-6 place-items-center rounded-full text-magnum-500
-      hover:bg-magnum-900/50 red"
+            class="absolute right-2 top-2 grid size-5 place-items-center rounded-md text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"
           >
-            <div class="i-mdi:close size-4" />
+            <div class="i-mdi:close size-3" />
           </button>
         {/if}
       </div>

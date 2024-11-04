@@ -82,71 +82,70 @@
   }
 </script>
 
-<div
-  class="flex flex-col justify-between [&>*]:flex [&>*]:items-center [&>*]:gap-2 bg-gradient-to-r font-size-[1.1rem] font-bold"
->
+<div class="flex flex-col gap-2">
   {#await outcome}
-    <div>
-      <div class="i-svg-spinners:6-dots-rotate w-6 h-6" />
-      <div>Awaiting confirmation</div>
+    <div class="flex items-center gap-2">
+      <div class="i-svg-spinners:90-ring size-5" />
+      <div class="text-sm text-gray-300">Awaiting confirmation</div>
     </div>
   {:then res}
     {#if res == null}
-      <div>
-        <div class="i-line-md:confirm w-6 h-6 bg-gray-8" />
-        <div>Complete</div>
+      <div class="flex items-center gap-2">
+        <div class="i-line-md:confirm size-5 text-gray-400" />
+        <div class="text-sm text-gray-300">Complete</div>
       </div>
     {:else if Array.isArray(res)}
       {#each res as { status, id, functionCalls, tokensBurnt, receiptError }}
-        <div class="tx-status">
-          {#if status === "success"}
-            <div class="w-6 h-6 text-green-2 i-mdi-check-circle" />
-          {:else}
-            <div class="w-6 h-6 text-red-2 i-mdi-cancel" />
-          {/if}
-          <div>
-            <div>
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center gap-2">
+            {#if status === "success"}
+              <div class="size-5 text-green-500 i-mdi-check-circle" />
+            {:else}
+              <div class="size-5 text-red-500 i-mdi-cancel" />
+            {/if}
+            <div class="text-sm text-gray-300">
               Called method{functionCalls.length > 1 ? "s" : ""}: {functionCalls.join(
                 ", ",
               )}
             </div>
-            <div>
-              Total gas burnt: {tokensBurnt.format({
-                maximumFractionDigits: 1,
-                maximumSignificantDigits: 4,
-              })} TGas ({tokensBurnt.mul(new FixedNumber("1", 4)).format({
-                maximumFractionDigits: 5,
-                maximumSignificantDigits: 4,
-              })}N)
-            </div>
-            <div>
-              <a
-                class="text-blue-2 visited:text-blue-3"
-                href="{import.meta.env.VITE_EXPLORER_URL}/transactions/{id}"
-                target="_blank"
-                rel="noopener"
-              >
-                Link to transaction
-                <button class="rounded-xl p-2">
-                  <div class="w-4 h-4 i-mdi-open-in-new" />
-                </button>
-              </a>
-            </div>
-            {#if receiptError}
-              <div>
-                <div>An error occured in a receipt:</div>
-                <div>{receiptError}</div>
-              </div>
-            {/if}
           </div>
+
+          <div class="text-sm text-gray-300 pl-7">
+            Total gas burnt: {tokensBurnt.format({
+              maximumFractionDigits: 1,
+              maximumSignificantDigits: 4,
+            })} TGas ({tokensBurnt.mul(new FixedNumber("1", 4)).format({
+              maximumFractionDigits: 5,
+              maximumSignificantDigits: 4,
+            })}N)
+          </div>
+
+          <div class="pl-7">
+            <a
+              class="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1"
+              href="{import.meta.env.VITE_EXPLORER_URL}/transactions/{id}"
+              target="_blank"
+              rel="noopener"
+            >
+              Link to transaction
+              <div class="size-4 i-mdi-open-in-new" />
+            </a>
+          </div>
+
+          {#if receiptError}
+            <div class="text-sm text-red-400 pl-7">
+              <div>An error occurred in a receipt:</div>
+              <div class="text-gray-300">{receiptError}</div>
+            </div>
+          {/if}
         </div>
       {/each}
     {:else if res.status === "error"}
-      <div>
-        <div class="w-6 h-6 text-red-2 i-mdi-cancel" />
-        <div>
-          <div>An error occured:</div>
-          <div>{res.message}</div>
+      <div class="flex items-center gap-2">
+        <div class="size-5 text-red-500 i-line-md:cancel" />
+        <div class="text-sm">
+          <div class="text-red-400">An error occurred:</div>
+          <div class="text-gray-300">{res.message}</div>
         </div>
       </div>
     {/if}
