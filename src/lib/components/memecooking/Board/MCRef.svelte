@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
+  import { debounce } from "perfect-debounce";
   import { writable } from "svelte/store";
   import { slide } from "svelte/transition";
 
@@ -62,41 +63,56 @@
     });
   }
 
-  let expected: Promise<FixedNumber> | undefined = undefined;
+  const expected$ = writable<ReturnType<typeof fetchGetReturn> | undefined>(
+    new Promise<never>(() => {}),
+  );
   let activeTab = "buy";
   $: {
     if (meme.pool_id) {
       const decimals = activeTab === "buy" ? 24 : meme.decimals;
-      console.log("[$input$?.toString()]: ", $input$?.toU128());
       let amount = ($input$?.toBigInt() || 0n).toString();
-
-      console.log("[amount]: ", amount);
       const amountIn = new FixedNumber(amount, decimals);
-      if (amountIn.valueOf() > 0n) {
-        let tokenIn, tokenOut;
-        if (activeTab === "buy") {
-          tokenIn = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
-          tokenOut = getTokenId(meme);
-        } else {
-          tokenIn = getTokenId(meme);
-          tokenOut = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
-        }
-
-        expected = Ref.getReturn({
-          amountIn,
-          tokenOut,
-          tokenIn,
-          poolId: meme.pool_id,
-          decimals: activeTab === "buy" ? meme.decimals : 24,
-        }).then((value) => {
-          console.log("[getReturn]: ", value);
-          return value;
-        });
-      } else {
-        expected = undefined;
+      if (amountIn.valueOf() === 0n) {
+        $expected$ = undefined;
       }
     }
   }
+
+  const fetchGetReturn = debounce(
+    (input: FixedNumber | undefined, meme: Meme, activeTab: string) => {
+      if (meme.pool_id == null) return undefined as never;
+      const decimals = activeTab === "buy" ? 24 : meme.decimals;
+      console.log("[input?.toString()]: ", input?.toU128());
+      let amount = (input?.toBigInt() || 0n).toString();
+
+      console.log("[amount]: ", amount);
+      const amountIn = new FixedNumber(amount, decimals);
+      if (amountIn.valueOf() === 0n) return undefined as never;
+      let tokenIn, tokenOut;
+      if (activeTab === "buy") {
+        tokenIn = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
+        tokenOut = getTokenId(meme);
+      } else {
+        tokenIn = getTokenId(meme);
+        tokenOut = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
+      }
+
+      const res = Ref.getReturn({
+        amountIn,
+        tokenOut,
+        tokenIn,
+        poolId: meme.pool_id!,
+        decimals: activeTab === "buy" ? meme.decimals : 24,
+      }).then((value) => {
+        console.log("[getReturn]: ", value);
+        return value;
+      });
+      $expected$ = res;
+      return res;
+    },
+    500,
+  );
+  $: fetchGetReturn($input$, meme, activeTab);
 
   let totalNearBalance$ = writable($nearBalance);
   // let wrapNearBalance: FixedNumber | null = null;
@@ -112,7 +128,7 @@
   }
 
   async function action() {
-    if (expected == null) return;
+    if ($expected$ == null) return;
 
     if (!$accountId$) {
       showWalletSelector("shitzu");
@@ -187,7 +203,7 @@
       return handleBuy(
         $input$,
         $accountId$,
-        await expected,
+        await $expected$,
         meme,
         slippage,
         callback,
@@ -196,7 +212,7 @@
       return handleSell(
         $input$,
         $accountId$,
-        await expected,
+        await $expected$,
         meme,
         unwrapNear,
         slippage,
@@ -370,12 +386,12 @@
         </li>
       {/each}
     </ul>
-    {#if expected != null}
+    {#if $expected$ != null}
       <div transition:slide class="bg-gray-800 rounded-lg p-4 my-4">
         <div class="flex justify-between items-center text-sm">
           <span class="text-gray-400">You will receive</span>
           <div class="flex items-center gap-2">
-            {#await expected}
+            {#await $expected$}
               <div class="i-svg-spinners:pulse-3 size-4" />
             {:then expected}
               <span class="text-white font-medium">
@@ -399,7 +415,7 @@
           </div>
         </div>
         <div class="text-xs text-gray-500 mt-2">
-          Rate: 1 {activeTab === "buy" ? "NEAR" : meme.symbol} ≈ {#await expected}...{:then expected}{expected
+          Rate: 1 {activeTab === "buy" ? "NEAR" : meme.symbol} ≈ {#await $expected$}...{:then expected}{expected
               .div($input$ || new FixedNumber(1n, 24))
               .format({ maximumFractionDigits: 8 })}
             {activeTab === "buy" ? meme.symbol : "NEAR"}{/await}
