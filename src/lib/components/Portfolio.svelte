@@ -56,7 +56,10 @@
                 <div class="flex flex-col">
                   <span class="font-medium">NEAR</span>
                   <span class="text-xs text-gray-400 sm:hidden"
-                    >${(Number($nearPrice) / 1e24).toFixed(4)}</span
+                    >$<FormatNumber
+                      number={Number($nearPrice) / 1e24}
+                      totalDigits={6}
+                    /></span
                   >
                 </div>
               </div>
@@ -125,7 +128,7 @@
                       >
                     </span>
                     <span class="text-xs text-gray-400 sm:hidden"
-                      >${p.toFixed(4)}</span
+                      >$<FormatNumber number={p} totalDigits={6} /></span
                     >
                     <span class="text-xs text-gray-400 hidden sm:block"
                       >{t.contract_id}</span

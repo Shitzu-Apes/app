@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Chef from "../Chef.svelte";
+
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import SHITZU_STONK from "$lib/assets/static/shitzu_stonk.png";
   import McIcon from "$lib/components/MCIcon.svelte";
@@ -91,9 +93,12 @@
             >
               By:
             </span>
-            <span class="text-white text-sm truncate flex-shrink-1">
-              {memebid.owner}
-            </span>
+            <Chef
+              account={memebid.owner}
+              asLink
+              hideAvatar
+              class="text-blue-400 underline text-sm hover:text-shitzu-4"
+            />
           </div>
 
           <!-- Holders -->
