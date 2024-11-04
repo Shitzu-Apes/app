@@ -1,17 +1,22 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
+  import { get } from "svelte/store";
 
   import FormatNumber from "./FormatNumber.svelte";
   import McIcon from "./MCIcon.svelte";
   import LoadingLambo from "./memecooking/Board/LoadingLambo.svelte";
+  import SendSheet from "./memecooking/BottomSheet/SendSheet.svelte";
 
   import Near from "$lib/assets/Near.svelte";
-  import { refreshNearBalance, nearBalance } from "$lib/near";
+  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
+  import { refreshNearBalance, nearBalance, wallet } from "$lib/near";
   import type { Portfolio } from "$lib/store/portfolio";
   import { getNearPrice, nearPrice } from "$lib/util/projectedMCap";
 
   export let accountId: string;
   export let portfolio: Portfolio | null;
+
+  $: isOwnAccount = accountId === get(wallet.accountId$);
 
   refreshNearBalance(accountId);
   getNearPrice();
@@ -26,7 +31,7 @@
 
 {#if portfolio}
   <div
-    class="w-full overflow-x-auto rounded-lg bg-gray-800 border border-gray-800 mt-4"
+    class="w-full overflow-x-auto rounded-lg bg-gray-800 border border-gray-800 my-4"
   >
     <table class="min-w-full table-auto">
       <thead>
@@ -35,6 +40,9 @@
           <th class="px-4 py-3 text-right">Balance</th>
           <th class="px-4 py-3 text-right">Price</th>
           <th class="px-4 py-3 text-right">Market Cap</th>
+          {#if isOwnAccount}
+            <th class="px-4 py-3 text-right">Action</th>
+          {/if}
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-700">
@@ -141,6 +149,19 @@
                 <span class="text-gray-400">-</span>
               {/if}
             </td>
+            {#if isOwnAccount}
+              <td class="px-4 py-3 text-right flex flex-col items-center gap-1">
+                <button
+                  class="px-1 py-1 bg-shitzu-4 hover:bg-shitzu-5 text-white rounded-md text-sm"
+                  on:click={() => {
+                    openBottomSheet(SendSheet, { meme: t });
+                  }}
+                >
+                  <div class="i-mdi:arrow-right" />
+                </button>
+                <span class="text-xs text-gray-400">send</span>
+              </td>
+            {/if}
           </tr>
         {/each}
       </tbody>

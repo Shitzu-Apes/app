@@ -8,6 +8,7 @@
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import FormatNumber from "$lib/components/FormatNumber.svelte";
   import Portfolio from "$lib/components/Portfolio.svelte";
+  import { addToast } from "$lib/components/Toast.svelte";
   import LoadingLambo from "$lib/components/memecooking/Board/LoadingLambo.svelte";
   import Tabs from "$lib/components/memecooking/Board/Tabs.svelte";
   import MemeList from "$lib/components/memecooking/Profile/MemeList.svelte";
@@ -153,13 +154,36 @@
           class="size-20 text-shitzu-4"
         />
         <div class="flex flex-col gap-2">
-          <h1 class="text-xl font-bold text-white">
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-bold text-white">
+              {#if isOwnAccount}
+                gm, {displayAccountId}!
+              {:else}
+                {displayAccountId}'s Profile
+              {/if}
+            </h1>
             {#if isOwnAccount}
-              gm, {displayAccountId}!
-            {:else}
-              {displayAccountId}'s Profile
+              <button
+                class="p-1 text-gray-400 hover:text-white rounded-md"
+                on:click={() => {
+                  navigator.clipboard.writeText(accountId);
+                  addToast({
+                    type: "foreground",
+                    data: {
+                      type: "simple",
+                      data: {
+                        title: "Copied to clipboard",
+                        description: "Address copied to clipboard",
+                      },
+                    },
+                  });
+                }}
+                title="Copy address"
+              >
+                <div class="i-mdi:content-copy text-lg" />
+              </button>
             {/if}
-          </h1>
+          </div>
           <a
             href="https://pikespeak.ai/wallet-explorer/{accountId}/"
             target="_blank"
