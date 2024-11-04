@@ -62,9 +62,7 @@
                 <button
                   class="p-1 hover:bg-gray-700 rounded"
                   on:click={() => {
-                    navigator.clipboard.writeText(
-                      getTokenId($meme$.symbol, $meme$.meme_id),
-                    );
+                    navigator.clipboard.writeText(getTokenId($meme$));
                     addToast({
                       data: {
                         type: "simple",

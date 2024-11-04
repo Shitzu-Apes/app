@@ -130,7 +130,7 @@ export async function handleSell(
   callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
 ) {
   if (!input || !accountId) return;
-  const tokenId = getTokenId(meme.symbol, meme.meme_id);
+  const tokenId = getTokenId(meme);
   const tokenIn = tokenId;
   const tokenOut = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
 
