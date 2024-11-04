@@ -6,6 +6,7 @@
 
   import { page } from "$app/stores";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
+  import Portfolio from "$lib/components/Portfolio.svelte";
   import LoadingLambo from "$lib/components/memecooking/Board/LoadingLambo.svelte";
   import Tabs from "$lib/components/memecooking/Board/Tabs.svelte";
   import MemeList from "$lib/components/memecooking/Profile/MemeList.svelte";
@@ -155,7 +156,9 @@
             class="w-full text-sm"
           />
 
-          {#if info && isOwnAccount}
+          {#if activeTab === "portfolio"}
+            <Portfolio {accountId} />
+          {:else if info && isOwnAccount}
             <MemeList
               props={activeTab === "not-finalized"
                 ? { type: "not-finalized", data: info.deposits }

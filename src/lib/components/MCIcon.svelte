@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Meme } from "$lib/api/client";
 
-  export let meme: Meme;
+  export let meme: Pick<Meme, "image" | "name">;
 
   let className: string = "";
   let imgSrc = `${import.meta.env.VITE_IPFS_GATEWAY}/${meme.image}`;
