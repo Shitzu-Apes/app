@@ -46,9 +46,13 @@
     updateMcAccount($accountId$);
   });
 
-  let activeTab = isOwnAccount ? "not-finalized" : "created";
+  let activeTab = "portfolio";
   $: tabs = match(isOwnAccount)
     .with(true, () => [
+      {
+        id: "portfolio",
+        label: "Portfolio",
+      },
       {
         id: "not-finalized",
         label: `Withdraw`,
@@ -72,6 +76,10 @@
       },
     ])
     .with(false, () => [
+      {
+        id: "portfolio",
+        label: "Portfolio",
+      },
       {
         id: "created",
         label: "Created Token",
@@ -133,13 +141,15 @@
     {#await $mcAccount$}
       <LoadingLambo />
     {:then info}
-      <div class="w-full flex flex-col md:flex-row gap-8">
+      <div class="grid lg:grid-cols-[2fr_minmax(400px,1fr)] gap-8">
         <!-- Left Panel with Tabs -->
-        <div class="w-full md:w-2/3">
+        <div>
           <Tabs
             tabs={tabs.map((tab) => ({
               ...tab,
-              label: `${tab.label} (${info ? tab.getCount(info) : 0})`,
+              label: tab.getCount
+                ? `${tab.label} (${info ? tab.getCount(info) : 0})`
+                : tab.label,
             }))}
             bind:activeTab
             class="w-full text-sm"
@@ -151,7 +161,9 @@
                 ? { type: "not-finalized", data: info.deposits }
                 : activeTab === "finalized"
                   ? { type: "finalized", data: info.claims }
-                  : { type: "created", data: info.created }}
+                  : activeTab === "created"
+                    ? { type: "created", data: info.created }
+                    : { type: "created", data: info.created }}
               {isOwnAccount}
               {update}
             />
@@ -165,7 +177,7 @@
         </div>
 
         <!-- Right Panel with Revenue -->
-        <div class="w-full md:w-1/3 order-first md:order-last">
+        <div class="order-first lg:order-last">
           {#if isOwnAccount}
             <Revenue
               revenue={info?.revenue}
