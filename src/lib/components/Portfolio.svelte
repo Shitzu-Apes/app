@@ -38,10 +38,10 @@
         <tr class="text-xs uppercase text-gray-400 border-b border-gray-800">
           <th class="px-4 py-3 text-left">Token</th>
           <th class="px-4 py-3 text-right">Balance</th>
-          <th class="px-4 py-3 text-right">Price</th>
-          <th class="px-4 py-3 text-right">Market Cap</th>
+          <th class="hidden sm:table-cell px-4 py-3 text-right">Price</th>
+          <th class="hidden sm:table-cell px-4 py-3 text-right">Market Cap</th>
           {#if isOwnAccount}
-            <th class="px-4 py-3 text-right">Action</th>
+            <th class="hidden sm:table-cell px-4 py-3 text-right">Action</th>
           {/if}
         </tr>
       </thead>
@@ -55,7 +55,9 @@
                 />
                 <div class="flex flex-col">
                   <span class="font-medium">NEAR</span>
-                  <span class="text-xs text-gray-400">NEAR</span>
+                  <span class="text-xs text-gray-400 sm:hidden"
+                    >${(Number($nearPrice) / 1e24).toFixed(4)}</span
+                  >
                 </div>
               </div>
             </td>
@@ -70,10 +72,10 @@
                 >
               </div>
             </td>
-            <td class="px-4 py-3 text-right font-medium"
+            <td class="hidden sm:table-cell px-4 py-3 text-right font-medium"
               >${(Number($nearPrice) / 1e24).toFixed(10)}</td
             >
-            <td class="px-4 py-3 text-right font-medium">
+            <td class="hidden sm:table-cell px-4 py-3 text-right font-medium">
               $<FormatNumber
                 number={(Number($nearPrice) / 1e24) * 1e9}
                 totalDigits={6}
@@ -116,10 +118,18 @@
                     class="w-8 h-8 rounded-full"
                   />
                   <div class="flex flex-col">
-                    <span class="font-medium"
-                      >{t.symbol || t.name || t.contract_id}</span
+                    <span class="font-medium flex items-center gap-1">
+                      {t.name || t.contract_id}
+                      <span class="text-xs text-gray-400"
+                        >({t.symbol || t.contract_id})</span
+                      >
+                    </span>
+                    <span class="text-xs text-gray-400 sm:hidden"
+                      >${p.toFixed(4)}</span
                     >
-                    <span class="text-xs text-gray-400">{t.contract_id}</span>
+                    <span class="text-xs text-gray-400 hidden sm:block"
+                      >{t.contract_id}</span
+                    >
                   </div>
                 </a>
               {:else}
@@ -127,7 +137,7 @@
                   <span class="font-medium"
                     >{t.symbol || t.name || t.contract_id}</span
                   >
-                  <span class="text-xs text-gray-400">{t.contract_id}</span>
+                  <span class="text-xs text-gray-400">${p.toFixed(4)}</span>
                 </div>
               {/if}
             </td>
@@ -139,10 +149,10 @@
                 <span class="text-xs text-gray-400">${val}</span>
               </div>
             </td>
-            <td class="px-4 py-3 text-right font-medium">
+            <td class="hidden sm:table-cell px-4 py-3 text-right font-medium">
               $<FormatNumber number={p} totalDigits={6} />
             </td>
-            <td class="px-4 py-3 text-right font-medium">
+            <td class="hidden sm:table-cell px-4 py-3 text-right font-medium">
               {#if mcap}
                 $<FormatNumber number={mcap} totalDigits={6} />
               {:else}
@@ -150,9 +160,11 @@
               {/if}
             </td>
             {#if isOwnAccount}
-              <td class="px-4 py-3 text-right flex flex-col items-center gap-1">
+              <td
+                class="hidden sm:flex py-3 text-right flex-col items-center gap-1"
+              >
                 <button
-                  class="px-1 py-1 bg-shitzu-4 hover:bg-shitzu-5 text-white rounded-md text-sm"
+                  class="px-1 py-1 bg-shitzu-4 hover:bg-shitzu-5 text-white rounded-md text-sm flex flex-col items-center gap-1"
                   on:click={() => {
                     openBottomSheet(SendSheet, { meme: t });
                   }}

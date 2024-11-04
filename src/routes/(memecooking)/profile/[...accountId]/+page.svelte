@@ -145,19 +145,21 @@
 
 <section class="w-full flex flex-col items-center justify-center">
   <!-- Welcome Banner -->
-  <div class="w-full bg-gray-800 rounded-lg p-6 mb-8">
-    <div class="flex items-center justify-between">
+  <div class="w-full bg-gray-800 rounded-lg p-4 sm:p-6 mb-8">
+    <div
+      class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0"
+    >
       <div class="flex items-center gap-4">
         <img
           src={SHITZU_POCKET}
           alt="shitzu pocket"
-          class="size-20 text-shitzu-4"
+          class="size-16 sm:size-20 text-shitzu-4"
         />
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-2">
-            <h1 class="text-xl font-bold text-white">
+            <h1 class="text-lg sm:text-xl font-bold text-white">
               {#if isOwnAccount}
-                gm, {displayAccountId}!
+                gm, {displayAccountId}
               {:else}
                 {displayAccountId}'s Profile
               {/if}
@@ -195,9 +197,11 @@
           </a>
         </div>
       </div>
-      <div class="flex flex-col items-end">
-        <span class="text-lg font-bold text-white">Total Value</span>
-        <span class="text-3xl font-light text-shitzu-4">
+      <div class="flex flex-col items-start sm:items-end">
+        <span class="text-base sm:text-lg font-bold text-white"
+          >Total Value</span
+        >
+        <span class="text-2xl sm:text-3xl font-light text-shitzu-4">
           $<FormatNumber number={totalValue} totalDigits={6} />
         </span>
       </div>
