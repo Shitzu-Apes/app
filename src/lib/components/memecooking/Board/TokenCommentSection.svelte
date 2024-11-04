@@ -306,8 +306,8 @@
 </div>
 
 <style lang="scss">
-  :global(.markdown .markdown-image) {
-    max-height: 10rem;
+  :global(.markdown img) {
+    max-height: 20rem;
   }
 
   :global(.markdown a) {
