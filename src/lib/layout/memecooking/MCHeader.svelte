@@ -193,7 +193,7 @@
           </div>
         {:else}
           <button
-            class="px-4 py-2 rounded-full bg-shitzu-4 text-black font-medium hover:bg-shitzu-5 transition-colors duration-200"
+            class="px-4 py-1 rounded-lg text-sm bg-shitzu-4 text-black font-medium hover:bg-shitzu-5 transition-colors duration-200"
             on:click={wallet.isTG
               ? wallet.loginViaHere
               : () => showWalletSelector("shitzu")}

@@ -9,12 +9,14 @@
   import { z } from "zod";
 
   import FgBanner from "./FGBanner.svelte";
+  import NewMemePreview from "./NewMemePreview.svelte";
   import SoftcapDefault, { CAP_DEFAULT_OPTIONS } from "./SoftcapDefault.svelte";
   import TeamAllocationToggle from "./TeamAllocationToggle.svelte";
   import TextAreaField from "./TextAreaField.svelte";
   import TextInputField from "./TextInputField.svelte";
 
   import { goto } from "$app/navigation";
+  import Near from "$lib/assets/Near.svelte";
   import { showWalletSelector } from "$lib/auth";
   import { TokenInput } from "$lib/components";
   import DurationDefault from "$lib/components/DurationDefault.svelte";
@@ -356,6 +358,60 @@
       createTransactionPromise,
     });
   }
+
+  $: team_allocation_num =
+    teamAllocation && $totalSupply$ && teamAllocation.allocationBps > 0
+      ? Number(
+          ($totalSupply$.toBigInt() * BigInt(teamAllocation.allocationBps)) /
+            10000n,
+        )
+      : undefined;
+
+  $: memebid = {
+    meme_id: 0,
+    owner: $accountId$ || "",
+    end_timestamp_ms: Date.now() + durationMs,
+    name: name || "[NAME]",
+    symbol: ticker || "[SYMBOL]",
+    description: description || "[DESCRIPTION]",
+    decimals: decimals,
+    total_supply: $totalSupply$?.toU128() ?? "",
+    total_supply_num: Number($totalSupply$?.toU128() ?? "0"),
+    reference: "{}",
+    reference_hash: "",
+    deposit_token_id: "wrap.near",
+    image:
+      image ||
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+    token_id: "",
+    created_timestamp_ms: Date.now(),
+    total_deposit: "0",
+    soft_cap: softCap,
+    hard_cap: hardCap,
+    team_allocation:
+      teamAllocation && team_allocation_num
+        ? team_allocation_num.toString()
+        : null,
+    team_allocation_num: Number(team_allocation_num),
+    vesting_duration_ms: teamAllocation?.vestingDurationMs,
+    cliff_duration_ms: teamAllocation?.cliffDurationMs,
+    projectedMcap: writable(new FixedNumber("0", 24)),
+    pool_id: null,
+    replies_count: 0,
+    staker_count: 0,
+    twitterLink: twitterLink || "",
+    telegramLink: telegramLink || "",
+    website: website || "",
+    total_deposit_num: 0,
+    total_deposit_fees: "0",
+    total_withdraw_fees: "0",
+    soft_cap_num: Number(softCap),
+    hard_cap_num: hardCap ? Number(hardCap) : undefined,
+    total_deposit_fees_num: 0,
+    total_withdraw_fees_num: 0,
+    last_change_ms: Date.now(),
+    created_blockheight: 0,
+  };
 </script>
 
 <!-- listen for ctrl + v the image -->
@@ -381,195 +437,268 @@
   }}
 />
 
-<div class="flex flex-col items-center min-h-screen text-white">
-  <div class="w-full max-w-md p-4 space-y-4 rounded-lg">
-    <a href="/board" class="text-white flex items-center hover:text-shitzu-3">
+<div class="flex flex-col items-center min-h-screen text-white pb-8">
+  <div class="w-full">
+    <a
+      href="/board"
+      class="text-white flex items-center hover:text-shitzu-3 w-fit"
+    >
       <div class="i-mdi:chevron-left size-8" />
       Back
     </a>
 
-    <FgBanner />
+    <div class="grid lg:grid-cols-[minmax(400px,1fr)_2fr] gap-8 mt-4">
+      <!-- Left Column - Preview -->
+      <div class="hidden lg:block">
+        <NewMemePreview meme={memebid} />
+      </div>
 
-    <div class="space-y-2">
-      <label
-        class="block text-sm text-shitzu-4 font-600 inline-flex items-center gap-1"
-      >
-        image
-        <Tooltip
-          info="use a square image ratio for optimal display of the ticker image."
-        >
-          <div class="size-4 i-mdi:information-outline text-amber-5" />
-        </Tooltip>
-        {#if imageReady}
-          <button
-            on:click={() => {
-              image = null;
-              icon = null;
-            }}
-          >
-            <div class="i-mdi:reload size-5" />
-          </button>
-        {/if}
-      </label>
-      {#if image}
-        <div class="w-full max-h-60 flex justify-center items-center">
-          <img src={image || imageCID} alt="token icon" class="max-h-60" />
-        </div>
-      {:else}
-        <div class="relative w-full">
-          <DropZone
-            containerClasses="opacity-0 absolute inset-0 w-full h-full"
-            accept={[".png", ".jpg", ".jpeg", ".svg", ".gif", ".webp", ".avif"]}
-            on:drop={handleFilesSelect}
-          />
-          <div
-            class="flex flex-col justify-center items-center w-full bg-gray-700 rounded-lg h-40 gap-2 border border-white"
-          >
-            <div
-              class="i-mdi:download size-16 py-5 text-white/25 pointer-events-none cursor-pointer"
-            />
-            <div class="text-white/75">
-              <b>Choose a file</b>, <b>paste</b> or <b>drag it here</b>
+      <!-- Right Column - Form -->
+      <div class="space-y-4">
+        <FgBanner />
+        <!-- Image Upload Card -->
+        <div class="bg-gray-800 rounded-lg p-4">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <label
+                class="text-base text-shitzu-4 font-600 inline-flex items-center gap-1"
+                for="image"
+              >
+                Image
+                <Tooltip
+                  info="Use a square image ratio (1:1) for optimal display"
+                >
+                  <div class="size-4 i-mdi:information-outline text-amber-5" />
+                </Tooltip>
+              </label>
+              {#if imageReady}
+                <button
+                  class="text-shitzu-4 hover:text-shitzu-3 transition-colors flex items-center gap-1"
+                  on:click={() => {
+                    image = null;
+                    icon = null;
+                  }}
+                >
+                  <div class="i-mdi:reload size-5" />
+                  Reset
+                </button>
+              {/if}
+            </div>
+
+            <div class="relative w-full">
+              <DropZone
+                containerClasses="opacity-0 absolute inset-0 w-full h-full z-10"
+                accept={[
+                  ".png",
+                  ".jpg",
+                  ".jpeg",
+                  ".svg",
+                  ".gif",
+                  ".webp",
+                  ".avif",
+                ]}
+                on:drop={handleFilesSelect}
+              />
+
+              {#if image}
+                <div
+                  class="block group relative aspect-square w-full max-w-60 mx-auto"
+                >
+                  <img
+                    src={image || imageCID}
+                    alt="token icon"
+                    class="w-full h-full object-cover rounded-lg"
+                  />
+                  <div
+                    class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center"
+                  >
+                    <div class="text-white text-sm">
+                      Click or drag to replace
+                    </div>
+                  </div>
+                </div>
+              {:else}
+                <div
+                  class="border-2 border-dashed border-gray-600 rounded-lg p-8 hover:border-shitzu-4 transition-colors"
+                >
+                  <div class="flex flex-col items-center gap-4">
+                    <div class="i-mdi:image-plus text-4xl text-gray-400" />
+                    <div class="text-center">
+                      <div class="font-medium mb-1">Upload Token Image</div>
+                      <div class="text-sm text-gray-400">
+                        Drag and drop, paste, or click to select
+                      </div>
+                    </div>
+                    <div class="text-xs text-gray-500">
+                      Supported formats: PNG, JPG, SVG, GIF, WEBP
+                    </div>
+                  </div>
+                </div>
+              {/if}
             </div>
           </div>
         </div>
-      {/if}
-    </div>
-    <TextInputField
-      label="name"
-      bind:value={name}
-      schema={nameSchema}
-      validateOnInput={true}
-    />
 
-    <TextInputField
-      label="ticker"
-      bind:value={ticker}
-      schema={tickerSchema}
-      validateOnInput={true}
-    >
-      <slot slot="icon">
-        {#if icon}
-          <div class="size-6 flex justify-center items-center">
-            <img src={icon} alt="token icon" class="rounded-full" />
+        <!-- Basic Info Card -->
+        <div class="bg-gray-800 rounded-lg p-4 space-y-4">
+          <TextInputField
+            label="Name"
+            bind:value={name}
+            schema={nameSchema}
+            validateOnInput={true}
+          />
+
+          <TextInputField
+            label="Symbol"
+            bind:value={ticker}
+            schema={tickerSchema}
+            validateOnInput={true}
+          >
+            <slot slot="icon">
+              {#if icon}
+                <div class="size-6 flex justify-center items-center">
+                  <img src={icon} alt="token icon" class="rounded-full" />
+                </div>
+              {/if}
+            </slot>
+          </TextInputField>
+
+          <TextAreaField
+            label="Description"
+            bind:value={description}
+            schema={descriptionSchema}
+            validateOnInput={true}
+          />
+        </div>
+
+        <!-- Token Parameters Card -->
+        <div class="bg-gray-800 rounded-lg p-4 space-y-4">
+          <DurationDefault bind:value={durationMs} />
+          <SoftcapDefault bind:softCap bind:hardCap bind:hardCapEnabled />
+          <TeamAllocationToggle bind:teamAllocation />
+        </div>
+
+        <!-- Social Links Card -->
+        <div class="bg-gray-800 rounded-lg p-4 space-y-4">
+          <TextInputField
+            label="Twitter Link"
+            bind:value={twitterLink}
+            placeholder="(optional)"
+            schema={twitterLinkSchema}
+            validateOnInput={true}
+          />
+          <TextInputField
+            label="Telegram Link"
+            bind:value={telegramLink}
+            placeholder="(optional)"
+            schema={telegramLinkSchema}
+            validateOnInput={true}
+          />
+          <TextInputField
+            label="Website"
+            bind:value={website}
+            placeholder="(optional)"
+            schema={websiteSchema}
+            validateOnInput={true}
+          />
+        </div>
+
+        <!-- Advanced Options Card -->
+        <div class="bg-gray-800 rounded-lg p-4">
+          <details class="space-y-4">
+            <summary class="text-base text-shitzu-4 cursor-pointer">
+              Show more options
+            </summary>
+            <div class="space-y-2">
+              <InputField
+                label="Decimals"
+                type="number"
+                bind:value={decimals}
+                min={0}
+                max={24}
+                step={1}
+                validate={(value) => {
+                  if (!value || typeof value === "string") {
+                    return "";
+                  }
+
+                  if (value < 0) {
+                    return "must be at least 0";
+                  } else if (value > 24) {
+                    return "must be at most 24";
+                  }
+                  return "";
+                }}
+                tooltip="Only change if you know what you are doing."
+              />
+            </div>
+            <div class="space-y-2">
+              <label
+                for="description"
+                class="block text-sm text-shitzu-4 font-600"
+              >
+                Total Supply
+              </label>
+              <TokenInput
+                class="w-full p-2 bg-gray-800 rounded text-white border border-white"
+                {decimals}
+                bind:this={totalSupply}
+                bind:value={$totalSupplyValue$}
+              />
+            </div>
+          </details>
+        </div>
+
+        <!-- Create Token Card -->
+        <div class="bg-gray-800 rounded-lg p-4 space-y-4">
+          <button
+            on:click={createCoin}
+            class="w-full p-2 bg-shitzu-4 text-white rounded flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-shitzu-5 transition-colors"
+            disabled={(() => {
+              const schema = z.object({
+                name: nameSchema,
+                ticker: tickerSchema,
+                description: descriptionSchema,
+                icon: z.string(),
+                twitterLink: twitterLinkSchema.optional(),
+                telegramLink: telegramLinkSchema.optional(),
+                website: websiteSchema.optional(),
+              });
+
+              const result = schema.safeParse({
+                name,
+                ticker,
+                description,
+                icon,
+                twitterLink: twitterLink || undefined,
+                telegramLink: telegramLink || undefined,
+                website: website || undefined,
+              });
+              return !result.success;
+            })()}
+          >
+            <div class="i-lucide:coins size-5" />
+            Create token
+          </button>
+
+          <div
+            class="flex justify-between gap-2 text-sm text-center text-gray-300"
+          >
+            <span class="text-memecooking-4">Estimated storage cost:</span>
+            {#await $storageCost$}
+              <div class="i-svg-spinners:3-dots-fade size-5 bg-gray-400" />
+            {:then storageCost}
+              <span class="font-semibold text-white flex items-center gap-1">
+                ~{new FixedNumber(storageCost, 24).format({
+                  maximumFractionDigits: 2,
+                  maximumSignificantDigits: 2,
+                })}
+                <Near className="size-4 bg-white text-black rounded-full" />
+              </span>
+            {/await}
           </div>
-        {/if}
-      </slot>
-    </TextInputField>
-    <TextAreaField
-      label="description"
-      bind:value={description}
-      schema={descriptionSchema}
-      validateOnInput={true}
-    />
-
-    <DurationDefault bind:value={durationMs} />
-
-    <SoftcapDefault bind:softCap bind:hardCap bind:hardCapEnabled />
-
-    <TeamAllocationToggle bind:teamAllocation />
-
-    <TextInputField
-      label="twitter link"
-      bind:value={twitterLink}
-      placeholder="(optional)"
-      schema={twitterLinkSchema}
-      validateOnInput={true}
-    />
-    <TextInputField
-      label="telegram link"
-      bind:value={telegramLink}
-      placeholder="(optional)"
-      schema={telegramLinkSchema}
-      validateOnInput={true}
-    />
-    <TextInputField
-      label="website"
-      bind:value={website}
-      placeholder="(optional)"
-      schema={websiteSchema}
-      validateOnInput={true}
-    />
-
-    <details class="space-y-4">
-      <summary class="text-sm text-shitzu-4 cursor-pointer">
-        Show more options
-      </summary>
-      <div class="space-y-2">
-        <InputField
-          label="decimals"
-          type="number"
-          bind:value={decimals}
-          min={0}
-          max={24}
-          step={1}
-          validate={(value) => {
-            if (!value || typeof value === "string") {
-              return "";
-            }
-
-            if (value < 0) {
-              return "must be at least 0";
-            } else if (value > 24) {
-              return "must be at most 24";
-            }
-            return "";
-          }}
-          tooltip="Only change if you know what you are doing."
-        />
+        </div>
       </div>
-      <div class="space-y-2">
-        <label for="description" class="block text-sm text-shitzu-4 font-600">
-          total supply
-        </label>
-        <TokenInput
-          class="w-full p-2 bg-gray-700 rounded text-white border border-white"
-          {decimals}
-          bind:this={totalSupply}
-          bind:value={$totalSupplyValue$}
-        />
-      </div>
-    </details>
-    <button
-      on:click={createCoin}
-      class="w-full p-2 bg-shitzu-4 text-white rounded flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
-      disabled={(() => {
-        const schema = z.object({
-          name: nameSchema,
-          ticker: tickerSchema,
-          description: descriptionSchema,
-          icon: z.string(),
-          twitterLink: twitterLinkSchema.optional(),
-          telegramLink: telegramLinkSchema.optional(),
-          website: websiteSchema.optional(),
-        });
-
-        const result = schema.safeParse({
-          name,
-          ticker,
-          description,
-          icon,
-          twitterLink: twitterLink || undefined,
-          telegramLink: telegramLink || undefined,
-          website: website || undefined,
-        });
-        return !result.success;
-      })()}
-    >
-      Create token
-    </button>
-    <div class="flex justify-center gap-2 text-sm text-center">
-      <span> Storage cost: </span>
-      {#await $storageCost$}
-        <div class="i-svg-spinners:3-dots-fade size-5 bg-gray-7" />
-      {:then storageCost}
-        <span>
-          ~{new FixedNumber(storageCost, 24).format({
-            maximumFractionDigits: 2,
-            maximumSignificantDigits: 2,
-          })} NEAR
-        </span>
-      {/await}
     </div>
   </div>
 </div>

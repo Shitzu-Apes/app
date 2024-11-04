@@ -9,13 +9,13 @@
   let className: string = "";
   export { className as class };
 
-  const totalSupply = new FixedNumber(meme.total_supply, meme.decimals);
-  const teamAllocationBps =
+  $: totalSupply = new FixedNumber(meme.total_supply, meme.decimals);
+  $: teamAllocationBps =
     meme.team_allocation_num && meme.total_supply_num
       ? (meme.team_allocation_num / meme.total_supply_num) * 10000
       : 0;
-  const teamAllocationPercentage = teamAllocationBps / 100;
-  const teamAllocation = totalSupply.mul(
+  $: teamAllocationPercentage = teamAllocationBps / 100;
+  $: teamAllocation = totalSupply.mul(
     new FixedNumber(BigInt(Math.round(teamAllocationBps)), 4),
   );
 

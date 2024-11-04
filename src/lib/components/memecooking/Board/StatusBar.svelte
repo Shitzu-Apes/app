@@ -17,7 +17,7 @@
   let props = createProgressBarData(meme);
   $: props = createProgressBarData(meme);
 
-  let expanded = false;
+  export let expanded = false;
 </script>
 
 <div class="w-full flex flex-col gap-4">

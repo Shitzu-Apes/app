@@ -44,7 +44,7 @@
     {label}
   </label>
   <div
-    class="w-full flex items-center gap-3 px-2 relative bg-gray-700 rounded border {error
+    class="w-full flex items-center gap-3 px-2 relative bg-gray-800 rounded border {error
       ? 'border-red-500'
       : 'border-white'}"
   >

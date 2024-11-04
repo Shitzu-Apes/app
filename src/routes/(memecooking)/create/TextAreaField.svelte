@@ -48,7 +48,8 @@
     bind:this={inputElement}
     on:input={handleInput}
     on:blur={handleBlur}
-    class="w-full p-2 bg-gray-700 rounded text-white border {error
+    rows={6}
+    class="w-full p-2 bg-gray-800 rounded text-white border {error
       ? 'border-red-500'
       : 'border-white'}"
   />

@@ -8,27 +8,26 @@
 
   let className: string = "";
   export { className as class };
-
-  const totalSupply = new FixedNumber(meme.total_supply, meme.decimals);
-  const totalDeposit = new FixedNumber(
+  $: totalSupply = new FixedNumber(meme.total_supply, meme.decimals);
+  $: totalDeposit = new FixedNumber(
     (BigInt(meme.total_deposit) * 98n) / 100n,
     24,
   );
-  const softCap = new FixedNumber(meme.soft_cap ?? "0", 24);
-  const hardCap = new FixedNumber(meme.hard_cap ?? "0", 24);
-  const hardCapEnabled = meme.hard_cap_num && meme.hard_cap_num > 0;
+  $: softCap = new FixedNumber(meme.soft_cap ?? "0", 24);
+  $: hardCap = new FixedNumber(meme.hard_cap ?? "0", 24);
+  $: hardCapEnabled = meme.hard_cap_num && meme.hard_cap_num > 0;
 
   // Calculate team allocation percentage
-  const teamAllocationBps =
+  $: teamAllocationBps =
     meme.team_allocation_num && meme.total_supply_num
       ? (meme.team_allocation_num / meme.total_supply_num) * 10000
       : 0;
-  const teamAllocationPercentage = teamAllocationBps / 100;
+  $: teamAllocationPercentage = teamAllocationBps / 100;
 
   // Delta for splitting NEAR between liquidity pool and token holders
-  const delta = 1 / 1.98;
-  const liquidityPoolShare = delta * (1 - teamAllocationPercentage / 100);
-  const tokenHolderShare = (1 - delta) * (1 - teamAllocationPercentage / 100);
+  $: delta = 1 / 1.98;
+  $: liquidityPoolShare = delta * (1 - teamAllocationPercentage / 100);
+  $: tokenHolderShare = (1 - delta) * (1 - teamAllocationPercentage / 100);
 </script>
 
 <div class="{className} overflow-hidden">

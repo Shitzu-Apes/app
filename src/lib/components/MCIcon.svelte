@@ -5,6 +5,9 @@
 
   let className: string = "";
   let imgSrc = `${import.meta.env.VITE_IPFS_GATEWAY}/${meme.image}`;
+  $: if (meme.image) {
+    imgSrc = meme.image;
+  }
 
   export { className as class };
 </script>

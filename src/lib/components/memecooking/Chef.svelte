@@ -5,9 +5,9 @@
 
   export let hideAvatar = false;
 
-  let isNamed = account.includes(".");
+  $: isNamed = account.includes(".");
 
-  let formatName = isNamed
+  $: formatName = isNamed
     ? account
     : account.slice(0, 4) + "..." + account.slice(-4);
 

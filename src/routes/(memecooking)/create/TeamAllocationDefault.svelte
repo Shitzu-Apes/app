@@ -26,10 +26,13 @@
 
 <script lang="ts">
   import { createSlider, melt } from "@melt-ui/svelte";
+  import { get } from "svelte/store";
 
   import VestingChart from "$lib/components/VestingChart";
   import InputField from "$lib/components/memecooking/InputField.svelte";
+  import { ScreenSize } from "$lib/models";
   import type { TeamAllocation } from "$lib/models/memecooking";
+  import { screenSize$ } from "$lib/screen-size";
 
   export let teamAllocation: TeamAllocation;
 
@@ -76,7 +79,7 @@
       <div class="flex-grow basis-0">
         <button
           on:click={() => selectOption(key)}
-          class={`aspect-square w-full p-2 border rounded ${selectedOption === key ? "bg-shitzu-4" : "bg-gray-700"} text-white text-sm flex flex-col items-center justify-center`}
+          class={`aspect-square max-h-28 w-full p-2 border rounded ${selectedOption === key ? "bg-shitzu-4" : "bg-gray-800"} text-white text-sm flex flex-col items-center justify-center`}
         >
           <div class="font-semibold">{option.label}</div>
           <div class="flex items-center">
@@ -99,7 +102,7 @@
     <div class="flex-grow basis-0">
       <button
         on:click={() => selectOption("customize")}
-        class={`aspect-square w-full p-2 border rounded ${selectedOption === "customize" ? "bg-shitzu-4" : "bg-gray-700"} text-white text-sm`}
+        class={`aspect-square max-h-28 w-full p-2 border rounded ${selectedOption === "customize" ? "bg-shitzu-4" : "bg-gray-800"} text-white text-sm`}
       >
         <div class="font-semibold">Customize</div>
       </button>
@@ -107,7 +110,7 @@
   </div>
 
   <!-- Chart Visualization -->
-  {#if teamAllocation.allocationBps > 0 && !hasError}
+  {#if teamAllocation.allocationBps > 0 && !hasError && get(screenSize$) <= ScreenSize.Tablet}
     <VestingChart {teamAllocation} />
   {/if}
 

@@ -53,7 +53,7 @@
     <div class="flex-grow basis-0">
       <button
         on:click={() => selectOption("small")}
-        class={`aspect-square w-full p-2 border rounded ${selectedOption === "small" ? "bg-shitzu-4" : "bg-gray-700"} text-white text-sm flex flex-col items-center justify-center`}
+        class={`aspect-square max-h-28 w-full p-2 border rounded ${selectedOption === "small" ? "bg-shitzu-4" : "bg-gray-800"} text-white text-sm flex flex-col items-center justify-center`}
       >
         <div class="font-semibold">Small Cap</div>
         <div class="flex items-center">
@@ -69,7 +69,7 @@
     <div class="flex-grow basis-0">
       <button
         on:click={() => selectOption("large")}
-        class={`aspect-square w-full p-2 border rounded ${selectedOption === "large" ? "bg-shitzu-4" : "bg-gray-700"} text-white text-sm flex flex-col items-center justify-center`}
+        class={`aspect-square max-h-28 w-full p-2 border rounded ${selectedOption === "large" ? "bg-shitzu-4" : "bg-gray-800"} text-white text-sm flex flex-col items-center justify-center`}
       >
         <div class="font-semibold">Large Cap</div>
         <div class="flex items-center">
@@ -85,7 +85,7 @@
     <div class="flex-grow basis-0">
       <button
         on:click={() => selectOption("customize")}
-        class={`aspect-square w-full p-2 border rounded ${selectedOption === "customize" ? "bg-shitzu-4" : "bg-gray-700"} text-white text-sm`}
+        class={`aspect-square max-h-28 w-full p-2 border rounded ${selectedOption === "customize" ? "bg-shitzu-4" : "bg-gray-800"} text-white text-sm`}
       >
         <div class="font-semibold">Customize</div>
       </button>

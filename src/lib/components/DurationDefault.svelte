@@ -40,7 +40,7 @@
       class={`px-4 py-2 rounded flex-1 basis-0 ${
         selectedOption === "5m"
           ? "bg-shitzu-4 text-white"
-          : "bg-gray-700 text-white"
+          : "bg-gray-800 text-white"
       } focus:outline-none border border-white`}
       on:click={() => selectOption("5m")}
     >
@@ -50,7 +50,7 @@
       class={`px-4 py-2 rounded flex-1 basis-0 ${
         selectedOption === "1h"
           ? "bg-shitzu-4 text-white"
-          : "bg-gray-700 text-white"
+          : "bg-gray-800 text-white"
       } focus:outline-none border border-white`}
       on:click={() => selectOption("1h")}
     >
@@ -60,7 +60,7 @@
       class={`px-4 py-2 rounded flex-1 basis-0 ${
         selectedOption === "24h"
           ? "bg-shitzu-4 text-white"
-          : "bg-gray-700 text-white"
+          : "bg-gray-800 text-white"
       } focus:outline-none border border-white`}
       on:click={() => selectOption("24h")}
     >
@@ -70,7 +70,7 @@
       class={`px-4 py-2 rounded flex-[2_1_0%] basis-0 ${
         selectedOption === "customize"
           ? "bg-shitzu-4 text-white"
-          : "bg-gray-700 text-white"
+          : "bg-gray-800 text-white"
       } focus:outline-none border border-white`}
       on:click={() => selectOption("customize")}
     >
