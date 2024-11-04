@@ -11,7 +11,6 @@
   import { Rewarder, wallet } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
   import { FixedNumber } from "$lib/util";
-  import { shareWithReferral } from "$lib/util/referral";
 
   export let revenue:
     | {
@@ -196,12 +195,6 @@
         on:click={claim}
       >
         Claim Revenue
-      </button>
-      <button
-        class="text-memecooking-400 hover:text-memecooking-300 transition-colors"
-        on:click={() => shareWithReferral($accountId$)}
-      >
-        <div class="i-mdi:share text-xl" />
       </button>
     </div>
   {/if}

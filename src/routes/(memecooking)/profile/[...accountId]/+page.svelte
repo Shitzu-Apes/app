@@ -68,14 +68,14 @@
       {
         id: "created",
         label: "Created",
-        getCount: () => 0,
+        getCount: (info: McAccount) => info.created.length,
       },
     ])
     .with(false, () => [
       {
         id: "created",
         label: "Created Token",
-        getCount: () => 0,
+        getCount: (info: McAccount) => info.created.length,
       },
     ])
     .exhaustive();
