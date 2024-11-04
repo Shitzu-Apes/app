@@ -41,6 +41,7 @@ const portfolioStore = writable<Portfolio | null>(null);
 export async function fetchPortfolio(
   accountId: string,
 ): Promise<Portfolio | null> {
+  console.log("fetching portfolio", accountId);
   try {
     const res = await fetch(
       `https://api.fastnear.com/v1/account/${accountId}/ft`,

@@ -1,18 +1,17 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { derived } from "svelte/store";
 
   import FormatNumber from "./FormatNumber.svelte";
   import McIcon from "./MCIcon.svelte";
+  import LoadingLambo from "./memecooking/Board/LoadingLambo.svelte";
 
+  import Near from "$lib/assets/Near.svelte";
   import { refreshNearBalance, nearBalance } from "$lib/near";
-  import { wallet } from "$lib/near/wallet";
-  import { portfolio$, fetchPortfolio } from "$lib/store/portfolio";
   import type { Portfolio } from "$lib/store/portfolio";
   import { getNearPrice, nearPrice } from "$lib/util/projectedMCap";
 
   export let accountId: string;
-  const { accountId$ } = wallet;
+  export let portfolio: Portfolio | null;
 
   refreshNearBalance(accountId);
   getNearPrice();
@@ -23,101 +22,132 @@
   }, 30e3);
 
   onDestroy(() => clearInterval(refreshInterval));
-
-  let portfolio: Portfolio | null = null;
-  const unsubscribe = derived([accountId$, portfolio$], ([$id, $p]) => ({
-    accountId: $id,
-    portfolio: $p,
-  })).subscribe(({ accountId: curId, portfolio: curPortfolio }) => {
-    if (curId === accountId) {
-      portfolio = curPortfolio as Portfolio;
-    } else {
-      fetchPortfolio(accountId).then((r) => (portfolio = r));
-    }
-  });
-
-  onDestroy(() => unsubscribe());
 </script>
 
 {#if portfolio}
-  <div class="w-full overflow-x-auto">
+  <div
+    class="w-full overflow-x-auto rounded-lg bg-gray-800 border border-gray-800 mt-4"
+  >
     <table class="min-w-full table-auto">
-      <thead class="text-xs uppercase bg-gray-800">
-        <tr>
-          <th class="p-2">Token</th>
-          <th class="p-2">Balance</th>
-          <th class="p-2">Price</th>
-          <th class="p-2">Value</th>
+      <thead>
+        <tr class="text-xs uppercase text-gray-400 border-b border-gray-800">
+          <th class="px-4 py-3 text-left">Token</th>
+          <th class="px-4 py-3 text-right">Balance</th>
+          <th class="px-4 py-3 text-right">Price</th>
+          <th class="px-4 py-3 text-right">Market Cap</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="divide-y divide-gray-700">
         {#if $nearBalance}
-          <tr class="border-b border-gray-700">
-            <td class="p-2 truncate max-w-[200px]">NEAR</td>
-            <td class="p-2">{$nearBalance.format()}</td>
-            <td class="p-2">${(Number($nearPrice) / 1e24).toFixed(10)}</td>
-            <td class="p-2"
-              >${(
-                ($nearBalance.toNumber() * Number($nearPrice)) /
-                1e24
-              ).toFixed(2)}</td
+          <tr class="bg-gray-800/20 hover:bg-gray-800/50 transition-colors">
+            <td class="px-4 py-3 truncate max-w-[200px]">
+              <div class="flex items-center gap-3">
+                <Near
+                  className="w-8 h-8 rounded-full bg-white text-black p-1"
+                />
+                <div class="flex flex-col">
+                  <span class="font-medium">NEAR</span>
+                  <span class="text-xs text-gray-400">NEAR</span>
+                </div>
+              </div>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <div class="flex flex-col items-end">
+                <span class="font-medium">{$nearBalance.format()}</span>
+                <span class="text-xs text-gray-400"
+                  >${(
+                    ($nearBalance.toNumber() * Number($nearPrice)) /
+                    1e24
+                  ).toFixed(2)}</span
+                >
+              </div>
+            </td>
+            <td class="px-4 py-3 text-right font-medium"
+              >${(Number($nearPrice) / 1e24).toFixed(10)}</td
             >
+            <td class="px-4 py-3 text-right font-medium">
+              $<FormatNumber
+                number={(Number($nearPrice) / 1e24) * 1e9}
+                totalDigits={6}
+              />
+            </td>
           </tr>
         {/if}
-        {#each portfolio.tokens.sort((a, b) => {
-          const [aD, bD] = [a.contract_id === "wrap.near" ? 24 : a.decimals ?? 18, b.contract_id === "wrap.near" ? 24 : b.decimals ?? 18];
-          const [aB, bB] = [Number(a.balance) / 10 ** aD, Number(b.balance) / 10 ** bD];
-          const [aP, bP] = [a.price ? (a.price * Number($nearPrice)) / 1e24 : 0, b.price ? (b.price * Number($nearPrice)) / 1e24 : 0];
-          return bB * bP - aB * aP;
-        }) as t}
+        {#each portfolio.tokens
+          .filter((t) => {
+            const d = t.contract_id === "wrap.near" ? 24 : t.decimals ?? 18;
+            const bal = Number(t.balance) / 10 ** d;
+            const p = t.price ? (t.price * Number($nearPrice)) / 1e24 : 0;
+            const val = bal * p;
+            return val >= 0.0001; // Filter out tokens worth less than 1 cent
+          })
+          .sort((a, b) => {
+            const [aD, bD] = [a.contract_id === "wrap.near" ? 24 : a.decimals ?? 18, b.contract_id === "wrap.near" ? 24 : b.decimals ?? 18];
+            const [aB, bB] = [Number(a.balance) / 10 ** aD, Number(b.balance) / 10 ** bD];
+            const [aP, bP] = [a.price ? (a.price * Number($nearPrice)) / 1e24 : 0, b.price ? (b.price * Number($nearPrice)) / 1e24 : 0];
+            return bB * bP - aB * aP;
+          }) as t, i}
           {@const d = t.contract_id === "wrap.near" ? 24 : t.decimals ?? 18}
           {@const bal = (+t.balance / 10 ** d).toFixed(4)}
           {@const p = t.price ? (t.price * Number($nearPrice)) / 1e24 : 0}
           {@const val = (p * Number(bal)).toFixed(2)}
-          <tr class="border-b border-gray-700">
-            <td class="p-2 truncate max-w-[200px]">
+          {@const mcap = t.total_supply
+            ? p * (Number(t.total_supply) / 10 ** d)
+            : 0}
+          <tr
+            class="{i % 2 === 0 ? 'bg-gray-700/20' : ''} hover:bg-gray-800/50"
+          >
+            <td class="px-4 py-3 truncate max-w-[200px]">
               {#if t.image}
-                <div class="flex items-center gap-2">
+                <a
+                  href={`/meme/${t.meme_id && t.meme_id < 0 ? t.contract_id : t.meme_id}`}
+                  class="flex items-center gap-3 hover:opacity-80 hover:text-shitzu-4"
+                >
                   <McIcon
                     meme={{ image: t.image, name: t.contract_id }}
-                    class="w-6 h-6 rounded-full"
+                    class="w-8 h-8 rounded-full"
                   />
-                  <span>{t.symbol || t.name || t.contract_id}</span>
-                </div>
+                  <div class="flex flex-col">
+                    <span class="font-medium"
+                      >{t.symbol || t.name || t.contract_id}</span
+                    >
+                    <span class="text-xs text-gray-400">{t.contract_id}</span>
+                  </div>
+                </a>
               {:else}
-                {t.symbol || t.name || t.contract_id}
+                <div class="flex flex-col">
+                  <span class="font-medium"
+                    >{t.symbol || t.name || t.contract_id}</span
+                  >
+                  <span class="text-xs text-gray-400">{t.contract_id}</span>
+                </div>
               {/if}
             </td>
-            <td class="p-2">
-              <FormatNumber number={Number(bal)} totalDigits={6} />
+            <td class="px-4 py-3 text-right">
+              <div class="flex flex-col items-end">
+                <span class="font-medium"
+                  ><FormatNumber number={Number(bal)} totalDigits={6} /></span
+                >
+                <span class="text-xs text-gray-400">${val}</span>
+              </div>
             </td>
-            <td class="p-2">
+            <td class="px-4 py-3 text-right font-medium">
               $<FormatNumber number={p} totalDigits={6} />
             </td>
-            <td class="p-2">
-              $<FormatNumber number={Number(val)} totalDigits={6} />
+            <td class="px-4 py-3 text-right font-medium">
+              {#if mcap}
+                $<FormatNumber number={mcap} totalDigits={6} />
+              {:else}
+                <span class="text-gray-400">-</span>
+              {/if}
             </td>
           </tr>
         {/each}
-        <tr class="bg-gray-800">
-          <td colspan="3" class="p-2 font-medium">Total Value</td>
-          <td class="p-2 font-medium">
-            ${(
-              (Number($nearBalance) * Number($nearPrice)) / 1e24 +
-              portfolio.tokens.reduce((sum, t) => {
-                const d = t.contract_id === "wrap.near" ? 24 : 18;
-                return (
-                  sum +
-                  (Number(t.balance) / 10 ** d) *
-                    (t.price ? t.price * Number($nearPrice) : 0)
-                );
-              }, 0)
-            ).toFixed(2)}
-          </td>
-        </tr>
       </tbody>
     </table>
   </div>
 {:else}
-  <div class="text-center py-4">Loading portfolio...</div>
+  <div class="text-center py-8 text-white">
+    <LoadingLambo />
+  </div>
 {/if}

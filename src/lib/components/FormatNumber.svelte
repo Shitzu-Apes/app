@@ -5,6 +5,16 @@
   $: absNumber = Math.abs(number);
   $: integerPartLength = Math.floor(absNumber).toString().length;
 
+  // Helper function to format numbers with commas
+  function formatWithCommas(num: number, fractionDigits: number) {
+    // Clamp fractionDigits between 0 and 20
+    fractionDigits = Math.max(0, Math.min(20, fractionDigits));
+    return num.toLocaleString("en-US", {
+      minimumFractionDigits: fractionDigits,
+      maximumFractionDigits: fractionDigits,
+    });
+  }
+
   $: formattedNumber = (() => {
     // Handle small numbers with many leading zeros
     if (absNumber > 0 && absNumber < 0.00001) {
@@ -26,12 +36,15 @@
       // Format the number to have a fixed total number of digits
       const digitsAfterDecimal = totalDigits - integerPartLength;
       const factor = Math.pow(10, digitsAfterDecimal);
-      return Math.floor(number * factor) / factor;
+      const formatted = Math.floor(number * factor) / factor;
+
+      // Use the helper function to add commas
+      return formatWithCommas(formatted, digitsAfterDecimal);
     } else {
       // Use SI notation
       const SI_PREFIXES = [
         { value: 1e12, symbol: "T" },
-        { value: 1e9, symbol: "G" },
+        { value: 1e9, symbol: "B" },
         { value: 1e6, symbol: "M" },
         { value: 1e3, symbol: "k" },
         { value: 1, symbol: "" },
@@ -44,24 +57,38 @@
           const scaledAbs = Math.abs(scaled);
           const scaledIntegerLength = Math.floor(scaledAbs).toString().length;
           const digitsAfterDecimal = totalDigits - scaledIntegerLength;
-          const factor = Math.pow(10, digitsAfterDecimal);
+
+          // Ensure digitsAfterDecimal is within valid range
+          const fractionDigits = Math.max(0, Math.min(20, digitsAfterDecimal));
+          const factor = Math.pow(10, fractionDigits);
 
           // Adjust factor for numbers with decimal part
-          const formatted = Math.floor(scaled * factor) / factor;
-          return formatted + SI_PREFIXES[i].symbol;
+          const formattedNum = Math.floor(scaled * factor) / factor;
+
+          // Use the helper function to add commas
+          const formattedWithCommas = formatWithCommas(
+            formattedNum,
+            fractionDigits,
+          );
+          return formattedWithCommas + SI_PREFIXES[i].symbol;
         }
       }
     }
-    return number.toString();
+
+    // For numbers smaller than 1
+    const digitsAfterDecimal = totalDigits - integerPartLength;
+    const fractionDigits = Math.max(0, Math.min(20, digitsAfterDecimal));
+    return formatWithCommas(number, fractionDigits);
   })();
 </script>
 
 {#if typeof formattedNumber === "object" && formattedNumber.needsSubscript}
   <span>
     {formattedNumber.prefix}
-    <span class="align-sub text-[0.5em] -ml-[0.5em]"
-      >{formattedNumber.zeroCount}</span
-    >{formattedNumber.suffix.slice(0, totalDigits)}
+    <span class="align-sub text-[0.5em] -ml-[0.5em]">
+      {formattedNumber.zeroCount}
+    </span>
+    {formattedNumber.suffix.slice(0, totalDigits)}
   </span>
 {:else}
   {formattedNumber}

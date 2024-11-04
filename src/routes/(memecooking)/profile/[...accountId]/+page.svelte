@@ -6,12 +6,14 @@
 
   import { page } from "$app/stores";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
+  import FormatNumber from "$lib/components/FormatNumber.svelte";
   import Portfolio from "$lib/components/Portfolio.svelte";
   import LoadingLambo from "$lib/components/memecooking/Board/LoadingLambo.svelte";
   import Tabs from "$lib/components/memecooking/Board/Tabs.svelte";
   import MemeList from "$lib/components/memecooking/Profile/MemeList.svelte";
   import Revenue from "$lib/components/memecooking/Profile/Revenue.svelte";
   import { wallet } from "$lib/near";
+  import { nearBalance } from "$lib/near/balance";
   import {
     fetchMcAccount,
     mcAccount$,
@@ -19,6 +21,9 @@
     type McAccount,
   } from "$lib/near/memecooking";
   import { fetchBlockHeight } from "$lib/near/rpc";
+  import { portfolio$, fetchPortfolio } from "$lib/store/portfolio";
+  import type { Portfolio as TPortfolio } from "$lib/store/portfolio";
+  import { nearPrice } from "$lib/util/projectedMCap";
 
   $: accountId = $page.params.accountId;
   const { accountId$ } = wallet;
@@ -30,14 +35,29 @@
       : accountId;
 
   let account: McAccount | undefined;
-  const unsubscribe = derived([accountId$, page], (res) => res).subscribe(
-    ([ownAccountId, page]) => {
+  let portfolio: TPortfolio | null = null;
+
+  const unsubscribe = derived(
+    [accountId$, page, portfolio$],
+    ([$id, $p, $portfolio]) => ({
+      accountId: $id,
+      page: $p,
+      portfolio: $portfolio,
+    }),
+  ).subscribe(
+    async ({ accountId: ownAccountId, page, portfolio: curPortfolio }) => {
+      if (ownAccountId === page.params.accountId) {
+        portfolio = curPortfolio as TPortfolio;
+      } else {
+        portfolio = await fetchPortfolio(page.params.accountId);
+      }
+
       if (ownAccountId === page.params.accountId) return;
-      fetchMcAccount(page.params.accountId).then((acc) => {
-        account = acc;
-      });
+      const acc = await fetchMcAccount(page.params.accountId);
+      account = acc;
     },
   );
+
   onDestroy(() => {
     unsubscribe();
   });
@@ -98,6 +118,20 @@
     const blockHeight = await fetchBlockHeight(outcome);
     updateMcAccount(ownAccountId, true, blockHeight + 5);
   }
+
+  $: totalValue =
+    portfolio?.tokens.reduce(
+      (acc, token) => {
+        const decimals =
+          token.contract_id === "wrap.near" ? 24 : token.decimals ?? 18;
+        const balance = Number(token.balance) / 10 ** decimals;
+        const price = token.price
+          ? (token.price * Number($nearPrice)) / 1e24
+          : 0;
+        return acc + balance * price;
+      },
+      $nearBalance ? ($nearBalance.toNumber() * Number($nearPrice)) / 1e24 : 0,
+    ) ?? 0;
 </script>
 
 <a
@@ -111,29 +145,37 @@
 <section class="w-full flex flex-col items-center justify-center">
   <!-- Welcome Banner -->
   <div class="w-full bg-gray-800 rounded-lg p-6 mb-8">
-    <div class="flex items-center gap-4">
-      <img
-        src={SHITZU_POCKET}
-        alt="shitzu pocket"
-        class="size-20 text-shitzu-4"
-      />
-      <div class="flex flex-col gap-2">
-        <h1 class="text-xl font-bold text-white">
-          {#if isOwnAccount}
-            gm, {displayAccountId}!
-          {:else}
-            {displayAccountId}'s Profile
-          {/if}
-        </h1>
-        <a
-          href="https://pikespeak.ai/wallet-explorer/{accountId}/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-shitzu-4 hover:text-shitzu-5 hover:underline flex items-center gap-1"
-        >
-          <span>View on Explorer</span>
-          <div class="i-mdi:external-link text-lg" />
-        </a>
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <img
+          src={SHITZU_POCKET}
+          alt="shitzu pocket"
+          class="size-20 text-shitzu-4"
+        />
+        <div class="flex flex-col gap-2">
+          <h1 class="text-xl font-bold text-white">
+            {#if isOwnAccount}
+              gm, {displayAccountId}!
+            {:else}
+              {displayAccountId}'s Profile
+            {/if}
+          </h1>
+          <a
+            href="https://pikespeak.ai/wallet-explorer/{accountId}/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-shitzu-4 hover:text-shitzu-5 hover:underline flex items-center gap-1"
+          >
+            <span>View on Explorer</span>
+            <div class="i-mdi:external-link text-lg" />
+          </a>
+        </div>
+      </div>
+      <div class="flex flex-col items-end">
+        <span class="text-lg font-bold text-white">Total Value</span>
+        <span class="text-3xl font-light text-shitzu-4">
+          $<FormatNumber number={totalValue} totalDigits={6} />
+        </span>
       </div>
     </div>
   </div>
@@ -142,7 +184,7 @@
     {#await $mcAccount$}
       <LoadingLambo />
     {:then info}
-      <div class="grid lg:grid-cols-[2fr_minmax(400px,1fr)] gap-8">
+      <div class="grid lg:grid-cols-[2fr_minmax(300px,1fr)] gap-8">
         <!-- Left Panel with Tabs -->
         <div>
           <Tabs
@@ -157,7 +199,7 @@
           />
 
           {#if activeTab === "portfolio"}
-            <Portfolio {accountId} />
+            <Portfolio {accountId} {portfolio} />
           {:else if info && isOwnAccount}
             <MemeList
               props={activeTab === "not-finalized"
