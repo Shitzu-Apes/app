@@ -10,6 +10,7 @@
 
   import { client, type Reply } from "$lib/api/client";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
+  import SHITZU_WOOF from "$lib/assets/static/shitzu_woof_woof.png";
   import { showWalletSelector } from "$lib/auth";
   import { isLoggedIn$ } from "$lib/auth/login";
   import { Button } from "$lib/components";
@@ -147,7 +148,9 @@
 </script>
 
 <div class="h-full w-full p-2 flex flex-col max-h-full {className}">
-  <div class="w-full flex flex-col gap-2 rounded-md text-shitzu-1 mb-6">
+  <div
+    class="w-full flex flex-col gap-2 text-shitzu-1 mb-6 border-b border-shitzu-3 pb-4"
+  >
     <div class="flex items-center justify-between gap-1 text-xs text-shitzu-3">
       <Chef
         account={`${meme.owner} (dev)`}
@@ -175,10 +178,18 @@
       </div>
     </div>
   {:then data}
+    {#if data.length === 0}
+      <div
+        class="text-center text-lg text-white flex flex-col items-center justify-center gap-2 my-10"
+      >
+        <img src={SHITZU_WOOF} class="w-40" alt="No comments found" />
+        Be the first to woof woof!
+      </div>
+    {/if}
     <div class="contents max-h-fit">
       <div
         bind:this={scrollContainer}
-        class="w-full flex flex-col gap-2 flex-1 h-0 max-h-[50rem] overflow-auto scrollbar-none border-y border-shitzu-3 py-2"
+        class="w-full flex flex-col gap-2 flex-1 h-0 max-h-[50rem] overflow-auto scrollbar-none py-2"
       >
         {#each data as reply}
           <TokenComment

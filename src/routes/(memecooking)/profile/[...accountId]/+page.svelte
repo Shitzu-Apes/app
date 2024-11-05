@@ -143,7 +143,7 @@
   Back
 </a>
 
-<section class="w-full flex flex-col items-center justify-center">
+<section class="w-full flex flex-col items-center justify-center px-1">
   <!-- Welcome Banner -->
   <div class="w-full bg-gray-800 rounded-lg p-4 sm:p-6 mb-8">
     <div
