@@ -53,7 +53,7 @@
 
 <div
   class="w-full rounded overflow-hidden hover:ring-2 hover:ring-shitzu-3 bg-gray-800 {memebid.animate
-    ? 'animated animated-shake animated-infinite animated-duration-250 ring-2 ring-memecooking-400'
+    ? 'animated animated-shake animated-infinite animated-duration-250 bg-memecooking-400'
     : ''}"
 >
   <a
