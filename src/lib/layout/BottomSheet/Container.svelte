@@ -63,16 +63,16 @@
       : 'translate-y-full opacity-0'} transition ease-out duration-200 rounded-t-xl border-3 border-b-0 {variant ===
     'lime'
       ? 'border-lime bg-black'
-      : 'border-shitzu-4 bg-dark'} lg:max-h-[70vh] lg:top-1/2 lg:rounded-xl lg:border-3"
+      : 'border-dark bg-dark'} lg:max-h-[70vh] lg:top-1/2 lg:rounded-xl lg:border-3"
   >
     <div class="h-full">
       <button
         class="absolute top-3 right-3 {variant === 'lime'
           ? 'bg-lime'
-          : 'bg-shitzu-4'} rounded-full flex justify-center items-center px-1 py-1"
+          : 'text-shitzu-4'} rounded-full flex justify-center items-center px-1 py-1"
         on:click={closeBottomSheet}
       >
-        <div class=" block i-mdi:close size-6 ml-auto bg-black" />
+        <div class="block i-mdi:close size-6 ml-auto bg-current-color" />
       </button>
       {#if $component}
         <svelte:component this={$component.component} {...$component.props} />
