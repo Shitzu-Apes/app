@@ -362,7 +362,8 @@
   $: team_allocation_num =
     teamAllocation && $totalSupply$ && teamAllocation.allocationBps > 0
       ? Number(
-          ($totalSupply$.toBigInt() * BigInt(teamAllocation.allocationBps)) /
+          ($totalSupply$.toBigInt() *
+            BigInt(Math.round(teamAllocation.allocationBps))) /
             10000n,
         )
       : undefined;
