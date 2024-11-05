@@ -3,7 +3,13 @@ import type { Action, FinalExecutionOutcome } from "@near-wallet-selector/core";
 import { get } from "svelte/store";
 
 import type { Meme } from "$lib/models/memecooking";
-import { Ft, nearBalance, wallet, type TransactionCallbacks } from "$lib/near";
+import {
+  Ft,
+  nearBalance,
+  Ref,
+  wallet,
+  type TransactionCallbacks,
+} from "$lib/near";
 import { FixedNumber } from "$lib/util";
 import { getTokenId } from "$lib/util/getTokenId";
 
@@ -15,8 +21,9 @@ export async function handleBuy(
   slippage: number = 0.05,
   callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
 ) {
-  if (!input || !accountId) return;
+  if (!input || !accountId || meme.pool_id == null) return;
   const tokenId = getTokenId(meme);
+  const isMainnet = import.meta.env.VITE_NETWORK_ID === "mainnet";
 
   const slippageFixedNumber = new FixedNumber((slippage * 100).toString(), 2);
   const min_amount_out = expected
@@ -32,12 +39,16 @@ export async function handleBuy(
     wrapNearRegistered,
     wrapNearMinDeposit,
     wrapNearBalance,
+    mftIsRegistered,
   ] = await Promise.all([
     Ft.isUserRegistered(tokenId, accountId),
     Ft.storageRequirement(tokenId),
     Ft.isUserRegistered(import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!, accountId),
     Ft.storageRequirement(import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!),
     Ft.balanceOf(import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!, accountId, 24),
+    isMainnet
+      ? Ref.mftHasRegistered(meme.pool_id, "shitzu.sputnik-dao.near")
+      : Promise.resolve(true),
   ]);
 
   if (!isRegistered) {
@@ -57,7 +68,26 @@ export async function handleBuy(
     });
   }
 
-  console.log("wnear", wrapNearBalance.format());
+  if (!mftIsRegistered) {
+    transactions.push({
+      receiverId: import.meta.env.VITE_REF_CONTRACT_ID,
+      actions: [
+        {
+          type: "FunctionCall",
+          params: {
+            methodName: "mft_register",
+            args: {
+              token_id: `:${meme.pool_id}`,
+              account_id: "shitzu.sputnik-dao.near",
+            },
+            gas: 20_000_000_000_000n.toString(),
+            deposit: 10_000_000_000_000_000_000_000n.toString(),
+          },
+        },
+      ],
+    });
+  }
+
   let nearDeposit =
     input.toBigInt() > wrapNearBalance.toBigInt()
       ? input.toBigInt() - wrapNearBalance.toBigInt()
@@ -92,10 +122,7 @@ export async function handleBuy(
         receiver_id: import.meta.env.VITE_REF_CONTRACT_ID,
         amount: input.toU128(),
         msg: JSON.stringify({
-          referral_id:
-            import.meta.env.VITE_NETWORK_ID === "mainnet"
-              ? "shitzu.sputnik-dao.near"
-              : undefined,
+          referral_id: isMainnet ? "shitzu.sputnik-dao.near" : undefined,
           actions: [
             {
               pool_id: meme.pool_id,
@@ -129,7 +156,8 @@ export async function handleSell(
   slippage: number = 0.05,
   callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
 ) {
-  if (!input || !accountId) return;
+  if (!input || !accountId || meme.pool_id == null) return;
+  const isMainnet = import.meta.env.VITE_NETWORK_ID === "mainnet";
   const tokenId = getTokenId(meme);
   const tokenIn = tokenId;
   const tokenOut = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
@@ -185,6 +213,29 @@ export async function handleSell(
     });
   }
 
+  const mftIsRegistered = isMainnet
+    ? await Ref.mftHasRegistered(meme.pool_id, "shitzu.sputnik-dao.near")
+    : true;
+  if (!mftIsRegistered) {
+    transactions.push({
+      receiverId: import.meta.env.VITE_REF_CONTRACT_ID,
+      actions: [
+        {
+          type: "FunctionCall",
+          params: {
+            methodName: "mft_register",
+            args: {
+              token_id: `:${meme.pool_id}`,
+              account_id: "shitzu.sputnik-dao.near",
+            },
+            gas: 20_000_000_000_000n.toString(),
+            deposit: 10_000_000_000_000_000_000_000n.toString(),
+          },
+        },
+      ],
+    });
+  }
+
   transactions.push({
     receiverId: tokenIn,
     actions: [
@@ -196,10 +247,7 @@ export async function handleSell(
             receiver_id: import.meta.env.VITE_REF_CONTRACT_ID,
             amount: input.toU128(),
             msg: JSON.stringify({
-              referral_id:
-                import.meta.env.VITE_NETWORK_ID === "mainnet"
-                  ? "shitzu.sputnik-dao.near"
-                  : undefined,
+              referral_id: isMainnet ? "shitzu.sputnik-dao.near" : undefined,
               actions: [
                 {
                   pool_id: meme.pool_id,

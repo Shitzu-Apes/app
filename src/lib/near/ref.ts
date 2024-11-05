@@ -99,6 +99,20 @@ export abstract class Ref {
       },
     );
   }
+
+  public static async mftHasRegistered(
+    poolId: number,
+    accountId: string,
+  ): Promise<boolean> {
+    return view<boolean>(
+      import.meta.env.VITE_REF_CONTRACT_ID,
+      "mft_has_registered",
+      {
+        token_id: `:${poolId}`,
+        account_id: accountId,
+      },
+    );
+  }
 }
 
 export type FarmerSeed = {
