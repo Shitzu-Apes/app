@@ -39,7 +39,12 @@ export function filterAndSortMeme<T extends Meme>(
     });
   }
   if (ref) {
-    memes = memes.filter((meme) => meme.pool_id !== null);
+    // Only include memes that have a pool ID and a valid meme ID
+    memes = memes.filter((meme) => {
+      const hasPoolId = meme.pool_id !== null;
+      const isMemeCooking = meme.meme_id >= 0;
+      return hasPoolId && isMemeCooking;
+    });
   }
 
   switch (sort.sort) {
