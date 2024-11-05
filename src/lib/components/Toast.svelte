@@ -96,22 +96,6 @@
     }
     return true;
   }
-
-  function handleKeyPress(e: KeyboardEvent) {
-    if (e.key === "z") {
-      addToast({
-        type: "foreground",
-        data: {
-          type: "simple",
-          data: {
-            title: "Test Toast",
-            description: "This is a test toast message",
-            color: "bg-green-500",
-          },
-        },
-      });
-    }
-  }
 </script>
 
 <script lang="ts">
