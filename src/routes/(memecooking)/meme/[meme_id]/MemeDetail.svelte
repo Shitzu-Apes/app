@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { Writable } from "svelte/store";
 
   import ClaimBanner from "./ClaimBanner.svelte";
   import RefWhitelistBanner from "./RefWhitelistBanner.svelte";
@@ -22,14 +21,14 @@
   import { MCTradeSubscribe } from "$lib/store/MCWebSocket";
   import { getTokenId } from "$lib/util/getTokenId";
 
-  export let meme$: Writable<Meme>;
-  const { projectedMcap } = $meme$;
+  export let meme: Meme;
+  const { projectedMcap } = meme;
 
   const MCSymbol = Symbol();
   onMount(() => {
     MCTradeSubscribe(MCSymbol, (data) => {
-      if (data.meme_id === $meme$.meme_id) {
-        $meme$ = data;
+      if (data.meme_id === meme.meme_id) {
+        meme = data;
       }
     });
   });
@@ -41,28 +40,28 @@
       <div class="i-mdi:chevron-left size-8" />
       Back
     </a>
-    <ActionButtons meme={$meme$} />
+    <ActionButtons {meme} />
   </div>
   <!-- Header Section -->
   <header class="mb-4 bg-gray-800 rounded-lg p-4">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <!-- Token Basic Info -->
       <div class="flex items-center gap-4">
-        <McIcon meme={$meme$} class="w-16 object-contain" />
+        <McIcon {meme} class="w-16 object-contain" />
         <div>
-          <h1 class="text-2xl font-medium">{$meme$.name}</h1>
+          <h1 class="text-2xl font-medium">{meme.name}</h1>
           <div class="flex items-center gap-2 text-gray-400">
-            <span class="font-medium text-shitzu-400">${$meme$.symbol}</span>
-            {#if $meme$.pool_id}
+            <span class="font-medium text-shitzu-400">${meme.symbol}</span>
+            {#if meme.pool_id}
               <div class="flex items-center gap-1">
                 <span class="text-xs">CA:</span>
                 <code class="text-xs bg-gray-800 px-2 py-1 rounded">
-                  {$meme$.token_id}
+                  {meme.token_id}
                 </code>
                 <button
                   class="p-1 hover:bg-gray-700 rounded"
                   on:click={() => {
-                    navigator.clipboard.writeText(getTokenId($meme$));
+                    navigator.clipboard.writeText(getTokenId(meme));
                     addToast({
                       data: {
                         type: "simple",
@@ -101,7 +100,7 @@
         <div class="text-center">
           <div class="text-sm text-gray-400">Created By</div>
           <Chef
-            account={$meme$.owner}
+            account={meme.owner}
             asLink
             class="bg-shitzu-3 text-black px-2 py-1 rounded-full text-sm"
           />
@@ -115,55 +114,55 @@
     <!-- Left Column - Chart & Trading -->
     <div class="lg:col-span-2">
       <div class="bg-gray-800 rounded-lg p-4 mb-4 aspect-ratio-16/9">
-        <TokenChart memebid={$meme$} />
+        <TokenChart memebid={meme} />
       </div>
 
       <div class="bg-gray-800 rounded-lg p-4">
-        <TradeTabs meme={$meme$} />
+        <TradeTabs {meme} />
       </div>
     </div>
 
     <!-- Right Column - Actions & Info -->
     <div class="space-y-4">
       <!-- Admin Actions -->
-      <RefWhitelistBanner meme={$meme$} />
-      <WithdrawBanner meme={$meme$} />
-      <ClaimBanner meme={$meme$} />
-      <TokenAllocationBanner meme={$meme$} />
+      <RefWhitelistBanner {meme} />
+      <WithdrawBanner {meme} />
+      <ClaimBanner {meme} />
+      <TokenAllocationBanner {meme} />
 
       <!-- Trading Status -->
       <div class="bg-gray-800 rounded-lg p-4 pb-0">
-        <StatusBar meme={$meme$} />
+        <StatusBar {meme} />
       </div>
 
       <!-- Trading Box -->
       <div class="bg-gray-800 rounded-lg p-4">
-        <McActionBox meme={$meme$} />
+        <McActionBox {meme} />
       </div>
 
       <!-- Token Details -->
       <div class="bg-gray-800 rounded-lg p-4">
         <h3 class="text-lg font-bold mb-4">
           About
-          <span class="text-shitzu-400 font-medium">${$meme$.symbol}</span>
+          <span class="text-shitzu-400 font-medium">${meme.symbol}</span>
         </h3>
-        <p class="text-gray-300 mb-4">{$meme$.description}</p>
+        <p class="text-gray-300 mb-4">{meme.description}</p>
         <!-- Social Links -->
         <SocialLink
-          twitterLink={$meme$.twitterLink || ""}
-          telegramLink={$meme$.telegramLink || ""}
-          website={$meme$.website || ""}
+          twitterLink={meme.twitterLink || ""}
+          telegramLink={meme.telegramLink || ""}
+          website={meme.website || ""}
         />
       </div>
 
       <!-- Token Holders -->
-      {#if $meme$.team_allocation_num && typeof $meme$.vesting_duration_ms === "number" && typeof $meme$.cliff_duration_ms === "number"}
+      {#if meme.team_allocation_num && typeof meme.vesting_duration_ms === "number" && typeof meme.cliff_duration_ms === "number"}
         <div class="bg-gray-800 rounded-lg p-4">
-          <TeamAllocation meme={$meme$} />
+          <TeamAllocation {meme} />
         </div>
       {/if}
       <div class="bg-gray-800 rounded-lg p-4">
-        <TokenHolder meme={$meme$} />
+        <TokenHolder {meme} />
       </div>
     </div>
   </div>

@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { Writable } from "svelte/store";
 
   import ClaimBanner from "../../../../routes/(memecooking)/meme/[meme_id]/ClaimBanner.svelte";
   import RefWhitelistBanner from "../../../../routes/(memecooking)/meme/[meme_id]/RefWhitelistBanner.svelte";
@@ -24,13 +23,13 @@
   import { MCTradeSubscribe } from "$lib/store/MCWebSocket";
   const { accountId$ } = wallet;
 
-  export let memebid$: Writable<Meme>;
+  export let meme: Meme;
 
   const MCSymbol = Symbol();
   onMount(() => {
     MCTradeSubscribe(MCSymbol, (data) => {
-      if (data.meme_id === $memebid$.meme_id) {
-        $memebid$ = data;
+      if (data.meme_id === meme.meme_id) {
+        meme = data;
       }
     });
   });
@@ -42,31 +41,31 @@
       <div class="i-mdi:chevron-left size-8" />
       Back
     </a>
-    <ActionButtons meme={$memebid$} />
+    <ActionButtons {meme} />
   </div>
 
   <!-- Status Bar -->
   <div class="px-2 mb-4">
     <div class="bg-gray-800 rounded-lg p-4 pb-0">
-      <StatusBar meme={$memebid$} />
+      <StatusBar {meme} />
     </div>
   </div>
 
   <!-- Token Info -->
   <div class="px-2 mb-4">
     <div class="bg-gray-800 rounded-lg p-4">
-      <TokenDetail memebid={$memebid$} />
+      <TokenDetail memebid={meme} />
     </div>
   </div>
 
   <!-- Banners -->
   <div class="flex flex-col w-full px-2">
     <!-- Admin Actions -->
-    <RefWhitelistBanner meme={$memebid$} />
-    <WithdrawBanner meme={$memebid$} />
-    <ClaimBanner meme={$memebid$} />
-    {#if $accountId$ === $memebid$.owner}
-      <TokenAllocationBanner meme={$memebid$} />
+    <RefWhitelistBanner {meme} />
+    <WithdrawBanner {meme} />
+    <ClaimBanner {meme} />
+    {#if $accountId$ === meme.owner}
+      <TokenAllocationBanner {meme} />
     {/if}
   </div>
 
@@ -75,25 +74,25 @@
     <!-- Left Column - Chart & Trading -->
     <div class="lg:col-span-2">
       <div class="bg-gray-800 rounded-lg p-2 mb-4 aspect-ratio-3/4">
-        <TokenChart memebid={$memebid$} />
+        <TokenChart memebid={meme} />
       </div>
 
       <div class="bg-gray-800 rounded-lg p-4">
-        <TradeTabs meme={$memebid$} />
+        <TradeTabs {meme} />
       </div>
     </div>
 
     <!-- Right Column - Info -->
     <div class="space-y-4">
-      {#if $memebid$.team_allocation_num && typeof $memebid$.vesting_duration_ms === "number" && typeof $memebid$.cliff_duration_ms === "number"}
+      {#if meme.team_allocation_num && typeof meme.vesting_duration_ms === "number" && typeof meme.cliff_duration_ms === "number"}
         <div class="bg-gray-800 rounded-lg p-4">
-          <TeamAllocation meme={$memebid$} />
+          <TeamAllocation {meme} />
         </div>
       {/if}
 
       <!-- Token Holders -->
       <div class="bg-gray-800 rounded-lg p-4">
-        <TokenHolder meme={$memebid$} />
+        <TokenHolder {meme} />
       </div>
     </div>
   </div>
@@ -103,37 +102,37 @@
   >
     <div class="w-full h-full flex justify-between items-center">
       <div class="flex justify-between items-center gap-2">
-        <McIcon meme={$memebid$} class="size-10 bg-white object-contain" />
+        <McIcon {meme} class="size-10 bg-white object-contain" />
         <div class="flex-1 min-w-0">
           <h2 class="text-base font-medium truncate leading-none">
-            {$memebid$.name}
+            {meme.name}
           </h2>
-          <span class="text-xs text-shitzu-400">${$memebid$.symbol}</span>
+          <span class="text-xs text-shitzu-400">${meme.symbol}</span>
         </div>
       </div>
       <button
         on:click={(e) => {
           e.preventDefault();
           if (
-            !$memebid$.pool_id &&
-            $memebid$.end_timestamp_ms &&
-            $memebid$.end_timestamp_ms < Date.now()
+            !meme.pool_id &&
+            meme.end_timestamp_ms &&
+            meme.end_timestamp_ms < Date.now()
           ) {
             goto(`/create`);
-            localStorage.setItem("meme_to_cto", JSON.stringify($memebid$));
+            localStorage.setItem("meme_to_cto", JSON.stringify(meme));
           } else {
-            openBottomSheet(StakeSheet, { meme: $memebid$ });
+            openBottomSheet(StakeSheet, { meme });
           }
         }}
-        class="{!$memebid$.pool_id &&
-        $memebid$.end_timestamp_ms &&
-        $memebid$.end_timestamp_ms < Date.now()
+        class="{!meme.pool_id &&
+        meme.end_timestamp_ms &&
+        meme.end_timestamp_ms < Date.now()
           ? 'bg-memecooking-5 border-memecooking-6'
           : 'bg-shitzu-4 border-shitzu-6'} flex-1 py-1.5 rounded text-lg tracking-wide text-black max-w-32"
       >
-        {#if $memebid$.pool_id}
+        {#if meme.pool_id}
           Buy
-        {:else if $memebid$.end_timestamp_ms && $memebid$.end_timestamp_ms < Date.now()}
+        {:else if meme.end_timestamp_ms && meme.end_timestamp_ms < Date.now()}
           Relaunch
         {:else}
           Deposit
