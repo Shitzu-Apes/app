@@ -36,14 +36,6 @@ export async function createMemeToken(
 ) {
   const depositTokenId = VITE_WRAP_NEAR_CONTRACT_ID;
 
-  console.log({
-    NETWORK_ID,
-    NODE_URL,
-    WALLET_PRIVATE_KEY,
-    ACCOUNT_ID,
-    depositTokenId,
-  });
-
   // Connect to NEAR
   const keyStore = new keyStores.InMemoryKeyStore();
   const keyPair = KeyPair.fromString(WALLET_PRIVATE_KEY as KeyPairString);
