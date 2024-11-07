@@ -46,7 +46,6 @@
     "near-api-js": "^5",
     "openapi-typescript": "^7.0.4",
     "perfect-debounce": "^1.0.0",
-    "sharp": "^0.33.5",
     "ts-pattern": "^5.1.1",
     "virtua": "^0.35.1",
     "wagmi": "^2.12.12",
