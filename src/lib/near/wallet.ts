@@ -90,6 +90,7 @@ export const wagmiConfig = browser
             ],
             description: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
           },
+          showQrModal: false,
         }),
         injected({ shimDisconnect: true }),
       ],
