@@ -117,6 +117,7 @@ export class Wallet {
           import("@near-wallet-selector/wallet-connect"),
           import("@near-wallet-selector/ethereum-wallets"),
           import("@web3modal/wagmi"),
+          import("@keypom/one-click-connect"),
         ]).then(
           ([
             { setupWalletSelector },
@@ -127,8 +128,9 @@ export class Wallet {
             { setupOKXWallet },
             { setupMyNearWallet },
             { setupWalletConnect },
-            // { setupEthereumWallets },
-            // { createWeb3Modal },
+            { setupEthereumWallets },
+            { createWeb3Modal },
+            { setupOneClickConnect },
           ]) =>
             setupWalletSelector({
               network: import.meta.env.VITE_NETWORK_ID,
@@ -160,18 +162,22 @@ export class Wallet {
                     description: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
                   },
                 }),
-                // TODO enable once EVM rollout is live on Near Protocol
-                // setupEthereumWallets({
-                //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                //   wagmiConfig: wagmiConfig as any,
-                //   web3Modal: createWeb3Modal({
-                //     wagmiConfig,
-                // projectId:
-                // import.meta.env.VITE_WC_PROJECT_ID ??
-                // "dba65fff73650d32ae5157f3492c379e",
-                //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                //   }) as any,
-                // }),
+                setupEthereumWallets({
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  wagmiConfig: wagmiConfig as any,
+                  web3Modal: createWeb3Modal({
+                    wagmiConfig,
+                    projectId:
+                      import.meta.env.VITE_WC_PROJECT_ID ??
+                      "dba65fff73650d32ae5157f3492c379e",
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  }) as any,
+                }),
+                setupOneClickConnect({
+                  contractId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
+                  networkId: import.meta.env.VITE_NETWORK_ID,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                }) as any,
               ],
             }),
         )
@@ -257,16 +263,25 @@ export class Wallet {
   );
 
   public iconUrl$ = derived(this._account$, (account) => {
+    console.log("account", account);
     return match(account)
       .with(undefined, () => undefined)
       .with(
         {
           type: "wallet-selector",
-          account: P.any,
+          account: P.select(),
         },
-        async () => {
+        async (account) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if ((account as any).walletId === "sweat-wallet") {
+            return "https://sweateconomy.com/icon-main-color.72b79a87.png";
+          }
           const selector = await get(this.selector$);
           const wallet = await selector.wallet();
+          console.log(
+            "walletwalletwalletwalletwalletwalletwalletwallet",
+            wallet,
+          );
           return wallet.metadata.iconUrl;
         },
       )
@@ -284,30 +299,35 @@ export class Wallet {
 
   public modules$ = derived(this.selector$, async (s) => {
     const selector = await s;
-    return selector.store.getState().modules.map((mod): UnionModuleState => {
-      switch (mod.type) {
-        case "injected":
-          return {
-            ...mod,
-            type: "injected",
-            metadata: mod.metadata as InjectedWalletMetadata,
-          };
-        case "browser":
-          return {
-            ...mod,
-            type: "browser",
-            metadata: mod.metadata as BrowserWalletMetadata,
-          };
-        case "bridge":
-          return {
-            ...mod,
-            type: "bridge",
-            metadata: mod.metadata as BrowserWalletMetadata,
-          };
-        default:
-          throw new Error(`unimplemented: ${mod.type}`);
-      }
-    });
+    return selector.store
+      .getState()
+      .modules.map((mod): UnionModuleState | undefined => {
+        switch (mod.type) {
+          case "injected":
+            return {
+              ...mod,
+              type: "injected",
+              metadata: mod.metadata as InjectedWalletMetadata,
+            };
+          case "browser":
+            return {
+              ...mod,
+              type: "browser",
+              metadata: mod.metadata as BrowserWalletMetadata,
+            };
+          case "bridge":
+            return {
+              ...mod,
+              type: "bridge",
+              metadata: mod.metadata as BrowserWalletMetadata,
+            };
+          case "instant-link":
+            return;
+          default:
+            throw new Error(`unimplemented: ${mod.type}`);
+        }
+      })
+      .filter((mod) => mod != null);
   });
 
   constructor() {
@@ -703,4 +723,5 @@ export const NEAR_WALLETS: Record<string, WalletMetadata> = {
   "ethereum-wallets": {
     infoSheet: EvmOnboardSheet,
   },
+  "sweat-wallet": {},
 };

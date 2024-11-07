@@ -27,6 +27,7 @@
     "@jsquash/png": "^3.0.1",
     "@jsquash/resize": "^2.0.0",
     "@jsquash/webp": "^1.4.0",
+    "@keypom/one-click-connect": "^1.0.1",
     "@near-wallet-selector/bitte-wallet": "^8.9.13",
     "@near-wallet-selector/core": "^8.9.13",
     "@near-wallet-selector/ethereum-wallets": "^8.9.13",

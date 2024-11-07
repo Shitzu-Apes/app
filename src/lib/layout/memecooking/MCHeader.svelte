@@ -179,7 +179,7 @@
                   <img
                     src={iconUrl}
                     alt={walletName}
-                    class={`size-5 rounded-full ${(walletName ?? "").replaceAll(" ", "-").toLowerCase()}`}
+                    class={`w-5 max-h-5 rounded-full ${(walletName ?? "").replaceAll(" ", "-").toLowerCase()}`}
                   />
                 </Chef>
                 <button
