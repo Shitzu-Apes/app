@@ -55,17 +55,17 @@ jobs:
         env:
           PINATA_JWT: ${{ secrets.VITE_PINATA_JWT }}
 
-      - name: Add Pinate JWT to .env
+      - name: Add Endpoint secret to .env
         run: echo "ENDPOINT_SECRET=$ENDPOINT_SECRET" >> .env
         env:
           ENDPOINT_SECRET: ${{ secrets.ENDPOINT_SECRET_MAINNET }}
 
-      - name: Add Pinate JWT to .env
+      - name: Add account ID to .env
         run: echo "ACCOUNT_ID=$ACCOUNT_ID" >> .env
         env:
           ACCOUNT_ID: ${{ secrets.ACCOUNT_ID_MAINNET }}
 
-      - name: Add Pinate JWT to .env
+      - name: Add private key to .env
         run: echo "PRIVATE_KEY=$PRIVATE_KEY" >> .env
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY_MAINNET }}
