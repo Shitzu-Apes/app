@@ -13,7 +13,6 @@
   import type { UnionModuleState } from "$lib/models";
   import type { colorVariant } from "$lib/models/variant";
   import { NEAR_WALLETS, wallet } from "$lib/near";
-  import { isMobile } from "$lib/util";
 
   export let variant: colorVariant = "lime";
 
@@ -78,7 +77,7 @@
                   {/if}
                 </div>
               </button>
-              {#if mod.type === "injected" && !isMobile()}
+              {#if mod.type === "injected"}
                 {#if NEAR_WALLETS[mod.id].extensionUrl != null}
                   <a
                     href={NEAR_WALLETS[mod.id].extensionUrl}
