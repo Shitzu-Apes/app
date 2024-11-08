@@ -53,7 +53,7 @@ jobs:
       - name: Add Pinate JWT to .env
         run: echo "PINATA_JWT=$PINATA_JWT" >> .env
         env:
-          PINATA_JWT: ${{ secrets.VITE_PINATA_JWT }}
+          PINATA_JWT: ${{ secrets.PINATA_JWT }}
 
       - name: Add Endpoint secret to .env
         run: echo "ENDPOINT_SECRET=$ENDPOINT_SECRET" >> .env

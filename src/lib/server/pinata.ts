@@ -19,10 +19,10 @@ export default abstract class Pinata {
     const json = await res.json();
     if (
       json.error &&
-      json.error.details &&
-      typeof json.error.details === "string"
+      json.error.reason &&
+      typeof json.error.reason === "string"
     ) {
-      throw new Error(json.error.details);
+      throw new Error(json.error.reason);
     }
     return json;
   }
