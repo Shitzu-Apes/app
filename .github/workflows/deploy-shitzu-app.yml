@@ -45,7 +45,7 @@ jobs:
         run: echo "VITE_CONNECT_ID=shit.0xshitzu.near" >> .env
 
       - name: Add WalletConnect project ID to .env
-        run: echo "VITE_WC_PROJECT_ID=44dd0ed9ce175eeb72a67532fbfb6f96" >> .env
+        run: echo "VITE_WC_PROJECT_ID=dba65fff73650d32ae5157f3492c379e" >> .env
 
       - name: Build step
         run: "yarn build"
