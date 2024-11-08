@@ -39,39 +39,39 @@ jobs:
         run: "yarn run check"
 
       - name: Add app name to .env
-        run: echo "VITE_APP_NAME=Meme.Cooking" >> .env
+        run: echo "VITE_APP_NAME=Meme.Cooking" >> .env.production
 
       - name: Add contract connect ID to .env
-        run: echo "VITE_APP_LOGO=https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/main/logo/meme-cooking.webp" >> .env
+        run: echo "VITE_APP_LOGO=https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/main/logo/meme-cooking.webp" >> .env.production
 
       - name: Add commit hash to .env
-        run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> .env
+        run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> .env.production
 
       - name: Add contract connect ID to .env
-        run: echo "VITE_CONNECT_ID=meme-cooking.near" >> .env
+        run: echo "VITE_CONNECT_ID=meme-cooking.near" >> .env.production
 
       - name: Add Pinate JWT to .env
-        run: echo "PINATA_JWT=$PINATA_JWT" >> .env
+        run: echo "PINATA_JWT=$PINATA_JWT" >> .env.production
         env:
           PINATA_JWT: ${{ secrets.PINATA_JWT }}
 
       - name: Add Endpoint secret to .env
-        run: echo "ENDPOINT_SECRET=$ENDPOINT_SECRET" >> .env
+        run: echo "ENDPOINT_SECRET=$ENDPOINT_SECRET" >> .env.production
         env:
           ENDPOINT_SECRET: ${{ secrets.ENDPOINT_SECRET_MAINNET }}
 
       - name: Add account ID to .env
-        run: echo "ACCOUNT_ID=$ACCOUNT_ID" >> .env
+        run: echo "ACCOUNT_ID=$ACCOUNT_ID" >> .env.production
         env:
           ACCOUNT_ID: ${{ secrets.ACCOUNT_ID_MAINNET }}
 
       - name: Add private key to .env
-        run: echo "PRIVATE_KEY=$PRIVATE_KEY" >> .env
+        run: echo "PRIVATE_KEY=$PRIVATE_KEY" >> .env.production
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY_MAINNET }}
 
       - name: Add WalletConnect project ID to .env
-        run: echo "VITE_WC_PROJECT_ID=44dd0ed9ce175eeb72a67532fbfb6f96" >> .env
+        run: echo "VITE_WC_PROJECT_ID=44dd0ed9ce175eeb72a67532fbfb6f96" >> .env.production
 
       - name: Build step
         run: "yarn vite build --mode production"

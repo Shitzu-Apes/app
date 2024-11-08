@@ -39,39 +39,39 @@ jobs:
         run: "yarn run check"
 
       - name: Add app name to .env
-        run: echo "VITE_APP_NAME=Meme.Cooking" >> .env
+        run: echo "VITE_APP_NAME=Meme.Cooking" >> .env.testnet
 
       - name: Add contract connect ID to .env
-        run: echo "VITE_APP_LOGO=https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/main/logo/meme-cooking.webp" >> .env
+        run: echo "VITE_APP_LOGO=https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/main/logo/meme-cooking.webp" >> .env.testnet
 
       - name: Add commit hash to .env
-        run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> .env
+        run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> .env.testnet
 
       - name: Add contract connect ID to .env
-        run: echo "VITE_CONNECT_ID=factory.v10.meme-cooking.testnet" >> .env
+        run: echo "VITE_CONNECT_ID=factory.v10.meme-cooking.testnet" >> .env.testnet
 
       - name: Add Pinate JWT to .env
-        run: echo "PINATA_JWT=$PINATA_JWT" >> .env
+        run: echo "PINATA_JWT=$PINATA_JWT" >> .env.testnet
         env:
           PINATA_JWT: ${{ secrets.PINATA_JWT }}
 
       - name: Add Endpoint secret to .env
-        run: echo "ENDPOINT_SECRET=$ENDPOINT_SECRET" >> .env
+        run: echo "ENDPOINT_SECRET=$ENDPOINT_SECRET" >> .env.testnet
         env:
           ENDPOINT_SECRET: ${{ secrets.ENDPOINT_SECRET_TESTNET }}
 
       - name: Add account ID to .env
-        run: echo "ACCOUNT_ID=$ACCOUNT_ID" >> .env
+        run: echo "ACCOUNT_ID=$ACCOUNT_ID" >> .env.testnet
         env:
           ACCOUNT_ID: ${{ secrets.ACCOUNT_ID_TESTNET }}
 
       - name: Add private key to .env
-        run: echo "PRIVATE_KEY=$PRIVATE_KEY" >> .env
+        run: echo "PRIVATE_KEY=$PRIVATE_KEY" >> .env.testnet
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY_TESTNET }}
 
       - name: Add WalletConnect project ID to .env
-        run: echo "VITE_WC_PROJECT_ID=44dd0ed9ce175eeb72a67532fbfb6f96" >> .env
+        run: echo "VITE_WC_PROJECT_ID=44dd0ed9ce175eeb72a67532fbfb6f96" >> .env.testnet
 
       - name: Build step
         run: "yarn vite build --mode testnet"
