@@ -105,6 +105,7 @@ export async function base64ToIcon(base64Image: string): Promise<string> {
   const resizedImage = await resize(decodedImage, {
     width: UploadResizeWidth,
     height: UploadResizeHeight,
+    fitMethod: "contain",
   });
 
   const encodedImage = await encode("webp", resizedImage);
