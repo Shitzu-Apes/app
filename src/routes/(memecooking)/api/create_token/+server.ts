@@ -91,17 +91,15 @@ export async function POST({ request }) {
     }).then((res) => res.text());
     const imageFile = compressedImage
       ? await (async () => {
-          const base64Data = compressedImage;
-          const byteString = atob(base64Data.split(",")[1]);
-          const mimeType = base64Data.split(",")[0].split(":")[1].split(";")[0];
+          const base64Data = compressedImage.split(",")[1];
+          const mimeType = compressedImage
+            .split(",")[0]
+            .split(":")[1]
+            .split(";")[0];
 
-          const ab = new ArrayBuffer(byteString.length);
-          const ia = new Uint8Array(ab);
-          for (let i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i);
-          }
+          const buffer = Buffer.from(base64Data, "base64");
 
-          return new File([ab], "icon", { type: mimeType });
+          return new File([buffer], "icon", { type: mimeType });
         })()
       : null;
 
