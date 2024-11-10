@@ -22,7 +22,7 @@
   import { getTokenId } from "$lib/util/getTokenId";
 
   export let meme: Meme;
-  const { projectedMcap } = meme;
+  const { projectedPoolStats } = meme;
 
   const MCSymbol = Symbol();
   onMount(() => {
@@ -85,10 +85,23 @@
       <!-- Key Metrics -->
       <div class="flex items-center gap-6">
         <div class="text-center">
+          <div class="text-sm text-gray-400">Liquidity</div>
+          <div class="font-bold text-xl">
+            {#if $projectedPoolStats}
+              ${$projectedPoolStats.liquidity.format({
+                maximumFractionDigits: 1,
+                notation: "compact",
+              })}
+            {:else}
+              -
+            {/if}
+          </div>
+        </div>
+        <div class="text-center">
           <div class="text-sm text-gray-400">Market Cap</div>
           <div class="font-bold text-xl">
-            {#if $projectedMcap}
-              ${$projectedMcap.format({
+            {#if $projectedPoolStats}
+              ${$projectedPoolStats.mcap.format({
                 maximumFractionDigits: 1,
                 notation: "compact",
               })}

@@ -396,7 +396,10 @@
     team_allocation_num: Number(team_allocation_num),
     vesting_duration_ms: teamAllocation?.vestingDurationMs,
     cliff_duration_ms: teamAllocation?.cliffDurationMs,
-    projectedMcap: writable(new FixedNumber("0", 24)),
+    projectedPoolStats: writable({
+      mcap: new FixedNumber("0", 24),
+      liquidity: new FixedNumber("0", 24),
+    }),
     pool_id: null,
     replies_count: 0,
     staker_count: 0,

@@ -60,18 +60,18 @@ export function filterAndSortMeme<T extends Meme>(
     case "market cap":
       return memes.sort((a, b) => {
         if (sort.order === "asc") {
-          if (a.projectedMcap != null && b.projectedMcap) {
-            return get(a.projectedMcap).toBigInt() >
-              get(b.projectedMcap).toBigInt()
+          if (a.projectedPoolStats != null && b.projectedPoolStats) {
+            return get(a.projectedPoolStats).mcap.toBigInt() >
+              get(b.projectedPoolStats).mcap.toBigInt()
               ? 1
               : -1;
           } else {
             return BigInt(a.total_deposit) > BigInt(b.total_deposit) ? 1 : -1;
           }
         } else {
-          if (a.projectedMcap != null && b.projectedMcap) {
-            return get(b.projectedMcap).toBigInt() >
-              get(a.projectedMcap).toBigInt()
+          if (a.projectedPoolStats != null && b.projectedPoolStats) {
+            return get(b.projectedPoolStats).mcap.toBigInt() >
+              get(a.projectedPoolStats).mcap.toBigInt()
               ? 1
               : -1;
           } else {

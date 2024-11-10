@@ -48,7 +48,7 @@
       "bg-memecooking-400 text-black animated animated-heart-beat animated-infinite animated-duration-1000 hover:animate-none",
   }[status];
 
-  const { projectedMcap } = memebid;
+  const { projectedPoolStats } = memebid;
 </script>
 
 <div
@@ -126,8 +126,8 @@
             <div class="flex items-center gap-1">
               <span class="text-memecooking-400">MC:</span>
               <span class="font-medium">
-                {#if $projectedMcap}
-                  ${$projectedMcap.format({
+                {#if $projectedPoolStats}
+                  ${$projectedPoolStats.mcap.format({
                     maximumFractionDigits: 1,
                     notation: "compact",
                   })}

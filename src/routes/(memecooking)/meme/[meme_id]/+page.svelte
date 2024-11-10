@@ -14,7 +14,7 @@
   import { MemeCooking } from "$lib/near/memecooking";
   import { screenSize$ } from "$lib/screen-size";
   import { memebids$ } from "$lib/store/memebids";
-  import { projectedMCap } from "$lib/util/projectedMCap";
+  import { projectedPoolStats } from "$lib/util/projectedMCap";
 
   // page data
   $: meme_id = $page.params.meme_id;
@@ -103,7 +103,7 @@
       if (detail) {
         memeStore.set({
           ...detail.meme,
-          projectedMcap: projectedMCap(detail.meme),
+          projectedPoolStats: projectedPoolStats(detail.meme),
         });
       }
     });

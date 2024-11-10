@@ -41,7 +41,11 @@ export type MCReference = {
 };
 
 export type Meme = MemeType & {
-  projectedMcap?: Readable<FixedNumber>;
+  // projectedMcap?: Readable<FixedNumber>;
+  projectedPoolStats?: Readable<{
+    mcap: FixedNumber;
+    liquidity: FixedNumber;
+  }>;
   animate?: boolean;
 };
 

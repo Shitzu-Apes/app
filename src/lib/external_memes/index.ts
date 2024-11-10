@@ -1,19 +1,13 @@
-import { type Readable } from "svelte/store";
-
 import tokens from "../../tokens.json";
 
-import type { Meme } from "$lib/api/client";
-import { FixedNumber } from "$lib/util/FixedNumber";
-import { projectedMCap, projectedMCapFromPool } from "$lib/util/projectedMCap";
+import type { Meme } from "$lib/models/memecooking";
+import { projectedPoolStats } from "$lib/util/projectedMCap";
 
-export const external_memes: Record<
-  string,
-  Meme & { projectedMcap: Readable<FixedNumber> }
-> = {};
+export const external_memes: Record<string, Meme> = {};
 
 let index = -1;
 for (const token of tokens) {
-  external_memes[token.token_id] = {
+  const meme = {
     token_id: token.token_id,
     owner: token.owner,
     name: token.name,
@@ -53,24 +47,19 @@ for (const token of tokens) {
     coronated_at_ms: null,
     replies_count: 0,
     staker_count: 0,
-    projectedMcap: projectedMCapFromPool({
-      pool_id: token.pool_id,
-      decimals: token.decimals,
-      total_supply: token.total_supply,
-    }),
   };
+  const poolStats = projectedPoolStats(meme);
+  external_memes[token.token_id] = { ...meme, projectedPoolStats: poolStats };
 }
 
-export function getExternalMeme(
-  tokenId: string,
-): (Meme & { projectedMcap: Readable<FixedNumber> }) | null {
+export function getExternalMeme(tokenId: string): Meme | null {
   const meme = external_memes[tokenId];
   if (!meme) {
     return null;
   }
   return {
     ...meme,
-    projectedMcap: projectedMCap(meme),
+    projectedPoolStats: projectedPoolStats(meme),
   };
 }
 

@@ -22,7 +22,7 @@ import {
 } from "$lib/store/indexer";
 import { FixedNumber } from "$lib/util";
 import { getTokenId } from "$lib/util/getTokenId";
-import { projectedMCap } from "$lib/util/projectedMCap";
+import { projectedPoolStats } from "$lib/util/projectedMCap";
 import {
   sortMemeByEndtimestamp,
   sortMemeByUnclaimedThenEndTimestamp,
@@ -708,7 +708,7 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
           amount: deposit[1].toString(),
           meme: {
             ...meme,
-            projectedMcap: projectedMCap(meme),
+            projectedPoolStats: projectedPoolStats(meme),
           },
         };
       })
@@ -746,7 +746,7 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
             amount: new FixedNumber(unclaimed.amount, unclaimed.meme.decimals),
             meme: {
               ...unclaimed.meme,
-              projectedMcap: projectedMCap(unclaimed.meme),
+              projectedPoolStats: projectedPoolStats(unclaimed.meme),
             },
           };
         // try to get meme from profile.coins_held
@@ -757,7 +757,7 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
             amount: new FixedNumber(0n, meme.decimals),
             meme: {
               ...meme,
-              projectedMcap: projectedMCap(meme),
+              projectedPoolStats: projectedPoolStats(meme),
             },
           };
         return null;
@@ -787,7 +787,7 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
           meme != null
             ? {
                 ...meme,
-                projectedMcap: projectedMCap(meme),
+                projectedPoolStats: projectedPoolStats(meme),
               }
             : undefined,
       };
@@ -802,7 +802,7 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
       claims,
       created: profile.coin_created.map((meme) => ({
         ...meme,
-        projectedMcap: projectedMCap(meme),
+        projectedPoolStats: projectedPoolStats(meme),
       })),
       revenue,
       shitstarClaim: new FixedNumber(account.shitstar_claim, 18),

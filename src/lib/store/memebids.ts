@@ -4,7 +4,7 @@ import { client } from "$lib/api/client";
 import { EXTERNAL_MEMES } from "$lib/external_memes";
 import { type Meme, type MemeInfo } from "$lib/models/memecooking";
 import { MemeCooking } from "$lib/near/memecooking";
-import { projectedMCap } from "$lib/util/projectedMCap";
+import { projectedPoolStats } from "$lib/util/projectedMCap";
 
 export const searchQuery$ = writable("");
 
@@ -33,7 +33,7 @@ export function bumpMeme(meme_id: number) {
     ...memes[index],
     last_change_ms: Date.now(),
     animate: true,
-    projectedMcap: projectedMCap(memes[index]),
+    projectedPoolStats: projectedPoolStats(memes[index]),
   };
 
   const updatedMemes = [...memes];
@@ -67,7 +67,7 @@ export async function updateMemebids() {
     const memes: Meme[] = res.data.map((meme) => {
       return {
         ...meme,
-        projectedMcap: projectedMCap(meme),
+        projectedPoolStats: projectedPoolStats(meme),
       };
     });
     EXTERNAL_MEMES.forEach((meme) => {
@@ -147,7 +147,7 @@ export async function updateProjectedMcap(meme_id: number) {
   const updatedMemes = [...memes];
   updatedMemes[index] = {
     ...memes[index],
-    projectedMcap: projectedMCap(memes[index]),
+    projectedPoolStats: projectedPoolStats(memes[index]),
   };
   _memebids$.set([...updatedMemes]);
 }

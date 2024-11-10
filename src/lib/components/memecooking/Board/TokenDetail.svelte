@@ -10,7 +10,7 @@
 
   export let memebid: Meme;
 
-  const { projectedMcap } = memebid;
+  const { projectedPoolStats } = memebid;
 </script>
 
 <div class="flex flex-col w-full h-full">
@@ -72,8 +72,28 @@
             </span>
             <span class="text-memecooking-400 text-sm font-medium">MC:</span>
             <span class="font-medium">
-              {#if $projectedMcap}
-                ${$projectedMcap.format({
+              {#if $projectedPoolStats}
+                ${$projectedPoolStats.mcap.format({
+                  maximumFractionDigits: 1,
+                  notation: "compact",
+                })}
+              {:else}
+                -
+              {/if}
+            </span>
+          </div>
+
+          <!-- Liquidity -->
+          <div class="flex items-center gap-1">
+            <span class="w-6 flex justify-center flex-shrink-0">
+              <div class="i-mdi:water text-memecooking-400" />
+            </span>
+            <span class="text-memecooking-400 text-sm font-medium"
+              >Liquidity:</span
+            >
+            <span class="font-medium">
+              {#if $projectedPoolStats}
+                ${$projectedPoolStats.liquidity.format({
                   maximumFractionDigits: 1,
                   notation: "compact",
                 })}
