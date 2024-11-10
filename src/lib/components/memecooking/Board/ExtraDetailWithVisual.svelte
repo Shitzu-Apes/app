@@ -44,15 +44,17 @@
       </div>
 
       <div class="flex flex-col gap-4 mt-4">
-        <div class="flex items-center gap-1">
-          <span class="w-6 flex justify-center flex-shrink-0">
-            <div class="i-mdi:cash text-memecooking-400" />
-          </span>
-          <span class="text-memecooking-400 text-sm font-medium"
-            >Current Deposits:</span
-          >
-          <span class="font-medium ml-auto">{totalDeposit.format()}</span>
-        </div>
+        {#if !meme.pool_id}
+          <div class="flex items-center gap-1">
+            <span class="w-6 flex justify-center flex-shrink-0">
+              <div class="i-mdi:cash text-memecooking-400" />
+            </span>
+            <span class="text-memecooking-400 text-sm font-medium"
+              >Current Deposits:</span
+            >
+            <span class="font-medium ml-auto">{totalDeposit.format()}</span>
+          </div>
+        {/if}
 
         <div class="flex items-center gap-1">
           <span class="w-6 flex justify-center flex-shrink-0">

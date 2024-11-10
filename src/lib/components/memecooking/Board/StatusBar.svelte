@@ -8,6 +8,7 @@
   import ExtraDetailWithVisual from "./ExtraDetailWithVisual.svelte";
 
   import REF_LOGO from "$lib/assets/logo/ref.png";
+  import { EXTERNAL_MEMES } from "$lib/external_memes";
   import type { Meme } from "$lib/models/memecooking";
   import { createProgressBarData } from "$lib/util/progressBarLogic";
 
@@ -18,31 +19,61 @@
   $: props = createProgressBarData(meme);
 
   export let expanded = false;
+  $: isExternalMeme = EXTERNAL_MEMES.some((m) => m.meme_id === meme.meme_id);
 </script>
 
 <div class="w-full flex flex-col gap-4">
   <div class="w-full flex gap-4">
     {#if meme.pool_id}
-      <div
-        class="w-full text-white p-2 text-center font-medium mb-4 flex items-center justify-center gap-2"
+      <button
+        class="w-full"
+        class:cursor-default={isExternalMeme}
+        on:click={() => !isExternalMeme && (expanded = !expanded)}
       >
-        <img src={REF_LOGO} alt="Ref Logo" class="size-6" />
-        <span>Trade on Ref via Meme.Cooking</span>
-      </div>
+        <div
+          class="text-white p-2 text-center font-medium mb-4 flex items-center justify-center gap-2"
+        >
+          <img src={REF_LOGO} alt="Ref Logo" class="size-6" />
+          <span>Trade on Ref via Meme.Cooking</span>
+        </div>
+        {#if !isExternalMeme}
+          <div class="flex justify-center border-t border-gray-700">
+            <div
+              class="i-mdi:chevron-down size-6 text-gray-300 transition-transform duration-200 ease-in-out"
+              style="transform: rotate({expanded ? '180deg' : '0deg'})"
+            />
+          </div>
+        {/if}
+      </button>
     {:else if meme.end_timestamp_ms && meme.end_timestamp_ms < Date.now()}
-      {#if reachedMcap}
-        <div class="w-full text-center p-2 mb-4 bg-amber-4 text-white">
-          pending launch
-        </div>
-      {:else}
-        <div class="w-full text-center p-2 mb-4 bg-rose-4 text-white">
-          didn't make it
-        </div>
-      {/if}
+      <button
+        class="w-full"
+        class:cursor-default={isExternalMeme}
+        on:click={() => !isExternalMeme && (expanded = !expanded)}
+      >
+        {#if reachedMcap}
+          <div class="w-full text-center p-2 mb-4 bg-amber-4 text-white">
+            pending launch
+          </div>
+        {:else}
+          <div class="w-full text-center p-2 mb-4 bg-rose-4 text-white">
+            didn't make it
+          </div>
+        {/if}
+        {#if !isExternalMeme}
+          <div class="flex justify-center border-t border-gray-700">
+            <div
+              class="i-mdi:chevron-down size-6 text-gray-300 transition-transform duration-200 ease-in-out"
+              style="transform: rotate({expanded ? '180deg' : '0deg'})"
+            />
+          </div>
+        {/if}
+      </button>
     {:else}
       <button
         class="w-full flex flex-col items-stretch"
-        on:click={() => (expanded = !expanded)}
+        class:cursor-default={isExternalMeme}
+        on:click={() => !isExternalMeme && (expanded = !expanded)}
       >
         <div class="flex w-full justify-between items-center">
           {#if meme.end_timestamp_ms && meme.pool_id === null}
@@ -67,18 +98,19 @@
             </div>
           </div>
         </div>
-        <!-- Arrow -->
-        <div class="flex justify-center mt-2 border-t border-gray-700">
-          <div
-            class="i-mdi:chevron-down size-6 text-gray-300 transition-transform duration-200 ease-in-out"
-            style="transform: rotate({expanded ? '180deg' : '0deg'})"
-          />
-        </div>
+        {#if !isExternalMeme}
+          <div class="flex justify-center mt-2 border-t border-gray-700">
+            <div
+              class="i-mdi:chevron-down size-6 text-gray-300 transition-transform duration-200 ease-in-out"
+              style="transform: rotate({expanded ? '180deg' : '0deg'})"
+            />
+          </div>
+        {/if}
       </button>
     {/if}
   </div>
 
-  {#if expanded && !meme.pool_id}
+  {#if expanded && !isExternalMeme}
     <div class="mb-4" transition:slide={{ duration: 300, easing: quintOut }}>
       <ExtraDetailWithVisual {meme} />
     </div>
