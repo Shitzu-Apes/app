@@ -25,7 +25,7 @@
     updateMcAccount,
   } from "$lib/near/memecooking";
   import { FixedNumber } from "$lib/util";
-  import { getReferral } from "$lib/util/referral";
+  import { getReferral, removeReferral } from "$lib/util/referral";
 
   const tabs = [
     { id: "deposit", label: "Deposit" },
@@ -116,12 +116,14 @@
     }
 
     if (activeTab === "deposit") {
+      let referrer = getReferral() || undefined;
       // Check storage balance before depositing
       const [
         storageBalance,
         { account: accountCost, perMemeDeposit },
         wrapNearRegistered,
         wrapNearMinDeposit,
+        referrerStorageBalance,
       ] = await Promise.all([
         MemeCooking.storageBalanceOf($accountId$),
         MemeCooking.storageCosts(),
@@ -130,6 +132,7 @@
           $accountId$,
         ),
         Ft.storageRequirement(import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!),
+        referrer ? MemeCooking.storageBalanceOf(referrer) : null,
       ]);
 
       let needStorageDeposit = null;
@@ -171,8 +174,6 @@
         return;
       }
 
-      let referrer = getReferral() || undefined;
-
       if (referrer === $accountId$) {
         referrer = undefined;
         addToast({
@@ -181,6 +182,20 @@
             data: {
               title: "Invalid Referral",
               description: "Referral cannot be the same as depositor",
+              color: "red",
+            },
+          },
+        });
+      } else if (referrer && referrerStorageBalance === null) {
+        referrer = undefined;
+        removeReferral();
+
+        addToast({
+          data: {
+            type: "simple",
+            data: {
+              title: "Invalid Referral",
+              description: "Referral not registered",
               color: "red",
             },
           },

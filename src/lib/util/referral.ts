@@ -38,6 +38,11 @@ export function readAndSetReferral() {
   }
 }
 
+export function removeReferral() {
+  localStorage.removeItem(REFERRAL_LOCALSTORAGE_KEY);
+  localStorage.removeItem(REFERRAL_EXPIRY_KEY);
+}
+
 export async function shareWithReferral($accountId$?: string, meme?: Meme) {
   const shareUrl =
     meme != null

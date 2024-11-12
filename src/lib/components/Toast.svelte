@@ -123,15 +123,19 @@
           <div>
             <h3
               use:melt={$title(id)}
-              class="flex items-center gap-2 text-sm font-medium text-shitzu-4"
+              class="flex items-center gap-2 text-sm font-medium"
+              style:color={data.data.color}
             >
               {#if data.data.color}
                 <div class="relative">
                   <div
-                    class="absolute inset-0 rounded-full {data.data
-                      .color} opacity-50 animate-ping"
+                    class="absolute inset-0 rounded-full opacity-50 animate-ping"
+                    style:background={data.data.color}
                   ></div>
-                  <div class="size-2 rounded-full {data.data.color}"></div>
+                  <div
+                    class="size-2 rounded-full"
+                    style:background={data.data.color}
+                  ></div>
                 </div>
               {/if}
               {data.data.title}
