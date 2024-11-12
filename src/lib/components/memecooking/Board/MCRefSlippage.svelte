@@ -35,7 +35,10 @@
 </script>
 
 <div class="flex flex-col gap-1 w-full">
-  <label for="slippage" class="text-sm">Slippage: {slippage * 100}%</label>
+  <label for="slippage" class="text-sm flex justify-between mb-2">
+    <span class="text-memecooking-400">Slippage</span>
+    <span class="text-white">{slippage * 100}%</span>
+  </label>
   <div class="flex items-center space-x-2 w-full">
     <ul class="flex items-center gap-2 w-full">
       {#each slippageValues as slippageValue}

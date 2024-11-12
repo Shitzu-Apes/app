@@ -10,7 +10,6 @@
   import { showWalletSelector } from "$lib/auth";
   import { Button } from "$lib/components";
   import McIcon from "$lib/components/MCIcon.svelte";
-  import ToggleSwitch from "$lib/components/ToggleSwitch.svelte";
   import TokenInput from "$lib/components/TokenInput.svelte";
   import MCRefSlippage from "$lib/components/memecooking/Board/MCRefSlippage.svelte";
   import Tabs from "$lib/components/memecooking/Board/Tabs.svelte";
@@ -47,7 +46,8 @@
 
   export let meme: Meme;
 
-  let unwrapNear: boolean = true;
+  let returnTab = writable<string>("near");
+  $: unwrapNear = $returnTab === "near";
 
   // Add slippage configuration
   let slippage: number = 0.05; // Default 5% slippage
@@ -223,7 +223,7 @@
       return handleBuy(
         $input$,
         $accountId$,
-        await $expected$,
+        (await $expected$).amount,
         meme,
         slippage,
         callback,
@@ -232,7 +232,7 @@
       return handleSell(
         $input$,
         $accountId$,
-        await $expected$,
+        (await $expected$).amount,
         meme,
         unwrapNear,
         slippage,
@@ -284,7 +284,7 @@
         value: 100_000_000_000_000_000_000_000_000n.toString(),
         label: "100",
       },
-      sell: { value: "100", label: "100%" },
+      sell: { value: "75", label: "75%" },
     },
   ];
 
@@ -326,8 +326,8 @@
     on:change={(e) => handleTabChange(e.detail)}
     class="w-full mx-auto"
   />
-  <div class="w-full px-3">
-    <div class="relative my-6">
+  <div class="w-full px-3 mt-6 flex flex-col gap-4">
+    <div class="relative my-2">
       <div class="absolute inset-y-0 left-0 flex items-center pl-2">
         {#if activeTab === "buy"}
           <Near className="w-6 h-6 bg-white text-black rounded-full" />
@@ -349,10 +349,10 @@
       >
         <div class="flex-grow basis-0" />
         <button
-          class="text-sm cursor-pointer bg-gray-3 px-2 rounded-full border border-gray-6 {activeTab ===
+          class="text-sm cursor-pointer text-white px-2 py-0.5 rounded-md {activeTab ===
           'buy'
-            ? 'text-shitzu-7'
-            : 'text-rose-5'}"
+            ? 'bg-shitzu-7'
+            : 'bg-rose-5'}"
           on:click={setMax}
         >
           <div class="">Max</div>
@@ -407,9 +407,9 @@
       {/each}
     </ul>
     {#if $expected$ != null}
-      <div transition:slide class="bg-gray-800 rounded-lg p-4 my-4">
+      <div transition:slide class="bg-gray-900 rounded-lg p-4">
         <div class="flex justify-between items-center text-sm">
-          <span class="text-gray-400">Minimum receive</span>
+          <span class="text-gray-400">Expected receive</span>
           <div class="flex items-center gap-2">
             {#await $expected$ then expected}
               <span class="text-white font-medium">
@@ -426,7 +426,9 @@
               {:else}
                 <div class="flex items-center gap-1">
                   <Near className="size-5 bg-white text-black rounded-full" />
-                  <span class="text-gray-300">NEAR</span>
+                  <span class="text-gray-300"
+                    >{$returnTab === "near" ? "NEAR" : "wNEAR"}</span
+                  >
                 </div>
               {/if}
             {/await}
@@ -461,27 +463,31 @@
       </div>
     {/if}
 
-    <div
-      class="{activeTab === 'buy'
-        ? 'invisible'
-        : ''} w-full flex items-center justify-between my-4"
-    >
-      <span class="text-white">Unwrap wNEAR</span>
-      <ToggleSwitch
-        bind:enabled={unwrapNear}
-        on:toggle={() => {
-          if (activeTab === "sell") {
-            unwrapNear = !unwrapNear;
-          }
-        }}
+    <div class="flex flex-col w-full gap-1">
+      {#if activeTab === "sell"}
+        <div class="w-full flex justify-between">
+          <span class="text-memecooking-400 text-sm"> Receive as </span>
+          <Tabs
+            tabs={[
+              { id: "near", label: "NEAR" },
+              { id: "wnear", label: "wNEAR" },
+            ]}
+            bind:activeTab={$returnTab}
+            class="flex-shrink-0"
+            tabClass="!py-0.5 min-w-16 text-sm"
+            on:change={(e) => {
+              $returnTab = e.detail;
+            }}
+          />
+        </div>
+      {/if}
+
+      <MCRefSlippage
+        bind:slippage
+        on:update={handleSlippageUpdate}
+        on:invalidSlippage={handleInvalidSlippage}
       />
     </div>
-
-    <MCRefSlippage
-      bind:slippage
-      on:update={handleSlippageUpdate}
-      on:invalidSlippage={handleInvalidSlippage}
-    />
 
     <Button
       onClick={async () => {
@@ -498,7 +504,7 @@
         : 'bg-rose-4'} w-full py-2 rounded text-xl tracking-wider text-black
         {activeTab === 'buy'
         ? 'border-shitzu-5'
-        : 'border-rose-5'} active:translate-y-1 my-8"
+        : 'border-rose-5'} active:translate-y-1 my-4"
     >
       {activeTab === "buy" ? "Buy" : "Sell"}
       {meme.symbol}

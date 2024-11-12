@@ -11,7 +11,6 @@
   import Near from "$lib/assets/Near.svelte";
   import { showWalletSelector } from "$lib/auth";
   import { Button } from "$lib/components";
-  import ToggleSwitch from "$lib/components/ToggleSwitch.svelte";
   import TokenInput from "$lib/components/TokenInput.svelte";
   import {
     closeBottomSheet,
@@ -42,7 +41,8 @@
 
   export let meme: Meme;
 
-  let unwrapNear: boolean = true;
+  let returnTab = writable<string>("near");
+  $: unwrapNear = $returnTab === "near";
 
   const depositAmount$ = writable<FixedNumber | undefined>();
   $: if ($mcAccount$) {
@@ -332,8 +332,8 @@
     }}
     class="w-full mx-auto"
   />
-  <div class="w-full px-3">
-    <div class="relative my-6">
+  <div class="w-full px-3 mt-6 flex flex-col gap-4">
+    <div class="relative my-4">
       <div class="absolute inset-y-0 left-0 flex items-center pl-2">
         <Near className="w-6 h-6 bg-white text-black rounded-full" />
       </div>
@@ -352,10 +352,10 @@
       >
         <div class="flex-grow basis-0" />
         <button
-          class="text-sm cursor-pointer bg-gray-3 px-2 rounded-full border border-gray-6 {activeTab ===
+          class="text-sm cursor-pointer px-2 py-0.5 rounded-md {activeTab ===
           'deposit'
-            ? 'text-shitzu-7'
-            : 'text-rose-5'}"
+            ? 'bg-shitzu-7'
+            : 'bg-rose-5'} text-white"
           on:click={setMax}
         >
           <div class="">Max</div>
@@ -410,22 +410,23 @@
       {/each}
     </ul>
 
-    <div
-      class="{activeTab === 'deposit'
-        ? 'invisible'
-        : ''} w-full flex items-center justify-between my-4"
-    >
-      <span class="text-white">Unwrap wNEAR</span>
-      <ToggleSwitch
-        bind:enabled={unwrapNear}
-        on:toggle={() => {
-          if (activeTab === "withdraw") {
-            unwrapNear = !unwrapNear;
-          }
-        }}
-      />
-    </div>
-
+    {#if activeTab === "withdraw"}
+      <div class="w-full flex justify-between">
+        <span class="text-memecooking-400 text-sm"> Receive as </span>
+        <Tabs
+          tabs={[
+            { id: "near", label: "NEAR" },
+            { id: "wnear", label: "wNEAR" },
+          ]}
+          bind:activeTab={$returnTab}
+          class="flex-shrink-0"
+          tabClass="!py-0.5 min-w-16 text-sm"
+          on:change={(e) => {
+            $returnTab = e.detail;
+          }}
+        />
+      </div>
+    {/if}
     <Button
       onClick={async () => {
         await action();

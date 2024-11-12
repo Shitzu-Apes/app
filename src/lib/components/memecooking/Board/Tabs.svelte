@@ -4,6 +4,7 @@
   export let tabs: { id: string; label: string }[] = [];
   export let activeTab: string;
   let className = "";
+  export let tabClass = "";
   export { className as class };
 
   const dispatch = createEventDispatcher<{
@@ -28,7 +29,7 @@
   />
   {#each tabs as tab}
     <button
-      class="py-2 relative z-10 {activeTab === tab.id
+      class="py-2 relative z-10 {tabClass} {activeTab === tab.id
         ? 'text-black'
         : 'text-gray-400 hover:text-white'} flex-grow basis-0 cursor-pointer whitespace-nowrap"
       on:click={() => handleTabClick(tab.id)}
