@@ -11,7 +11,7 @@
 
   const tabs = [
     { id: "thread", label: "Thread" },
-    { id: "trade", label: "Trade" },
+    { id: "trade", label: "Activity" },
   ];
 
   let activeTab = tabs[0].id;

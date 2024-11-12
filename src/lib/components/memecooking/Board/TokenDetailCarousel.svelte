@@ -128,14 +128,15 @@
         meme.end_timestamp_ms &&
         meme.end_timestamp_ms < Date.now()
           ? 'bg-memecooking-5 border-memecooking-6'
-          : 'bg-shitzu-4 border-shitzu-6'} flex-1 py-1.5 rounded text-lg tracking-wide text-black max-w-32"
+          : 'bg-shitzu-4 border-shitzu-6'} flex-1 py-1 rounded-lg text-lg tracking-wide text-black max-w-32 border border-b-4
+          "
       >
         {#if meme.pool_id}
-          Buy
+          Trade
         {:else if meme.end_timestamp_ms && meme.end_timestamp_ms < Date.now()}
           Relaunch
         {:else}
-          Deposit
+          Trade
         {/if}
       </button>
     </div>
