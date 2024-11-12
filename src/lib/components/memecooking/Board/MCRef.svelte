@@ -97,16 +97,36 @@
         tokenOut = import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID;
       }
 
-      const res = Ref.getReturn({
-        amountIn,
-        tokenOut,
-        tokenIn,
-        poolId: meme.pool_id!,
-        decimals: activeTab === "buy" ? meme.decimals : 24,
-      }).then((value) => {
-        console.log("[getReturn]: ", value);
-        return value;
+      // Get both the return amount and price impact
+      const res = Promise.all([
+        Ref.getReturn({
+          amountIn,
+          tokenOut,
+          tokenIn,
+          poolId: meme.pool_id!,
+          decimals: activeTab === "buy" ? meme.decimals : 24,
+        }),
+        // Get price for 1 token to calculate price impact
+        Ref.getReturn({
+          amountIn: new FixedNumber(1n * 10n ** BigInt(decimals), decimals),
+          tokenOut,
+          tokenIn,
+          poolId: meme.pool_id!,
+          decimals: activeTab === "buy" ? meme.decimals : 24,
+        }),
+      ]).then(([swapAmount, spotPrice]) => {
+        console.log("[getReturn]: ", swapAmount);
+
+        // Calculate price impact
+        const actualPrice = swapAmount.div(amountIn);
+        const priceImpact = spotPrice.sub(actualPrice).div(spotPrice);
+
+        return {
+          amount: swapAmount,
+          priceImpact: priceImpact.toNumber(),
+        };
       });
+
       $expected$ = res;
       return res;
     },
@@ -389,13 +409,11 @@
     {#if $expected$ != null}
       <div transition:slide class="bg-gray-800 rounded-lg p-4 my-4">
         <div class="flex justify-between items-center text-sm">
-          <span class="text-gray-400">You will receive</span>
+          <span class="text-gray-400">Minimum receive</span>
           <div class="flex items-center gap-2">
-            {#await $expected$}
-              <div class="i-svg-spinners:pulse-3 size-4" />
-            {:then expected}
+            {#await $expected$ then expected}
               <span class="text-white font-medium">
-                {expected.format({
+                {expected.amount.format({
                   notation: "standard",
                   maximumFractionDigits: 6,
                 })}
@@ -414,11 +432,31 @@
             {/await}
           </div>
         </div>
-        <div class="text-xs text-gray-500 mt-2">
-          Rate: 1 {activeTab === "buy" ? "NEAR" : meme.symbol} ≈ {#await $expected$}...{:then expected}{expected
-              .div($input$ || new FixedNumber(1n, 24))
-              .format({ maximumFractionDigits: 8 })}
-            {activeTab === "buy" ? meme.symbol : "NEAR"}{/await}
+        <div class="text-xs flex justify-between mt-2">
+          <span class="text-memecooking-400"
+            >Rate: 1 {activeTab === "buy" ? "NEAR" : meme.symbol}</span
+          >
+          <span>
+            {#await $expected$}
+              <div class="i-svg-spinners:3-dots-scale size-4" />
+            {:then expected}
+              ≈ {expected.amount
+                .div($input$ || new FixedNumber(1n, 24))
+                .format({ maximumFractionDigits: 8 })}
+              {activeTab === "buy" ? meme.symbol : "NEAR"}{/await}</span
+          >
+        </div>
+        <div class="text-xs flex justify-between mt-2">
+          <span class="text-memecooking-400">Price Impact:</span>
+          {#await $expected$ then expected}
+            <span
+              class={expected.priceImpact > 0.05
+                ? "text-rose-400"
+                : "text-gray-400"}
+            >
+              {(expected.priceImpact * 100).toFixed(2)}%
+            </span>
+          {/await}
         </div>
       </div>
     {/if}
