@@ -19,6 +19,10 @@
     elements: { trigger, item, menu },
     states: { open },
   } = createDropdownMenu();
+
+  function openBridgeSheet() {
+    openBottomSheet(BridgeSheet);
+  }
 </script>
 
 <nav class="w-full px-2">
@@ -164,6 +168,15 @@
 
       <!-- Right section: Account -->
       <div class="flex items-center gap-4">
+        <!-- Bridge Icon -->
+        <button
+          class="bg-memecooking-500 text-black rounded-full text-sm flex justify-center items-center gap-1 p-1"
+          on:click={openBridgeSheet}
+        >
+          <div class="i-mdi:bridge text-xl" />
+          Bridge
+        </button>
+
         <!-- Account Section -->
         {#if $accountId$}
           <div class="flex items-center gap-2">
