@@ -29,9 +29,9 @@
   <div class="">
     <div class="flex justify-between h-fit py-2 items-center">
       <!-- Left section: Logo and primary navigation -->
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-1 flex-shrink-0">
         <!-- Logo -->
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 flex-shrink-0">
           <a href="/board" class="flex items-center">
             <img
               src={MEMECOOKING_LOGO}
@@ -39,7 +39,7 @@
               alt="Meme Cooking Logo"
             />
           </a>
-          <div class="flex flex-col text-xs text-gray-400">
+          <div class="hidden sm:flex flex-col text-xs text-gray-400">
             <div class="flex items-center gap-1">
               made with <div class="i-mdi:heart text-rose-500" />
             </div>
@@ -167,53 +167,55 @@
       </div>
 
       <!-- Right section: Account -->
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-1 flex-shrink-1">
         <!-- Bridge Icon -->
         <button
-          class="bg-memecooking-500 text-black rounded-full text-sm flex justify-center items-center gap-1 p-1"
+          class="flex-shrink-0 bg-memecooking-500 text-black rounded-full text-sm flex justify-center items-center gap-1 p-1"
           on:click={openBridgeSheet}
         >
           <div class="i-mdi:bridge text-xl" />
-          Bridge
+          <span class="text-sm hidden sm:block">Bridge</span>
         </button>
 
         <!-- Account Section -->
-        {#if $accountId$}
-          <div class="flex items-center gap-2">
-            {#await Promise.all( [$iconUrl$, $walletName$], ) then [iconUrl, walletName]}
-              <div
-                class="flex items-center gap-2 px-3 py-2 rounded-full bg-gray-800"
-              >
-                <Chef
-                  account={$accountId$}
-                  class="text-shitzu-4 text-sm"
-                  asLink
+        <div class="flex-shrink-1">
+          {#if $accountId$}
+            <div class="flex items-center gap-2">
+              {#await Promise.all( [$iconUrl$, $walletName$], ) then [iconUrl, walletName]}
+                <div
+                  class="flex items-center gap-2 px-3 py-2 rounded-full bg-gray-800"
                 >
-                  <img
-                    src={iconUrl}
-                    alt={walletName}
-                    class={`w-5 max-h-5 rounded-full ${(walletName ?? "").replaceAll(" ", "-").toLowerCase()}`}
-                  />
-                </Chef>
-                <button
-                  class="text-gray-300 hover:text-white text-sm"
-                  on:click={wallet.signOut}
-                >
-                  <div class="i-mdi:logout text-xl" />
-                </button>
-              </div>
-            {/await}
-          </div>
-        {:else}
-          <button
-            class="px-4 py-1 rounded-lg text-sm bg-shitzu-4 text-black font-medium hover:bg-shitzu-5 transition-colors duration-200"
-            on:click={wallet.isTG
-              ? wallet.loginViaHere
-              : () => showWalletSelector("shitzu")}
-          >
-            Connect Wallet
-          </button>
-        {/if}
+                  <Chef
+                    account={$accountId$}
+                    class="text-shitzu-4 text-sm"
+                    asLink
+                  >
+                    <img
+                      src={iconUrl}
+                      alt={walletName}
+                      class={`w-5 max-h-5 rounded-full ${(walletName ?? "").replaceAll(" ", "-").toLowerCase()}`}
+                    />
+                  </Chef>
+                  <button
+                    class="text-gray-300 hover:text-white text-sm"
+                    on:click={wallet.signOut}
+                  >
+                    <div class="i-mdi:logout text-xl" />
+                  </button>
+                </div>
+              {/await}
+            </div>
+          {:else}
+            <button
+              class="px-4 py-1 rounded-lg text-sm bg-shitzu-4 text-black font-medium hover:bg-shitzu-5 transition-colors duration-200"
+              on:click={wallet.isTG
+                ? wallet.loginViaHere
+                : () => showWalletSelector("shitzu")}
+            >
+              Connect Wallet
+            </button>
+          {/if}
+        </div>
       </div>
     </div>
   </div>
