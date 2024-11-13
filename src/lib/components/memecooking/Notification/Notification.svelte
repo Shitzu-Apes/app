@@ -22,6 +22,17 @@
     icon: string;
   }[] = [];
 
+  $: {
+    // save notifications to local storage
+    console.log(
+      "[Notification] saving notifications to local storage",
+      notifications,
+    );
+    if (notifications.length > 0) {
+      localStorage.setItem("notifications", JSON.stringify(notifications));
+    }
+  }
+
   MCTradeSubscribe(Symbol("notification"), (newMemeInfo) => {
     const amount = (
       BigInt(newMemeInfo.amount) + BigInt(newMemeInfo.fee)
@@ -44,6 +55,14 @@
 
   onMount(() => {
     console.log("[Notification] mounted");
+
+    // load notifications from local storage
+    const loadedNotifications = JSON.parse(
+      localStorage.getItem("notifications") || "[]",
+    );
+    if (loadedNotifications.length > 0) {
+      notifications = loadedNotifications;
+    }
 
     EXTTradeSubscribe(Symbol("notification"), async (data) => {
       try {
