@@ -11,12 +11,14 @@
 
   $: totalSupply = new FixedNumber(meme.total_supply, meme.decimals);
   $: teamAllocationBps =
-    meme.team_allocation_num && meme.total_supply_num
-      ? (meme.team_allocation_num / meme.total_supply_num) * 10000
-      : 0;
-  $: teamAllocationPercentage = teamAllocationBps / 100;
+    BigInt(meme.team_allocation ?? "0") && BigInt(meme.total_supply ?? "0")
+      ? (BigInt(meme.team_allocation ?? "0") /
+          BigInt(meme.total_supply ?? "0")) *
+        10000n
+      : 0n;
+  $: teamAllocationPercentage = Number(teamAllocationBps) / 100;
   $: teamAllocation = totalSupply.mul(
-    new FixedNumber(BigInt(Math.round(teamAllocationBps)), 4),
+    new FixedNumber(BigInt(Math.round(Number(teamAllocationBps))), 4),
   );
 
   function formatDuration(ms: number): string {
@@ -31,7 +33,7 @@
 </script>
 
 <div class="{className} w-full">
-  {#if meme.team_allocation_num && typeof meme.vesting_duration_ms === "number" && typeof meme.cliff_duration_ms === "number"}
+  {#if BigInt(meme.team_allocation ?? "0") > 0n && typeof meme.vesting_duration_ms === "number" && typeof meme.cliff_duration_ms === "number"}
     <div class="space-y-6">
       <div class="space-y-6">
         <div class="flex items-center justify-between">
@@ -48,7 +50,7 @@
         <div class="w-full">
           <VestingChart
             teamAllocation={{
-              allocationBps: teamAllocationBps,
+              allocationBps: Number(teamAllocationBps),
               vestingDurationMs: meme.vesting_duration_ms,
               cliffDurationMs: meme.cliff_duration_ms,
             }}

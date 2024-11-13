@@ -68,12 +68,12 @@
 
           // Calculate team allocation percentage with 2 decimal precision
           const team_allocation_percentage =
-            meme.team_allocation_num && meme.total_supply_num
+            BigInt(meme.team_allocation ?? "0") > 0n &&
+            BigInt(meme.total_supply ?? "0") > 0n
               ? Number(
-                  (
-                    (meme.team_allocation_num / meme.total_supply_num) *
-                    100
-                  ).toFixed(2),
+                  (BigInt(meme.team_allocation ?? "0") /
+                    BigInt(meme.total_supply ?? "0")) *
+                    100n,
                 )
               : 0;
 

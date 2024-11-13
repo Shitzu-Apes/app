@@ -377,7 +377,6 @@
     description: description || "[DESCRIPTION]",
     decimals: decimals,
     total_supply: $totalSupply$?.toU128() ?? "",
-    total_supply_num: Number($totalSupply$?.toU128() ?? "0"),
     reference: "{}",
     reference_hash: "",
     deposit_token_id: "wrap.near",
@@ -385,15 +384,15 @@
       image ||
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
     token_id: "",
-    created_timestamp_ms: Date.now(),
+    created_timestamp_ms: new Date().toISOString(),
     total_deposit: "0",
+    is_finalized: false,
     soft_cap: softCap,
     hard_cap: hardCap,
     team_allocation:
       teamAllocation && team_allocation_num
         ? team_allocation_num.toString()
         : null,
-    team_allocation_num: Number(team_allocation_num),
     vesting_duration_ms: teamAllocation?.vestingDurationMs,
     cliff_duration_ms: teamAllocation?.cliffDurationMs,
     projectedPoolStats: writable({
@@ -403,19 +402,14 @@
     pool_id: null,
     replies_count: 0,
     staker_count: 0,
-    twitterLink: twitterLink || "",
-    telegramLink: telegramLink || "",
+    twitter_link: twitterLink || "",
+    telegram_link: telegramLink || "",
     website: website || "",
-    total_deposit_num: 0,
     total_deposit_fees: "0",
     total_withdraw_fees: "0",
-    soft_cap_num: Number(softCap),
-    hard_cap_num: hardCap ? Number(hardCap) : undefined,
-    total_deposit_fees_num: 0,
-    total_withdraw_fees_num: 0,
-    last_change_ms: Date.now(),
-    created_blockheight: 0,
-  };
+    last_change_ms: new Date().toISOString(),
+    created_blockheight: "0",
+  } as Meme;
 </script>
 
 <!-- listen for ctrl + v the image -->

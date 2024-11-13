@@ -15,14 +15,16 @@
   );
   $: softCap = new FixedNumber(meme.soft_cap ?? "0", 24);
   $: hardCap = new FixedNumber(meme.hard_cap ?? "0", 24);
-  $: hardCapEnabled = meme.hard_cap_num && meme.hard_cap_num > 0;
+  $: hardCapEnabled = BigInt(meme.hard_cap ?? "0") > 0n;
 
   // Calculate team allocation percentage
   $: teamAllocationBps =
-    meme.team_allocation_num && meme.total_supply_num
-      ? (meme.team_allocation_num / meme.total_supply_num) * 10000
-      : 0;
-  $: teamAllocationPercentage = teamAllocationBps / 100;
+    BigInt(meme.team_allocation ?? "0") && BigInt(meme.total_supply ?? "0")
+      ? (BigInt(meme.team_allocation ?? "0") /
+          BigInt(meme.total_supply ?? "0")) *
+        10000n
+      : 0n;
+  $: teamAllocationPercentage = Number(teamAllocationBps) / 100;
 
   // Delta for splitting NEAR between liquidity pool and token holders
   $: delta = 1 / 1.98;
@@ -112,7 +114,12 @@
                 >({teamAllocationPercentage.toFixed(2)}%)</span
               >
               {totalSupply
-                .mul(new FixedNumber(BigInt(Math.round(teamAllocationBps)), 4))
+                .mul(
+                  new FixedNumber(
+                    BigInt(Math.round(Number(teamAllocationBps))),
+                    4,
+                  ),
+                )
                 .format()}
             </span>
           </div>

@@ -47,7 +47,7 @@ export function bumpMeme(meme_id: number) {
 
   const updatedMeme = {
     ...memes[index],
-    last_change_ms: Date.now(),
+    last_change_ms: new Date().toISOString(),
     animate: true,
     projectedPoolStats: projectedPoolStats(memes[index]),
   };
@@ -102,7 +102,9 @@ export async function updateMemebids() {
       if (memeOrder.includes(meme.meme_id)) {
         return {
           ...meme,
-          last_change_ms: Date.now() - memeOrder.indexOf(meme.meme_id) * 1000,
+          last_change_ms: new Date(
+            Date.now() - memeOrder.indexOf(meme.meme_id) * 1000,
+          ).toISOString(),
         };
       }
       return meme;
@@ -133,17 +135,14 @@ export async function updateMemebids() {
         deposit_token_id: meme.deposit_token_id,
         soft_cap: "0",
         soft_cap_num: 0,
-        last_change_ms: 0,
+        last_change_ms: new Date().toISOString(),
         total_supply_num: parseFloat(meme.total_supply),
-        created_blockheight: 0,
-        created_timestamp_ms: 0,
+        created_blockheight: "0",
+        created_timestamp_ms: "0",
         total_deposit: meme.total_staked,
-        total_deposit_num: parseFloat(meme.total_staked),
         total_deposit_fees: "0",
-        total_deposit_fees_num: 0,
         total_withdraw_fees: meme.total_withdrawal_fees,
-        total_withdraw_fees_num: parseFloat(meme.total_withdrawal_fees),
-        is_finalized: null,
+        is_finalized: false,
         token_id: null,
         pool_id: null,
         description: null,

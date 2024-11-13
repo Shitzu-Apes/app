@@ -72,7 +72,6 @@
           // TODO fix API
           if (memebid) {
             meme.total_deposit = memebid.total_staked;
-            meme.total_deposit_num = Number(memebid.total_staked);
             meme.end_timestamp_ms = Number(memebid.end_timestamp_ms);
           }
           return { meme };
@@ -86,7 +85,6 @@
 
         if (memebid && response.data) {
           response.data.meme.total_deposit = memebid.total_staked;
-          response.data.meme.total_deposit_num = Number(memebid.total_staked);
           response.data.meme.end_timestamp_ms = Number(
             memebid.end_timestamp_ms,
           );
