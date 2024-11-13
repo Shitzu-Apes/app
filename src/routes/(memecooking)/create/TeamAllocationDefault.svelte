@@ -10,16 +10,16 @@
     }
   > = {
     small: {
+      label: "Small Allocation",
       allocationBps: 500,
-      vestingDurationDays: 0,
-      cliffDurationDays: 0,
-      label: "Instant Allocation",
+      vestingDurationDays: 5,
+      cliffDurationDays: 2,
     },
     large: {
-      label: "Vesting Allocation",
+      label: "Large Allocation",
       allocationBps: 2000,
-      vestingDurationDays: isTestnet ? 0.005 : 7,
-      cliffDurationDays: isTestnet ? 0.001 : 2,
+      vestingDurationDays: isTestnet ? 0.005 : 21,
+      cliffDurationDays: isTestnet ? 0.001 : 7,
     },
   };
 </script>
@@ -85,16 +85,12 @@
           <div class="flex items-center">
             {option.allocationBps / 100}% Allocation
           </div>
-          {#if key === "small"}
-            <div class="flex items-center">Instant</div>
-          {:else}
-            <div class="flex items-center">
-              {option.cliffDurationDays}d Cliff
-            </div>
-            <div class="flex items-center">
-              {option.vestingDurationDays}d Vesting
-            </div>
-          {/if}
+          <div class="flex items-center">
+            {option.cliffDurationDays}d Cliff
+          </div>
+          <div class="flex items-center">
+            {option.vestingDurationDays}d Vesting
+          </div>
         </button>
       </div>
     {/each}
@@ -150,9 +146,11 @@
             <InputField
               label="Cliff Duration"
               type="number"
-              min={0}
+              min={2}
               step={1}
               bind:value={cliffDurationDays}
+              validate={(val) =>
+                Number(val) < 2 ? "The minimum cliff duration is 2 days" : ""}
               tooltip="Days before tokens start unlocking"
             />
           </div>
@@ -161,9 +159,11 @@
             <InputField
               label="Vesting Duration"
               type="number"
-              min={0}
+              min={5}
               step={1}
               bind:value={vestingDurationDays}
+              validate={(val) =>
+                Number(val) < 5 ? "The minimum vesting duration is 5 days" : ""}
               tooltip="Days over which tokens gradually unlock after cliff period"
             />
           </div>
@@ -174,12 +174,8 @@
 
   <div class="text-sm text-gray-400 w-full bg-gray-800/50 p-4 rounded-lg">
     <span class="font-semibold text-shitzu-4">Summary:</span> The team will
-    receive {allocationPercentage}% of the total supply.
-    {#if vestingDurationDays === 0 && cliffDurationDays === 0}
-      This amount will be available instantly after launch.
-    {:else}
-      The tokens will be locked for {cliffDurationDays} days (cliff period), after
-      which they will gradually unlock over {vestingDurationDays} days.
-    {/if}
+    receive {allocationPercentage}% of the total supply. The tokens will be
+    locked for {cliffDurationDays} days (cliff period), after which they will gradually
+    unlock over {vestingDurationDays} days.
   </div>
 </div>
