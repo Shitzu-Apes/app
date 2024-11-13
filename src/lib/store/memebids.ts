@@ -24,6 +24,22 @@ export function appendNewMeme(meme: Meme) {
   memes.push(meme);
   _memebids$.set(memes);
 }
+
+const MEME_ORDER_LOCAL_STORAGE_KEY = "meme_order";
+
+function pushMemeOrder(meme_id: number) {
+  const memeOrder = get(_memebids$);
+  const memeOrderSet = new Set(memeOrder.map((m) => m.meme_id));
+  memeOrderSet.delete(meme_id); // Remove if exists
+  const newOrder = [meme_id, ...Array.from(memeOrderSet)]; // Add to front
+  localStorage.setItem(MEME_ORDER_LOCAL_STORAGE_KEY, JSON.stringify(newOrder));
+}
+
+function getMemeOrder() {
+  const memeOrder = localStorage.getItem(MEME_ORDER_LOCAL_STORAGE_KEY);
+  return memeOrder ? JSON.parse(memeOrder) : [];
+}
+
 export function bumpMeme(meme_id: number) {
   const memes = get(_memebids$);
   const index = memes.findIndex((m) => m.meme_id === meme_id);
@@ -35,6 +51,8 @@ export function bumpMeme(meme_id: number) {
     animate: true,
     projectedPoolStats: projectedPoolStats(memes[index]),
   };
+
+  pushMemeOrder(meme_id);
 
   const updatedMemes = [...memes];
   updatedMemes[index] = updatedMeme;
@@ -77,7 +95,20 @@ export async function updateMemebids() {
       }
     });
     console.log("[+page] memebids", memes);
-    _memebids$.set(memes);
+    const memeOrder = getMemeOrder();
+
+    // overwrite last_change_ms for memes in memeOrder
+    const memesWithOrder = memes.map((meme) => {
+      if (memeOrder.includes(meme.meme_id)) {
+        return {
+          ...meme,
+          last_change_ms: Date.now() - memeOrder.indexOf(meme.meme_id) * 1000,
+        };
+      }
+      return meme;
+    });
+
+    _memebids$.set(memesWithOrder);
   } catch (error) {
     console.log("[updateMemebids]: Error", error);
     memebidsError$.set(error as Error);
