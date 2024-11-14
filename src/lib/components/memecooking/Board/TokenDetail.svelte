@@ -122,21 +122,23 @@
           </div>
 
           <!-- Holders -->
-          <div class="flex items-center gap-1">
-            <span class="w-6 flex justify-center flex-shrink-0">
-              <img src={SHITZU_STONK} alt="Shitzu Stonk" class="size-6" />
-            </span>
-            <span class="text-memecooking-400 text-sm font-medium"
-              >Holders:</span
-            >
-            <span class="font-medium">
-              {#if memebid.staker_count}
-                {memebid.staker_count}
-              {:else}
-                -
-              {/if}
-            </span>
-          </div>
+          {#if memebid.token_id == null}
+            <div class="flex items-center gap-1">
+              <span class="w-6 flex justify-center flex-shrink-0">
+                <img src={SHITZU_STONK} alt="Shitzu Stonk" class="size-6" />
+              </span>
+              <span class="text-memecooking-400 text-sm font-medium"
+                >Holders:</span
+              >
+              <span class="font-medium">
+                {#if memebid.staker_count}
+                  {memebid.staker_count}
+                {:else}
+                  -
+                {/if}
+              </span>
+            </div>
+          {/if}
 
           {#if memebid.twitterLink && (memebid.twitterLink.startsWith("https://twitter.com/") || memebid.twitterLink.startsWith("https://x.com/"))}
             <div class="flex items-center gap-1">
