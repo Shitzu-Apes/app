@@ -32,7 +32,9 @@
     type="text"
     bind:value
     {placeholder}
-    class="w-full p-2 bg-gray-800 rounded text-white border border-white"
+    class:border-red={error}
+    class:border-white={!error}
+    class="w-full p-2 bg-gray-800 rounded text-white border"
     autocomplete="off"
   />
 {:else if type === "number"}
@@ -40,7 +42,9 @@
     type="number"
     bind:value
     {placeholder}
-    class="w-full p-2 bg-gray-800 rounded text-white border border-white"
+    class:border-red={error}
+    class:border-white={!error}
+    class="w-full p-2 bg-gray-800 rounded text-white border"
     autocomplete="off"
     {min}
     {max}
