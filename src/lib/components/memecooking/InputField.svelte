@@ -13,7 +13,7 @@
   export let step: number | undefined = undefined;
   export let tooltip: string | undefined = undefined;
 
-  $: error = value && validate != null ? validate(value) : "";
+  $: error = value != null && validate != null ? validate(value) : "";
 </script>
 
 <label
