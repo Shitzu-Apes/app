@@ -1,10 +1,10 @@
 import { writable } from "svelte/store";
-
 import { wallet } from "./wallet";
-
 import { FixedNumber } from "$lib/util";
+import { Ft } from "$lib/near";
 
 export const nearBalance = writable<FixedNumber | null>(null);
+export const wrappedNearBalance = writable<FixedNumber | null>(null);
 
 export async function refreshNearBalance(accountId?: string): Promise<void> {
   if (typeof accountId !== "string") {
@@ -39,7 +39,23 @@ export async function refreshNearBalance(accountId?: string): Promise<void> {
   }
 }
 
+export async function refreshWrappedNearBalance(accountId?: string): Promise<void> {
+  if (typeof accountId !== "string") {
+    wrappedNearBalance.set(null);
+    return;
+  }
+  try {
+    const decimals = 24;
+    const balance = await Ft.balanceOf(import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID, accountId, decimals);
+    wrappedNearBalance.set(balance);
+  } catch (error) {
+    console.error("Error refreshing wNEAR balance:", error);
+    wrappedNearBalance.set(null);
+  }
+}
+
 wallet.accountId$.subscribe((accountId) => {
   if (accountId == null) return;
   refreshNearBalance(accountId);
+  refreshWrappedNearBalance(accountId);
 });

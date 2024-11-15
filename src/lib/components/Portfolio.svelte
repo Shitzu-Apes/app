@@ -6,10 +6,11 @@
   import McIcon from "./MCIcon.svelte";
   import LoadingLambo from "./memecooking/Board/LoadingLambo.svelte";
   import SendSheet from "./memecooking/BottomSheet/SendSheet.svelte";
+  import WrappingSheet from "./memecooking/BottomSheet/WrappingSheet.svelte";
 
   import Near from "$lib/assets/Near.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
-  import { refreshNearBalance, nearBalance, wallet } from "$lib/near";
+  import { refreshNearBalance, refreshWrappedNearBalance, nearBalance, wrappedNearBalance, wallet } from "$lib/near";
   import type { Portfolio } from "$lib/store/portfolio";
   import { getNearPrice, nearPrice } from "$lib/util/projectedMCap";
 
@@ -19,10 +20,12 @@
   $: isOwnAccount = accountId === get(wallet.accountId$);
 
   refreshNearBalance(accountId);
+  refreshWrappedNearBalance(accountId);
   getNearPrice();
 
   const refreshInterval = setInterval(() => {
     refreshNearBalance(accountId);
+    refreshWrappedNearBalance(accountId);
     getNearPrice();
   }, 30e3);
 
@@ -84,6 +87,78 @@
                 totalDigits={6}
               />
             </td>
+            {#if isOwnAccount}
+              <td
+                class="hidden sm:flex py-3 text-right flex-col items-center gap-1"
+              >
+                <button
+                  class="px-1 py-1 bg-shitzu-4 hover:bg-shitzu-5 text-white rounded-md text-sm flex flex-col items-center gap-1"
+                  on:click={() => {
+                    openBottomSheet(WrappingSheet, { walletConnected: isOwnAccount,
+                                                     defaultTab : "Wrap",
+                                                     UpdateBalances: () => {
+                                                     refreshNearBalance(accountId);
+                                                     refreshWrappedNearBalance(accountId);       
+                                                   }
+                                                 });
+                    }}
+                  >
+                  <div class="i-mdi:arrow-right" />
+                </button>
+                <span class="text-xs text-gray-400">Wrap</span>
+              </td>
+            {/if}
+          </tr>
+        {/if}
+        <!-- Wrapped NEAR (wNEAR) -->
+        {#if $wrappedNearBalance}
+          <tr class="bg-gray-800/20 hover:bg-gray-800/50 transition-colors">
+            <td class="px-4 py-3 truncate max-w-[200px]">
+              <div class="flex items-center gap-3">
+                <Near className="w-8 h-8 rounded-full bg-white text-black p-1" />
+                <div class="flex flex-col">
+                  <span class="font-medium">wNEAR</span>
+                  <span class="text-xs text-gray-400 sm:hidden">
+                    $<FormatNumber number={Number($nearPrice) / 1e24} totalDigits={6} />
+                  </span>
+                </div>
+              </div>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <div class="flex flex-col items-end">
+                <span class="font-medium">{$wrappedNearBalance.format()}</span>
+                <span class="text-xs text-gray-400">
+                  ${(($wrappedNearBalance.toNumber() * Number($nearPrice)) / 1e24).toFixed(2)}
+                </span>
+              </div>
+            </td>
+            <td class="hidden sm:table-cell px-4 py-3 text-right font-medium">
+              ${(Number($nearPrice) / 1e24).toFixed(10)}
+            </td>
+            <td class="hidden sm:table-cell px-4 py-3 text-right font-medium">
+              $<FormatNumber number={(Number($nearPrice) / 1e24) * 1e9} totalDigits={6} />
+            </td>
+            {#if isOwnAccount}
+              <td
+                class="hidden sm:flex py-3 text-right flex-col items-center gap-1"
+              >
+                <button
+                  class="px-1 py-1 bg-shitzu-4 hover:bg-shitzu-5 text-white rounded-md text-sm flex flex-col items-center gap-1"
+                  on:click={() => {
+                    openBottomSheet(WrappingSheet, { walletConnected: isOwnAccount, 
+                                                     defaultTab : "Unwrap",                 
+                                                     UpdateBalances: () => {
+                                                     refreshNearBalance(accountId);
+                                                     refreshWrappedNearBalance(accountId); 
+                                                   }
+                                                 });
+                    }}
+                  >
+                  <div class="i-mdi:arrow-right" />
+                </button>
+                <span class="text-xs text-gray-400">Unwrap</span>
+              </td>
+            {/if}
           </tr>
         {/if}
         {#each portfolio.tokens
