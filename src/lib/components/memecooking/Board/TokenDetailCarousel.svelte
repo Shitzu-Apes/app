@@ -84,7 +84,7 @@
 
     <!-- Right Column - Info -->
     <div class="space-y-4">
-      {#if meme.team_allocation_num && typeof meme.vesting_duration_ms === "number" && typeof meme.cliff_duration_ms === "number"}
+      {#if BigInt(meme.team_allocation ?? "0") > 0n && typeof meme.vesting_duration_ms === "number" && typeof meme.cliff_duration_ms === "number"}
         <div class="bg-gray-800 rounded-lg p-4">
           <TeamAllocation {meme} />
         </div>

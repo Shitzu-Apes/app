@@ -42,61 +42,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/info/stats": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** @description Returns statistics about memes */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Statistics about memes */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": {
-              total_memes: number;
-              total_finalized_memes: number;
-              total_launched_memes: number;
-              tvl: string;
-              tvl_num: number;
-              total_volume: string;
-              total_volume_num: number;
-              total_deposits: string;
-              total_deposits_num: number;
-              total_withdrawals: string;
-              total_withdrawals_num: number;
-              total_protocol_fees: string;
-              total_protocol_fees_num: number;
-              total_referral_fees: string;
-              total_referral_fees_num: number;
-              total_withdraw_fees: string;
-              total_withdraw_fees_num: number;
-              last_change_ms: number;
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   "/info/daily-stats": {
     parameters: {
       query?: never;
@@ -107,9 +52,7 @@ export interface paths {
     /** @description Returns daily statistics about memes */
     get: {
       parameters: {
-        query: {
-          date: string;
-        };
+        query?: never;
         header?: never;
         path?: never;
         cookie?: never;
@@ -127,20 +70,8 @@ export interface paths {
               total_memes: number;
               total_launched_memes: number;
               total_finalized_memes: number;
-              total_volume: string;
-              total_volume_num: number;
-              total_deposits: string;
-              total_deposits_num: number;
-              total_withdrawals: string;
-              total_withdrawals_num: number;
-              total_protocol_fees: string;
-              total_protocol_fees_num: number;
-              total_referral_fees: string;
-              total_referral_fees_num: number;
-              total_withdraw_fees: string;
-              total_withdraw_fees_num: number;
-              last_change_ms: number;
-            };
+              last_change_ms?: string | null;
+            }[];
           };
         };
       };
@@ -153,14 +84,14 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/meme/king": {
+  "/info/daily-token-stats": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** @description Returns the king meme */
+    /** @description Returns daily statistics about memes */
     get: {
       parameters: {
         query?: never;
@@ -170,53 +101,23 @@ export interface paths {
       };
       requestBody?: never;
       responses: {
-        /** @description king meme */
+        /** @description Statistics about memes */
         200: {
           headers: {
             [name: string]: unknown;
           };
           content: {
             "application/json": {
-              meme_id: number;
-              owner: string;
-              end_timestamp_ms: number | null;
-              name: string;
-              symbol: string;
-              decimals: number;
-              total_supply?: string | null;
-              reference: string;
-              reference_hash: string;
-              deposit_token_id: string;
-              soft_cap?: string | null;
-              hard_cap?: string | null;
-              last_change_ms: number;
-              total_supply_num: number;
-              soft_cap_num: number;
-              hard_cap_num?: number | null;
-              team_allocation?: string | null;
-              team_allocation_num?: number | null;
-              vesting_duration_ms?: number | null;
-              cliff_duration_ms?: number | null;
-              created_blockheight: number;
-              created_timestamp_ms: number;
-              total_deposit: string;
-              total_deposit_num: number;
-              total_deposit_fees: string;
-              total_deposit_fees_num: number;
+              date: string;
+              token_id: string;
+              total_volume: string;
+              total_deposits: string;
+              total_withdrawals: string;
+              total_protocol_fees: string;
+              total_referral_fees: string;
               total_withdraw_fees: string;
-              total_withdraw_fees_num: number;
-              is_finalized?: boolean | null;
-              token_id?: string | null;
-              pool_id?: number | null;
-              description?: string | null;
-              twitterLink?: string | null;
-              telegramLink?: string | null;
-              website?: string | null;
-              image?: string | null;
-              coronated_at_ms?: number | null;
-              replies_count: number;
-              staker_count: number;
-            };
+              last_change_ms?: string | null;
+            }[];
           };
         };
       };
@@ -245,9 +146,9 @@ export interface paths {
             | "meme_id"
             | "end_timestamp_ms"
             | "created_blockheight"
-            | "total_deposit_num"
-            | "total_deposit_fees_num"
-            | "total_withdraw_fees_num";
+            | "total_deposit"
+            | "total_deposit_fees"
+            | "total_withdraw_fees";
           order_by_direction?: "asc" | "desc";
           is_finalized?: boolean | null;
         };
@@ -270,39 +171,31 @@ export interface paths {
               name: string;
               symbol: string;
               decimals: number;
-              total_supply?: string | null;
+              total_supply: string;
               reference: string;
               reference_hash: string;
               deposit_token_id: string;
-              soft_cap?: string | null;
-              hard_cap?: string | null;
-              last_change_ms: number;
-              total_supply_num: number;
-              soft_cap_num: number;
-              hard_cap_num?: number | null;
+              soft_cap: string;
+              hard_cap?: string;
+              last_change_ms: string;
               team_allocation?: string | null;
-              team_allocation_num?: number | null;
-              vesting_duration_ms?: number | null;
-              cliff_duration_ms?: number | null;
-              created_blockheight: number;
-              created_timestamp_ms: number;
+              vesting_duration_ms?: string | null;
+              cliff_duration_ms?: string | null;
+              created_blockheight: string;
+              created_timestamp_ms: string;
               total_deposit: string;
-              total_deposit_num: number;
               total_deposit_fees: string;
-              total_deposit_fees_num: number;
               total_withdraw_fees: string;
-              total_withdraw_fees_num: number;
-              is_finalized?: boolean | null;
+              is_finalized: boolean;
               token_id?: string | null;
               pool_id?: number | null;
               description?: string | null;
-              twitterLink?: string | null;
-              telegramLink?: string | null;
+              twitter_link?: string | null;
+              telegram_link?: string | null;
               website?: string | null;
               image?: string | null;
-              coronated_at_ms?: number | null;
-              replies_count: number;
-              staker_count: number;
+              replies_count: number | null;
+              staker_count: number | null;
             }[];
           };
         };
@@ -349,39 +242,31 @@ export interface paths {
                 name: string;
                 symbol: string;
                 decimals: number;
-                total_supply?: string | null;
+                total_supply: string;
                 reference: string;
                 reference_hash: string;
                 deposit_token_id: string;
-                soft_cap?: string | null;
-                hard_cap?: string | null;
-                last_change_ms: number;
-                total_supply_num: number;
-                soft_cap_num: number;
-                hard_cap_num?: number | null;
+                soft_cap: string;
+                hard_cap?: string;
+                last_change_ms: string;
                 team_allocation?: string | null;
-                team_allocation_num?: number | null;
-                vesting_duration_ms?: number | null;
-                cliff_duration_ms?: number | null;
-                created_blockheight: number;
-                created_timestamp_ms: number;
+                vesting_duration_ms?: string | null;
+                cliff_duration_ms?: string | null;
+                created_blockheight: string;
+                created_timestamp_ms: string;
                 total_deposit: string;
-                total_deposit_num: number;
                 total_deposit_fees: string;
-                total_deposit_fees_num: number;
                 total_withdraw_fees: string;
-                total_withdraw_fees_num: number;
-                is_finalized?: boolean | null;
+                is_finalized: boolean;
                 token_id?: string | null;
                 pool_id?: number | null;
                 description?: string | null;
-                twitterLink?: string | null;
-                telegramLink?: string | null;
+                twitter_link?: string | null;
+                telegram_link?: string | null;
                 website?: string | null;
                 image?: string | null;
-                coronated_at_ms?: number | null;
-                replies_count: number;
-                staker_count: number;
+                replies_count: number | null;
+                staker_count: number | null;
               };
             };
           };
@@ -422,14 +307,12 @@ export interface paths {
           };
           content: {
             "application/json": {
-              is_deposit: boolean;
               meme_id: number;
               account_id: string;
-              amount: string;
-              amount_num: number;
-              fee: string;
-              fee_num: number;
-              timestamp_ms: number;
+              is_deposit: boolean;
+              amount?: string | null;
+              fee?: string | null;
+              timestamp_ms?: string | null;
               receipt_id: string;
             }[];
           };
@@ -534,130 +417,13 @@ export interface paths {
           content: {
             "application/json": {
               accountId: string;
-              virtual_coins: {
-                id: string;
+              deposited: {
                 meme_id: number;
                 account_id: string;
-                balance: string;
-                balance_num: number;
-                owner: string;
-                end_timestamp_ms: number | null;
-                name: string;
-                symbol: string;
-                decimals: number;
-                total_supply?: string | null;
-                reference: string;
-                reference_hash: string;
-                deposit_token_id: string;
-                soft_cap?: string | null;
-                hard_cap?: string | null;
-                last_change_ms: number;
-                total_supply_num: number;
-                soft_cap_num: number;
-                hard_cap_num?: number | null;
-                team_allocation?: string | null;
-                team_allocation_num?: number | null;
-                vesting_duration_ms?: number | null;
-                cliff_duration_ms?: number | null;
-                created_blockheight: number;
-                created_timestamp_ms: number;
-                total_deposit: string;
-                total_deposit_num: number;
-                total_deposit_fees: string;
-                total_deposit_fees_num: number;
-                total_withdraw_fees: string;
-                total_withdraw_fees_num: number;
-                is_finalized?: boolean | null;
-                token_id?: string | null;
-                pool_id?: number | null;
-                description?: string | null;
-                twitterLink?: string | null;
-                telegramLink?: string | null;
-                website?: string | null;
-                image?: string | null;
-                coronated_at_ms?: number | null;
+                balance?: string | null;
               }[];
-              coins_held: {
-                id: string;
+              created: {
                 meme_id: number;
-                account_id: string;
-                balance: string;
-                balance_num: number;
-                owner: string;
-                end_timestamp_ms: number | null;
-                name: string;
-                symbol: string;
-                decimals: number;
-                total_supply?: string | null;
-                reference: string;
-                reference_hash: string;
-                deposit_token_id: string;
-                soft_cap?: string | null;
-                hard_cap?: string | null;
-                last_change_ms: number;
-                total_supply_num: number;
-                soft_cap_num: number;
-                hard_cap_num?: number | null;
-                team_allocation?: string | null;
-                team_allocation_num?: number | null;
-                vesting_duration_ms?: number | null;
-                cliff_duration_ms?: number | null;
-                created_blockheight: number;
-                created_timestamp_ms: number;
-                total_deposit: string;
-                total_deposit_num: number;
-                total_deposit_fees: string;
-                total_deposit_fees_num: number;
-                total_withdraw_fees: string;
-                total_withdraw_fees_num: number;
-                is_finalized?: boolean | null;
-                token_id?: string | null;
-                pool_id?: number | null;
-                description?: string | null;
-                twitterLink?: string | null;
-                telegramLink?: string | null;
-                website?: string | null;
-                image?: string | null;
-                coronated_at_ms?: number | null;
-              }[];
-              coin_created: {
-                meme_id: number;
-                owner: string;
-                end_timestamp_ms: number | null;
-                name: string;
-                symbol: string;
-                decimals: number;
-                total_supply?: string | null;
-                reference: string;
-                reference_hash: string;
-                deposit_token_id: string;
-                soft_cap?: string | null;
-                hard_cap?: string | null;
-                last_change_ms: number;
-                total_supply_num: number;
-                soft_cap_num: number;
-                hard_cap_num?: number | null;
-                team_allocation?: string | null;
-                team_allocation_num?: number | null;
-                vesting_duration_ms?: number | null;
-                cliff_duration_ms?: number | null;
-                created_blockheight: number;
-                created_timestamp_ms: number;
-                total_deposit: string;
-                total_deposit_num: number;
-                total_deposit_fees: string;
-                total_deposit_fees_num: number;
-                total_withdraw_fees: string;
-                total_withdraw_fees_num: number;
-                is_finalized?: boolean | null;
-                token_id?: string | null;
-                pool_id?: number | null;
-                description?: string | null;
-                twitterLink?: string | null;
-                telegramLink?: string | null;
-                website?: string | null;
-                image?: string | null;
-                coronated_at_ms?: number | null;
               }[];
               referral_fees: string;
               withdraw_fees: string;
@@ -668,176 +434,6 @@ export interface paths {
     };
     put?: never;
     post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/profile": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** @description Returns meme and token information for given meme_id and token_id arrays */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": {
-            meme_id: string[];
-            token_id: string[];
-            account_id: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Meme and token information */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            "application/json": {
-              meme_info: {
-                [key: string]:
-                  | {
-                      meme_id: number;
-                      owner: string;
-                      end_timestamp_ms: number | null;
-                      name: string;
-                      symbol: string;
-                      decimals: number;
-                      total_supply?: string | null;
-                      reference: string;
-                      reference_hash: string;
-                      deposit_token_id: string;
-                      soft_cap?: string | null;
-                      hard_cap?: string | null;
-                      last_change_ms: number;
-                      total_supply_num: number;
-                      soft_cap_num: number;
-                      hard_cap_num?: number | null;
-                      team_allocation?: string | null;
-                      team_allocation_num?: number | null;
-                      vesting_duration_ms?: number | null;
-                      cliff_duration_ms?: number | null;
-                      created_blockheight: number;
-                      created_timestamp_ms: number;
-                      total_deposit: string;
-                      total_deposit_num: number;
-                      total_deposit_fees: string;
-                      total_deposit_fees_num: number;
-                      total_withdraw_fees: string;
-                      total_withdraw_fees_num: number;
-                      is_finalized?: boolean | null;
-                      token_id?: string | null;
-                      pool_id?: number | null;
-                      description?: string | null;
-                      twitterLink?: string | null;
-                      telegramLink?: string | null;
-                      website?: string | null;
-                      image?: string | null;
-                      coronated_at_ms?: number | null;
-                    }
-                  | undefined;
-              };
-              token_info: {
-                [key: string]:
-                  | {
-                      meme_id: number;
-                      owner: string;
-                      end_timestamp_ms: number | null;
-                      name: string;
-                      symbol: string;
-                      decimals: number;
-                      total_supply?: string | null;
-                      reference: string;
-                      reference_hash: string;
-                      deposit_token_id: string;
-                      soft_cap?: string | null;
-                      hard_cap?: string | null;
-                      last_change_ms: number;
-                      total_supply_num: number;
-                      soft_cap_num: number;
-                      hard_cap_num?: number | null;
-                      team_allocation?: string | null;
-                      team_allocation_num?: number | null;
-                      vesting_duration_ms?: number | null;
-                      cliff_duration_ms?: number | null;
-                      created_blockheight: number;
-                      created_timestamp_ms: number;
-                      total_deposit: string;
-                      total_deposit_num: number;
-                      total_deposit_fees: string;
-                      total_deposit_fees_num: number;
-                      total_withdraw_fees: string;
-                      total_withdraw_fees_num: number;
-                      is_finalized?: boolean | null;
-                      token_id?: string | null;
-                      pool_id?: number | null;
-                      description?: string | null;
-                      twitterLink?: string | null;
-                      telegramLink?: string | null;
-                      website?: string | null;
-                      image?: string | null;
-                      coronated_at_ms?: number | null;
-                    }
-                  | undefined;
-              };
-              coinsCreated: {
-                meme_id: number;
-                owner: string;
-                end_timestamp_ms: number | null;
-                name: string;
-                symbol: string;
-                decimals: number;
-                total_supply?: string | null;
-                reference: string;
-                reference_hash: string;
-                deposit_token_id: string;
-                soft_cap?: string | null;
-                hard_cap?: string | null;
-                last_change_ms: number;
-                total_supply_num: number;
-                soft_cap_num: number;
-                hard_cap_num?: number | null;
-                team_allocation?: string | null;
-                team_allocation_num?: number | null;
-                vesting_duration_ms?: number | null;
-                cliff_duration_ms?: number | null;
-                created_blockheight: number;
-                created_timestamp_ms: number;
-                total_deposit: string;
-                total_deposit_num: number;
-                total_deposit_fees: string;
-                total_deposit_fees_num: number;
-                total_withdraw_fees: string;
-                total_withdraw_fees_num: number;
-                is_finalized?: boolean | null;
-                token_id?: string | null;
-                pool_id?: number | null;
-                description?: string | null;
-                twitterLink?: string | null;
-                telegramLink?: string | null;
-                website?: string | null;
-                image?: string | null;
-                coronated_at_ms?: number | null;
-              }[];
-            };
-          };
-        };
-      };
-    };
     delete?: never;
     options?: never;
     head?: never;

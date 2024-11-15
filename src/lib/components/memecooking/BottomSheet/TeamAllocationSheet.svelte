@@ -14,7 +14,7 @@
   import { FixedNumber } from "$lib/util";
 
   export let meme: Meme & {
-    team_allocation_num: number;
+    team_allocation: string;
     vesting_duration_ms: number;
     cliff_duration_ms: number;
     end_timestamp_ms: number;
@@ -66,7 +66,7 @@
       } else {
         claimable =
           BigInt(
-            meme.team_allocation_num *
+            Number(meme.team_allocation) *
               Math.min(
                 1,
                 (Date.now() -
@@ -120,7 +120,7 @@
           } else {
             claimable =
               BigInt(
-                meme.team_allocation_num *
+                Number(meme.team_allocation) *
                   Math.min(
                     1,
                     (Date.now() -
@@ -141,7 +141,8 @@
   });
 
   $: teamAllocation = {
-    allocationBps: (meme.team_allocation_num / meme.total_supply_num) * 10000,
+    allocationBps:
+      (Number(meme.team_allocation) / Number(meme.total_supply)) * 10000,
     vestingDurationMs: meme.vesting_duration_ms,
     cliffDurationMs: meme.cliff_duration_ms,
   };
@@ -191,7 +192,7 @@
             </p>
             <p class="text-sm text-gray-400 mt-1">
               {new FixedNumber(
-                BigInt(meme.team_allocation_num),
+                BigInt(meme.team_allocation),
                 meme?.decimals || 0,
               ).format()}
             </p>

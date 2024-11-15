@@ -162,14 +162,14 @@
         <p class="text-gray-300 mb-4">{meme.description}</p>
         <!-- Social Links -->
         <SocialLink
-          twitterLink={meme.twitterLink || ""}
-          telegramLink={meme.telegramLink || ""}
+          twitterLink={meme.twitter_link || ""}
+          telegramLink={meme.telegram_link || ""}
           website={meme.website || ""}
         />
       </div>
 
       <!-- Token Holders -->
-      {#if meme.team_allocation_num && typeof meme.vesting_duration_ms === "number" && typeof meme.cliff_duration_ms === "number"}
+      {#if meme.team_allocation && typeof meme.vesting_duration_ms === "number" && typeof meme.cliff_duration_ms === "number"}
         <div class="bg-gray-800 rounded-lg p-4">
           <TeamAllocation {meme} />
         </div>
