@@ -144,7 +144,7 @@ export async function getNearPrice(): Promise<Writable<bigint>> {
   try {
     // 4512 is the poolId for wrap.near/usd
     const { price: usdPerNear } = await getPoolStats(4512, 6);
-    const price = BigInt(1e24) / BigInt(usdPerNear);
+    const price = (BigInt(1e24) * BigInt(1e24)) / BigInt(usdPerNear);
 
     cachePrice = {
       price,
