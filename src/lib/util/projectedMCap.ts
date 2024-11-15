@@ -21,6 +21,7 @@ function projectedPoolStatsFromAuction(
 ): Readable<{ mcap: FixedNumber; liquidity: FixedNumber }> {
   return derived(nearPrice, (price) => {
     getNearPrice();
+    console.log("price", price);
 
     const pricePerTokenInNear = getProjectedMemePriceInNear(meme);
     const totalSupply = BigInt(meme.total_supply || 0);
@@ -133,7 +134,6 @@ async function getPoolStats(
 export const nearPrice = writable<bigint>(0n);
 
 let cachePrice = { price: 0n, expiry: 0 };
-let fetchPromise: Promise<Writable<bigint>> | null = null;
 
 export async function getNearPrice(): Promise<Writable<bigint>> {
   if (cachePrice.expiry > Date.now()) {
@@ -142,25 +142,16 @@ export async function getNearPrice(): Promise<Writable<bigint>> {
   }
 
   try {
-    if (!fetchPromise) {
-      fetchPromise = fetch(
-        `https://api.dexscreener.com/latest/dex/pairs/near/refv1-4512`,
-      ).then(async (response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        cachePrice = {
-          price: BigInt(1e24 / parseFloat(data.pair.priceNative)),
-          expiry: Date.now() + 1000 * 60 * 5,
-        };
-        nearPrice.set(cachePrice.price);
-        fetchPromise = null;
-        return nearPrice;
-      });
-    }
+    // 4512 is the poolId for wrap.near/usd
+    const { price: usdPerNear } = await getPoolStats(4512, 6);
+    const price = BigInt(1e24) / BigInt(usdPerNear);
 
-    return await fetchPromise;
+    cachePrice = {
+      price,
+      expiry: Date.now() + 1000 * 60 * 5,
+    };
+    nearPrice.set(cachePrice.price);
+    return nearPrice;
   } catch (error) {
     if (cachePrice.price !== 0n) {
       nearPrice.set(cachePrice.price);
