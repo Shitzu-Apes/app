@@ -25,11 +25,13 @@ export function appendNewMeme(meme: Meme) {
   _memebids$.set(memes);
 }
 
-const MEME_ORDER_LOCAL_STORAGE_KEY = "meme_order";
+const MEME_ORDER_LOCAL_STORAGE_KEY = "meme_order_store";
 
 function pushMemeOrder(meme_id: number) {
-  const memeOrder = get(_memebids$);
-  const memeOrderSet = new Set(memeOrder.map((m) => m.meme_id));
+  const memeOrder = JSON.parse(
+    localStorage.getItem(MEME_ORDER_LOCAL_STORAGE_KEY) || "[]",
+  );
+  const memeOrderSet = new Set(memeOrder);
   memeOrderSet.delete(meme_id); // Remove if exists
   const newOrder = [meme_id, ...Array.from(memeOrderSet)]; // Add to front
   localStorage.setItem(MEME_ORDER_LOCAL_STORAGE_KEY, JSON.stringify(newOrder));
@@ -99,10 +101,11 @@ export async function updateMemebids() {
 
     // overwrite last_change_ms for memes in memeOrder
     const memesWithOrder = memes.map((meme) => {
-      if (memeOrder.includes(meme.meme_id)) {
+      const index = memeOrder.indexOf(meme.meme_id);
+      if (index !== -1) {
         return {
           ...meme,
-          last_change_ms: Date.now() - memeOrder.indexOf(meme.meme_id) * 1000,
+          last_change_ms: Date.now() - index * 1000,
         };
       }
       return meme;
