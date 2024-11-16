@@ -114,7 +114,11 @@
                 >({formatDuration(meme.vesting_duration_ms)})</span
               >
               {#if meme.end_timestamp_ms}
-                {formatDate(meme.end_timestamp_ms + meme.vesting_duration_ms)}
+                {formatDate(
+                  meme.end_timestamp_ms +
+                    meme.cliff_duration_ms +
+                    meme.vesting_duration_ms,
+                )}
               {/if}
             </span>
           </div>
