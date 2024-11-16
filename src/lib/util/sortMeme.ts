@@ -23,7 +23,17 @@ export function filterAndSortMeme<T extends Meme>(
   liveOnly: boolean,
   ref: boolean,
 ): T[] {
-  console.log("[filterAndSortMeme] memes", memes);
+  // Filter out memes with 0 total deposit that are older than 2 days
+  const twoDaysAgo = Date.now() - 2 * 24 * 60 * 60 * 1000;
+  memes = memes.filter((meme) => {
+    // Keep meme if it has deposits
+    if (BigInt(meme.total_deposit) > 0n) {
+      return true;
+    }
+    // Or if it's newer than 2 days
+    return meme.created_timestamp_ms > twoDaysAgo;
+  });
+
   if (liveOnly) {
     memes = memes.filter(
       (meme) => meme.end_timestamp_ms && meme.end_timestamp_ms > Date.now(),
