@@ -1,4 +1,7 @@
+import type { FinalExecutionOutcome } from "near-api-js/lib/providers";
+
 import { view } from "./utils";
+import { wallet, type TransactionCallbacks } from "./wallet";
 
 import type { FungibleTokenMetadata } from "$lib/abi";
 import { FixedNumber } from "$lib/util";
@@ -53,5 +56,39 @@ export abstract class Ft {
       {},
     );
     return storageRequestment.min;
+  }
+
+  public static async ft_transfer_call(
+    tokenId: string,
+    receiverId: string,
+    amount: string,
+    memo: string,
+    callback: TransactionCallbacks<FinalExecutionOutcome> = {},
+  ) {
+    return wallet.signAndSendTransaction(
+      {
+        receiverId: tokenId,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "ft_transfer_call",
+              args: {
+                receiver_id: receiverId,
+                amount: amount,
+                msg: memo,
+              },
+              gas: 50_000_000_000_000n.toString(),
+              deposit: "1",
+            },
+          },
+        ],
+      },
+      {
+        onSuccess: (result) => {
+          callback.onSuccess?.(result);
+        },
+      },
+    );
   }
 }

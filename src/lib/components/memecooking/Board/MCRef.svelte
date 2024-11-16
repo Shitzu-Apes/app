@@ -5,6 +5,7 @@
   import { slide } from "svelte/transition";
 
   import { addToast } from "../../Toast.svelte";
+  import TipDaoSheet from "../BottomSheet/TipDaoSheet.svelte";
 
   import Near from "$lib/assets/Near.svelte";
   import { showWalletSelector } from "$lib/auth";
@@ -13,7 +14,10 @@
   import TokenInput from "$lib/components/TokenInput.svelte";
   import MCRefSlippage from "$lib/components/memecooking/Board/MCRefSlippage.svelte";
   import Tabs from "$lib/components/memecooking/Board/Tabs.svelte";
-  import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
+  import {
+    closeBottomSheet,
+    openBottomSheet,
+  } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import {
     Ft,
@@ -229,15 +233,24 @@
         callback,
       );
     } else {
-      return handleSell(
+      const expected = await $expected$;
+      await handleSell(
         $input$,
         $accountId$,
-        (await $expected$).amount,
+        expected.amount,
         meme,
         unwrapNear,
         slippage,
         callback,
       );
+
+      console.log("[tip]: ");
+
+      openBottomSheet(TipDaoSheet, {
+        meme,
+        revenue: expected.amount,
+        isWnear: $returnTab === "wnear",
+      });
     }
   }
 

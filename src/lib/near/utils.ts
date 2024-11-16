@@ -1,3 +1,7 @@
+import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
+
+import { wallet, type TransactionCallbacks } from "./wallet";
+
 export async function view<T>(
   contract: string,
   method: string,
@@ -45,4 +49,25 @@ export async function viewWithNode<T>(
     console.error("[view]: Error", error);
     throw error;
   }
+}
+
+export async function sendNear(
+  receiverId: string,
+  amount: string,
+  callback: TransactionCallbacks<FinalExecutionOutcome> = {},
+) {
+  return wallet.signAndSendTransaction(
+    {
+      receiverId,
+      actions: [
+        {
+          type: "Transfer",
+          params: {
+            deposit: amount,
+          },
+        },
+      ],
+    },
+    callback,
+  );
 }

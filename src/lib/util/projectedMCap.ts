@@ -136,6 +136,10 @@ export const nearPrice = writable<bigint>(0n);
 let cachePrice = { price: 0n, expiry: 0 };
 
 export async function getNearPrice(): Promise<Writable<bigint>> {
+  if (import.meta.env.VITE_NETWORK_ID === "testnet") {
+    nearPrice.set(5n * BigInt(1e24));
+    return nearPrice;
+  }
   if (cachePrice.expiry > Date.now()) {
     nearPrice.set(cachePrice.price);
     return nearPrice;
