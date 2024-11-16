@@ -26,11 +26,16 @@ export function filterAndSortMeme<T extends Meme>(
   // Filter out memes with 0 total deposit that are older than 2 days
   const twoDaysAgo = Date.now() - 2 * 24 * 60 * 60 * 1000;
   memes = memes.filter((meme) => {
-    // Keep meme if it has deposits
-    if (BigInt(meme.total_deposit) > 0n) {
+    // except for external memes
+    if (meme.meme_id < 0) {
+      return true;
+    }
+    // Keep meme if it has deposits or has pool ID
+    if (BigInt(meme.total_deposit) > 0n || meme.pool_id !== null) {
       return true;
     }
     // Or if it's newer than 2 days
+
     return meme.created_timestamp_ms > twoDaysAgo;
   });
 

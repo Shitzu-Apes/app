@@ -8,7 +8,7 @@
   export { className as class };
 
   let started = false;
-  let [hours, minutes, seconds] = [0, 0, 0];
+  let [days, hours, minutes, seconds] = [0, 0, 0, 0];
 
   function updateTime() {
     started = true;
@@ -18,6 +18,7 @@
       return false;
     }
 
+    days = Math.floor(diff / (1000 * 60 * 60 * 24));
     hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     seconds = Math.floor((diff % (1000 * 60)) / 1000);
@@ -41,15 +42,31 @@
 </script>
 
 {#if format === "compact"}
-  <div class="flex gap-2 justify-center items-start {className}">
+  <div
+    class="flex gap-2 justify-center items-start {className} {days > 0
+      ? 'text-xs'
+      : 'text-base'}"
+  >
     {#if started}
-      {padZero(hours)}:{padZero(minutes)}:{padZero(seconds)}
+      {#if days > 0}
+        {days}d{padZero(hours)}h{padZero(minutes)}m
+      {:else}
+        {padZero(hours)}:{padZero(minutes)}:{padZero(seconds)}
+      {/if}
     {:else}
       --:--:--
     {/if}
   </div>
 {:else}
   <div class="flex gap-2 text-6xl justify-center items-start {className}">
+    {#if days > 0}
+      <div class="flex flex-col justify-center items-center flex-grow basis-0">
+        <div>{days}</div>
+        <div class="text-xs w-full text-center">
+          {days > 1 ? "Days" : "Day"}
+        </div>
+      </div>
+    {/if}
     <div class="flex flex-col justify-center items-center flex-grow basis-0">
       <div>
         {#if started}
@@ -74,17 +91,19 @@
         {minutes > 1 ? "Minutes" : "Minute"}
       </div>
     </div>
-    <div class="flex flex-col justify-center items-center flex-grow basis-0">
-      <div>
-        {#if started}
-          {seconds}
-        {:else}
-          -
-        {/if}
+    {#if days === 0}
+      <div class="flex flex-col justify-center items-center flex-grow basis-0">
+        <div>
+          {#if started}
+            {seconds}
+          {:else}
+            -
+          {/if}
+        </div>
+        <div class="text-xs w-full text-center">
+          {seconds > 1 ? "Seconds" : "Second"}
+        </div>
       </div>
-      <div class="text-xs w-full text-center">
-        {seconds > 1 ? "Seconds" : "Second"}
-      </div>
-    </div>
+    {/if}
   </div>
 {/if}
