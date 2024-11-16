@@ -42,14 +42,10 @@
 </script>
 
 {#if format === "compact"}
-  <div
-    class="flex gap-2 justify-center items-start {className} {days > 0
-      ? 'text-xs'
-      : 'text-base'}"
-  >
+  <div class="flex gap-2 justify-center items-start {className}">
     {#if started}
       {#if days > 0}
-        {days}d{padZero(hours)}h{padZero(minutes)}m
+        {days}d {padZero(hours)}h
       {:else}
         {padZero(hours)}:{padZero(minutes)}:{padZero(seconds)}
       {/if}
