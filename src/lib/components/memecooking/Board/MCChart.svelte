@@ -29,7 +29,7 @@
     const to = Math.min(now, memebid.end_timestamp_ms!);
 
     let interval: ResolutionString;
-    const duration = to - memebid.created_timestamp_ms;
+    const duration = to - memebid.created_timestamp_ms!;
 
     const aspectRatio = width / height || 1;
     const bars = Math.round(aspectRatio * 48);

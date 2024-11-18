@@ -16,4 +16,4 @@ export type Meme = Optional<
 >;
 
 export type Reply =
-  paths["/get-replies/replies/{memeId}"]["get"]["responses"]["200"]["content"]["application/json"]["replies"][number];
+  paths["/get-replies/replies/{memeId}"]["get"]["responses"]["200"]["content"]["application/json"][number];

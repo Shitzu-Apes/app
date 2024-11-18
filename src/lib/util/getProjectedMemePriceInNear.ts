@@ -16,7 +16,7 @@ export function getProjectedMemePriceInNear(meme: Meme): bigint {
 
   // Calculate NEAR in liquidity pool (total deposits)
   const nearInLiquidityPool =
-    (BigInt(meme.total_deposit) * BigInt(98)) / BigInt(100);
+    (BigInt(meme.total_deposit!) * BigInt(98)) / BigInt(100);
 
   // Calculate price per token in NEAR
   const pricePerTokenInNear =

@@ -170,7 +170,7 @@ const MemeCookingDataFeed: IBasicDataFeed = {
       }
 
       if (!lastBar) {
-        const time = Math.floor(data.timestamp_ms / 1000) * 1000;
+        const time = Math.floor(data.timestamp_ms! / 1000) * 1000;
         lastBar = {
           time,
           low: 0,
@@ -196,7 +196,7 @@ const MemeCookingDataFeed: IBasicDataFeed = {
 
       const priceInNear = getProjectedMemePriceInNear(data);
       const price = Number(priceInNear) / 1e24;
-      if (data.timestamp_ms >= nextBarTime) {
+      if (data.timestamp_ms! >= nextBarTime) {
         console.log("[subscribeBars]: Create new bar");
         bar = {
           time: nextBarTime,

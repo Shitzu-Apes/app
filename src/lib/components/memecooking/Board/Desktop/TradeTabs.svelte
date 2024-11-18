@@ -32,7 +32,7 @@
         ...trade,
         tokenAmount: predictedTokenAmount({
           amount: trade.amount!,
-          total_deposit: meme.total_deposit,
+          total_deposit: meme.total_deposit ?? "0",
           total_supply: meme.total_supply || undefined,
         }),
       }));

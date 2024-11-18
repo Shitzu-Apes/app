@@ -31,7 +31,7 @@ function projectedPoolStatsFromAuction(
       24 + meme.decimals,
     ).mul(new FixedNumber(price, 24));
 
-    const liquidity = new FixedNumber(BigInt(meme.total_deposit) * 2n, 24).mul(
+    const liquidity = new FixedNumber(BigInt(meme.total_deposit!) * 2n, 24).mul(
       new FixedNumber(price, 24),
     );
 

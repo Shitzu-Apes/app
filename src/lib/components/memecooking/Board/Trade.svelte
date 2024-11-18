@@ -11,10 +11,10 @@
   let timer: ReturnType<typeof setTimeout>;
 
   function updateTimeAgo() {
-    timeAgoText = timesAgo(new Date(trade.timestamp_ms));
+    timeAgoText = timesAgo(new Date(trade.timestamp_ms!));
 
     // Calculate time difference in seconds
-    const diffSeconds = Math.floor((Date.now() - trade.timestamp_ms) / 1000);
+    const diffSeconds = Math.floor((Date.now() - trade.timestamp_ms!) / 1000);
 
     // Set update interval based on time difference
     let updateInterval = 1000; // Default 1 second

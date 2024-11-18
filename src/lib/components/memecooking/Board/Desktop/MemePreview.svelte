@@ -141,7 +141,9 @@
               <div class="flex items-center gap-1">
                 <div class="i-mdi:clock text-memecooking-400" />
                 <span class="font-medium"
-                  >{timesAgo(new Date(memebid.created_timestamp_ms))}</span
+                  >{timesAgo(
+                    new Date(memebid.created_timestamp_ms ?? "0"),
+                  )}</span
                 >
               </div>
             {:else if typeof memebid.staker_count === "number"}

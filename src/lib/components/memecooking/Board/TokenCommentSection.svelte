@@ -43,7 +43,7 @@
     })
     .then((res) => {
       console.log("[replies]", res);
-      return res.data?.replies ?? [];
+      return res.data ?? [];
     });
 
   function refreshReplies(reply: Reply) {

@@ -179,8 +179,8 @@ export interface paths {
               hard_cap?: string | null;
               last_change_ms: number | null;
               team_allocation?: string | null;
-              vesting_duration_ms?: number | null;
-              cliff_duration_ms?: number | null;
+              vesting_duration_ms?: unknown;
+              cliff_duration_ms?: unknown;
               created_blockheight?: string | null;
               created_timestamp_ms: number | null;
               total_deposit?: string | null;
@@ -250,8 +250,8 @@ export interface paths {
                 hard_cap?: string | null;
                 last_change_ms: number | null;
                 team_allocation?: string | null;
-                vesting_duration_ms?: number | null;
-                cliff_duration_ms?: number | null;
+                vesting_duration_ms?: unknown;
+                cliff_duration_ms?: unknown;
                 created_blockheight?: string | null;
                 created_timestamp_ms: number | null;
                 total_deposit?: string | null;
@@ -651,7 +651,7 @@ export interface paths {
               meme_id: number;
               content: string;
               account_id: string;
-              created_at_ms?: string;
+              created_at_ms: number | null;
               reply_to_id?: number;
             };
           };

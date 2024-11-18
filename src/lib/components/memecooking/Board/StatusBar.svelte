@@ -14,7 +14,8 @@
 
   export let meme: Meme;
 
-  $: reachedMcap = BigInt(meme.total_deposit) >= BigInt(meme.soft_cap ?? "0");
+  $: reachedMcap =
+    BigInt(meme.total_deposit ?? "0") >= BigInt(meme.soft_cap ?? "0");
   let props = createProgressBarData(meme);
   $: props = createProgressBarData(meme);
 

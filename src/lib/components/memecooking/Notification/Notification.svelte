@@ -44,7 +44,7 @@
         meme_id: newMemeInfo.meme_id.toString(),
         amount,
         decimals: 24,
-        is_deposit: newMemeInfo.is_deposit,
+        is_deposit: newMemeInfo.is_deposit ?? true,
         is_mc: true,
         party: newMemeInfo.account_id,
         ticker: newMemeInfo.symbol,

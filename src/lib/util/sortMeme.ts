@@ -31,12 +31,12 @@ export function filterAndSortMeme<T extends Meme>(
       return true;
     }
     // Keep meme if it has deposits or has pool ID
-    if (BigInt(meme.total_deposit) > 0n || meme.pool_id !== null) {
+    if (BigInt(meme.total_deposit!) > 0n || meme.pool_id !== null) {
       return true;
     }
     // Or if it's newer than 2 days
 
-    return meme.created_timestamp_ms > twoDaysAgo;
+    return meme.created_timestamp_ms! > twoDaysAgo;
   });
 
   if (liveOnly) {
@@ -81,7 +81,7 @@ export function filterAndSortMeme<T extends Meme>(
               ? 1
               : -1;
           } else {
-            return BigInt(a.total_deposit) > BigInt(b.total_deposit) ? 1 : -1;
+            return BigInt(a.total_deposit!) > BigInt(b.total_deposit!) ? 1 : -1;
           }
         } else {
           if (a.projectedPoolStats != null && b.projectedPoolStats) {
@@ -90,7 +90,7 @@ export function filterAndSortMeme<T extends Meme>(
               ? 1
               : -1;
           } else {
-            return BigInt(b.total_deposit) > BigInt(a.total_deposit) ? 1 : -1;
+            return BigInt(b.total_deposit!) > BigInt(a.total_deposit!) ? 1 : -1;
           }
         }
       });

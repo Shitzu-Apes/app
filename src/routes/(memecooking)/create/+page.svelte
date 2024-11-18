@@ -384,7 +384,7 @@
       image ||
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
     token_id: "",
-    created_timestamp_ms: new Date().toISOString(),
+    created_timestamp_ms: Date.now(),
     total_deposit: "0",
     is_finalized: false,
     soft_cap: softCap,
@@ -407,7 +407,7 @@
     website: website || "",
     total_deposit_fees: "0",
     total_withdraw_fees: "0",
-    last_change_ms: new Date().toISOString(),
+    last_change_ms: Date.now(),
     created_blockheight: "0",
   } as Meme;
 </script>

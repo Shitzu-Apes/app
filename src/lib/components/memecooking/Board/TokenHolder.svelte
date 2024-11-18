@@ -63,7 +63,10 @@
           // sort from highest to lowest
           holders.sort((a, b) => (BigInt(b[1]) > BigInt(a[1]) ? 1 : -1));
 
-          const total_staked = new FixedNumber(BigInt(meme.total_deposit), 24);
+          const total_staked = new FixedNumber(
+            BigInt(meme.total_deposit ?? "0"),
+            24,
+          );
           const delta = 1 / 1.98; // Same as VestingChart
 
           // Calculate team allocation percentage with 2 decimal precision
