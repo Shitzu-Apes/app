@@ -33,14 +33,14 @@
     memebid.meme_id < 0
       ? "imported"
       : isLaunched
-        ? "served"
+        ? "cooked"
         : isEnded
           ? reachedMcap
             ? "ready"
             : "spoiled"
           : "cooking";
   $: statusColor = {
-    served: "bg-shitzu-4 text-black",
+    cooked: "bg-shitzu-4 text-black",
     ready: "bg-amber-4 text-black",
     spoiled: "bg-rose-4 text-black",
     imported: "bg-yellow-3 text-black",
