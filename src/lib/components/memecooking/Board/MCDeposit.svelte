@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
   import { onDestroy } from "svelte";
   import { writable } from "svelte/store";
   import { match, P } from "ts-pattern";
@@ -23,6 +24,11 @@
     MemeCooking,
     updateMcAccount,
   } from "$lib/near/memecooking";
+  import { fetchBlockHeight } from "$lib/near/rpc";
+  import {
+    awaitIndexerBlockHeight,
+    awaitRpcBlockHeight,
+  } from "$lib/store/indexer";
   import { FixedNumber } from "$lib/util";
   import { getReferral, removeReferral } from "$lib/util/referral";
 
@@ -212,7 +218,7 @@
           referrer,
         },
         {
-          onSuccess: () => {
+          onSuccess: async (outcome) => {
             $inputValue$ = "";
             addToast({
               data: {
@@ -223,6 +229,15 @@
                 },
               },
             });
+
+            if (!outcome) return;
+            const blockHeight = await fetchBlockHeight(outcome);
+            await Promise.all([
+              awaitIndexerBlockHeight(blockHeight),
+              awaitRpcBlockHeight(blockHeight),
+            ]);
+            refreshNearBalance($accountId$);
+            updateMcAccount($accountId$);
           },
         },
         needStorageDeposit,
@@ -234,7 +249,9 @@
         meme,
       });
     } else {
-      const onSuccess = () => {
+      const onSuccess = async (
+        outcome: FinalExecutionOutcome[] | undefined,
+      ) => {
         $inputValue$ = "";
         addToast({
           data: {
@@ -246,6 +263,15 @@
           },
         });
         closeBottomSheet();
+
+        if (!outcome) return;
+        const blockHeight = await fetchBlockHeight(outcome);
+        await Promise.all([
+          awaitIndexerBlockHeight(blockHeight),
+          awaitRpcBlockHeight(blockHeight),
+        ]);
+        refreshNearBalance($accountId$);
+        updateMcAccount($accountId$);
       };
       if (meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now()) {
         return MemeCooking.claim(
@@ -430,10 +456,6 @@
     <Button
       onClick={async () => {
         await action();
-        if (!$accountId$) return;
-        await new Promise((resolve) => setTimeout(resolve, 5_000));
-        refreshNearBalance($accountId$);
-        updateMcAccount($accountId$);
       }}
       type="custom"
       disabled={$input$ == null ||

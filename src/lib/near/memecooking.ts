@@ -20,6 +20,7 @@ import {
   awaitIndexerBlockHeight,
   awaitRpcBlockHeight,
 } from "$lib/store/indexer";
+import { memeMap$ } from "$lib/store/memebids";
 import { FixedNumber } from "$lib/util";
 import { getTokenId } from "$lib/util/getTokenId";
 import { projectedPoolStats } from "$lib/util/projectedMCap";
@@ -687,21 +688,11 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
       profile,
     });
     if (!account || !unclaimed || !profile) return;
-
-    const meme_map = new Map<string, Meme>([
-      ...(profile.virtual_coins.map((coin) => [
-        coin.meme_id.toString(),
-        coin,
-      ]) as [string, Meme][]),
-      ...(profile.coin_created.map((coin) => [
-        coin.meme_id.toString(),
-        coin,
-      ]) as [string, Meme][]),
-    ]);
+    const memeMap = get(memeMap$);
 
     const deposits = account.deposits
       .map((deposit) => {
-        const meme = meme_map.get(deposit[0].toString());
+        const meme = memeMap.get(deposit[0]);
         if (!meme) return null;
         return {
           meme_id: deposit[0],
@@ -719,7 +710,7 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
     const unclaimedInfo = await Promise.all(
       unclaimed.map(async (meme_id) => {
         // find meme id from data
-        const meme = meme_map.get(meme_id.toString());
+        const meme = memeMap.get(meme_id);
         if (!meme) return null;
         const token_id = getTokenId(meme);
         const amount = await MemeCooking.getClaimable(accountId, meme.meme_id);
@@ -733,9 +724,13 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
     );
 
     const claims = Array.from(
-      new Set([...unclaimedInfo, ...profile.coins_held.map((m) => m.meme_id)]),
+      new Set([
+        ...unclaimedInfo.map((info) => info?.meme.meme_id),
+        ...profile.deposited.map((m) => m.meme_id),
+      ]),
     )
       .map((meme_id) => {
+        if (meme_id == null) return;
         // try to get meme from unclaimedInfo
         const unclaimed = unclaimedInfo.find(
           (m) => m && m.meme.meme_id === meme_id,
@@ -749,8 +744,7 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
               projectedPoolStats: projectedPoolStats(unclaimed.meme),
             },
           };
-        // try to get meme from profile.coins_held
-        const meme = profile.coins_held.find((m) => m.meme_id === meme_id);
+        const meme = memeMap.get(meme_id);
         if (meme)
           return {
             token_id: getTokenId(meme),
@@ -779,17 +773,9 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
       );
 
     const revenue = account.income.map((income) => {
-      const meme = meme_map.get(income[0].toString());
       return {
-        token_id: income[0].toString(),
-        amount: income[1].toString(),
-        meme:
-          meme != null
-            ? {
-                ...meme,
-                projectedPoolStats: projectedPoolStats(meme),
-              }
-            : undefined,
+        token_id: income[0],
+        amount: income[1],
       };
     });
 
@@ -800,10 +786,16 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
       account,
       deposits,
       claims,
-      created: profile.coin_created.map((meme) => ({
-        ...meme,
-        projectedPoolStats: projectedPoolStats(meme),
-      })),
+      created: profile.created
+        .map(({ meme_id }) => {
+          const meme = memeMap.get(meme_id);
+          if (!meme) return;
+          return {
+            ...meme,
+            projectedPoolStats: projectedPoolStats(meme),
+          };
+        })
+        .filter((meme) => meme != null),
       revenue,
       shitstarClaim: new FixedNumber(account.shitstar_claim, 18),
       referralFees: new FixedNumber(profile.referral_fees, 24),
@@ -848,7 +840,6 @@ export type McAccount = {
   revenue: {
     token_id: string;
     amount: string;
-    meme: Meme | undefined;
   }[];
   shitstarClaim: FixedNumber;
   referralFees: FixedNumber;

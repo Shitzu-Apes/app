@@ -21,7 +21,6 @@ function projectedPoolStatsFromAuction(
 ): Readable<{ mcap: FixedNumber; liquidity: FixedNumber }> {
   return derived(nearPrice, (price) => {
     getNearPrice();
-    console.log("price", price);
 
     const pricePerTokenInNear = getProjectedMemePriceInNear(meme);
     const totalSupply = BigInt(meme.total_supply || 0);

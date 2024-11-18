@@ -13,7 +13,7 @@
   export let meme: Meme;
 </script>
 
-{#if meme.team_allocation_num && meme.team_allocation_num > 0 && meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now() && meme.owner === $accountId$}
+{#if meme.team_allocation != null && BigInt(meme.team_allocation) > 0n && meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now() && meme.owner === $accountId$}
   <div out:slide class="bg-gray-800 rounded-lg p-4 mb-4">
     <div class="grid grid-cols-3 gap-4">
       <div class="flex items-center justify-center">

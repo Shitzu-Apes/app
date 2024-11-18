@@ -52,9 +52,9 @@ export function filterAndSortMeme<T extends Meme>(
       return memes.sort((a, b) => {
         // Then sort by bump order
         if (sort.order === "asc") {
-          return a.last_change_ms - b.last_change_ms;
+          return Number(a.last_change_ms) - Number(b.last_change_ms);
         } else {
-          return b.last_change_ms - a.last_change_ms;
+          return Number(b.last_change_ms) - Number(a.last_change_ms);
         }
       });
     case "market cap":

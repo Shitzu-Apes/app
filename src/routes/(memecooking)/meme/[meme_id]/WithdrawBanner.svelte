@@ -53,7 +53,7 @@
           onSuccess: async (outcome) => {
             if (!outcome || !$accountId$) return;
             depositAmount = new FixedNumber(0n, meme.decimals);
-            const blockHeight = (await fetchBlockHeight(outcome)) + 3;
+            const blockHeight = await fetchBlockHeight(outcome);
             updateMcAccount($accountId$, true, blockHeight);
           },
         },

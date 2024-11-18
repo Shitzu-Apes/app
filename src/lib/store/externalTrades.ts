@@ -33,7 +33,6 @@ export function initializeExternalWebsocket() {
   ws.onmessage = (event) => {
     try {
       const data = ExternalTradeSchema.parse(JSON.parse(event.data));
-      console.log("[ExternalWebsocket] Received trade:", data);
       callbacks.forEach((callback) => {
         callback(data);
       });

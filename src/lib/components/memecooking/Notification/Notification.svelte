@@ -34,6 +34,7 @@
   }
 
   MCTradeSubscribe(Symbol("notification"), (newMemeInfo) => {
+    if (newMemeInfo.amount == null || newMemeInfo.fee == null) return;
     const amount = (
       BigInt(newMemeInfo.amount) + BigInt(newMemeInfo.fee)
     ).toString();

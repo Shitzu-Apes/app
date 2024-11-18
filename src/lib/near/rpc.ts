@@ -30,7 +30,7 @@ export async function fetchBlockHeight(
   const json = (await res.json()) as {
     result: { header: { height: number } };
   };
-  return json.result.header.height;
+  return json.result.header.height + outcome.receipts_outcome.length;
 }
 
 export async function checkIfAccountExists(token_id: string) {

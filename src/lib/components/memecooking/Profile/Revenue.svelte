@@ -7,7 +7,6 @@
 
   import Near from "$lib/assets/Near.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
-  import type { Meme } from "$lib/models/memecooking";
   import { Rewarder, wallet } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
   import { FixedNumber } from "$lib/util";
@@ -17,7 +16,6 @@
     | {
         token_id: string;
         amount: string;
-        meme: Meme | undefined;
       }[]
     | null = null;
   export let shitstarClaim: FixedNumber | null = null;

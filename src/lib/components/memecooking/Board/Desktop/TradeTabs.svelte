@@ -31,13 +31,15 @@
       const trades = trade.data.map((trade) => ({
         ...trade,
         tokenAmount: predictedTokenAmount({
-          amount: trade.amount,
+          amount: trade.amount!,
           total_deposit: meme.total_deposit,
           total_supply: meme.total_supply || undefined,
         }),
       }));
 
-      return trades.sort((a, b) => b.timestamp_ms - a.timestamp_ms);
+      return trades.sort(
+        (a, b) => Number(b.timestamp_ms) - Number(a.timestamp_ms),
+      );
     });
 </script>
 

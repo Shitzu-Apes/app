@@ -217,6 +217,7 @@
         ]);
         refreshNearBalance($accountId$);
         refreshTokenBalance($accountId$);
+        updateMcAccount($accountId$);
       },
     };
     if (activeTab === "buy") {
@@ -490,13 +491,7 @@
     </div>
 
     <Button
-      onClick={async () => {
-        await action();
-        if (!$accountId$) return;
-        await new Promise((resolve) => setTimeout(resolve, 5_000));
-        refreshNearBalance($accountId$);
-        updateMcAccount($accountId$);
-      }}
+      onClick={action}
       type="custom"
       disabled={$input$ == null || $input$.toNumber() == 0}
       class="{activeTab === 'buy'

@@ -4,7 +4,7 @@ export function getProjectedMemePriceInNear(meme: Meme): bigint {
   // Calculate liquidity pool allocation (delta = 1/1.98 of non-team allocation)
   const delta = 1 / 1.98;
   const teamAllocationBps =
-    (meme.team_allocation_num || 0) / (meme.total_supply_num || 1);
+    (Number(meme.team_allocation) || 0) / (Number(meme.total_supply) || 1);
   const teamAllocationPercent = teamAllocationBps;
   const nonTeamAllocationPercent = 1 - teamAllocationPercent;
   const liquidityPoolPercent = nonTeamAllocationPercent * delta;

@@ -117,7 +117,7 @@
     const ownAccountId = $accountId$;
     if (!ownAccountId) return;
     const blockHeight = await fetchBlockHeight(outcome);
-    updateMcAccount(ownAccountId, true, blockHeight + 5);
+    updateMcAccount(ownAccountId, true, blockHeight);
   }
 
   $: totalValue =

@@ -37,7 +37,8 @@
     const memes = $memebids$;
     if (memes.length > 0) {
       const firstMeme = memes.sort(
-        (a, b) => b.created_timestamp_ms - a.created_timestamp_ms,
+        (a, b) =>
+          Number(b.created_timestamp_ms) - Number(a.created_timestamp_ms),
       )[0];
       console.log("[MemeCreationNotification] meme", firstMeme);
       notification = {
@@ -45,7 +46,7 @@
         party: firstMeme.owner,
         ticker: firstMeme.symbol,
         icon: `${import.meta.env.VITE_IPFS_GATEWAY}/${firstMeme.image}`,
-        at: firstMeme.created_timestamp_ms,
+        at: Number(firstMeme.created_timestamp_ms),
       };
     }
   }
@@ -57,7 +58,7 @@
         party: newMemeInfo.owner,
         ticker: newMemeInfo.symbol,
         icon: `${import.meta.env.VITE_IPFS_GATEWAY}/${newMemeInfo.image}`,
-        at: newMemeInfo.created_timestamp_ms,
+        at: Number(newMemeInfo.created_timestamp_ms),
       };
     });
   });

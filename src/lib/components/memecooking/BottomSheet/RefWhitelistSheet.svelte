@@ -8,7 +8,7 @@
 
   const tokenId = getTokenId(meme);
   const launchDate = new Date(
-    (meme.end_timestamp_ms ?? meme.created_timestamp_ms) * 1000,
+    (meme.end_timestamp_ms ?? Number(meme.created_timestamp_ms)) * 1000,
   ).toLocaleDateString();
 
   let copied = false;
