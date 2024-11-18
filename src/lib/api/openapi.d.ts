@@ -70,7 +70,7 @@ export interface paths {
               total_memes: number;
               total_launched_memes: number;
               total_finalized_memes: number;
-              last_change_ms?: string | null;
+              last_change_ms: number | null;
             }[];
           };
         };
@@ -110,13 +110,13 @@ export interface paths {
             "application/json": {
               date: string;
               token_id: string;
-              total_volume: string;
-              total_deposits: string;
-              total_withdrawals: string;
-              total_protocol_fees: string;
-              total_referral_fees: string;
-              total_withdraw_fees: string;
-              last_change_ms?: string | null;
+              total_volume?: string | null;
+              total_deposits?: string | null;
+              total_withdrawals?: string | null;
+              total_protocol_fees?: string | null;
+              total_referral_fees?: string | null;
+              total_withdraw_fees?: string | null;
+              last_change_ms: number | null;
             }[];
           };
         };
@@ -171,21 +171,21 @@ export interface paths {
               name: string;
               symbol: string;
               decimals: number;
-              total_supply: string;
+              total_supply?: string | null;
               reference: string;
               reference_hash: string;
               deposit_token_id: string;
-              soft_cap: string;
-              hard_cap?: string;
-              last_change_ms: string;
+              soft_cap?: string | null;
+              hard_cap?: string | null;
+              last_change_ms: number | null;
               team_allocation?: string | null;
-              vesting_duration_ms?: string | null;
-              cliff_duration_ms?: string | null;
-              created_blockheight: string;
-              created_timestamp_ms: string;
-              total_deposit: string;
-              total_deposit_fees: string;
-              total_withdraw_fees: string;
+              vesting_duration_ms?: number | null;
+              cliff_duration_ms?: number | null;
+              created_blockheight?: string | null;
+              created_timestamp_ms: number | null;
+              total_deposit?: string | null;
+              total_deposit_fees?: string | null;
+              total_withdraw_fees?: string | null;
               is_finalized: boolean;
               token_id?: string | null;
               pool_id?: number | null;
@@ -242,21 +242,21 @@ export interface paths {
                 name: string;
                 symbol: string;
                 decimals: number;
-                total_supply: string;
+                total_supply?: string | null;
                 reference: string;
                 reference_hash: string;
                 deposit_token_id: string;
-                soft_cap: string;
-                hard_cap?: string;
-                last_change_ms: string;
+                soft_cap?: string | null;
+                hard_cap?: string | null;
+                last_change_ms: number | null;
                 team_allocation?: string | null;
-                vesting_duration_ms?: string | null;
-                cliff_duration_ms?: string | null;
-                created_blockheight: string;
-                created_timestamp_ms: string;
-                total_deposit: string;
-                total_deposit_fees: string;
-                total_withdraw_fees: string;
+                vesting_duration_ms?: number | null;
+                cliff_duration_ms?: number | null;
+                created_blockheight?: string | null;
+                created_timestamp_ms: number | null;
+                total_deposit?: string | null;
+                total_deposit_fees?: string | null;
+                total_withdraw_fees?: string | null;
                 is_finalized: boolean;
                 token_id?: string | null;
                 pool_id?: number | null;
@@ -309,10 +309,10 @@ export interface paths {
             "application/json": {
               meme_id: number;
               account_id: string;
-              is_deposit: boolean;
+              is_deposit?: boolean | null;
               amount?: string | null;
               fee?: string | null;
-              timestamp_ms?: string | null;
+              timestamp_ms: number | null;
               receipt_id: string;
             }[];
           };
@@ -651,60 +651,10 @@ export interface paths {
               meme_id: number;
               content: string;
               account_id: string;
-              created_at_ms?: number;
+              created_at_ms?: string;
               reply_to_id?: number;
             };
           };
-        };
-        /** @description Unauthorized */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/post-reply/like": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Like a reply
-     * @description Like a reply
-     */
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: {
-        content: {
-          "application/json": {
-            replyId: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Reply liked successfully */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
         };
         /** @description Unauthorized */
         401: {
@@ -750,23 +700,21 @@ export interface paths {
           };
           content: {
             "application/json": {
-              replies: {
+              id?: number;
+              meme_id: number;
+              content: string;
+              account_id: string;
+              created_at_ms: number | null;
+              reply_to_id?: number;
+              child_replies?: {
                 id?: number;
                 meme_id: number;
                 content: string;
                 account_id: string;
-                created_at_ms?: number;
+                created_at_ms: number | null;
                 reply_to_id?: number;
-                child_replies?: {
-                  id?: number;
-                  meme_id: number;
-                  content: string;
-                  account_id: string;
-                  created_at_ms?: number;
-                  reply_to_id?: number;
-                }[];
               }[];
-            };
+            }[];
           };
         };
         /** @description Internal Server Error */

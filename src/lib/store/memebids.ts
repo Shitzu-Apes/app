@@ -25,11 +25,13 @@ export function appendNewMeme(meme: Meme) {
   _memebids$.set(memes);
 }
 
-const MEME_ORDER_LOCAL_STORAGE_KEY = "meme_order";
+const MEME_ORDER_LOCAL_STORAGE_KEY = "meme_order_store";
 
 function pushMemeOrder(meme_id: number) {
-  const memeOrder = get(_memebids$);
-  const memeOrderSet = new Set(memeOrder.map((m) => m.meme_id));
+  const memeOrder = JSON.parse(
+    localStorage.getItem(MEME_ORDER_LOCAL_STORAGE_KEY) || "[]",
+  );
+  const memeOrderSet = new Set(memeOrder);
   memeOrderSet.delete(meme_id); // Remove if exists
   const newOrder = [meme_id, ...Array.from(memeOrderSet)]; // Add to front
   localStorage.setItem(MEME_ORDER_LOCAL_STORAGE_KEY, JSON.stringify(newOrder));
@@ -47,7 +49,7 @@ export function bumpMeme(meme_id: number) {
 
   const updatedMeme = {
     ...memes[index],
-    last_change_ms: new Date().toISOString(),
+    last_change_ms: Date.now(),
     animate: true,
     projectedPoolStats: projectedPoolStats(memes[index]),
   };
@@ -99,12 +101,11 @@ export async function updateMemebids() {
 
     // overwrite last_change_ms for memes in memeOrder
     const memesWithOrder = memes.map((meme) => {
-      if (memeOrder.includes(meme.meme_id)) {
+      const index = memeOrder.indexOf(meme.meme_id);
+      if (index !== -1) {
         return {
           ...meme,
-          last_change_ms: new Date(
-            Date.now() - memeOrder.indexOf(meme.meme_id) * 1000,
-          ).toISOString(),
+          last_change_ms: Date.now() - index * 1000,
         };
       }
       return meme;
@@ -135,10 +136,10 @@ export async function updateMemebids() {
         deposit_token_id: meme.deposit_token_id,
         soft_cap: "0",
         soft_cap_num: 0,
-        last_change_ms: new Date().toISOString(),
+        last_change_ms: Date.now(),
         total_supply_num: parseFloat(meme.total_supply),
         created_blockheight: "0",
-        created_timestamp_ms: "0",
+        created_timestamp_ms: 0,
         total_deposit: meme.total_staked,
         total_deposit_fees: "0",
         total_withdraw_fees: meme.total_withdrawal_fees,
