@@ -33,7 +33,7 @@
 
   const tabs = [
     { id: "all", label: "Menu" },
-    { id: "launched", label: "Served" },
+    { id: "launched", label: "Cooked" },
     { id: "other", label: "Imported" },
   ];
 
