@@ -128,7 +128,7 @@
               <span class="font-medium">
                 {#if $projectedPoolStats}
                   ${$projectedPoolStats.mcap.format({
-                    maximumFractionDigits: 1,
+                    maximumFractionDigits: 3,
                     notation: "compact",
                   })}
                 {:else}-{/if}
