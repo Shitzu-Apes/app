@@ -14,18 +14,22 @@
 
   const loading = writable(true);
   const memeStore = derived([page, memeMap$], ([page, memeMap]) => {
+    console.log("[meme::+page] memeMap", memeMap);
     loading.set(true);
     const externalMeme = getExternalMeme(page.params.meme_id);
     if (externalMeme) {
       loading.set(false);
+      console.log("[meme::+page] externalMeme", externalMeme);
       return externalMeme;
     }
     const meme = memeMap.get(Number(page.params.meme_id));
     loading.set(false);
     if (meme) {
+      console.log("[meme::+page] meme", meme);
       return meme;
     }
 
+    console.log("[meme::+page] getMeme", Number(page.params.meme_id));
     getMeme(Number(page.params.meme_id));
 
     return null;
