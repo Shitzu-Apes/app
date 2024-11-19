@@ -196,3 +196,33 @@ export function processTradeAndUpdateMemebids(trade: Meme & Trade) {
 
   return newMeme;
 }
+
+export async function getMeme(meme_id: number) {
+  console.log("[getMeme] meme_id", meme_id);
+  const response = await client.GET("/meme/{id}", {
+    params: {
+      path: { id: meme_id.toString() },
+    },
+  });
+
+  if (!response.data) return null;
+
+  const newMeme = {
+    ...response.data.meme,
+    projectedPoolStats: projectedPoolStats(response.data.meme),
+  };
+
+  const memes = get(_memebids$);
+  const index = memes.findIndex((m) => m.meme_id === meme_id);
+  if (index === -1) {
+    const updatedMemes = [...memes];
+    updatedMemes.push(newMeme);
+    _memebids$.set(updatedMemes);
+  } else {
+    const updatedMemes = [...memes];
+    updatedMemes[index] = newMeme;
+    _memebids$.set(updatedMemes);
+  }
+
+  return newMeme;
+}
