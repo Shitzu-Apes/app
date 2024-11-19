@@ -30,39 +30,6 @@ export function appendNewMeme(meme: Meme) {
   _memebids$.set([...memes]);
 }
 
-window.addEventListener("keydown", (event) => {
-  console.log("[memebids] keydown", event);
-  if (event.key !== "m") return;
-  const newMeme = {
-    meme_id: 168,
-    owner: "spareemail6210.testnet",
-    end_timestamp_ms: 1731993840295,
-    name: "ettt",
-    symbol: "etth",
-    decimals: 18,
-    total_supply: "1000000000000000000000000000",
-    reference: "QmNZi23vxkpjYrvz6VsrwNvr9tV9LyCDZSowLXu6f8uM8n",
-    reference_hash: "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
-    deposit_token_id: "wrap.testnet",
-    soft_cap: "100000000000000000000000000",
-    hard_cap: "500000000000000000000000000",
-    last_change_ms: 1731990240295,
-    created_blockheight: "179905365",
-    created_timestamp_ms: 1731990240295,
-    total_deposit: "0",
-    total_deposit_fees: "0",
-    total_withdraw_fees: "0",
-    is_finalized: false,
-    description: "etheth",
-    twitter_link: "",
-    telegram_link: "",
-    website: "",
-    image: "QmdtFmh2arJzpsEqKBDxYhBa4eSM9nALTpXoeWDYXZhfKs",
-    pool_id: null,
-  };
-  appendNewMeme(newMeme);
-});
-
 const MEME_ORDER_LOCAL_STORAGE_KEY = "meme_order_store";
 
 function pushMemeOrder(meme_id: number) {
@@ -236,7 +203,6 @@ export function processTradeAndUpdateMemebids(trade: Meme & Trade) {
 }
 
 export async function getMeme(meme_id: number) {
-  console.log("[getMeme] meme_id", meme_id);
   const response = await client.GET("/meme/{id}", {
     params: {
       path: { id: meme_id.toString() },
@@ -245,10 +211,12 @@ export async function getMeme(meme_id: number) {
 
   if (!response.data) return null;
 
+  const poolStats = projectedPoolStats(response.data.meme);
   const newMeme = {
     ...response.data.meme,
-    projectedPoolStats: projectedPoolStats(response.data.meme),
+    projectedPoolStats: poolStats,
   };
+  console.log("[getMeme] newMeme", get(newMeme.projectedPoolStats));
 
   const memes = get(_memebids$);
   const index = memes.findIndex((m) => m.meme_id === meme_id);

@@ -17,6 +17,7 @@
     loading.set(true);
     const externalMeme = getExternalMeme(page.params.meme_id);
     if (externalMeme) {
+      loading.set(false);
       return externalMeme;
     }
     const meme = memeMap.get(Number(page.params.meme_id));
