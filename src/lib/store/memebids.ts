@@ -21,9 +21,47 @@ export const memebidsError$ = writable<Error | null>(null);
 
 export function appendNewMeme(meme: Meme) {
   const memes = get(_memebids$);
-  memes.push(meme);
-  _memebids$.set(memes);
+  memes.push({
+    ...meme,
+    projectedPoolStats: projectedPoolStats(meme),
+    pool_id: null,
+  });
+  console.log("[appendNewMeme] memes", memes);
+  _memebids$.set([...memes]);
 }
+
+window.addEventListener("keydown", (event) => {
+  console.log("[memebids] keydown", event);
+  if (event.key !== "m") return;
+  const newMeme = {
+    meme_id: 168,
+    owner: "spareemail6210.testnet",
+    end_timestamp_ms: 1731993840295,
+    name: "ettt",
+    symbol: "etth",
+    decimals: 18,
+    total_supply: "1000000000000000000000000000",
+    reference: "QmNZi23vxkpjYrvz6VsrwNvr9tV9LyCDZSowLXu6f8uM8n",
+    reference_hash: "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
+    deposit_token_id: "wrap.testnet",
+    soft_cap: "100000000000000000000000000",
+    hard_cap: "500000000000000000000000000",
+    last_change_ms: 1731990240295,
+    created_blockheight: "179905365",
+    created_timestamp_ms: 1731990240295,
+    total_deposit: "0",
+    total_deposit_fees: "0",
+    total_withdraw_fees: "0",
+    is_finalized: false,
+    description: "etheth",
+    twitter_link: "",
+    telegram_link: "",
+    website: "",
+    image: "QmdtFmh2arJzpsEqKBDxYhBa4eSM9nALTpXoeWDYXZhfKs",
+    pool_id: null,
+  };
+  appendNewMeme(newMeme);
+});
 
 const MEME_ORDER_LOCAL_STORAGE_KEY = "meme_order_store";
 

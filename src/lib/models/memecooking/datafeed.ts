@@ -1,5 +1,7 @@
 // import { subscribeOnStream, unsubscribeFromStream } from "./streaming.js";
 
+import { get } from "svelte/store";
+
 import { client } from "$lib/api/client";
 import type {
   IBasicDataFeed,
@@ -7,6 +9,7 @@ import type {
   ResolutionString,
 } from "$lib/charting_library/charting_library";
 import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/MCWebSocket";
+import { memeMap$ } from "$lib/store/memebids";
 import { getProjectedMemePriceInNear } from "$lib/util/getProjectedMemePriceInNear";
 
 const lastBarsCache: Map<
@@ -42,24 +45,16 @@ const MemeCookingDataFeed: IBasicDataFeed = {
     onResolveErrorCallback,
   ) => {
     try {
-      const symbol = await client.GET("/meme/{id}", {
-        params: {
-          path: {
-            id: symbolName,
-          },
-        },
-      });
-
-      const { data } = symbol;
-      console.log("[resolveSymbol]: Symbol", data);
-      if (!data) {
+      const memeMap = get(memeMap$);
+      const meme = memeMap.get(Number(symbolName));
+      if (!meme) {
         throw new Error("Symbol not found");
       }
 
       const symbolInfo: LibrarySymbolInfo = {
-        ticker: data.meme.symbol,
-        name: data.meme.name,
-        description: data.meme.symbol || "",
+        ticker: meme.symbol,
+        name: meme.name,
+        description: meme.symbol || "",
         type: "crypto",
         session: "24x7",
         timezone: "Etc/UTC",
@@ -81,8 +76,8 @@ const MemeCookingDataFeed: IBasicDataFeed = {
         data_status: "streaming",
         listed_exchange: "MemeCooking",
         format: "price",
-        logo_urls: data.meme.image ? [data.meme.image] : undefined,
-        unit_id: data.meme.meme_id.toString(),
+        logo_urls: meme.image ? [meme.image] : undefined,
+        unit_id: meme.meme_id.toString(),
       };
 
       console.log("[resolveSymbol]: Symbol resolved", symbolName);

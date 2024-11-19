@@ -5,11 +5,12 @@
   import type { Meme } from "$lib/api/client";
 
   export let memebid: Meme;
-  export let touchToStart: boolean = false;
 </script>
 
 {#if memebid.pool_id}
   <DexscreenerChart pool_id={memebid.pool_id.toString()} />
 {:else}
-  <McChart {memebid} {touchToStart} />
+  {#key memebid.meme_id}
+    <McChart {memebid} />
+  {/key}
 {/if}
