@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { get } from "svelte/store";
+
   import Chef from "../Chef.svelte";
 
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
@@ -10,7 +12,7 @@
 
   export let memebid: Meme;
 
-  const { projectedPoolStats } = memebid;
+  $: projectedPoolStats = get(memebid.projectedPoolStats!);
 
   const twitterLink = memebid.twitter_link!;
   const telegramLink = memebid.telegram_link!;
@@ -75,8 +77,8 @@
             </span>
             <span class="text-memecooking-400 text-sm font-medium">MC:</span>
             <span class="font-medium">
-              {#if $projectedPoolStats}
-                ${$projectedPoolStats.mcap.format({
+              {#if projectedPoolStats}
+                ${projectedPoolStats.mcap.format({
                   maximumFractionDigits: 1,
                   notation: "compact",
                 })}
@@ -95,8 +97,8 @@
               >Liquidity:</span
             >
             <span class="font-medium">
-              {#if $projectedPoolStats}
-                ${$projectedPoolStats.liquidity.format({
+              {#if projectedPoolStats}
+                ${projectedPoolStats.liquidity.format({
                   maximumFractionDigits: 1,
                   notation: "compact",
                 })}

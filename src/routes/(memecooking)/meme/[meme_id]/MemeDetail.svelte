@@ -1,5 +1,6 @@
 <script lang="ts">
   import ClaimBanner from "./ClaimBanner.svelte";
+  import ProjectedPoolStat from "./ProjectedPoolStat.svelte";
   import RefWhitelistBanner from "./RefWhitelistBanner.svelte";
   import TokenAllocationBanner from "./TokenAllocationBanner.svelte";
   import WithdrawBanner from "./WithdrawBanner.svelte";
@@ -19,7 +20,6 @@
   import { getTokenId } from "$lib/util/getTokenId";
 
   export let meme: Meme;
-  const { projectedPoolStats } = meme;
 </script>
 
 <div class="w-full">
@@ -72,32 +72,7 @@
 
       <!-- Key Metrics -->
       <div class="flex items-center gap-6">
-        <div class="text-center">
-          <div class="text-sm text-gray-400">Liquidity</div>
-          <div class="font-bold text-xl">
-            {#if $projectedPoolStats}
-              ${$projectedPoolStats.liquidity.format({
-                maximumFractionDigits: 1,
-                notation: "compact",
-              })}
-            {:else}
-              -
-            {/if}
-          </div>
-        </div>
-        <div class="text-center">
-          <div class="text-sm text-gray-400">Market Cap</div>
-          <div class="font-bold text-xl">
-            {#if $projectedPoolStats}
-              ${$projectedPoolStats.mcap.format({
-                maximumFractionDigits: 1,
-                notation: "compact",
-              })}
-            {:else}
-              -
-            {/if}
-          </div>
-        </div>
+        <ProjectedPoolStat {meme} />
         <div class="text-center">
           <div class="text-sm text-gray-400">Created By</div>
           <Chef
