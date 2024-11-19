@@ -12,9 +12,8 @@
   $: totalSupply = new FixedNumber(meme.total_supply, meme.decimals);
   $: teamAllocationBps =
     BigInt(meme.team_allocation ?? "0") && BigInt(meme.total_supply ?? "0")
-      ? (BigInt(meme.team_allocation ?? "0") /
-          BigInt(meme.total_supply ?? "0")) *
-        10000n
+      ? (BigInt(meme.team_allocation ?? "0") * 10000n) /
+        BigInt(meme.total_supply ?? "0")
       : 0n;
   $: teamAllocationPercentage = Number(teamAllocationBps) / 100;
   $: teamAllocation = totalSupply.mul(
