@@ -38,6 +38,15 @@
     const amount = (
       BigInt(newMemeInfo.amount) + BigInt(newMemeInfo.fee)
     ).toString();
+
+    // Check if notification with this ID already exists
+    if (
+      notifications.some(
+        (n) => n.id + n.amount === newMemeInfo.receipt_id + newMemeInfo.amount,
+      )
+    )
+      return;
+
     notifications = [
       {
         id: newMemeInfo.receipt_id,

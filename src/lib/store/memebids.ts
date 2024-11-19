@@ -1,6 +1,6 @@
 import { derived, get, writable } from "svelte/store";
 
-import { client } from "$lib/api/client";
+import { client, type Trade } from "$lib/api/client";
 import { EXTERNAL_MEMES } from "$lib/external_memes";
 import { type Meme, type MemeInfo } from "$lib/models/memecooking";
 import { MemeCooking } from "$lib/near/memecooking";
@@ -170,15 +170,29 @@ export async function updateMemebids() {
   }
 }
 
-export async function updateProjectedMcap(meme_id: number) {
+export function processTradeAndUpdateMemebids(trade: Meme & Trade) {
   const memes = get(_memebids$);
-  const index = memes.findIndex((m) => m.meme_id === meme_id);
+  const index = memes.findIndex((m) => m.meme_id === trade.meme_id);
   if (index === -1) return;
 
+  const meme = memes[index];
+  const total_deposit = BigInt(meme.total_deposit || "0");
+  const amount = trade.is_deposit
+    ? BigInt(trade.amount || "0")
+    : -BigInt(trade.amount || "0") - BigInt(trade.fee || "0");
+  const newTotalDeposit = total_deposit + amount;
+
+  const newMeme = {
+    ...meme,
+    total_deposit: newTotalDeposit.toString(),
+  };
   const updatedMemes = [...memes];
   updatedMemes[index] = {
-    ...memes[index],
-    projectedPoolStats: projectedPoolStats(memes[index]),
+    ...newMeme,
+    projectedPoolStats: projectedPoolStats(newMeme),
   };
-  _memebids$.set([...updatedMemes]);
+
+  _memebids$.set(updatedMemes);
+
+  return newMeme;
 }

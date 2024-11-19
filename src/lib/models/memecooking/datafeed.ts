@@ -196,6 +196,7 @@ const MemeCookingDataFeed: IBasicDataFeed = {
 
       const priceInNear = getProjectedMemePriceInNear(data);
       const price = Number(priceInNear) / 1e24;
+      console.log("[subscribeBars]: Price", price);
       if (data.timestamp_ms! >= nextBarTime) {
         console.log("[subscribeBars]: Create new bar");
         bar = {

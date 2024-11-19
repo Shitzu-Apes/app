@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-
   import ClaimBanner from "./ClaimBanner.svelte";
   import RefWhitelistBanner from "./RefWhitelistBanner.svelte";
   import TokenAllocationBanner from "./TokenAllocationBanner.svelte";
@@ -18,20 +16,10 @@
   import TokenHolder from "$lib/components/memecooking/Board/TokenHolder.svelte";
   import Chef from "$lib/components/memecooking/Chef.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { MCTradeSubscribe } from "$lib/store/MCWebSocket";
   import { getTokenId } from "$lib/util/getTokenId";
 
   export let meme: Meme;
   const { projectedPoolStats } = meme;
-
-  const MCSymbol = Symbol();
-  onMount(() => {
-    MCTradeSubscribe(MCSymbol, (data) => {
-      if (data.meme_id === meme.meme_id) {
-        meme = data;
-      }
-    });
-  });
 </script>
 
 <div class="w-full">

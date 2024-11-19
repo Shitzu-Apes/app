@@ -1,7 +1,11 @@
 import { get, writable } from "svelte/store";
 
 import type { Meme, Trade } from "$lib/api/client";
-import { bumpMeme, memeMap$, updateProjectedMcap } from "$lib/store/memebids";
+import {
+  bumpMeme,
+  memeMap$,
+  processTradeAndUpdateMemebids,
+} from "$lib/store/memebids";
 
 type LiveData =
   | {
@@ -19,6 +23,13 @@ export function initializeWebsocket(ws: WebSocket) {
   ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
     console.log("[ws.onmessage]:", data);
+    if (data.action === "new_trade") {
+      const newMeme = processTradeAndUpdateMemebids(data.data)!;
+      data.data = {
+        ...data.data,
+        ...newMeme,
+      };
+    }
     callbacks.forEach((callback) => {
       callback(data);
     });
@@ -38,8 +49,10 @@ export function MCTradeSubscribe(
       const trade: Trade = data.data;
       const meme = get(memeMap$).get(trade.meme_id);
       if (meme) {
-        callback({ ...meme, ...trade });
-        updateProjectedMcap(Number(meme.meme_id));
+        callback({
+          ...meme,
+          ...trade,
+        });
       }
     }
   };

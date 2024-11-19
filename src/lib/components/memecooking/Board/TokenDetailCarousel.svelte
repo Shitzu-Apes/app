@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-
   import ClaimBanner from "../../../../routes/(memecooking)/meme/[meme_id]/ClaimBanner.svelte";
   import RefWhitelistBanner from "../../../../routes/(memecooking)/meme/[meme_id]/RefWhitelistBanner.svelte";
   import TokenAllocationBanner from "../../../../routes/(memecooking)/meme/[meme_id]/TokenAllocationBanner.svelte";
@@ -20,19 +18,9 @@
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
-  import { MCTradeSubscribe } from "$lib/store/MCWebSocket";
   const { accountId$ } = wallet;
 
   export let meme: Meme;
-
-  const MCSymbol = Symbol();
-  onMount(() => {
-    MCTradeSubscribe(MCSymbol, (data) => {
-      if (data.meme_id === meme.meme_id) {
-        meme = data;
-      }
-    });
-  });
 </script>
 
 <div class="flex-[1_1_0] flex flex-col items-stretch pb-30">
