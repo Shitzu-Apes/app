@@ -5,6 +5,11 @@
 
   export let meme: Meme;
   $: projectedPoolStats = get(meme.projectedPoolStats!);
+
+  $: console.log(
+    "[meme::ProjectedPoolStat] projectedPoolStats",
+    projectedPoolStats,
+  );
 </script>
 
 <div class="flex items-center gap-6">

@@ -1,4 +1,4 @@
-import { derived, writable, type Readable, type Writable } from "svelte/store";
+import { derived, writable, type Readable } from "svelte/store";
 
 import { FixedNumber } from "./FixedNumber";
 import { getProjectedMemePriceInNear } from "./getProjectedMemePriceInNear";
@@ -6,101 +6,61 @@ import { getProjectedMemePriceInNear } from "./getProjectedMemePriceInNear";
 import type { Meme } from "$lib/api/client";
 import { Ref } from "$lib/near";
 
+// Centralized store for token prices
+const tokenPrices = writable<
+  Map<number, { mcap: FixedNumber; liquidity: FixedNumber }>
+>(new Map());
+
 export function projectedPoolStats(
   meme: Meme,
 ): Readable<{ mcap: FixedNumber; liquidity: FixedNumber }> {
-  if (meme.pool_id) {
-    return projectedPoolStatsFromRef(meme);
-  } else {
-    return projectedPoolStatsFromAuction(meme);
-  }
+  return derived([tokenPrices, nearPrice], ([$tokenPrices, $nearPrice]) => {
+    if (!$tokenPrices.has(meme.meme_id)) {
+      updateTokenPrice(meme);
+    }
+    return (
+      $tokenPrices.get(meme.meme_id) || {
+        mcap: new FixedNumber(0n, 0).mul(new FixedNumber($nearPrice, 24)),
+        liquidity: new FixedNumber(0n, 0).mul(new FixedNumber($nearPrice, 24)),
+      }
+    );
+  });
 }
 
-function projectedPoolStatsFromAuction(
-  meme: Meme,
-): Readable<{ mcap: FixedNumber; liquidity: FixedNumber }> {
-  return derived(nearPrice, (price) => {
-    getNearPrice();
+async function updateTokenPrice(meme: Meme) {
+  let mcap: FixedNumber;
+  let liquidity: FixedNumber;
 
+  if (meme.pool_id) {
+    const stats = await getPoolStats(meme.pool_id, meme.decimals);
+    const totalSupplyBigInt = BigInt(meme.total_supply!);
+    mcap = new FixedNumber(
+      stats.price * totalSupplyBigInt,
+      meme.decimals + 24,
+    ).mul(new FixedNumber(await getNearPrice(), 24));
+    liquidity = new FixedNumber(stats.liquidity, 24).mul(
+      new FixedNumber(await getNearPrice(), 24),
+    );
+  } else {
     const pricePerTokenInNear = getProjectedMemePriceInNear(meme);
     const totalSupply = BigInt(meme.total_supply || 0);
-
-    // Convert to USD using NEAR price and multiply by total supply
-    const mcap = new FixedNumber(
+    mcap = new FixedNumber(
       pricePerTokenInNear * totalSupply,
       24 + meme.decimals,
-    ).mul(new FixedNumber(price, 24));
-
-    const liquidity = new FixedNumber(BigInt(meme.total_deposit!) * 2n, 24).mul(
-      new FixedNumber(price, 24),
+    ).mul(new FixedNumber(await getNearPrice(), 24));
+    liquidity = new FixedNumber(BigInt(meme.total_deposit!) * 2n, 24).mul(
+      new FixedNumber(await getNearPrice(), 24),
     );
+  }
 
-    return { mcap, liquidity };
-  });
-}
-
-function projectedPoolStatsFromRef(
-  meme: Pick<Meme, "pool_id" | "total_supply" | "decimals">,
-): Readable<{ mcap: FixedNumber; liquidity: FixedNumber }> {
-  if (!meme.pool_id) throw new Error();
-  const tokenPrice = writable<{ price: bigint; liquidity: bigint }>({
-    price: 0n,
-    liquidity: 0n,
-  });
-  getPoolStats(meme.pool_id, meme.decimals).then((stats) =>
-    tokenPrice.set(stats),
-  );
-
-  return derived([nearPrice, tokenPrice], ([$nearPrice, $tokenPrice]) => {
-    getNearPrice();
-    const mcap = new FixedNumber(
-      $tokenPrice.price * BigInt(meme.total_supply!),
-      meme.decimals + 24,
-    ).mul(new FixedNumber($nearPrice, 24));
-
-    const liquidity = new FixedNumber($tokenPrice.liquidity, 24).mul(
-      new FixedNumber($nearPrice, 24),
-    );
-
-    return { mcap, liquidity };
-  });
-}
-
-export function projectedMCapFromPool(
-  meme: Pick<Meme, "pool_id" | "total_supply" | "decimals">,
-): Readable<FixedNumber> {
-  if (!meme.pool_id) throw new Error();
-  const tokenPrice = writable<bigint>(0n);
-  getPoolStats(meme.pool_id, meme.decimals).then(({ price }) =>
-    tokenPrice.set(price),
-  );
-
-  return derived([nearPrice, tokenPrice], ([$nearPrice, $tokenPrice]) => {
-    getNearPrice();
-    return new FixedNumber(
-      $tokenPrice * BigInt(meme.total_supply!),
-      meme.decimals + 24,
-    ).mul(new FixedNumber($nearPrice, 24));
+  tokenPrices.update((prices) => {
+    prices.set(meme.meme_id, { mcap, liquidity });
+    return prices;
   });
 }
 
 export function projectedMCap(meme: Meme): Readable<FixedNumber> {
-  if (meme.pool_id) {
-    return projectedMCapFromPool(meme);
-  } else {
-    return derived(nearPrice, (price) => {
-      getNearPrice();
-
-      const pricePerTokenInNear = getProjectedMemePriceInNear(meme);
-      const totalSupply = BigInt(meme.total_supply || 0);
-
-      // Convert to USD using NEAR price and multiply by total supply
-      return new FixedNumber(
-        pricePerTokenInNear * totalSupply,
-        24 + meme.decimals,
-      ).mul(new FixedNumber(price, 24));
-    });
-  }
+  return derived(projectedPoolStats(meme), (stats) => stats.mcap);
 }
 
 async function getPoolStats(
@@ -134,14 +94,14 @@ export const nearPrice = writable<bigint>(0n);
 
 let cachePrice = { price: 0n, expiry: 0 };
 
-export async function getNearPrice(): Promise<Writable<bigint>> {
+export async function getNearPrice(): Promise<bigint> {
   if (import.meta.env.VITE_NETWORK_ID === "testnet") {
-    nearPrice.set(5n * BigInt(1e24));
-    return nearPrice;
+    const price = 5n * BigInt(1e24);
+    nearPrice.set(price);
+    return price;
   }
   if (cachePrice.expiry > Date.now()) {
-    nearPrice.set(cachePrice.price);
-    return nearPrice;
+    return cachePrice.price;
   }
 
   try {
@@ -153,12 +113,11 @@ export async function getNearPrice(): Promise<Writable<bigint>> {
       price,
       expiry: Date.now() + 1000 * 60 * 5,
     };
-    nearPrice.set(cachePrice.price);
-    return nearPrice;
+    nearPrice.set(price);
+    return price;
   } catch (error) {
     if (cachePrice.price !== 0n) {
-      nearPrice.set(cachePrice.price);
-      return nearPrice;
+      return cachePrice.price;
     }
     throw error;
   }
