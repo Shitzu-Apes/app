@@ -391,7 +391,7 @@
     hard_cap: hardCap,
     team_allocation:
       teamAllocation && team_allocation_num
-        ? team_allocation_num.toString()
+        ? BigInt(team_allocation_num).toString()
         : null,
     vesting_duration_ms: teamAllocation?.vestingDurationMs,
     cliff_duration_ms: teamAllocation?.cliffDurationMs,
@@ -410,6 +410,8 @@
     last_change_ms: Date.now(),
     created_blockheight: "0",
   } as Meme;
+
+  $: console.log("[create::+page] memebid", memebid);
 </script>
 
 <!-- listen for ctrl + v the image -->

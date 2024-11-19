@@ -191,7 +191,7 @@
         bind:this={scrollContainer}
         class="w-full flex flex-col gap-2 flex-1 h-0 max-h-[50rem] overflow-auto scrollbar-none py-2"
       >
-        {#each data as reply}
+        {#each data.sort((a, b) => (a.created_at_ms ?? 0) - (b.created_at_ms ?? 0)) as reply}
           <TokenComment
             reply={{
               account_id: reply.account_id,
