@@ -23,9 +23,8 @@
       return externalMeme;
     }
     const meme = memeMap.get(Number(page.params.meme_id));
-    loading.set(false);
     if (meme) {
-      console.log("[meme::+page] meme", meme);
+      loading.set(false);
       return meme;
     }
 
