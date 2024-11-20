@@ -1,8 +1,5 @@
 <script lang="ts">
-  import TwitterVerificationSheet from "../BottomSheet/TwitterVerificationSheet.svelte";
-
   import type { Meme } from "$lib/api/client";
-  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
 
   export let meme: Meme;
 
@@ -35,13 +32,6 @@
           >
             {twitterLink.replace(/https:\/\/(twitter|x)\.com\//, "")}
           </a>
-          <button
-            on:click={() => {
-              openBottomSheet(TwitterVerificationSheet, { meme });
-            }}
-          >
-            <div class="i-mdi:twitter text-memecooking-400" />
-          </button>
         {/if}
       </div>
     {/if}

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import TwitterVerificationBanner from "../../create/TwitterVerificationBanner.svelte";
+
   import ClaimBanner from "./ClaimBanner.svelte";
   import ProjectedPoolStat from "./ProjectedPoolStat.svelte";
   import RefWhitelistBanner from "./RefWhitelistBanner.svelte";
@@ -101,6 +103,7 @@
     <!-- Right Column - Actions & Info -->
     <div class="space-y-4">
       <!-- Admin Actions -->
+      <TwitterVerificationBanner {meme} />
       <RefWhitelistBanner {meme} />
       <WithdrawBanner {meme} />
       <ClaimBanner {meme} />

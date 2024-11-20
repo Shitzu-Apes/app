@@ -1,4 +1,5 @@
 <script lang="ts">
+  import TwitterVerificationBanner from "../../../../routes/(memecooking)/create/TwitterVerificationBanner.svelte";
   import ClaimBanner from "../../../../routes/(memecooking)/meme/[meme_id]/ClaimBanner.svelte";
   import RefWhitelistBanner from "../../../../routes/(memecooking)/meme/[meme_id]/RefWhitelistBanner.svelte";
   import TokenAllocationBanner from "../../../../routes/(memecooking)/meme/[meme_id]/TokenAllocationBanner.svelte";
@@ -49,6 +50,7 @@
   <!-- Banners -->
   <div class="flex flex-col w-full px-2">
     <!-- Admin Actions -->
+    <TwitterVerificationBanner {meme} />
     <RefWhitelistBanner {meme} />
     <WithdrawBanner {meme} />
     <ClaimBanner {meme} />
