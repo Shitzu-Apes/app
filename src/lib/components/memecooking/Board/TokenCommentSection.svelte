@@ -198,13 +198,13 @@
               id: reply.id ?? 0,
               content: reply.content,
               created_at_ms: reply.created_at_ms ?? 0,
-              reply_to_id: reply.reply_to_id,
+              reply_to_id: reply.reply_to_id ?? undefined,
               child_replies: reply.child_replies?.map((child) => ({
                 account_id: child.account_id,
                 id: child.id ?? 0,
                 content: child.content,
                 created_at_ms: child.created_at_ms ?? 0,
-                reply_to_id: child.reply_to_id,
+                reply_to_id: child.reply_to_id ?? undefined,
               })),
             }}
             owner={meme.owner}

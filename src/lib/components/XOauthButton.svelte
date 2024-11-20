@@ -5,6 +5,8 @@
   const REDIRECT_URI =
     import.meta.env.VITE_MEME_COOKING_API + "/auth/x-callback";
 
+  export let memeId: number;
+
   async function generateCodeChallenge(verifier: string) {
     const encoder = new TextEncoder();
     const data = encoder.encode(verifier);
@@ -27,9 +29,7 @@
     const codeChallenge = await generateCodeChallenge(codeVerifier);
 
     // Store code verifier in sessionStorage
-    sessionStorage.setItem("code_verifier", codeVerifier);
     document.cookie = `code_verifier=${codeVerifier}; path=/;`;
-    console.log("code_verifier", document.cookie);
 
     // Build authorization URL
     const params = new URLSearchParams({
@@ -37,7 +37,7 @@
       client_id: TWITTER_CLIENT_ID,
       redirect_uri: REDIRECT_URI,
       scope: "tweet.read users.read offline.access",
-      state: "state",
+      state: memeId.toString(),
       code_challenge: codeChallenge,
       code_challenge_method: "S256",
     });

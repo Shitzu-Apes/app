@@ -124,11 +124,7 @@
         </h3>
         <p class="text-gray-300 mb-4">{meme.description}</p>
         <!-- Social Links -->
-        <SocialLink
-          twitterLink={meme.twitter_link || ""}
-          telegramLink={meme.telegram_link || ""}
-          website={meme.website || ""}
-        />
+        <SocialLink {meme} />
       </div>
 
       <!-- Token Holders -->
