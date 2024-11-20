@@ -9,10 +9,7 @@
   let className: string = "";
   export { className as class };
   $: totalSupply = new FixedNumber(meme.total_supply, meme.decimals);
-  $: totalDeposit = new FixedNumber(
-    (BigInt(meme.total_deposit!) * 98n) / 100n,
-    24,
-  );
+  $: totalDeposit = new FixedNumber(BigInt(meme.total_deposit!), 24);
   $: softCap = new FixedNumber(meme.soft_cap ?? "0", 24);
   $: hardCap = new FixedNumber(meme.hard_cap ?? "0", 24);
   $: hardCapEnabled = BigInt(meme.hard_cap ?? "0") > 0n;
