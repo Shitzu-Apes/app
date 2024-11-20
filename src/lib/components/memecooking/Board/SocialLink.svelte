@@ -1,4 +1,6 @@
 <script lang="ts">
+  import XOauthButton from "$lib/components/XOauthButton.svelte";
+
   export let twitterLink: string;
   export let telegramLink: string;
   export let website: string;
@@ -20,6 +22,7 @@
         >
           {twitterLink.replace(/https:\/\/(twitter|x)\.com\//, "")}
         </a>
+        <XOauthButton />
       </div>
     {/if}
 
