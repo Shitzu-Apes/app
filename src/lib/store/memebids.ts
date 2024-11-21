@@ -159,6 +159,7 @@ export async function updateMemebids() {
         coronated_at_ms: null,
         replies_count: 0,
         staker_count: 0,
+        twitter_verified: false,
       }));
       EXTERNAL_MEMES.forEach((meme) => {
         console.log("[updateMemebids::EXTERNAL_MEMES] meme", meme);
