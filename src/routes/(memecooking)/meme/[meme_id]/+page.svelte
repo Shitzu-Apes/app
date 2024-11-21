@@ -1,10 +1,12 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { derived, writable } from "svelte/store";
 
   import MemeDetail from "./MemeDetail.svelte";
 
   import { page } from "$app/stores";
+  import { getXCallbackParams } from "$lib/auth/x-callback";
+  import { addToast } from "$lib/components/Toast.svelte";
   import LoadingLambo from "$lib/components/memecooking/Board/LoadingLambo.svelte";
   import TokenDetailCarousel from "$lib/components/memecooking/Board/TokenDetailCarousel.svelte";
   import { getExternalMeme } from "$lib/external_memes";
@@ -56,6 +58,34 @@
       }, 1000) as unknown as number;
     });
   }
+
+  onMount(() => {
+    const url = new URL(window.location.href);
+    const params = getXCallbackParams(url);
+
+    if (!params) {
+      return;
+    }
+
+    const { status, message } = params;
+    // remove params from url
+    url.searchParams.delete("status");
+    url.searchParams.delete("message");
+    window.history.replaceState({}, document.title, url.toString());
+
+    addToast({
+      data: {
+        type: "simple",
+        data: {
+          title:
+            "Twitter Verification " +
+            (status === "error" ? "Error" : "Success"),
+          description: message,
+          color: status === "error" ? "red" : "green",
+        },
+      },
+    });
+  });
 
   onDestroy(() => {
     clearInterval(interval);

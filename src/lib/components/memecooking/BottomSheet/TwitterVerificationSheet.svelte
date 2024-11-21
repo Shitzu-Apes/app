@@ -104,7 +104,7 @@
           step 2: <strong class="text-shitzu-4">connect Twitter:</strong> link your
           Twitter account to verify your meme
         </span>
-        <XOauthButton memeId={meme.meme_id} />
+        <XOauthButton {meme} />
       </div>
     {/if}
   </section>
