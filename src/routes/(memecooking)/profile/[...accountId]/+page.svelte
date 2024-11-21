@@ -14,7 +14,7 @@
   import MemeList from "$lib/components/memecooking/Profile/MemeList.svelte";
   import Revenue from "$lib/components/memecooking/Profile/Revenue.svelte";
   import { wallet } from "$lib/near";
-  import { nearBalance } from "$lib/near/balance";
+  import { wrappedNearBalance, nearBalance } from "$lib/near/balance";
   import {
     fetchMcAccount,
     mcAccount$,
@@ -124,14 +124,15 @@
     portfolio?.tokens.reduce(
       (acc, token) => {
         const decimals =
-          token.contract_id === "wrap.near" ? 24 : token.decimals ?? 18;
+          token.contract_id === import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID ? 24 : token.decimals ?? 18;
         const balance = Number(token.balance) / 10 ** decimals;
         const price = token.price
           ? (token.price * Number($nearPrice)) / 1e24
           : 0;
         return acc + balance * price;
       },
-      $nearBalance ? ($nearBalance.toNumber() * Number($nearPrice)) / 1e24 : 0,
+      ($nearBalance ? ($nearBalance.toNumber() * Number($nearPrice)) / 1e24 : 0) +
+      ($wrappedNearBalance ? ($wrappedNearBalance.toNumber() * Number($nearPrice)) / 1e24 : 0)
     ) ?? 0;
 </script>
 
@@ -143,7 +144,7 @@
   Back
 </a>
 
-<section class="w-full flex flex-col items-center justify-center px-1">
+<section class="w-full flex flex-col items-center justify-center">
   <!-- Welcome Banner -->
   <div class="w-full bg-gray-800 rounded-lg p-4 sm:p-6 mb-8">
     <div
