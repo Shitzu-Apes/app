@@ -1,5 +1,8 @@
 <script lang="ts">
-  import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
+  import type {
+    Action,
+    FinalExecutionOutcome,
+  } from "@near-wallet-selector/core";
   import { writable } from "svelte/store";
 
   import { addToast } from "../../Toast.svelte";
@@ -45,18 +48,18 @@
     const tokenId = getTokenId(meme);
     const isRegistered = await Ft.isUserRegistered(tokenId, recipientId);
 
+    const actions: Action[] = [];
     if (!isRegistered) {
-      addToast({
-        data: {
-          type: "simple",
-          data: {
-            title: "Error",
-            description: "Recipient account is not registered for this token",
-            color: "red",
-          },
+      const deposit = await Ft.storageRequirement(tokenId);
+      actions.push({
+        type: "FunctionCall",
+        params: {
+          methodName: "storage_deposit",
+          args: {},
+          gas: 20_000_000_000_000n.toString(),
+          deposit,
         },
       });
-      return;
     }
 
     const callback: TransactionCallbacks<FinalExecutionOutcome[]> = {
@@ -78,27 +81,25 @@
         refreshTokenBalance($accountId$);
       },
     };
-
+    actions.push({
+      type: "FunctionCall",
+      params: {
+        methodName: "ft_transfer",
+        args: {
+          receiver_id: recipientId,
+          amount: $input$.toU128(),
+        },
+        gas: "30000000000000",
+        deposit: "1",
+      },
+    });
     try {
       await wallet.signAndSendTransactions(
         {
           transactions: [
             {
               receiverId: tokenId,
-              actions: [
-                {
-                  type: "FunctionCall",
-                  params: {
-                    methodName: "ft_transfer",
-                    args: {
-                      receiver_id: recipientId,
-                      amount: $input$.toU128(),
-                    },
-                    gas: "30000000000000",
-                    deposit: "1",
-                  },
-                },
-              ],
+              actions,
             },
           ],
         },
