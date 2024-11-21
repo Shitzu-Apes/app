@@ -10,29 +10,30 @@
 
 <div class="">
   <div class="flex flex-col gap-4">
-    {#if twitterLink && (twitterLink.startsWith("https://twitter.com/") || twitterLink.startsWith("https://x.com/"))}
+    {#if meme.twitter_verified}
       <div class="flex items-center gap-1">
         <span class="text-memecooking-400 text-sm font-medium">𝕏:</span>
-        {#if meme.twitter_verified}
-          <a
-            href={`https://x.com/intent/user?user_id=${meme.twitter_user_id}`}
-            class="text-blue-400 underline text-sm hover:text-shitzu-4 truncate flex items-center"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {meme.twitter_username}
-            <div class="i-mdi:check-decagram text-memecooking-400 ml-1" />
-          </a>
-        {:else}
-          <a
-            href={twitterLink}
-            class="text-blue-400 underline text-sm hover:text-shitzu-4 truncate"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {twitterLink.replace(/https:\/\/(twitter|x)\.com\//, "")}
-          </a>
-        {/if}
+        <a
+          href={`https://x.com/intent/user?user_id=${meme.twitter_user_id}`}
+          class="text-blue-400 underline text-sm hover:text-shitzu-4 truncate flex items-center"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {meme.twitter_username}
+          <div class="i-mdi:check-decagram text-memecooking-400 ml-1" />
+        </a>
+      </div>
+    {:else if twitterLink && (twitterLink.startsWith("https://twitter.com/") || twitterLink.startsWith("https://x.com/"))}
+      <div class="flex items-center gap-1">
+        <span class="text-memecooking-400 text-sm font-medium">𝕏:</span>
+        <a
+          href={twitterLink}
+          class="text-blue-400 underline text-sm hover:text-shitzu-4 truncate"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {twitterLink.replace(/https:\/\/(twitter|x)\.com\//, "")}
+        </a>
       </div>
     {/if}
 
