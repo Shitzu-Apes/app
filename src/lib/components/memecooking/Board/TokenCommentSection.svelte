@@ -32,7 +32,7 @@
   let scrollContainer: HTMLDivElement;
   let postingReply: boolean = false;
 
-  let replies = client
+  $: replies = client
     .GET("/get-replies/replies/{memeId}", {
       params: {
         path: {
