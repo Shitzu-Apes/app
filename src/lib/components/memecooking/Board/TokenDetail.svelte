@@ -145,7 +145,23 @@
             </div>
           {/if}
 
-          {#if twitterLink && (twitterLink.startsWith("https://twitter.com/") || twitterLink.startsWith("https://x.com/"))}
+          {#if memebid.twitter_verified}
+            <div class="flex items-center gap-1">
+              <span class="w-6 flex justify-center flex-shrink-0">
+                <div class="i-mdi:twitter text-memecooking-400" />
+              </span>
+              <span class="text-memecooking-400 text-sm font-medium">𝕏:</span>
+              <a
+                href={`https://x.com/intent/user?user_id=${memebid.twitter_user_id}`}
+                class="text-blue-400 underline text-sm hover:text-shitzu-4 truncate flex items-center"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {memebid.twitter_username}
+                <div class="i-mdi:check-decagram text-memecooking-400 ml-1" />
+              </a>
+            </div>
+          {:else if twitterLink && (twitterLink.startsWith("https://twitter.com/") || twitterLink.startsWith("https://x.com/"))}
             <div class="flex items-center gap-1">
               <span class="w-6 flex justify-center flex-shrink-0">
                 <div class="i-mdi:twitter text-memecooking-400" />
