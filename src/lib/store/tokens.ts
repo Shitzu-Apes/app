@@ -3,10 +3,8 @@ import { match, P } from "ts-pattern";
 
 import type { FungibleTokenMetadata } from "$lib/abi";
 import BlackDragonLogo from "$lib/assets/logo/blackdragon.png";
-import IntearLogo from "$lib/assets/logo/intear.jpeg";
+import HijackLogo from "$lib/assets/logo/hijack.webp";
 import LonkLogo from "$lib/assets/logo/lonk.png";
-import NDCLogo from "$lib/assets/logo/ndc.jpeg";
-import PussyLogo from "$lib/assets/logo/pussy.webp";
 import ShitzuLogo from "$lib/assets/logo/shitzu.webp";
 import { Ft, Ref, type PoolInfo } from "$lib/near";
 
@@ -22,7 +20,6 @@ type PoolConfig = {
   denom:
     | "wrap.near"
     | "blackdragon.tkn.near"
-    | "ftv2.nekotoken.near"
     | "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1"
     | "a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near";
 };
@@ -33,18 +30,11 @@ type PoolIdsType = {
   "token.0xshitzu.near": PoolConfig;
   "blackdragon.tkn.near": PoolConfig;
   "token.lonkingnearbackto2024.near": PoolConfig;
-  "intel.tkn.near": PoolConfig;
-  "nearnvidia.near": PoolConfig;
-  "ndc.tkn.near": PoolConfig;
-  "avb.tkn.near": PoolConfig;
+  "hijack-252.meme-cooking.near": PoolConfig;
+  "4illia-222.meme-cooking.near": PoolConfig;
+  "gnear-229.meme-cooking.near": PoolConfig;
   "avb.tknx.near": PoolConfig;
-  "poppy-0.meme-cooking-test.near": PoolConfig;
-  "pussy.laboratory.jumpfinance.near": PoolConfig;
-  "babyblackdragon.tkn.near": PoolConfig;
-  "bean.tkn.near": PoolConfig;
-  "slush.tkn.near": PoolConfig;
-  "hat.tkn.near": PoolConfig;
-  "ftv2.nekotoken.near": PoolConfig;
+  "crans.tkn.near": PoolConfig;
 };
 
 export type TokenId = keyof PoolIdsType;
@@ -58,26 +48,16 @@ const poolIds: PoolIdsType = {
   "token.0xshitzu.near": { poolId: 4369, denom: "wrap.near" },
   "blackdragon.tkn.near": { poolId: 4276, denom: "wrap.near" },
   "token.lonkingnearbackto2024.near": { poolId: 4314, denom: "wrap.near" },
-  "intel.tkn.near": { poolId: 4663, denom: "wrap.near" },
-  "nearnvidia.near": { poolId: 4547, denom: "wrap.near" },
-  "ndc.tkn.near": { poolId: 4353, denom: "blackdragon.tkn.near" },
-  "avb.tkn.near": { poolId: 20, denom: "wrap.near" },
+  "hijack-252.meme-cooking.near": { poolId: 5519, denom: "wrap.near" },
+  "4illia-222.meme-cooking.near": { poolId: 5494, denom: "wrap.near" },
+  "gnear-229.meme-cooking.near": { poolId: 5502, denom: "wrap.near" },
   "avb.tknx.near": { poolId: 5315, denom: "wrap.near" },
-  "poppy-0.meme-cooking-test.near": { poolId: 5404, denom: "wrap.near" },
-  "pussy.laboratory.jumpfinance.near": { poolId: 4829, denom: "wrap.near" },
-  "babyblackdragon.tkn.near": { poolId: 4840, denom: "wrap.near" },
-  "bean.tkn.near": { poolId: 4473, denom: "ftv2.nekotoken.near" },
-  "slush.tkn.near": { poolId: 4623, denom: "wrap.near" },
-  "hat.tkn.near": { poolId: 5179, denom: "wrap.near" },
-  "ftv2.nekotoken.near": {
-    poolId: 3804,
-    denom: "a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near",
-  },
+  "crans.tkn.near": { poolId: 5423, denom: "wrap.near" },
 };
 
 export function getTokenSortIndex(tokenId: string): number {
   if (!isKeyOf(tokenSortIndex, tokenId)) {
-    return 1_000;
+    return -1;
   }
   return tokenSortIndex[tokenId];
 }
@@ -86,18 +66,11 @@ const tokenSortIndex: Record<keyof PoolIdsType, number> = {
   "token.0xshitzu.near": 1_000,
   "blackdragon.tkn.near": 800,
   "token.lonkingnearbackto2024.near": 799,
-  "ndc.tkn.near": 500,
+  "hijack-252.meme-cooking.near": 700,
+  "4illia-222.meme-cooking.near": 699,
+  "gnear-229.meme-cooking.near": 698,
   "avb.tknx.near": 300,
-  "poppy-0.meme-cooking-test.near": 299,
-  "intel.tkn.near": 250,
-  "nearnvidia.near": 249,
-  "avb.tkn.near": 200,
-  "pussy.laboratory.jumpfinance.near": 199,
-  "babyblackdragon.tkn.near": 198,
-  "bean.tkn.near": 197,
-  "slush.tkn.near": 196,
-  "hat.tkn.near": 195,
-  "ftv2.nekotoken.near": -1,
+  "crans.tkn.near": 299,
 };
 
 // Now define the refPrices$ with mutable keys and auto-completion
@@ -129,10 +102,6 @@ const refPrices$ = readable<
           const token_id = token_ids[i] as keyof PoolIdsType;
           if (token_id === "blackdragon.tkn.near") {
             meta.icon = BlackDragonLogo;
-          } else if (token_id === "pussy.laboratory.jumpfinance.near") {
-            meta.icon = PussyLogo;
-          } else if (token_id === "intel.tkn.near") {
-            meta.icon = IntearLogo;
           }
           acc[token_id] = meta;
         }
@@ -298,6 +267,5 @@ export const memes = [
   { name: "Shitzu", src: ShitzuLogo },
   { name: "BlackDragon", src: BlackDragonLogo },
   { name: "Lonk", src: LonkLogo },
-  { name: "Intear", src: IntearLogo },
-  { name: "NDC", src: NDCLogo },
+  { name: "Hijack", src: HijackLogo },
 ];
