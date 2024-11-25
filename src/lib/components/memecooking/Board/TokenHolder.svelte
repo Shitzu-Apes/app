@@ -12,11 +12,9 @@
   export let meme: Meme;
   let holders: ReturnType<typeof getHolders> = new Promise<never>(() => {});
 
-  $: {
-    if (meme) {
-      getHolders();
-    }
-  }
+  onMount(() => {
+    getHolders();
+  });
 
   function getHolders() {
     const res = fetchHolders().then((holders) =>
