@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Meme } from "$lib/api/client";
   import { flagMeme, unflagMeme, myFlags$ } from "$lib/auth/flag";
+  import { isLoggedIn$ } from "$lib/auth/login";
   import { wallet } from "$lib/near";
   import { updateMemeFlagCount } from "$lib/store/memebids";
   import { shareWithReferral } from "$lib/util/referral";
@@ -15,7 +16,10 @@
 
   $: isFlagged = $myFlags$.includes(meme.meme_id);
 
-  function toggleFlag() {
+  async function toggleFlag() {
+    if (!$isLoggedIn$) {
+      await wallet.login();
+    }
     if (isFlagged) {
       unflagMeme(meme.meme_id);
       updateMemeFlagCount(meme.meme_id, (count) => count - 1);
