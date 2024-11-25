@@ -19,6 +19,7 @@ import { injected, walletConnect } from "wagmi/connectors";
 
 import { browser } from "$app/environment";
 import { client } from "$lib/api/client";
+import { fetchMyFlags } from "$lib/auth/flag";
 import { fetchIsLoggedIn, webWalletLogin } from "$lib/auth/login";
 import { addTxToast, addToast } from "$lib/components/Toast.svelte";
 import EvmOnboardSheet from "$lib/components/memecooking/BottomSheet/EvmOnboardSheet.svelte";
@@ -29,6 +30,10 @@ export type TransactionCallbacks<T> = {
   onError?: () => Promise<void> | void;
   onFinally?: () => Promise<void> | void;
 };
+
+async function fetchAccountDetail() {
+  return Promise.all([fetchIsLoggedIn(), fetchMyFlags()]);
+}
 
 const near = {
   id: 397,
@@ -452,7 +457,7 @@ export class Wallet {
         },
         credentials: "include",
       })
-      .then(fetchIsLoggedIn);
+      .then(fetchAccountDetail);
   }
 
   private connectHere() {
@@ -675,7 +680,7 @@ if (browser) {
   wallet.accountId$.subscribe((accountId) => {
     if (accountId == null) return;
     webWalletLogin(accountId);
-    fetchIsLoggedIn();
+    fetchAccountDetail();
   });
 }
 
