@@ -409,6 +409,8 @@
     total_withdraw_fees: "0",
     last_change_ms: Date.now(),
     created_blockheight: "0",
+    twitter_verified: false,
+    flag_count: 0,
   } as Meme;
 
   $: console.log("[create::+page] memebid", memebid);
