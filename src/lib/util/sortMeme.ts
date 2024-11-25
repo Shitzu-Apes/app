@@ -26,6 +26,9 @@ export function filterAndSortMeme<T extends Meme>(
   // Filter out memes with 0 total deposit that are older than 2 days
   const twoDaysAgo = Date.now() - 2 * 24 * 60 * 60 * 1000;
   memes = memes.filter((meme) => {
+    if (import.meta.env.VITE_NETWORK_ID === "testnet") {
+      return true;
+    }
     // except for external memes
     if (meme.meme_id < 0) {
       return true;

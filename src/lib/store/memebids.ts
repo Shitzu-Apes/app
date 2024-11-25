@@ -159,6 +159,8 @@ export async function updateMemebids() {
         coronated_at_ms: null,
         replies_count: 0,
         staker_count: 0,
+        twitter_verified: false,
+        flag_count: 0,
       }));
       EXTERNAL_MEMES.forEach((meme) => {
         console.log("[updateMemebids::EXTERNAL_MEMES] meme", meme);
@@ -231,4 +233,17 @@ export async function getMeme(meme_id: number) {
   }
 
   return newMeme;
+}
+
+export function updateMemeFlagCount(
+  meme_id: number,
+  updater: (count: number) => number,
+) {
+  const memes = get(_memebids$);
+  const index = memes.findIndex((m) => m.meme_id === meme_id);
+  if (index === -1) return;
+
+  const updatedMemes = [...memes];
+  updatedMemes[index].flag_count = updater(updatedMemes[index].flag_count);
+  _memebids$.set(updatedMemes);
 }
