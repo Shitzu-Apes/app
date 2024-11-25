@@ -2,7 +2,7 @@ import { derived, readable, type Readable } from "svelte/store";
 import { match, P } from "ts-pattern";
 
 import type { FungibleTokenMetadata } from "$lib/abi";
-import BlackDragonLogo from "$lib/assets/logo/blackdragon.png";
+import BlackDragonLogo from "$lib/assets/logo/blackdragon.webp";
 import HijackLogo from "$lib/assets/logo/hijack.webp";
 import LonkLogo from "$lib/assets/logo/lonk.png";
 import ShitzuLogo from "$lib/assets/logo/shitzu.webp";
