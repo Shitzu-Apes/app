@@ -198,6 +198,8 @@ export interface paths {
               twitter_verified: boolean;
               twitter_user_id?: string | null;
               twitter_username?: string | null;
+              /** @default 0 */
+              flag_count: number;
               replies_count: number | null;
               staker_count: number | null;
             }[];
@@ -273,6 +275,8 @@ export interface paths {
                 twitter_verified: boolean;
                 twitter_user_id?: string | null;
                 twitter_username?: string | null;
+                /** @default 0 */
+                flag_count: number;
                 replies_count: number | null;
                 staker_count: number | null;
               };
@@ -874,6 +878,159 @@ export interface paths {
               withdraw_fees: string;
             }[];
           };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/flag/{memeId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Flag a meme
+     * @description Flag a meme as inappropriate
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          memeId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Successfully flagged meme */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              success: boolean;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    /**
+     * Remove flag from meme
+     * @description Remove flag from a previously flagged meme
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          memeId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Successfully removed flag */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              success: boolean;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/flag/my": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Get flags for the authenticated user */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Successfully retrieved flags */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              flags: {
+                meme_id: number;
+                created_timestamp_ms: number;
+              }[];
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
         };
       };
     };
