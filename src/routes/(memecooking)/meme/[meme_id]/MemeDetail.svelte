@@ -94,7 +94,9 @@
       </div>
 
       <div class="bg-gray-800 rounded-lg p-4">
-        <TradeTabs {meme} />
+        {#key meme.meme_id}
+          <TradeTabs {meme} />
+        {/key}
       </div>
     </div>
 
@@ -138,7 +140,9 @@
         </div>
       {/if}
       <div class="bg-gray-800 rounded-lg p-4">
-        <TokenHolder {meme} />
+        {#key meme.meme_id}
+          <TokenHolder {meme} />
+        {/key}
       </div>
     </div>
   </div>
