@@ -18,7 +18,7 @@
     <div class="font-bold text-xl">
       {#if projectedPoolStats}
         ${projectedPoolStats.liquidity.format({
-          maximumFractionDigits: 1,
+          maximumFractionDigits: 3,
           notation: "compact",
         })}
       {:else}
@@ -31,7 +31,7 @@
     <div class="font-bold text-xl">
       {#if projectedPoolStats}
         ${projectedPoolStats.mcap.format({
-          maximumFractionDigits: 1,
+          maximumFractionDigits: 3,
           notation: "compact",
         })}
       {:else}
