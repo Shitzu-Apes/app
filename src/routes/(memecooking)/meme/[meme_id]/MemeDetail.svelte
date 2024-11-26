@@ -118,7 +118,9 @@
 
       <!-- Trading Box -->
       <div class="bg-gray-800 rounded-lg p-4">
-        <McActionBox {meme} />
+        {#key meme.meme_id}
+          <McActionBox {meme} />
+        {/key}
       </div>
 
       <!-- Token Details -->
