@@ -3,6 +3,7 @@
   import { debounce } from "perfect-debounce";
   import { writable } from "svelte/store";
   import { slide } from "svelte/transition";
+  import { match, P } from "ts-pattern";
 
   import { addToast } from "../../Toast.svelte";
   import TipDaoSheet from "../BottomSheet/TipDaoSheet.svelte";
@@ -49,6 +50,11 @@
   let inputValue$ = writable<string | undefined>();
 
   export let meme: Meme;
+
+  $: pool = match(meme.pool_id)
+    .with(P.nullish, () => Promise.resolve(null))
+    .with(P.select(), (poolId) => Ref.getPool(poolId))
+    .exhaustive();
 
   let returnTab = writable<string>("near");
   $: unwrapNear = $returnTab === "near";
@@ -472,6 +478,16 @@
             >
               {(expected.priceImpact * 100).toFixed(2)}%
             </span>
+          {/await}
+        </div>
+        <div class="text-xs flex justify-between mt-2">
+          <span class="text-memecooking-400">Pool Fee:</span>
+          {#await pool then pool}
+            {#if pool != null}
+              <span class="text-gray-400">
+                {(pool.total_fee / 100).toFixed(2)}%
+              </span>
+            {/if}
           {/await}
         </div>
       </div>
