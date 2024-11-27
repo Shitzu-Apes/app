@@ -39,7 +39,9 @@ for (const token of tokens) {
     is_finalized: true,
     replies_count: 0,
     staker_count: 0,
-    twitter_verified: false,
+    twitter_verified: token.twitter_verified ?? false,
+    twitter_user_id: token.twitter_user_id ?? "",
+    twitter_username: token.twitter_username ?? "",
   };
   const poolStats = projectedPoolStats(meme);
   external_memes[token.token_id] = { ...meme, projectedPoolStats: poolStats };
