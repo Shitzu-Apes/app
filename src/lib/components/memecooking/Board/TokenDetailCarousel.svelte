@@ -96,7 +96,9 @@
   >
     <div class="w-full h-full flex justify-between items-center">
       <div class="flex justify-between items-center gap-2">
-        <McIcon {meme} class="size-10 bg-white object-contain" />
+        {#key meme.image}
+          <McIcon {meme} class="size-10 bg-white object-contain" />
+        {/key}
         <div class="flex-1 min-w-0">
           <h2 class="text-base font-medium truncate leading-none">
             {meme.name}

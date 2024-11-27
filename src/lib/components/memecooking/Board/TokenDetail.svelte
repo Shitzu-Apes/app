@@ -21,7 +21,9 @@
 <div class="flex flex-col w-full h-full">
   <!-- Token Basic Info -->
   <div class="flex items-start gap-4 py-4">
-    <McIcon meme={memebid} class="size-16 bg-white object-contain" />
+    {#key memebid.image}
+      <McIcon meme={memebid} class="size-16 bg-white object-contain" />
+    {/key}
     <div class="flex-1">
       <h1 class="text-2xl font-medium">{memebid.name}</h1>
       <div class="flex items-center gap-2 text-gray-400 flex-wrap">
