@@ -5,7 +5,7 @@
   import { addToast } from "../../Toast.svelte";
   import TipDaoSheet from "../BottomSheet/TipDaoSheet.svelte";
 
-  import ExpectedReturn from "./MCRefExpectedReturn.svelte";
+  import ExpectedReturn from "./MCRefHybridReturn.svelte";
 
   import Near from "$lib/assets/Near.svelte";
   import { showWalletSelector } from "$lib/auth";
@@ -355,6 +355,7 @@
         input$={$input$}
         {meme}
         {activeTab}
+        unwrapNear={$returnTab === "near"}
         on:update={handleExpectedReturnUpdate}
       />
     {/if}
