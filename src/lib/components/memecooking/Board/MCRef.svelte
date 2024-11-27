@@ -66,7 +66,16 @@
   }
 
   let activeTab = "buy";
-  let expectedValue: { amount: FixedNumber; priceImpact: number } | undefined;
+  let expectedValue:
+    | {
+        amount: FixedNumber;
+        priceImpact: number;
+        shitzuBuy?: {
+          amount: FixedNumber;
+          nearAmount: FixedNumber;
+        };
+      }
+    | undefined;
 
   let totalNearBalance$ = writable($nearBalance);
   $: if ($accountId$ && $nearBalance) {
@@ -256,7 +265,14 @@
   }
 
   function handleExpectedReturnUpdate(
-    event: CustomEvent<{ amount: FixedNumber; priceImpact: number }>,
+    event: CustomEvent<{
+      amount: FixedNumber;
+      priceImpact: number;
+      shitzuBuy?: {
+        amount: FixedNumber;
+        nearAmount: FixedNumber;
+      };
+    }>,
   ) {
     expectedValue = event.detail;
   }

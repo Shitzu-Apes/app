@@ -7,7 +7,7 @@
 
   import type { Meme } from "$lib/api/client";
   import Near from "$lib/assets/Near.svelte";
-  import McIcon from "$lib/components/MCIcon.svelte";
+  import SHITZU_LOGO from "$lib/assets/logo/shitzu.webp";
   import { Ref } from "$lib/near";
   import { FixedNumber } from "$lib/util";
   import { getTokenId } from "$lib/util/getTokenId";
@@ -25,6 +25,7 @@
   const shitzuPercentage = writable(0);
   const expectedShitzu$ = writable<FixedNumber | undefined>(undefined);
   const expectedNear$ = writable<FixedNumber | undefined>(undefined);
+  const nearToShitzu$ = writable<FixedNumber | undefined>(undefined);
 
   const fetchGetReturn = debounce(
     async (
@@ -42,6 +43,7 @@
         expected$.set(undefined);
         expectedShitzu$.set(undefined);
         expectedNear$.set(undefined);
+        nearToShitzu$.set(undefined);
         dispatch("update", undefined);
         return undefined as never;
       }
@@ -89,18 +91,26 @@
               decimals: 18,
             });
             expectedShitzu$.set(shitzuAmount);
-            expectedNear$.set(swapAmount.sub(nearToShitzu));
+            expectedNear$.set(swapAmount);
+            nearToShitzu$.set(nearToShitzu);
           } catch (err) {
             console.error("Error calculating SHITZU return:", err);
           }
         } else {
           expectedNear$.set(swapAmount);
+          nearToShitzu$.set(undefined);
         }
 
         const value = {
           amount: swapAmount,
           priceImpact: priceImpact.toNumber(),
-          shitzuAmount,
+          shitzuBuy:
+            shitzuAmount && $nearToShitzu$
+              ? {
+                  amount: shitzuAmount,
+                  nearAmount: $nearToShitzu$,
+                }
+              : undefined,
         };
 
         dispatch("update", value);
@@ -136,6 +146,12 @@
                   notation: "standard",
                   maximumFractionDigits: 6,
                 })}
+                {#if $nearToShitzu$}
+                  (-{$nearToShitzu$.format({
+                    notation: "standard",
+                    maximumFractionDigits: 6,
+                  })})
+                {/if}
               </span>
               <div class="flex items-center gap-1">
                 <Near className="w-6 h-6 bg-white text-black rounded-full" />
@@ -164,13 +180,10 @@
                   })}
                 </span>
                 <div class="flex items-center gap-1">
-                  <McIcon
-                    meme={{
-                      image:
-                        "https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/refs/heads/main/logo/shitzu.webp",
-                      name: "SHITZU",
-                    }}
+                  <img
+                    src={SHITZU_LOGO}
                     class="w-6 h-6 rounded-full"
+                    alt="SHITZU"
                   />
                   <span class="text-gray-300">SHITZU</span>
                 </div>
