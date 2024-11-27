@@ -179,6 +179,7 @@
         unwrapNear,
         slippage,
         callback,
+        expectedValue.shitzuBuy,
       );
 
       openBottomSheet(TipDaoSheet, {

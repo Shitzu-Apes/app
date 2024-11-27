@@ -86,8 +86,8 @@
             shitzuAmount = await Ref.getReturn({
               amountIn: nearToShitzu,
               tokenIn: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
-              tokenOut: "token.0xshitzu.near",
-              poolId: 4369,
+              tokenOut: import.meta.env.VITE_SHITZU_CONTRACT_ID,
+              poolId: Number(import.meta.env.VITE_SHITZU_POOL_ID),
               decimals: 18,
             });
             expectedShitzu$.set(shitzuAmount);
