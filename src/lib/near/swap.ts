@@ -266,6 +266,24 @@ export async function handleSell(
     });
   }
 
+  const route = [
+    {
+      pool_id: meme.pool_id,
+      token_in: tokenIn,
+      amount_in: input.toU128(),
+      token_out: tokenOut,
+      min_amount_out,
+    },
+  ];
+  if (shitzuBuy && tokenOut === import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID) {
+    route.push({
+      pool_id: Number(import.meta.env.VITE_SHITZU_POOL_ID),
+      token_in: tokenOut,
+      amount_in: shitzuBuy.nearAmount.toU128(),
+      token_out: SHITZU_CONTRACT_ID,
+      min_amount_out: shitzuBuy.amount.toU128(),
+    });
+  }
   transactions.push({
     receiverId: tokenIn,
     actions: [
@@ -278,55 +296,16 @@ export async function handleSell(
             amount: input.toU128(),
             msg: JSON.stringify({
               referral_id: isMainnet ? "shitzu.sputnik-dao.near" : undefined,
-              actions: [
-                {
-                  pool_id: meme.pool_id,
-                  token_in: tokenIn,
-                  amount_in: input.toU128(),
-                  token_out: tokenOut,
-                  min_amount_out,
-                },
-              ],
-              skip_unwrap_near: shitzuBuy ? true : !unwrapNear,
+              actions: route,
+              skip_unwrap_near: !unwrapNear,
             }),
           },
-          gas: 100_000_000_000_000n.toString(),
+          gas: 150_000_000_000_000n.toString(),
           deposit: "1",
         },
       },
     ],
   });
-
-  if (shitzuBuy) {
-    transactions.push({
-      receiverId: tokenOut,
-      actions: [
-        {
-          type: "FunctionCall",
-          params: {
-            methodName: "ft_transfer_call",
-            args: {
-              receiver_id: import.meta.env.VITE_REF_CONTRACT_ID,
-              amount: shitzuBuy.nearAmount.toU128(),
-              msg: JSON.stringify({
-                actions: [
-                  {
-                    pool_id: Number(import.meta.env.VITE_SHITZU_POOL_ID),
-                    token_in: tokenOut,
-                    amount_in: shitzuBuy.nearAmount.toU128(),
-                    token_out: SHITZU_CONTRACT_ID,
-                    min_amount_out: shitzuBuy.amount.toU128(),
-                  },
-                ],
-              }),
-            },
-            gas: 100_000_000_000_000n.toString(),
-            deposit: "1",
-          },
-        },
-      ],
-    });
-  }
 
   await wallet.signAndSendTransactions({ transactions }, callback);
 }
