@@ -1,10 +1,12 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { derived, writable } from "svelte/store";
 
   import MemeDetail from "./MemeDetail.svelte";
 
   import { page } from "$app/stores";
+  import { getXCallbackParams } from "$lib/auth/x-callback";
+  import { addToast } from "$lib/components/Toast.svelte";
   import LoadingLambo from "$lib/components/memecooking/Board/LoadingLambo.svelte";
   import TokenDetailCarousel from "$lib/components/memecooking/Board/TokenDetailCarousel.svelte";
   import { getExternalMeme } from "$lib/external_memes";
@@ -14,10 +16,12 @@
 
   const loading = writable(true);
   const memeStore = derived([page, memeMap$], ([page, memeMap]) => {
+    console.log("[meme::+page] memeMap", memeMap);
     loading.set(true);
     const externalMeme = getExternalMeme(page.params.meme_id);
     if (externalMeme) {
       loading.set(false);
+      console.log("[meme::+page] externalMeme", externalMeme);
       return externalMeme;
     }
     const meme = memeMap.get(Number(page.params.meme_id));
@@ -26,6 +30,7 @@
       return meme;
     }
 
+    console.log("[meme::+page] getMeme", Number(page.params.meme_id));
     getMeme(Number(page.params.meme_id));
 
     return null;
@@ -53,6 +58,34 @@
       }, 1000) as unknown as number;
     });
   }
+
+  onMount(() => {
+    const url = new URL(window.location.href);
+    const params = getXCallbackParams(url);
+
+    if (!params) {
+      return;
+    }
+
+    const { status, message } = params;
+    // remove params from url
+    url.searchParams.delete("status");
+    url.searchParams.delete("message");
+    window.history.replaceState({}, document.title, url.toString());
+
+    addToast({
+      data: {
+        type: "simple",
+        data: {
+          title:
+            "Twitter Verification " +
+            (status === "error" ? "Error" : "Success"),
+          description: message,
+          color: status === "error" ? "red" : "green",
+        },
+      },
+    });
+  });
 
   onDestroy(() => {
     clearInterval(interval);

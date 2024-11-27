@@ -1,4 +1,6 @@
 <script lang="ts">
+  import TwitterVerificationBanner from "../../create/TwitterVerificationBanner.svelte";
+
   import ClaimBanner from "./ClaimBanner.svelte";
   import ProjectedPoolStat from "./ProjectedPoolStat.svelte";
   import RefWhitelistBanner from "./RefWhitelistBanner.svelte";
@@ -103,6 +105,7 @@
     <!-- Right Column - Actions & Info -->
     <div class="space-y-4">
       <!-- Admin Actions -->
+      <TwitterVerificationBanner {meme} />
       <RefWhitelistBanner {meme} />
       <WithdrawBanner {meme} />
       <ClaimBanner {meme} />
@@ -128,11 +131,7 @@
         </h3>
         <p class="text-gray-300 mb-4">{meme.description}</p>
         <!-- Social Links -->
-        <SocialLink
-          twitterLink={meme.twitter_link || ""}
-          telegramLink={meme.telegram_link || ""}
-          website={meme.website || ""}
-        />
+        <SocialLink {meme} />
       </div>
 
       <!-- Token Holders -->

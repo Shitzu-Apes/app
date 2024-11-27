@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
 
   export let slippage: number = 0.05; // Default 5% slippage
 
@@ -31,7 +31,26 @@
       }
     }
     dispatch("update", slippage);
+    saveSlippageToLocalStorage();
   }
+
+  function saveSlippageToLocalStorage() {
+    localStorage.setItem("selectedSlippage", slippage.toString());
+  }
+
+  function loadSlippageFromLocalStorage() {
+    const savedSlippage = localStorage.getItem("selectedSlippage");
+    if (savedSlippage) {
+      const parsedSlippage = parseFloat(savedSlippage);
+      if (!isNaN(parsedSlippage) && parsedSlippage > 0 && parsedSlippage <= 1) {
+        slippage = parsedSlippage;
+      }
+    }
+  }
+
+  onMount(() => {
+    loadSlippageFromLocalStorage();
+  });
 </script>
 
 <div class="flex flex-col gap-1 w-full">

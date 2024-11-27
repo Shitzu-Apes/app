@@ -147,6 +147,8 @@ export async function handleBuy(
   await wallet.signAndSendTransactions({ transactions }, callback);
 }
 
+const SHITZU_CONTRACT_ID = import.meta.env.VITE_SHITZU_CONTRACT_ID;
+
 export async function handleSell(
   input: FixedNumber,
   accountId: string,
@@ -155,6 +157,10 @@ export async function handleSell(
   unwrapNear: boolean,
   slippage: number = 0.05,
   callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
+  shitzuBuy?: {
+    amount: FixedNumber;
+    nearAmount: FixedNumber;
+  },
 ) {
   if (!input || !accountId || meme.pool_id == null) return;
   const isMainnet = import.meta.env.VITE_NETWORK_ID === "mainnet";
@@ -192,6 +198,30 @@ export async function handleSell(
         },
       ],
     });
+  }
+
+  if (shitzuBuy) {
+    const isShitzuRegistered = await Ft.isUserRegistered(
+      SHITZU_CONTRACT_ID,
+      accountId,
+    );
+    if (!isShitzuRegistered) {
+      const deposit = await Ft.storageRequirement(SHITZU_CONTRACT_ID);
+      transactions.push({
+        receiverId: SHITZU_CONTRACT_ID,
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "storage_deposit",
+              args: {},
+              gas: 20_000_000_000_000n.toString(),
+              deposit,
+            },
+          },
+        ],
+      });
+    }
   }
 
   const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
@@ -257,15 +287,46 @@ export async function handleSell(
                   min_amount_out,
                 },
               ],
-              skip_unwrap_near: !unwrapNear,
+              skip_unwrap_near: shitzuBuy ? true : !unwrapNear,
             }),
           },
-          gas: 150_000_000_000_000n.toString(),
+          gas: 100_000_000_000_000n.toString(),
           deposit: "1",
         },
       },
     ],
   });
+
+  if (shitzuBuy) {
+    transactions.push({
+      receiverId: tokenOut,
+      actions: [
+        {
+          type: "FunctionCall",
+          params: {
+            methodName: "ft_transfer_call",
+            args: {
+              receiver_id: import.meta.env.VITE_REF_CONTRACT_ID,
+              amount: shitzuBuy.nearAmount.toU128(),
+              msg: JSON.stringify({
+                actions: [
+                  {
+                    pool_id: Number(import.meta.env.VITE_SHITZU_POOL_ID),
+                    token_in: tokenOut,
+                    amount_in: shitzuBuy.nearAmount.toU128(),
+                    token_out: SHITZU_CONTRACT_ID,
+                    min_amount_out: shitzuBuy.amount.toU128(),
+                  },
+                ],
+              }),
+            },
+            gas: 100_000_000_000_000n.toString(),
+            deposit: "1",
+          },
+        },
+      ],
+    });
+  }
 
   await wallet.signAndSendTransactions({ transactions }, callback);
 }
