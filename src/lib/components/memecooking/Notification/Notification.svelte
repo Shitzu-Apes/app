@@ -4,6 +4,7 @@
 
   import Near from "$lib/assets/Near.svelte";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
+  import McIcon from "$lib/components/MCIcon.svelte";
   import { external_memes, EXTERNAL_MEMES } from "$lib/external_memes";
   import { MCTradeSubscribe } from "$lib/store/MCWebSocket";
   import { EXTTradeSubscribe } from "$lib/store/externalTrades";
@@ -149,9 +150,8 @@
       <div class="flex h-full">
         <!-- Image Section -->
         <div class="relative w-1/3 h-full bg-white">
-          <img
-            src={notification.icon}
-            alt={notification.ticker}
+          <McIcon
+            meme={{ image: notification.icon, name: notification.ticker }}
             class="w-full h-full object-cover"
           />
         </div>
