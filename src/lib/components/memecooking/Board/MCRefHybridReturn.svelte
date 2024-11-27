@@ -8,6 +8,7 @@
   import type { Meme } from "$lib/api/client";
   import Near from "$lib/assets/Near.svelte";
   import SHITZU_LOGO from "$lib/assets/logo/shitzu.webp";
+  import McIcon from "$lib/components/MCIcon.svelte";
   import { Ref } from "$lib/near";
   import { FixedNumber } from "$lib/util";
   import { getTokenId } from "$lib/util/getTokenId";
@@ -153,14 +154,22 @@
                   })})
                 {/if}
               </span>
-              <div class="flex items-center gap-1">
-                <Near className="w-6 h-6 bg-white text-black rounded-full" />
-                <span class="text-gray-300"
-                  >{activeTab === "sell" && !unwrapNear
-                    ? "wNEAR"
-                    : "NEAR"}</span
-                >
-              </div>
+              {#if activeTab === "sell"}
+                <div class="flex items-center gap-1">
+                  <Near className="w-6 h-6 bg-white text-black rounded-full" />
+                  <span class="text-gray-300"
+                    >{activeTab === "sell" && !unwrapNear
+                      ? "wNEAR"
+                      : "NEAR"}</span
+                  >
+                </div>
+              {:else}
+                <McIcon
+                  meme={{ name: meme.symbol, image: meme.image }}
+                  class="w-6 h-6"
+                />
+                <span class="text-gray-300"> {meme.symbol}</span>
+              {/if}
             {/if}
           {/await}
         </div>
