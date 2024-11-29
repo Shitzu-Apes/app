@@ -74,24 +74,17 @@ export function filterAndSortMeme<T extends Meme>(
       });
     case "market cap":
       return memes.sort((a, b) => {
+        const getMcap = (meme: Meme) =>
+          meme.projectedPoolStats != null
+            ? get(meme.projectedPoolStats).mcap.toNumber()
+            : BigInt(meme.total_deposit ?? 0);
+        const aMcap = getMcap(a);
+        const bMcap = getMcap(b);
+
         if (sort.order === "asc") {
-          if (a.projectedPoolStats != null && b.projectedPoolStats) {
-            return get(a.projectedPoolStats).mcap.toBigInt() >
-              get(b.projectedPoolStats).mcap.toBigInt()
-              ? 1
-              : -1;
-          } else {
-            return BigInt(a.total_deposit!) > BigInt(b.total_deposit!) ? 1 : -1;
-          }
+          return aMcap > bMcap ? 1 : -1;
         } else {
-          if (a.projectedPoolStats != null && b.projectedPoolStats) {
-            return get(b.projectedPoolStats).mcap.toBigInt() >
-              get(a.projectedPoolStats).mcap.toBigInt()
-              ? 1
-              : -1;
-          } else {
-            return BigInt(b.total_deposit!) > BigInt(a.total_deposit!) ? 1 : -1;
-          }
+          return bMcap > aMcap ? 1 : -1;
         }
       });
     case "creation time":
