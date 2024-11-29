@@ -94,17 +94,20 @@
   <div
     class="fixed bottom-6 inset-x-4 bg-dark/80 backdrop-blur-sm border border-memecooking-6 p-2 lg:hidden z-20 rounded-lg"
   >
-    <div class="w-full h-full flex justify-between items-center">
-      <div class="flex justify-between items-center gap-2">
-        {#key meme.image}
-          <McIcon {meme} class="size-10 bg-white object-contain" />
-        {/key}
-        <div class="flex-1 min-w-0">
-          <h2 class="text-base font-medium truncate leading-none">
-            {meme.name}
-          </h2>
-          <span class="text-xs text-shitzu-400">${meme.symbol}</span>
-        </div>
+    <div class="w-full h-full flex items-center overflow-hidden">
+      {#key meme.image}
+        <McIcon
+          {meme}
+          class="size-10 bg-white object-contain flex-shrink-0 mr-2"
+        />
+      {/key}
+      <div class="flex-1 min-w-0 overflow-hidden">
+        <h2 class="text-base font-medium truncate leading-none">
+          {meme.name}
+        </h2>
+        <span class="text-xs text-shitzu-400 truncate block"
+          >${meme.symbol}</span
+        >
       </div>
       <button
         on:click={(e) => {
@@ -124,8 +127,7 @@
         meme.end_timestamp_ms &&
         meme.end_timestamp_ms < Date.now()
           ? 'bg-memecooking-5 border-memecooking-6'
-          : 'bg-shitzu-4 border-shitzu-6'} flex-1 py-1 rounded-lg text-lg tracking-wide text-black max-w-32 border border-b-4
-          "
+          : 'bg-shitzu-4 border-shitzu-6'} flex-shrink-0 px-6 py-1 rounded-lg text-lg tracking-wide text-black border border-b-4"
       >
         {#if meme.pool_id}
           Trade

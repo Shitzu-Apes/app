@@ -60,7 +60,9 @@
       </div>
     </div>
   </div>
-  <div class="markdown text-white mt-1 pl-4">
+  <div
+    class="markdown text-white mt-1 pl-4 whitespace-pre-wrap break-words overflow-hidden"
+  >
     <Markdown source={reply.content} />
   </div>
   {#if !reply.reply_to_id}

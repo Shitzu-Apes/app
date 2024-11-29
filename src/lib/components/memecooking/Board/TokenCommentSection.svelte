@@ -161,13 +161,17 @@
         {new Date(meme.created_timestamp_ms ?? 0).toLocaleString()}
       </div>
     </div>
-    <div class="flex items-start gap-3">
-      <McIcon {meme} class="w-30 rounded-md" />
-      <div class="flex flex-col items-start">
+    <div class="w-full flex items-start gap-3">
+      <McIcon {meme} class="w-30 rounded-md flex-shrink-0" />
+      <div class="flex flex-col items-start flex-1 overflow-hidden">
         <div class="text-sm font-bold">
           {meme.name} ${meme.symbol}
         </div>
-        <div class="text-sm text-white">{meme.description}</div>
+        <div
+          class="text-sm w-full text-white whitespace-pre-wrap break-words overflow-hidden"
+        >
+          {meme.description}
+        </div>
       </div>
     </div>
   </div>

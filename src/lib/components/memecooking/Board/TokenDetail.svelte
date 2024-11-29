@@ -67,7 +67,9 @@
             <span class="w-6 flex justify-center flex-shrink-0">
               <div class="i-mdi:text size-5 text-memecooking-400" />
             </span>
-            <span class="flex-1 text-gray-200">
+            <span
+              class="flex-1 text-gray-200 whitespace-pre-wrap break-words overflow-hidden"
+            >
               {memebid.description}
             </span>
           </div>
