@@ -6,6 +6,7 @@ export const sortOptions = [
   { label: "bump order", value: "bump order" },
   { label: "market cap", value: "market cap" },
   { label: "creation time", value: "creation time" },
+  { label: "liquidity", value: "liquidity" },
 ];
 
 export const orderOptions = [
@@ -85,6 +86,21 @@ export function filterAndSortMeme<T extends Meme>(
           return aMcap > bMcap ? 1 : -1;
         } else {
           return bMcap > aMcap ? 1 : -1;
+        }
+      });
+    case "liquidity":
+      return memes.sort((a, b) => {
+        const getLiquidity = (meme: Meme) =>
+          meme.projectedPoolStats != null
+            ? get(meme.projectedPoolStats).liquidity.toNumber()
+            : BigInt(meme.total_deposit ?? 0);
+        const aLiquidity = getLiquidity(a);
+        const bLiquidity = getLiquidity(b);
+
+        if (sort.order === "asc") {
+          return aLiquidity > bLiquidity ? 1 : -1;
+        } else {
+          return bLiquidity > aLiquidity ? 1 : -1;
         }
       });
     case "creation time":

@@ -66,12 +66,12 @@
         <McIcon meme={memebid} class="w-full h-full object-contain" />
       </div>
 
-      <div class="w-2/3 py-2 px-2 flex flex-col">
+      <div class="w-2/3 py-1 px-2 flex flex-col">
         <!-- Status Bar -->
-        <div class="w-full flex justify-between items-center mb-2">
-          <div class="w-full flex justify-between items-center gap-2">
+        <div class="w-full flex justify-between items-center mb-1">
+          <div class="w-full flex justify-between items-center gap-1.5">
             <span
-              class={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${statusColor} capitalize`}
+              class={`px-1 py-0.5 text-xs rounded-sm font-medium flex-shrink-0 ${statusColor} capitalize`}
             >
               {#if status === "cooking"}
                 {#if memebid.end_timestamp_ms}
@@ -109,12 +109,12 @@
         </div>
 
         <!-- Description -->
-        <p class="text-sm text-gray-300 line-clamp-2 mb-2">
+        <p class="text-sm text-gray-300 line-clamp-2 mb-1">
           {memebid.description}
         </p>
 
         {#if showCook}
-          <div class="text-xs w-full flex mb-2 gap-1 items-center">
+          <div class="text-xs w-full flex mb-1 gap-1 items-center">
             <div class="flex-shrink-0">by</div>
             <Chef account={memebid.owner} class="font-medium" />
           </div>
@@ -122,7 +122,7 @@
 
         <!-- Stats -->
         <div class="flex items-center justify-between text-sm mt-auto">
-          <div class="flex items-center gap-4">
+          <div class="flex flex-col">
             <div class="flex items-center gap-1">
               <span class="text-memecooking-400">MC:</span>
               <span class="font-medium">
@@ -134,9 +134,20 @@
                 {:else}-{/if}
               </span>
             </div>
+            <div class="flex items-center gap-1">
+              <span class="text-memecooking-400">L:</span>
+              <span class="font-medium">
+                {#if $projectedPoolStats}
+                  ${$projectedPoolStats.liquidity.format({
+                    maximumFractionDigits: 3,
+                    notation: "compact",
+                  })}
+                {:else}-{/if}
+              </span>
+            </div>
           </div>
 
-          <div class="flex items-center gap-4">
+          <div class="flex flex-col">
             {#if isLaunched}
               <div class="flex items-center gap-1">
                 <div class="i-mdi:clock text-memecooking-400" />

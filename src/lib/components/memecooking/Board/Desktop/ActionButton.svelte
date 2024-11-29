@@ -32,6 +32,9 @@
   export let isLaunched: boolean;
   export let quickActionAmount: string | undefined = undefined;
 
+  const buttonClass =
+    "px-3 py-1 w-full rounded-sm flex items-center justify-center gap-1 text-sm";
+
   async function withdraw(ev: Event) {
     ev.preventDefault();
     if (!memebid.end_timestamp_ms || !depositAmount) return;
@@ -231,7 +234,7 @@
 
 {#if depositAmount != null}
   <button
-    class="px-3 py-2 w-full bg-rose-700 hover:bg-rose-600 rounded-sm flex items-center justify-center gap-1 leading-4 text-sm"
+    class="{buttonClass} bg-rose-700 hover:bg-rose-600"
     on:click={withdraw}
   >
     Withdraw {new FixedNumber(depositAmount, 24).format({
@@ -241,7 +244,7 @@
   </button>
 {:else if isOwnAccount && claimAmount && claimAmount.valueOf() > 0n}
   <button
-    class="px-3 py-2 w-full bg-shitzu-3 text-black hover:brightness-110 rounded-sm flex items-center justify-center gap-1 leading-4 text-sm"
+    class="{buttonClass} bg-shitzu-3 text-black hover:brightness-110"
     on:click={claim}
   >
     Claim {claimAmount.format({ notation: "compact" })}
@@ -249,7 +252,7 @@
   </button>
 {:else if isLaunched && isOwnAccount && memebid.owner === $accountId$ && memebid.team_allocation && BigInt(memebid.team_allocation) > 0n}
   <button
-    class="px-3 py-2 w-full bg-shitzu-3 text-black hover:brightness-110 rounded-sm flex items-center justify-center gap-1 leading-4 text-sm"
+    class="{buttonClass} bg-shitzu-3 text-black hover:brightness-110"
     on:click={claimTeamAllocation}
   >
     Claim Team Allocation
@@ -257,7 +260,7 @@
   </button>
 {:else if quickActionAmount != undefined && (!isEnded || isLaunched)}
   <button
-    class="px-3 py-2 w-full bg-shitzu-3 text-black hover:brightness-110 rounded-sm flex items-center justify-center gap-1 text-sm"
+    class="{buttonClass} bg-shitzu-3 text-black hover:brightness-110"
     on:click={quickAction}
   >
     <Near className="size-4 bg-white rounded-full" />
