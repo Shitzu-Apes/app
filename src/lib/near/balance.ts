@@ -6,11 +6,9 @@ import { FixedNumber } from "$lib/util";
 
 export const nearBalance = writable<FixedNumber | null>(null);
 
-export async function refreshNearBalance(accountId?: string): Promise<void> {
-  if (typeof accountId !== "string") {
-    nearBalance.set(null);
-    return;
-  }
+export async function fetchAccountBalance(
+  accountId: string,
+): Promise<{ amount: string; locked: string } | null> {
   const res = await fetch(import.meta.env.VITE_NODE_URL, {
     method: "POST",
     headers: {
@@ -30,10 +28,21 @@ export async function refreshNearBalance(accountId?: string): Promise<void> {
   const json = (await res.json()) as {
     result: { amount: string; locked: string };
   };
-  if (json.result) {
+  return json.result || null;
+}
+
+export async function refreshNearBalance(accountId?: string): Promise<void> {
+  if (typeof accountId !== "string") {
+    nearBalance.set(null);
+    return;
+  }
+
+  const result = await fetchAccountBalance(accountId);
+
+  if (result) {
     nearBalance.set(
-      new FixedNumber(json.result.amount, 24).sub(
-        new FixedNumber(json.result.locked, 24),
+      new FixedNumber(result.amount, 24).sub(
+        new FixedNumber(result.locked, 24),
       ),
     );
   }

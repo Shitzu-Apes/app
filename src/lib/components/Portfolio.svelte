@@ -9,20 +9,20 @@
 
   import Near from "$lib/assets/Near.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
-  import { refreshNearBalance, nearBalance, wallet } from "$lib/near";
+  import { wallet } from "$lib/near";
   import type { Portfolio } from "$lib/store/portfolio";
+  import type { FixedNumber } from "$lib/util";
   import { getNearPrice, nearPrice } from "$lib/util/projectedMCap";
 
   export let accountId: string;
   export let portfolio: Portfolio | null;
+  export let nearBalance: FixedNumber | null;
 
   $: isOwnAccount = accountId === get(wallet.accountId$);
 
-  refreshNearBalance(accountId);
   getNearPrice();
 
   const refreshInterval = setInterval(() => {
-    refreshNearBalance(accountId);
     getNearPrice();
   }, 30e3);
 
@@ -46,7 +46,7 @@
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-700">
-        {#if $nearBalance}
+        {#if nearBalance}
           <tr class="bg-gray-800/20 hover:bg-gray-800/50 transition-colors">
             <td class="px-4 py-3 truncate max-w-[200px]">
               <div class="flex items-center gap-3">
@@ -66,10 +66,10 @@
             </td>
             <td class="px-4 py-3 text-right">
               <div class="flex flex-col items-end">
-                <span class="font-medium">{$nearBalance.format()}</span>
+                <span class="font-medium">{nearBalance.format()}</span>
                 <span class="text-xs text-gray-400"
                   >${(
-                    ($nearBalance.toNumber() * Number($nearPrice)) /
+                    (nearBalance.toNumber() * Number($nearPrice)) /
                     1e24
                   ).toFixed(2)}</span
                 >

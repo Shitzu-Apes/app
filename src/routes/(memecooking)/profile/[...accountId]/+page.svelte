@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
   import { onDestroy, onMount } from "svelte";
-  import { derived } from "svelte/store";
+  import { derived, writable } from "svelte/store";
   import { match } from "ts-pattern";
 
   import { page } from "$app/stores";
@@ -13,8 +13,7 @@
   import Tabs from "$lib/components/memecooking/Board/Tabs.svelte";
   import MemeList from "$lib/components/memecooking/Profile/MemeList.svelte";
   import Revenue from "$lib/components/memecooking/Profile/Revenue.svelte";
-  import { wallet } from "$lib/near";
-  import { nearBalance } from "$lib/near/balance";
+  import { fetchAccountBalance, wallet } from "$lib/near";
   import {
     fetchMcAccount,
     mcAccount$,
@@ -24,6 +23,7 @@
   import { fetchBlockHeight } from "$lib/near/rpc";
   import { portfolio$, fetchPortfolio } from "$lib/store/portfolio";
   import type { Portfolio as TPortfolio } from "$lib/store/portfolio";
+  import { FixedNumber } from "$lib/util";
   import { nearPrice } from "$lib/util/projectedMCap";
 
   $: accountId = $page.params.accountId;
@@ -37,6 +37,22 @@
 
   let account: McAccount | undefined;
   let portfolio: TPortfolio | null = null;
+
+  const nearBalance = writable<FixedNumber | null>(null);
+
+  $: {
+    fetchAccountBalance($page.params.accountId).then((result) => {
+      if (result) {
+        nearBalance.set(
+          new FixedNumber(result.amount, 24).sub(
+            new FixedNumber(result.locked, 24),
+          ),
+        );
+      } else {
+        nearBalance.set(null);
+      }
+    });
+  }
 
   const unsubscribe = derived(
     [accountId$, page, portfolio$],
@@ -227,7 +243,7 @@
           />
 
           {#if activeTab === "portfolio"}
-            <Portfolio {accountId} {portfolio} />
+            <Portfolio {accountId} {portfolio} nearBalance={$nearBalance} />
           {:else if info && isOwnAccount}
             <MemeList
               props={activeTab === "not-finalized"
