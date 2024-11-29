@@ -116,10 +116,12 @@
                   href={`/meme/${t.meme_id && t.meme_id < 0 ? t.contract_id : t.meme_id}`}
                   class="flex items-center gap-3 hover:opacity-80 hover:text-shitzu-4"
                 >
-                  <McIcon
-                    meme={{ image: t.image, name: t.contract_id }}
-                    class="w-8 h-8 rounded-full"
-                  />
+                  {#key t.image}
+                    <McIcon
+                      meme={{ image: t.image, name: t.contract_id }}
+                      class="w-8 h-8 rounded-full"
+                    />
+                  {/key}
                   <div class="flex flex-col">
                     <span class="font-medium flex items-center gap-1">
                       {t.name || t.contract_id}
