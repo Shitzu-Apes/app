@@ -2,6 +2,7 @@
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
   import { writable } from "svelte/store";
 
+  import BettearBanner from "../../../../routes/(memecooking)/create/BettearBanner.svelte";
   import { addToast } from "../../Toast.svelte";
   import TipDaoSheet from "../BottomSheet/TipDaoSheet.svelte";
 
@@ -280,6 +281,9 @@
 </script>
 
 <div class="w-full h-full flex flex-col justify-start items-center text-white">
+  <div class="w-full mb-2">
+    <BettearBanner />
+  </div>
   <Tabs
     {tabs}
     bind:activeTab

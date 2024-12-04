@@ -13,14 +13,6 @@
 </script>
 
 <div class="flex items-center justify-end gap-4">
-  <a
-    href="https://t.me/bettearbot?start=ref-28757995"
-    target="_blank"
-    rel="noopener noreferrer"
-    class="btn btn-outline hover:text-shitzu-200"
-  >
-    <div class="i-mdi:bell size-5 text-current" />
-  </a>
   <button
     class="btn btn-outline hover:text-shitzu-200"
     on:click={() => shareWithReferral($accountId$, meme)}
