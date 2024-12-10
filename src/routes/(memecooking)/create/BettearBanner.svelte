@@ -3,10 +3,10 @@
   import { fade } from "svelte/transition";
 
   const benefits = [
-    "24/7 Automated Trading",
-    "Real-time Market Notifications",
-    "Instant Trade Execution",
-    "Custom Trading Strategies",
+    "Trade Faster",
+    "DCA Any Token",
+    "Copy-Trade Any Wallet",
+    "Snipe Right After Launch",
   ];
 
   let currentBenefit = 0;
