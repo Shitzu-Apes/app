@@ -41,7 +41,7 @@
     </div>
 
     <a
-      href="https://t.me/bettearbot?start=ref-28757995"
+      href="https://t.me/bettearbot?start=mc-trade"
       target="_blank"
       rel="noopener noreferrer"
       class="flex items-center gap-1 bg-white/10 hover:bg-white/20 transition-colors px-3 py-1 rounded-lg text-white whitespace-nowrap text-sm"

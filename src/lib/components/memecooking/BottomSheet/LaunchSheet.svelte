@@ -51,7 +51,7 @@
       <div>
         In the meantime it could be worth setting up Telegram notifications via <a
           class="text-lightblue-3 hover:font-bold hover:underline"
-          href="https://t.me/bettearbot?start=ref-28757995"
+          href="https://t.me/bettearbot?start=mc-trade"
           target="_blank"
           rel="noopener noreferrer"
         >
