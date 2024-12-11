@@ -62,23 +62,20 @@
             use:melt={$menu}
             class="grid grid-cols-3 gap-2 absolute top-full left-0 mt-2 w-64 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-30 p-2"
           >
-            <button
-              use:melt={$item}
-              on:click={() => {
-                openBottomSheet(BridgeSheet);
-                $open = false;
-              }}
+            <!-- Stats -->
+            <a
+              href="/stats"
               class="flex flex-col items-center justify-center p-2 text-gray-300 hover:text-white transition-colors"
             >
               <div
                 class="size-6 mb-1 rounded flex items-center justify-center bg-[#84cc16]"
               >
-                <div class="i-mdi:bridge text-2xl text-black size-4" />
+                <div class="i-mdi:chart-box-outline size-4 text-black" />
               </div>
-              <span class="text-[10px] text-center whitespace-nowrap"
-                >Bridge</span
-              >
-            </button>
+              <span class="text-[10px] text-center whitespace-nowrap">
+                Stats
+              </span>
+            </a>
 
             <button
               use:melt={$item}
@@ -176,11 +173,6 @@
           <div class="i-mdi:bridge text-xl" />
           <span class="text-sm hidden sm:block">Bridge</span>
         </button>
-
-        <!-- Leaderboard -->
-        <a href="/leaderboard" class="flex items-center gap-2">
-          <div class="i-mdi:trophy-award size-6 text-amber" />
-        </a>
 
         <!-- Account Section -->
         <div class="flex-shrink-1">
