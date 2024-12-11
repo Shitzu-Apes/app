@@ -72,3 +72,10 @@ export async function sendNear(
     callback,
   );
 }
+
+export function formatAddress(address: string) {
+  const isNamed = address.includes(".");
+  return isNamed
+    ? address.split(".")[0]
+    : address.slice(0, 4) + "..." + address.slice(-4);
+}

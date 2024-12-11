@@ -7,8 +7,18 @@
 
   $: isNamed = account.includes(".");
 
+  function formatAccountName(account: string) {
+    try {
+      const [name] = account.split(".");
+      const isLong = name.length > 10;
+      return isLong ? name.slice(0, 10) + "..." : account;
+    } catch (error) {
+      return account;
+    }
+  }
+
   $: formatName = isNamed
-    ? account
+    ? formatAccountName(account)
     : account.slice(0, 4) + "..." + account.slice(-4);
 
   let className: string = "";
