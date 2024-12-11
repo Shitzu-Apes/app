@@ -177,6 +177,11 @@
           <span class="text-sm hidden sm:block">Bridge</span>
         </button>
 
+        <!-- Leaderboard -->
+        <a href="/leaderboard" class="flex items-center gap-2">
+          <div class="i-mdi:trophy-award size-6 text-amber" />
+        </a>
+
         <!-- Account Section -->
         <div class="flex-shrink-1">
           {#if $accountId$}
