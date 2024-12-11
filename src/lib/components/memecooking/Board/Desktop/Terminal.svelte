@@ -37,6 +37,10 @@
     { id: "other", label: "Imported" },
   ];
 
+  $: if (activeTab === "launched") {
+    liveOnly = false;
+  }
+
   $: displayedMemebids = match(activeTab)
     .with("other", () =>
       filterAndSortMeme(
