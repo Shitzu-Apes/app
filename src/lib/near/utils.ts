@@ -37,7 +37,7 @@ export async function viewWithNode<T>(
     });
 
     const json = await res.json();
-    console.log("[view]: json", json);
+    // console.log("[view]: json", json);
     if ("error" in json) {
       console.error("[view]: Error", json.error.data);
       throw new Error(json.error.data);

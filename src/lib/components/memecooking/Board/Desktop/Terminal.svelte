@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { get } from "svelte/store";
   import { match } from "ts-pattern";
 
+  import GrowthMateAdDekstop from "../../GrowthMate/GrowthMateAdDekstop.svelte";
   import SearchBox from "../../SearchBox.svelte";
   import VirtualMemeList from "../../VirtualMemeList.svelte";
   import LoadingLambo from "../LoadingLambo.svelte";
@@ -12,6 +14,9 @@
 
   import SelectBox from "$lib/components/SelectBox.svelte";
   import { external_memes } from "$lib/external_memes";
+  import { ScreenSize } from "$lib/models";
+  import { wallet } from "$lib/near";
+  import { screenSize$, widthAtLeast$ } from "$lib/screen-size";
   import {
     memebids$,
     memebidsLoading$,
@@ -23,6 +28,16 @@
     filterAndSortMeme,
     sortOptions,
   } from "$lib/util/sortMeme";
+
+  $: {
+    console.log("[screenSize$]", $screenSize$);
+    console.log(
+      "[widthAtLeast$(ScreenSize.Mobile)]",
+      get(widthAtLeast$(ScreenSize.Mobile)),
+    );
+  }
+
+  const { accountId$ } = wallet;
 
   let selectedSort = sortOptions[0];
   let selectedDirection = orderOptions[0];
@@ -70,17 +85,39 @@
         meme,
       })),
     );
+
+  $: isDekstop = widthAtLeast$(ScreenSize.Tablet);
 </script>
 
 <div class="w-full">
   <div class="w-full flex justify-center items-center">
-    <div class="w-full flex justify-between items-stretch gap-2 px-1">
-      <div class="w-full max-w-sm">
+    <div
+      class="w-full flex justify-between items-center gap-2 px-1 justify-center flex-wrap"
+    >
+      <div class="flex flex-col justify-between flex-shrink-0">
         <SearchBox />
       </div>
+      <GrowthMateAdDekstop
+        unitId="xIX1la+GOKrsTIKier6+TQ=="
+        format="Leaderboard"
+        accountId={$accountId$}
+        network="Near"
+        className="rounded-md !max-w-md flex-order-[-1] mx-auto {$isDekstop
+          ? ''
+          : '!hidden'}"
+      />
+      <GrowthMateAdDekstop
+        unitId="hYb1MaPFOAHGNYt0h/zcHw=="
+        format="Small Rectangle"
+        accountId={$accountId$}
+        network="Near"
+        className="rounded-md !max-w-md flex-order-[-1] mx-auto {$isDekstop
+          ? '!hidden'
+          : ''}"
+      />
       <a
         href="/create"
-        class="px-2 bg-memecooking-400 text-black hover:brightness-110 rounded-md flex items-center justify-center gap-1 font-medium text-sm whitespace-nowrap"
+        class="h-10 px-2 bg-memecooking-400 text-black hover:brightness-110 rounded-md flex items-center justify-center gap-1 font-medium text-sm whitespace-nowrap"
       >
         <div class="i-mdi:plus size-6" />
         Create Token
