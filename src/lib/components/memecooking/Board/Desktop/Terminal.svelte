@@ -97,24 +97,23 @@
       <div class="flex flex-col justify-between flex-shrink-0">
         <SearchBox />
       </div>
-      <GrowthMateAdDekstop
-        unitId="xIX1la+GOKrsTIKier6+TQ=="
-        format="Leaderboard"
-        accountId={$accountId$}
-        network="Near"
-        className="rounded-md !max-w-md flex-order-[-1] mx-auto {$isDekstop
-          ? ''
-          : '!hidden'}"
-      />
-      <GrowthMateAdDekstop
-        unitId="hYb1MaPFOAHGNYt0h/zcHw=="
-        format="Small Rectangle"
-        accountId={$accountId$}
-        network="Near"
-        className="rounded-md !max-w-md flex-order-[-1] mx-auto {$isDekstop
-          ? '!hidden'
-          : ''}"
-      />
+      {#if $isDekstop}
+        <GrowthMateAdDekstop
+          unitId="xIX1la+GOKrsTIKier6+TQ=="
+          format="Leaderboard"
+          accountId={$accountId$}
+          network="Near"
+          className="rounded-md !max-w-md flex-order-[-1] mx-auto"
+        />
+      {:else}
+        <GrowthMateAdDekstop
+          unitId="hYb1MaPFOAHGNYt0h/zcHw=="
+          format="Small Rectangle"
+          accountId={$accountId$}
+          network="Near"
+          className="rounded-md !max-w-md flex-order-[-1] mx-auto"
+        />
+      {/if}
       <a
         href="/create"
         class="h-10 px-2 bg-memecooking-400 text-black hover:brightness-110 rounded-md flex items-center justify-center gap-1 font-medium text-sm whitespace-nowrap"
