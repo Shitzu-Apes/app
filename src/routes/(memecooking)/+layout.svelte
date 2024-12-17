@@ -3,6 +3,7 @@
   import "virtual:uno.css";
   import "../../app.scss";
 
+  import { QueryClient, QueryClientProvider } from "@tanstack/svelte-query";
   import { reconnect, watchAccount } from "@wagmi/core";
   import dayjs from "dayjs";
   import duration from "dayjs/plugin/duration";
@@ -103,7 +104,7 @@
     $ws.close();
   });
 
-  let resizeObserver: ResizeObserver | undefined;
+  let resizeObserver: ResizeObserver | null = null;
   onMount(() => {
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
@@ -128,7 +129,7 @@
   });
   onDestroy(() => {
     if (!resizeObserver) return;
-    resizeObserver.unobserve(window.document.body);
+    (resizeObserver as ResizeObserver).unobserve(window.document.body);
   });
 
   onMount(() => {
@@ -183,10 +184,37 @@
     const symbol = Symbol("new_meme");
     MCMemeSubscribe(symbol, appendNewMeme);
   });
+
+  let loading = true;
+  onMount(async () => {
+    try {
+      let promises = [];
+      let doBreak = false;
+      for (let i = 0; i < 100_000; i += 1_000) {
+        const poolPromise = Ref.getPools(i, 1_000).then((pools) => {
+          if (pools.length < 1_000) {
+            doBreak = true;
+          }
+        });
+        promises.push(poolPromise);
+        if (promises.length >= 5) {
+          await Promise.all(promises);
+          promises = [];
+          if (doBreak) break;
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      loading = false;
+    }
+  });
+  const queryClient = new QueryClient();
 </script>
 
-{#key "memecooking"}
-  <BottomSheet variant="shitzu" />
+<QueryClientProvider client={queryClient}>
+  {#key "memecooking"}
+    <BottomSheet variant="shitzu" />
 
   <div
     in:blur={{ duration: 500, delay: 500, easing: cubicIn }}
@@ -219,18 +247,14 @@
                   ></span>
                 </span>
               {/if}
-              <span class="font-mono"
-                >{$indexer_last_block_height$} ({$node_last_block_height$ -
-                  $indexer_last_block_height$})</span
-              >
-            {/if}
-          </Tooltip>
-          <Tooltip info="commit: {import.meta.env.VITE_COMMIT_HASH}">
-            <div class="i-mdi:git" />
-          </Tooltip>
+            </Tooltip>
+            <Tooltip info="commit: {import.meta.env.VITE_COMMIT_HASH}">
+              <div class="i-mdi:git" />
+            </Tooltip>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <Toast />
-{/key}
+    <Toast />
+  {/key}
+</QueryClientProvider>

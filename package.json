@@ -41,6 +41,7 @@
     "@solana/wallet-adapter-phantom": "^0.9.24",
     "@solana/wallet-adapter-solflare": "^0.6.28",
     "@solana/web3.js": "^1.98.0",
+    "@tanstack/svelte-query": "^5.62.7",
     "@tanstack/svelte-virtual": "^3.10.8",
     "@tarnadas/wagmi-connectors": "^5.7.8",
     "@unocss/reset": "^0.60.2",
