@@ -1,8 +1,7 @@
 <script lang="ts">
-  import { get } from "svelte/store";
-
   import Chef from "../Chef.svelte";
 
+  import { createPoolStatQuery } from "$lib/api/queries/poolStat";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import SHITZU_STONK from "$lib/assets/static/shitzu_stonk.png";
   import McIcon from "$lib/components/MCIcon.svelte";
@@ -12,7 +11,7 @@
 
   export let memebid: Meme;
 
-  $: projectedPoolStats = get(memebid.projectedPoolStats!);
+  const poolStatQuery = createPoolStatQuery(memebid.meme_id.toString());
 
   const twitterLink = memebid.twitter_link!;
   const telegramLink = memebid.telegram_link!;
@@ -74,43 +73,53 @@
             </span>
           </div>
 
-          <!-- Market Cap -->
-          <div class="flex items-center gap-1">
-            <span class="w-6 flex justify-center flex-shrink-0">
-              <div class="i-mdi:chart-line text-memecooking-400" />
-            </span>
-            <span class="text-memecooking-400 text-sm font-medium">MC:</span>
-            <span class="font-medium">
-              {#if projectedPoolStats}
-                ${projectedPoolStats.mcap.format({
-                  maximumFractionDigits: 3,
-                  notation: "compact",
-                })}
-              {:else}
-                -
-              {/if}
-            </span>
-          </div>
+          {#key $poolStatQuery}
+            <!-- Market Cap -->
+            <div class="flex items-center gap-1">
+              <span class="w-6 flex justify-center flex-shrink-0">
+                <div class="i-mdi:chart-line text-memecooking-400" />
+              </span>
+              <span class="text-memecooking-400 text-sm font-medium">MC:</span>
+              <span class="font-medium">
+                {#if $poolStatQuery.isLoading}
+                  <div class="i-svg-spinners:bars-fade size-4" />
+                {:else if $poolStatQuery.isError}
+                  Error
+                {:else if $poolStatQuery.data}
+                  ${$poolStatQuery.data.mcap.format({
+                    maximumFractionDigits: 3,
+                    notation: "compact",
+                  })}
+                {:else}
+                  -
+                {/if}
+              </span>
+            </div>
 
-          <!-- Liquidity -->
-          <div class="flex items-center gap-1">
-            <span class="w-6 flex justify-center flex-shrink-0">
-              <div class="i-mdi:water text-memecooking-400" />
-            </span>
-            <span class="text-memecooking-400 text-sm font-medium"
-              >Liquidity:</span
-            >
-            <span class="font-medium">
-              {#if projectedPoolStats}
-                ${projectedPoolStats.liquidity.format({
-                  maximumFractionDigits: 3,
-                  notation: "compact",
-                })}
-              {:else}
-                -
-              {/if}
-            </span>
-          </div>
+            <!-- Liquidity -->
+            <div class="flex items-center gap-1">
+              <span class="w-6 flex justify-center flex-shrink-0">
+                <div class="i-mdi:water text-memecooking-400" />
+              </span>
+              <span class="text-memecooking-400 text-sm font-medium"
+                >Liquidity:</span
+              >
+              <span class="font-medium">
+                {#if $poolStatQuery.isLoading}
+                  <div class="i-svg-spinners:bars-fade size-4" />
+                {:else if $poolStatQuery.isError}
+                  Error
+                {:else if $poolStatQuery.data}
+                  ${$poolStatQuery.data.liquidity.format({
+                    maximumFractionDigits: 3,
+                    notation: "compact",
+                  })}
+                {:else}
+                  -
+                {/if}
+              </span>
+            </div>
+          {/key}
 
           <!-- Created By -->
           <div class="flex items-center gap-1">

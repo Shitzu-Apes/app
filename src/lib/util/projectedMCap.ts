@@ -33,7 +33,7 @@ export function projectedPoolStats(
   });
 }
 
-export async function updateTokenPrice(meme: Meme) {
+export async function calculateTokenStats(meme: Meme) {
   let mcap: FixedNumber;
   let liquidity: FixedNumber;
   let price: FixedNumber;
@@ -64,8 +64,13 @@ export async function updateTokenPrice(meme: Meme) {
     );
   }
 
+  return { mcap, liquidity, price };
+}
+
+export async function updateTokenPrice(meme: Meme) {
+  const stats = await calculateTokenStats(meme);
   tokenPrices.update((prices) => {
-    prices.set(meme.meme_id, { mcap, liquidity, price });
+    prices.set(meme.meme_id, stats);
     return prices;
   });
 }
