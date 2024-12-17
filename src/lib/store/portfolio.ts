@@ -1,10 +1,9 @@
 import { derived, get, writable } from "svelte/store";
 import { z } from "zod";
 
-import { Ref } from "$lib/near/ref";
 import { wallet } from "$lib/near/wallet";
 import { memebids$ } from "$lib/store/memebids";
-import { FixedNumber } from "$lib/util";
+import { getTokenPrice, updateTokenPrice } from "$lib/util/projectedMCap";
 
 // Zod schema for portfolio data validation
 const TokenSchema = z.object({
@@ -60,26 +59,18 @@ export async function fetchPortfolio(
         // Check if token is in meme map
         const meme = memeMap.get(token.contract_id);
 
-        console.log("meme", meme);
-
         if (meme) {
           try {
-            // Get price from Ref contract
-            const nearOut = await Ref.getReturn({
-              poolId: meme.pool_id || 0,
-              tokenIn: token.contract_id,
-              amountIn: new FixedNumber(
-                BigInt(1 * 10 ** meme.decimals),
-                meme.decimals,
-              ),
-              tokenOut: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
-              decimals: 24, // Since we're getting NEAR out, use 24 decimals
-            });
-
+            // Use centralized token price store
+            const price = get(getTokenPrice(meme));
+            if (price === null) {
+              // If price not in store, update it
+              await updateTokenPrice(meme);
+            }
             return {
               ...token,
               ...meme,
-              price: nearOut.toNumber(),
+              price: get(getTokenPrice(meme))?.toNumber() || null,
             };
           } catch (err) {
             console.error(

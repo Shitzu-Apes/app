@@ -8,8 +8,14 @@ import { Ref } from "$lib/near";
 
 // Centralized store for token prices
 const tokenPrices = writable<
-  Map<number, { mcap: FixedNumber; liquidity: FixedNumber }>
+  Map<number, { mcap: FixedNumber; liquidity: FixedNumber; price: FixedNumber }>
 >(new Map());
+
+export function getTokenPrice(meme: Meme): Readable<FixedNumber | null> {
+  return derived([tokenPrices], ([$tokenPrices]) => {
+    return $tokenPrices.get(meme.meme_id)?.price ?? null;
+  });
+}
 
 export function projectedPoolStats(
   meme: Meme,
@@ -27,34 +33,39 @@ export function projectedPoolStats(
   });
 }
 
-async function updateTokenPrice(meme: Meme) {
+export async function updateTokenPrice(meme: Meme) {
   let mcap: FixedNumber;
   let liquidity: FixedNumber;
+  let price: FixedNumber;
 
   if (meme.pool_id) {
     const stats = await getPoolStats(meme.pool_id, meme.decimals);
     const totalSupplyBigInt = BigInt(meme.total_supply!);
+    const nearPriceValue = await getNearPrice();
+    price = new FixedNumber(stats.price, 24);
     mcap = new FixedNumber(
       stats.price * totalSupplyBigInt,
       meme.decimals + 24,
-    ).mul(new FixedNumber(await getNearPrice(), 24));
+    ).mul(new FixedNumber(nearPriceValue, 24));
     liquidity = new FixedNumber(stats.liquidity, 24).mul(
-      new FixedNumber(await getNearPrice(), 24),
+      new FixedNumber(nearPriceValue, 24),
     );
   } else {
     const pricePerTokenInNear = getProjectedMemePriceInNear(meme);
     const totalSupply = BigInt(meme.total_supply || 0);
+    const nearPriceValue = await getNearPrice();
+    price = new FixedNumber(pricePerTokenInNear, 24);
     mcap = new FixedNumber(
       pricePerTokenInNear * totalSupply,
       24 + meme.decimals,
-    ).mul(new FixedNumber(await getNearPrice(), 24));
+    ).mul(new FixedNumber(nearPriceValue, 24));
     liquidity = new FixedNumber(BigInt(meme.total_deposit!) * 2n, 24).mul(
-      new FixedNumber(await getNearPrice(), 24),
+      new FixedNumber(nearPriceValue, 24),
     );
   }
 
   tokenPrices.update((prices) => {
-    prices.set(meme.meme_id, { mcap, liquidity });
+    prices.set(meme.meme_id, { mcap, liquidity, price });
     return prices;
   });
 }
