@@ -1,7 +1,4 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { match } from "ts-pattern";
-
   import GrowthMateAdDekstop from "../../GrowthMate/GrowthMateAdDekstop.svelte";
   import SearchBox from "../../SearchBox.svelte";
   import VirtualMemeList from "../../VirtualMemeList.svelte";
@@ -12,20 +9,16 @@
   import QuickActionConfig from "./QuickActionConfig.svelte";
   import SortToggle from "./SortToggle.svelte";
 
+  import { queryClient } from "$lib/api/queries";
+  import { createMemesQuery } from "$lib/api/queries/memes";
+  import { poolStatQueryFactory } from "$lib/api/queries/poolStat";
   import SelectBox from "$lib/components/SelectBox.svelte";
-  import { external_memes } from "$lib/external_memes";
   import { ScreenSize } from "$lib/models";
   import { nearWallet, Ref } from "$lib/near";
   import { widthAtLeast$ } from "$lib/screen-size";
   import {
-    memebids$,
-    memebidsLoading$,
-    memebidsError$,
-    searchQuery$,
-  } from "$lib/store/memebids";
-  import {
     orderOptions,
-    filterAndSortMeme,
+    // filterAndSortMeme,
     sortOptions,
   } from "$lib/util/sortMeme";
 
@@ -49,52 +42,49 @@
     liveOnly = false;
   }
 
-  $: displayedMemebids = match(activeTab)
-    .with("other", () =>
-      filterAndSortMeme(
-        Object.values(external_memes),
-        {
-          sort: selectedSort.value,
-          order: selectedDirection.value,
-        },
-        $searchQuery$,
-        false,
-        false,
-        false,
-      ).map((meme) => ({
-        meme,
-      })),
-    )
-    .with("metapool", () =>
-      filterAndSortMeme(
-        $memebids$,
-        {
-          sort: selectedSort.value,
-          order: selectedDirection.value,
-        },
-        $searchQuery$,
-        false,
-        false,
-        true,
-      ).map((meme) => ({
-        meme,
-      })),
-    )
-    .otherwise(() =>
-      filterAndSortMeme(
-        $memebids$,
-        {
-          sort: selectedSort.value,
-          order: selectedDirection.value,
-        },
-        $searchQuery$,
-        liveOnly,
-        activeTab === "launched",
-        false,
-      ).map((meme) => ({
-        meme,
-      })),
-    );
+  const memesQuery = createMemesQuery();
+  // const poolStatsQuery = createPoolStatsQueries(memesQuery);
+  $: {
+    // prefetch pool stats
+    if ($memesQuery.data) {
+      $memesQuery.data.forEach((meme) => {
+        queryClient.prefetchQuery({
+          ...poolStatQueryFactory.poolStat.detail(meme),
+          staleTime: Infinity,
+        });
+      });
+    }
+  }
+
+  // $: displayedMemebids = match(activeTab)
+  //   .with("other", () =>
+  //     filterAndSortMeme(
+  //       Object.values(external_memes),
+  //       {
+  //         sort: selectedSort.value,
+  //         order: selectedDirection.value,
+  //       },
+  //       $searchQuery$,
+  //       false,
+  //       false,
+  //     ).map((meme) => ({
+  //       meme,
+  //     })),
+  //   )
+  //   .otherwise(() =>
+  //     filterAndSortMeme(
+  //       $memebids$,
+  //       {
+  //         sort: selectedSort.value,
+  //         order: selectedDirection.value,
+  //       },
+  //       $searchQuery$,
+  //       liveOnly,
+  //       activeTab === "launched",
+  //     ).map((meme) => ({
+  //       meme,
+  //     })),
+  //   );
 
   $: isDekstop = widthAtLeast$(ScreenSize.Tablet);
 
@@ -176,17 +166,15 @@
     </div>
   </div>
 
-  {#if $memebidsLoading$ || loading}
+  {#if $memesQuery.isLoading}
     <div class="w-full my-10">
       <LoadingLambo />
     </div>
-  {:else if $memebidsError$}
-    <div class="w-full my-10">
-      {$memebidsError$.message}
-    </div>
+  {:else if $memesQuery.isError}
+    <div class="w-full my-10">Something went wrong</div>
   {:else}
     <VirtualMemeList
-      items={displayedMemebids}
+      items={$memesQuery.data?.map((meme) => ({ meme })) ?? []}
       showCook={true}
       {quickActionAmount}
       emptyMessage="No memes found"

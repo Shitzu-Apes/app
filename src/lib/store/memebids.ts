@@ -21,9 +21,10 @@ export const memebidsError$ = writable<Error | null>(null);
 
 export function appendNewMeme(meme: Meme) {
   const memes = get(_memebids$);
+
   memes.push({
     ...meme,
-    projectedPoolStats: projectedPoolStats(meme),
+    projectedPoolStats: undefined,
     pool_id: null,
   });
   console.log("[appendNewMeme] memes", memes);
@@ -40,11 +41,6 @@ function pushMemeOrder(meme_id: number) {
   memeOrderSet.delete(meme_id); // Remove if exists
   const newOrder = [meme_id, ...Array.from(memeOrderSet)]; // Add to front
   localStorage.setItem(MEME_ORDER_LOCAL_STORAGE_KEY, JSON.stringify(newOrder));
-}
-
-function getMemeOrder() {
-  const memeOrder = localStorage.getItem(MEME_ORDER_LOCAL_STORAGE_KEY);
-  return memeOrder ? JSON.parse(memeOrder) : [];
 }
 
 export function bumpMeme(meme_id: number) {
@@ -87,37 +83,34 @@ export async function updateMemebids() {
   memebidsLoading$.set(true);
   memebidsError$.set(null);
   try {
-    const res = await client.GET("/meme");
-    if (!res.data) return;
-
-    const memes: Meme[] = res.data.map((meme) => {
-      return {
-        ...meme,
-        projectedPoolStats: projectedPoolStats(meme),
-      };
-    });
-    EXTERNAL_MEMES.forEach((meme) => {
-      console.log("[updateMemebids::EXTERNAL_MEMES] meme", meme);
-      if (meme) {
-        memes.push(meme);
-      }
-    });
-    console.log("[+page] memebids", memes);
-    const memeOrder = getMemeOrder();
-
-    // overwrite last_change_ms for memes in memeOrder
-    const memesWithOrder = memes.map((meme) => {
-      const index = memeOrder.indexOf(meme.meme_id);
-      if (index !== -1) {
-        return {
-          ...meme,
-          last_change_ms: Date.now() - index * 1000,
-        };
-      }
-      return meme;
-    });
-
-    _memebids$.set(memesWithOrder);
+    // const res = await client.GET("/meme");
+    // if (!res.data) return;
+    // const memes: Meme[] = res.data.map((meme) => {
+    //   return {
+    //     ...meme,
+    //     projectedPoolStats: projectedPoolStats(meme),
+    //   };
+    // });
+    // EXTERNAL_MEMES.forEach((meme) => {
+    //   console.log("[updateMemebids::EXTERNAL_MEMES] meme", meme);
+    //   if (meme) {
+    //     memes.push(meme);
+    //   }
+    // });
+    // console.log("[+page] memebids", memes);
+    // const memeOrder = getMemeOrder();
+    // // overwrite last_change_ms for memes in memeOrder
+    // const memesWithOrder = memes.map((meme) => {
+    //   const index = memeOrder.indexOf(meme.meme_id);
+    //   if (index !== -1) {
+    //     return {
+    //       ...meme,
+    //       last_change_ms: Date.now() - index * 1000,
+    //     };
+    //   }
+    //   return meme;
+    // });
+    // _memebids$.set(memesWithOrder);
   } catch (error) {
     console.log("[updateMemebids]: Error", error);
     memebidsError$.set(error as Error);

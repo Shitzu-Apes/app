@@ -3968,6 +3968,19 @@
   resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.62.7.tgz#c7f6d0131c08cd2f60e73ec6e7b70e2e9e335def"
   integrity sha512-fgpfmwatsrUal6V+8EC2cxZIQVl9xvL7qYa03gsdsCy985UTUlS4N+/3hCzwR0PclYDqisca2AqR1BVgJGpUDA==
 
+"@tanstack/query-devtools@5.61.4":
+  version "5.61.4"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-devtools/-/query-devtools-5.61.4.tgz#86a3be0ffb97d810525600e3787b5b69808cf9db"
+  integrity sha512-21Tw+u8E3IJJj4A/Bct4H0uBaDTEu7zBrR79FeSyY+mS2gx5/m316oDtJiKkILc819VSTYt+sFzODoJNcpPqZQ==
+
+"@tanstack/svelte-query-devtools@^5.62.7":
+  version "5.62.7"
+  resolved "https://registry.yarnpkg.com/@tanstack/svelte-query-devtools/-/svelte-query-devtools-5.62.7.tgz#46d61447a573cfd7b5e642b122ba93435c357e0e"
+  integrity sha512-g63yvKn/ZPoMJ703FUfxg4YcFQkj1iIqn6Zpl+qv5Wg47bgFNpJ8nKZesWyO1lsWGrrEECgEiMos8WT/9xebpg==
+  dependencies:
+    "@tanstack/query-devtools" "5.61.4"
+    esm-env "^1.1.4"
+
 "@tanstack/svelte-query@^5.62.7":
   version "5.62.7"
   resolved "https://registry.yarnpkg.com/@tanstack/svelte-query/-/svelte-query-5.62.7.tgz#b3837f65d6683e7b5bd156d39aea9beda75fcfeb"
@@ -7872,6 +7885,11 @@ esm-env@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/esm-env/-/esm-env-1.0.0.tgz"
   integrity sha512-Cf6VksWPsTuW01vU9Mk/3vRue91Zevka5SjyNf3nEpokFRuqt/KjUQoGAwq9qMmhpLTHmXzSIrFRw8zxWzmFBA==
+
+esm-env@^1.1.4:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/esm-env/-/esm-env-1.2.1.tgz#34c2a0ba60582948afbe7bd779bc66f9d3aece7e"
+  integrity sha512-U9JedYYjCnadUlXk7e1Kr+aENQhtUaoaV9+gZm1T8LC/YBAPJx3NSPIAurFOC0U5vrdSevnUJS2/wUVxGwPhng==
 
 esniff@^2.0.1:
   version "2.0.1"

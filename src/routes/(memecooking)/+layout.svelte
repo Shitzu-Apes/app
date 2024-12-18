@@ -3,7 +3,8 @@
   import "virtual:uno.css";
   import "../../app.scss";
 
-  import { QueryClient, QueryClientProvider } from "@tanstack/svelte-query";
+  import { QueryClientProvider } from "@tanstack/svelte-query";
+  import { SvelteQueryDevtools } from "@tanstack/svelte-query-devtools";
   import { reconnect, watchAccount } from "@wagmi/core";
   import dayjs from "dayjs";
   import duration from "dayjs/plugin/duration";
@@ -14,6 +15,7 @@
   import { blur } from "svelte/transition";
 
   import { client } from "$lib/api/client";
+  import { queryClient } from "$lib/api/queries";
   import Toast from "$lib/components/Toast.svelte";
   import Tooltip from "$lib/components/Tooltip.svelte";
   import LaunchSheet from "$lib/components/memecooking/BottomSheet/LaunchSheet.svelte";
@@ -209,7 +211,6 @@
       loading = false;
     }
   });
-  const queryClient = new QueryClient();
 </script>
 
 <QueryClientProvider client={queryClient}>
@@ -257,4 +258,5 @@
     </div>
     <Toast />
   {/key}
+  <SvelteQueryDevtools />
 </QueryClientProvider>

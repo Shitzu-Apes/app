@@ -11,7 +11,7 @@
 
   export let memebid: Meme;
 
-  const poolStatQuery = createPoolStatQuery(memebid.meme_id.toString());
+  const poolStatQuery = createPoolStatQuery(memebid);
 
   const twitterLink = memebid.twitter_link!;
   const telegramLink = memebid.telegram_link!;

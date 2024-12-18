@@ -1,26 +1,43 @@
 import { createQueryKeyStore } from "@lukemorales/query-key-factory";
-import { createQuery } from "@tanstack/svelte-query";
-import { get } from "svelte/store";
+import {
+  createQueries,
+  createQuery,
+  type CreateQueryResult,
+} from "@tanstack/svelte-query";
+import { derived } from "svelte/store";
 
-import { memeMap$ } from "$lib/store/memebids";
+import type { Meme } from "$lib/models/memecooking";
 import { calculateTokenStats } from "$lib/util/projectedMCap";
 
-export const queryFactory = createQueryKeyStore({
+export const poolStatQueryFactory = createQueryKeyStore({
   poolStat: {
     all: null,
-    detail: (memeId: string) => ({
-      queryKey: ["poolStat", memeId],
+    detail: (meme: Meme) => ({
+      queryKey: ["poolStat", meme.meme_id.toString()],
       queryFn: () => {
-        const meme = get(memeMap$).get(Number(memeId));
-        if (!meme) {
-          throw new Error("Meme not found");
-        }
         return calculateTokenStats(meme);
       },
     }),
   },
 });
 
-export function createPoolStatQuery(memeId: string) {
-  return createQuery(queryFactory.poolStat.detail(memeId));
+export function createPoolStatQuery(meme: Meme) {
+  return createQuery({
+    ...poolStatQueryFactory.poolStat.detail(meme),
+    staleTime: Infinity,
+  });
+}
+
+export function createPoolStatsQueries(memesQuery: CreateQueryResult<Meme[]>) {
+  return createQueries({
+    queries: derived(memesQuery, (memes) => {
+      return (
+        memes.data?.map((meme) => ({
+          ...poolStatQueryFactory.poolStat.detail(meme),
+          enabled: meme !== undefined,
+          staleTime: Infinity,
+        })) ?? []
+      );
+    }),
+  });
 }
