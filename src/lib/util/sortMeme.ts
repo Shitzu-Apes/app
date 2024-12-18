@@ -1,5 +1,7 @@
-import { get } from "svelte/store";
+import type { FixedNumber } from ".";
 
+import { queryClient } from "$lib/api/queries";
+import { poolStatQueryFactory } from "$lib/api/queries/poolStat";
 import type { Meme } from "$lib/models/memecooking";
 
 export const sortOptions = [
@@ -78,6 +80,13 @@ export function filterAndSortMeme<T extends Meme>(
     );
   }
 
+  const cache = queryClient.getQueryCache();
+  function getPoolStatFromCache(meme: Meme) {
+    const poolStat = cache.find(poolStatQueryFactory.poolStat.detail(meme))
+      ?.state.data as { mcap: FixedNumber; liquidity: FixedNumber } | null;
+    return poolStat;
+  }
+
   switch (sort.sort) {
     case "bump order":
       return memes.sort((a, b) => {
@@ -90,12 +99,17 @@ export function filterAndSortMeme<T extends Meme>(
       });
     case "market cap":
       return memes.sort((a, b) => {
-        const getMcap = (meme: Meme) =>
-          meme.projectedPoolStats != null
-            ? get(meme.projectedPoolStats).mcap.toNumber()
-            : BigInt(meme.total_deposit ?? 0);
+        const getMcap = (meme: Meme) => {
+          const poolStat = getPoolStatFromCache(meme);
+
+          return poolStat?.mcap.toNumber() ?? BigInt(meme.total_deposit ?? 0);
+        };
         const aMcap = getMcap(a);
         const bMcap = getMcap(b);
+
+        if (aMcap == null || bMcap == null) {
+          return 0;
+        }
 
         if (sort.order === "asc") {
           return aMcap > bMcap ? 1 : -1;
@@ -105,12 +119,16 @@ export function filterAndSortMeme<T extends Meme>(
       });
     case "liquidity":
       return memes.sort((a, b) => {
-        const getLiquidity = (meme: Meme) =>
-          meme.projectedPoolStats != null
-            ? get(meme.projectedPoolStats).liquidity.toNumber()
-            : BigInt(meme.total_deposit ?? 0);
+        const getLiquidity = (meme: Meme) => {
+          const poolStat = getPoolStatFromCache(meme);
+          return poolStat?.liquidity.toNumber();
+        };
         const aLiquidity = getLiquidity(a);
         const bLiquidity = getLiquidity(b);
+
+        if (aLiquidity == null || bLiquidity == null) {
+          return 0;
+        }
 
         if (sort.order === "asc") {
           return aLiquidity > bLiquidity ? 1 : -1;

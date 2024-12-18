@@ -39,6 +39,7 @@
     "@near-wallet-selector/okx-wallet": "^8.9.14",
     "@near-wallet-selector/wallet-connect": "^8.9.14",
     "@tanstack/svelte-query": "^5.62.7",
+    "@tanstack/svelte-query-devtools": "^5.62.7",
     "@tanstack/svelte-virtual": "^3.10.8",
     "@unocss/reset": "^0.60.2",
     "@wagmi/core": "^2.14.3",

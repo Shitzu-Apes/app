@@ -67,12 +67,12 @@ export async function calculateTokenStats(meme: Meme) {
   return { mcap, liquidity, price };
 }
 
-export async function updateTokenPrice(meme: Meme) {
-  const stats = await calculateTokenStats(meme);
-  tokenPrices.update((prices) => {
-    prices.set(meme.meme_id, stats);
-    return prices;
-  });
+export async function updateTokenPrice(_meme: Meme) {
+  // const stats = await calculateTokenStats(meme);
+  // tokenPrices.update((prices) => {
+  //   prices.set(meme.meme_id, stats);
+  //   return prices;
+  // });
 }
 
 export function projectedMCap(meme: Meme): Readable<FixedNumber> {
