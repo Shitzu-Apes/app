@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { slide } from "svelte/transition";
 
   import Near from "$lib/assets/Near.svelte";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import McIcon from "$lib/components/MCIcon.svelte";
   import { external_memes, EXTERNAL_MEMES } from "$lib/external_memes";
-  import { MCTradeSubscribe } from "$lib/store/MCWebSocket";
-  import { EXTTradeSubscribe } from "$lib/store/externalTrades";
+  import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/MCWebSocket";
+  import { EXTTradeSubscribe, EXTunsubscribe } from "$lib/store/externalTrades";
   import { memebids$ } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
 
-  let notifications: {
+  type Notification = {
     id: string;
     meme_id: string;
     amount: string;
@@ -21,48 +21,19 @@
     party: string;
     ticker: string;
     icon: string;
-  }[] = [];
+  };
+
+  let notifications: Notification[] = [];
 
   $: {
     // save notifications to local storage
-    console.log(
-      "[Notification] saving notifications to local storage",
-      notifications,
-    );
     if (notifications.length > 0) {
       localStorage.setItem("notifications", JSON.stringify(notifications));
     }
   }
 
-  MCTradeSubscribe(Symbol("notification"), (newMemeInfo) => {
-    if (newMemeInfo.amount == null || newMemeInfo.fee == null) return;
-    const amount = (
-      BigInt(newMemeInfo.amount) + BigInt(newMemeInfo.fee)
-    ).toString();
-
-    // Check if notification with this ID already exists
-    if (
-      notifications.some(
-        (n) => n.id + n.amount === newMemeInfo.receipt_id + newMemeInfo.amount,
-      )
-    )
-      return;
-
-    notifications = [
-      {
-        id: newMemeInfo.receipt_id,
-        meme_id: newMemeInfo.meme_id.toString(),
-        amount,
-        decimals: 24,
-        is_deposit: newMemeInfo.is_deposit ?? true,
-        is_mc: true,
-        party: newMemeInfo.account_id,
-        ticker: newMemeInfo.symbol,
-        icon: `${import.meta.env.VITE_IPFS_GATEWAY}/${newMemeInfo.image}`,
-      },
-      ...notifications.slice(0, 9),
-    ];
-  });
+  let symbol = Symbol("notification");
+  let externalSymbol = Symbol("external");
 
   onMount(() => {
     console.log("[Notification] mounted");
@@ -71,11 +42,50 @@
     const loadedNotifications = JSON.parse(
       localStorage.getItem("notifications") || "[]",
     );
-    if (loadedNotifications.length > 0) {
-      notifications = loadedNotifications;
+
+    // make sure notifications are unique over id + amount
+    const uniqueNotifications = new Set(
+      loadedNotifications.map((n: Notification) => n.id + n.amount),
+    );
+
+    if (uniqueNotifications.size > 0) {
+      notifications = Array.from(uniqueNotifications).map((id) =>
+        loadedNotifications.find((n: Notification) => n.id + n.amount === id),
+      );
     }
 
-    EXTTradeSubscribe(Symbol("notification"), async (data) => {
+    MCTradeSubscribe(symbol, (newMemeInfo) => {
+      if (newMemeInfo.amount == null || newMemeInfo.fee == null) return;
+      const amount = (
+        BigInt(newMemeInfo.amount) + BigInt(newMemeInfo.fee)
+      ).toString();
+
+      // Check if notification with this ID already exists
+      if (
+        notifications.some(
+          (n) =>
+            n.id + n.amount === newMemeInfo.receipt_id + newMemeInfo.amount,
+        )
+      )
+        return;
+
+      notifications = [
+        {
+          id: newMemeInfo.receipt_id,
+          meme_id: newMemeInfo.meme_id.toString(),
+          amount,
+          decimals: 24,
+          is_deposit: newMemeInfo.is_deposit ?? true,
+          is_mc: true,
+          party: newMemeInfo.account_id,
+          ticker: newMemeInfo.symbol,
+          icon: `${import.meta.env.VITE_IPFS_GATEWAY}/${newMemeInfo.image}`,
+        },
+        ...notifications.slice(0, 9),
+      ];
+    });
+
+    EXTTradeSubscribe(externalSymbol, async (data) => {
       try {
         const balanceChanges = data.balance_changes;
 
@@ -135,6 +145,11 @@
         );
       }
     });
+  });
+
+  onDestroy(() => {
+    MCunsubscribe(symbol);
+    EXTunsubscribe(externalSymbol);
   });
 </script>
 

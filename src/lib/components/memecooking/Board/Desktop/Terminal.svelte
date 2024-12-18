@@ -2,7 +2,7 @@
   import { get } from "svelte/store";
   import { match } from "ts-pattern";
 
-  // import GrowthMateAdDekstop from "../../GrowthMate/GrowthMateAdDekstop.svelte";
+  import GrowthMateAdDekstop from "../../GrowthMate/GrowthMateAdDekstop.svelte";
   import SearchBox from "../../SearchBox.svelte";
   import VirtualMemeList from "../../VirtualMemeList.svelte";
   import LoadingLambo from "../LoadingLambo.svelte";
@@ -15,7 +15,7 @@
   import SelectBox from "$lib/components/SelectBox.svelte";
   import { external_memes } from "$lib/external_memes";
   import { ScreenSize } from "$lib/models";
-  // import { wallet } from "$lib/near";
+  import { wallet } from "$lib/near";
   import { screenSize$, widthAtLeast$ } from "$lib/screen-size";
   import {
     memebids$,
@@ -37,7 +37,7 @@
     );
   }
 
-  // const { accountId$ } = wallet;
+  const { accountId$ } = wallet;
 
   let selectedSort = sortOptions[0];
   let selectedDirection = orderOptions[0];
@@ -86,7 +86,7 @@
       })),
     );
 
-  // $: isDekstop = widthAtLeast$(ScreenSize.Tablet);
+  $: isDekstop = widthAtLeast$(ScreenSize.Tablet);
 </script>
 
 <div class="w-full">
@@ -97,24 +97,23 @@
       <div class="flex flex-col justify-between flex-shrink-0">
         <SearchBox />
       </div>
-      <!-- <GrowthMateAdDekstop
-        unitId="xIX1la+GOKrsTIKier6+TQ=="
-        format="Leaderboard"
-        accountId={$accountId$}
-        network="Near"
-        className="rounded-md !max-w-md flex-order-[-1] mx-auto {$isDekstop
-          ? ''
-          : '!hidden'}"
-      />
-      <GrowthMateAdDekstop
-        unitId="hYb1MaPFOAHGNYt0h/zcHw=="
-        format="Small Rectangle"
-        accountId={$accountId$}
-        network="Near"
-        className="rounded-md !max-w-md flex-order-[-1] mx-auto {$isDekstop
-          ? '!hidden'
-          : ''}"
-      /> -->
+      {#if $isDekstop}
+        <GrowthMateAdDekstop
+          unitId="xIX1la+GOKrsTIKier6+TQ=="
+          format="Leaderboard"
+          accountId={$accountId$}
+          network="Near"
+          className="rounded-md !max-w-md flex-order-[-1] mx-auto"
+        />
+      {:else}
+        <GrowthMateAdDekstop
+          unitId="hYb1MaPFOAHGNYt0h/zcHw=="
+          format="Small Rectangle"
+          accountId={$accountId$}
+          network="Near"
+          className="rounded-md !max-w-md flex-order-[-1] mx-auto"
+        />
+      {/if}
       <a
         href="/create"
         class="h-10 px-2 bg-memecooking-400 text-black hover:brightness-110 rounded-md flex items-center justify-center gap-1 font-medium text-sm whitespace-nowrap"

@@ -16,9 +16,12 @@
 
   import { onMount, onDestroy } from "svelte";
 
+  let mounted = false;
+
   $: {
     void accountId, void network;
-    if (window.growthmate !== undefined) window.growthmate.register(unitId);
+    if (mounted && window.growthmate !== undefined)
+      window.growthmate.register(unitId);
   }
 
   onMount(() => {
@@ -35,10 +38,14 @@
     }
 
     script.addEventListener("load", () => window.growthmate.register(unitId));
+
+    mounted = true;
   });
 
   onDestroy(() => {
     window.growthmate?.unregister(unitId);
+
+    mounted = false;
   });
 </script>
 
