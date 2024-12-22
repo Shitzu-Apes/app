@@ -194,6 +194,10 @@
     class="w-full container mx-auto bg-dark"
   >
     <div class="text-white min-h-screen flex flex-col">
+      <div class="bg-yellow-500 text-black py-2 px-4 text-center font-medium">
+        🚧 Meme Cooking contract is paused and under maintenance. Some features
+        may be unavailable. 🚧
+      </div>
       <MCHeader />
       <slot />
       <div
