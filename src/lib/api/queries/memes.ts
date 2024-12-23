@@ -44,15 +44,19 @@ export function createMemesQuery() {
 }
 
 export function createMemeDetailQuery(memeId: Readable<number>) {
-  const memes = queryClient.getQueryData(
-    memesQueryFactory.memes.all.queryKey,
-  ) as Meme[] | undefined;
-  const meme = memes?.find((meme) => meme.meme_id === Number(memeId));
   return createQuery(
-    derived(memeId, (memeId) => ({
-      ...memesQueryFactory.memes.detail(memeId.toString()),
-      staleTime: Infinity,
-      initialData: meme ? { meme } : undefined,
-    })),
+    derived(memeId, (memeId) => {
+      const memes = queryClient.getQueryData(
+        memesQueryFactory.memes.all.queryKey,
+      ) as Meme[] | undefined;
+      const meme = memes?.find(
+        (meme) => Number(meme.meme_id) === Number(memeId),
+      );
+      return {
+        ...memesQueryFactory.memes.detail(memeId.toString()),
+        staleTime: Infinity,
+        initialData: meme ? { meme } : undefined,
+      };
+    }),
   );
 }
