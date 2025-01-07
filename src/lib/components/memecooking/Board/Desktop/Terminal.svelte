@@ -10,11 +10,12 @@
   import SortToggle from "./SortToggle.svelte";
 
   import { queryClient } from "$lib/api/queries";
-  import { createMemesQuery } from "$lib/api/queries/memes";
+  import { createPaginatedMemesQuery } from "$lib/api/queries/memes";
   import { poolStatQueryFactory } from "$lib/api/queries/poolStat";
   import SelectBox from "$lib/components/SelectBox.svelte";
   import { ScreenSize } from "$lib/models";
-  import { nearWallet, Ref } from "$lib/near";
+  import type { Meme } from "$lib/models/memecooking/types";
+  import { nearWallet } from "$lib/near";
   import { widthAtLeast$ } from "$lib/screen-size";
   import {
     orderOptions,
@@ -28,6 +29,8 @@
   let selectedDirection = orderOptions[0];
   let activeTab: "launched" | "all" | "other" | "metapool" = "all";
   let quickActionAmount = "5";
+  let currentPage = 1;
+  let itemsPerPage = 10;
 
   let liveOnly = false;
 
@@ -42,18 +45,26 @@
     liveOnly = false;
   }
 
-  const memesQuery = createMemesQuery();
-  // const poolStatsQuery = createPoolStatsQueries(memesQuery);
+  $: memesQuery = createPaginatedMemesQuery({
+    page: currentPage,
+    limit: itemsPerPage,
+    tab: activeTab as "launched" | "all" | "other" | "metapool",
+    isLive: liveOnly,
+  });
+
   $: {
-    // prefetch pool stats
-    if ($memesQuery.data) {
-      $memesQuery.data.forEach((meme) => {
+    if ($memesQuery.data?.memes) {
+      $memesQuery.data.memes.forEach((meme: Meme) => {
         queryClient.prefetchQuery({
           ...poolStatQueryFactory.poolStat.detail(meme),
           staleTime: Infinity,
         });
       });
     }
+  }
+
+  function handlePageChange(newPage: number) {
+    currentPage = newPage;
   }
 
   // $: displayedMemebids = match(activeTab)
@@ -87,31 +98,6 @@
   //   );
 
   $: isDekstop = widthAtLeast$(ScreenSize.Tablet);
-
-  let loading = true;
-  onMount(async () => {
-    try {
-      let promises = [];
-      let doBreak = false;
-      for (let i = 0; i < 100_000; i += 1_000) {
-        const poolPromise = Ref.getPools(i, 1_000).then((pools) => {
-          if (pools.length < 1_000) {
-            doBreak = true;
-          }
-        });
-        promises.push(poolPromise);
-        if (promises.length >= 5) {
-          await Promise.all(promises);
-          promises = [];
-          if (doBreak) break;
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      loading = false;
-    }
-  });
 </script>
 
 <div class="w-full">
@@ -174,12 +160,37 @@
     <div class="w-full my-10">Something went wrong</div>
   {:else}
     <VirtualMemeList
-      items={$memesQuery.data?.map((meme) => ({ meme })) ?? []}
+      items={$memesQuery.data?.memes.map((meme) => ({ meme })) ?? []}
       showCook={true}
       {quickActionAmount}
       emptyMessage="No memes found"
       update={() => {}}
       className="px-1"
     />
+
+    <div class="flex justify-center mt-4 gap-2">
+      <button
+        class="px-3 py-1 rounded bg-memecooking-400 disabled:opacity-50"
+        disabled={currentPage === 1}
+        on:click={() => handlePageChange(currentPage - 1)}
+      >
+        Previous
+      </button>
+
+      <span class="px-3 py-1">
+        Page {currentPage} of {Math.ceil(
+          ($memesQuery.data?.total ?? 0) / itemsPerPage,
+        )}
+      </span>
+
+      <button
+        class="px-3 py-1 rounded bg-memecooking-400 disabled:opacity-50"
+        disabled={currentPage >=
+          Math.ceil(($memesQuery.data?.total ?? 0) / itemsPerPage)}
+        on:click={() => handlePageChange(currentPage + 1)}
+      >
+        Next
+      </button>
+    </div>
   {/if}
 </div>
