@@ -41,27 +41,18 @@ export async function calculateTokenStats(meme: Meme) {
   if (meme.pool_id) {
     const stats = await getPoolStats(meme.pool_id, meme.decimals);
     const totalSupplyBigInt = BigInt(meme.total_supply!);
-    const nearPriceValue = await getNearPrice();
     price = new FixedNumber(stats.price, 24);
-    mcap = new FixedNumber(
-      stats.price * totalSupplyBigInt,
-      meme.decimals + 24,
-    ).mul(new FixedNumber(nearPriceValue, 24));
-    liquidity = new FixedNumber(stats.liquidity, 24).mul(
-      new FixedNumber(nearPriceValue, 24),
-    );
+    mcap = new FixedNumber(stats.price * totalSupplyBigInt, meme.decimals + 24);
+    liquidity = new FixedNumber(stats.liquidity, 24);
   } else {
     const pricePerTokenInNear = getProjectedMemePriceInNear(meme);
     const totalSupply = BigInt(meme.total_supply || 0);
-    const nearPriceValue = await getNearPrice();
     price = new FixedNumber(pricePerTokenInNear, 24);
     mcap = new FixedNumber(
       pricePerTokenInNear * totalSupply,
       24 + meme.decimals,
-    ).mul(new FixedNumber(nearPriceValue, 24));
-    liquidity = new FixedNumber(BigInt(meme.total_deposit!) * 2n, 24).mul(
-      new FixedNumber(nearPriceValue, 24),
     );
+    liquidity = new FixedNumber(BigInt(meme.total_deposit!) * 2n, 24);
   }
 
   return { mcap, liquidity, price };
