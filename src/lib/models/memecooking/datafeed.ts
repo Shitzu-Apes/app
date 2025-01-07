@@ -1,15 +1,14 @@
 // import { subscribeOnStream, unsubscribeFromStream } from "./streaming.js";
 
-import { get } from "svelte/store";
-
-import { client } from "$lib/api/client";
+import { client, type Meme } from "$lib/api/client";
+import { queryClient } from "$lib/api/queries";
+import { memesQueryFactory } from "$lib/api/queries/memes";
 import type {
   IBasicDataFeed,
   LibrarySymbolInfo,
   ResolutionString,
 } from "$lib/charting_library/charting_library";
 import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/MCWebSocket";
-import { memeMap$ } from "$lib/store/memebids";
 import { getProjectedMemePriceInNear } from "$lib/util/getProjectedMemePriceInNear";
 
 const lastBarsCache: Map<
@@ -40,16 +39,19 @@ const MemeCookingDataFeed: IBasicDataFeed = {
   },
 
   resolveSymbol: async (
-    symbolName,
+    meme_id,
     onSymbolResolvedCallback,
     onResolveErrorCallback,
   ) => {
     try {
-      const memeMap = get(memeMap$);
-      const meme = memeMap.get(Number(symbolName));
-      if (!meme) {
+      const cache = queryClient.getQueryCache();
+      const memeCache = cache.find(memesQueryFactory.memes.detail(meme_id))
+        ?.state.data as { meme: Meme } | null;
+      console.log("[resolveSymbol]: Meme", memeCache);
+      if (!memeCache) {
         throw new Error("Symbol not found");
       }
+      const meme = memeCache.meme;
 
       const symbolInfo: LibrarySymbolInfo = {
         ticker: meme.symbol,
@@ -80,7 +82,7 @@ const MemeCookingDataFeed: IBasicDataFeed = {
         unit_id: meme.meme_id.toString(),
       };
 
-      console.log("[resolveSymbol]: Symbol resolved", symbolName);
+      console.log("[resolveSymbol]: Symbol resolved", meme_id);
       onSymbolResolvedCallback(symbolInfo);
     } catch (err) {
       console.error("[resolveSymbol]: Error resolving symbol", err);
@@ -110,7 +112,7 @@ const MemeCookingDataFeed: IBasicDataFeed = {
       if (!symbolInfo.unit_id) {
         throw new Error("Symbol not found");
       }
-      console.log("[getBars]: Fetching bars");
+      console.log("[getBars]: Fetching bars", symbolInfo.unit_id);
       const responses = await client.POST("/tradingview/history", {
         body: {
           meme_id: symbolInfo.unit_id,

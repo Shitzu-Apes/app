@@ -2,6 +2,7 @@
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
 
   import { createPoolStatQuery } from "$lib/api/queries/poolStat";
+  import { createNearPriceQuery } from "$lib/api/queries/prices";
   import McIcon from "$lib/components/MCIcon.svelte";
   import ActionButton from "$lib/components/memecooking/Board/Desktop/ActionButton.svelte";
   import ProgressBarSmall from "$lib/components/memecooking/Board/Desktop/ProgressBarSmall.svelte";
@@ -50,6 +51,10 @@
   }[status];
 
   const poolStatQuery = createPoolStatQuery(memebid);
+  const nearPriceQuery = createNearPriceQuery();
+
+  $: isLoading = $poolStatQuery.isLoading || $nearPriceQuery.isLoading;
+  $: isError = $poolStatQuery.isError || $nearPriceQuery.isError;
 </script>
 
 <div
@@ -127,13 +132,13 @@
             <div class="flex items-center gap-1">
               <span class="text-memecooking-400">MC:</span>
               <span class="font-medium">
-                {#if $poolStatQuery.isLoading}
+                {#if isLoading}
                   <div class="i-svg-spinners:bars-fade size-4" />
-                {:else if $poolStatQuery.isError}
+                {:else if isError}
                   <div class="i-mdi:alert-circle text-rose-4" />
                   {$poolStatQuery.error}
-                {:else if $poolStatQuery.data}
-                  ${$poolStatQuery.data.mcap.format({
+                {:else if $poolStatQuery.data && $nearPriceQuery.data}
+                  ${$poolStatQuery.data.mcap.mul($nearPriceQuery.data).format({
                     maximumFractionDigits: 3,
                     notation: "compact",
                   })}
@@ -147,11 +152,13 @@
                   <div class="i-svg-spinners:bars-fade size-4" />
                 {:else if $poolStatQuery.isError}
                   <div class="i-mdi:alert-circle text-rose-4" />
-                {:else if $poolStatQuery.data}
-                  ${$poolStatQuery.data.liquidity.format({
-                    maximumFractionDigits: 3,
-                    notation: "compact",
-                  })}
+                {:else if $poolStatQuery.data && $nearPriceQuery.data}
+                  ${$poolStatQuery.data.liquidity
+                    .mul($nearPriceQuery.data)
+                    .format({
+                      maximumFractionDigits: 3,
+                      notation: "compact",
+                    })}
                 {/if}
               </span>
             </div>
