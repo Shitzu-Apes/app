@@ -25,14 +25,32 @@ export type PoolInfo = {
 };
 
 export abstract class Ref {
-  public static getPoolByIds(poolIds: number[]) {
-    return view<PoolInfo[]>(
+  private static poolCache: Record<
+    number,
+    {
+      pool: PoolInfo;
+      timestamp: number;
+    }
+  > = {};
+
+  public static async getPoolByIds(poolIds: number[]) {
+    const pools = await view<PoolInfo[]>(
       import.meta.env.VITE_REF_CONTRACT_ID,
       "get_pool_by_ids",
       {
         pool_ids: poolIds,
       },
     );
+
+    // cache pools
+    for (let i = 0; i < poolIds.length; i++) {
+      this.poolCache[poolIds[i]] = {
+        pool: pools[i],
+        timestamp: Date.now(),
+      };
+    }
+
+    return pools;
   }
 
   public static async getReturn({
@@ -82,14 +100,6 @@ export abstract class Ref {
 
     return new FixedNumber(shitzuOut, 18);
   }
-
-  private static poolCache: Record<
-    number,
-    {
-      pool: PoolInfo;
-      timestamp: number;
-    }
-  > = {};
 
   public static async getPool(poolId: number): Promise<PoolInfo> {
     if (
