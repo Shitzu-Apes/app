@@ -33,6 +33,27 @@ export abstract class Ref {
     }
   > = {};
 
+  public static async getPools(fromIndex: number, limit: number) {
+    const pools = await view<PoolInfo[]>(
+      import.meta.env.VITE_REF_CONTRACT_ID,
+      "get_pools",
+      {
+        from_index: fromIndex,
+        limit,
+      },
+    );
+
+    // cache pools
+    for (let i = 0; i < pools.length; i++) {
+      this.poolCache[fromIndex + i] = {
+        pool: pools[i],
+        timestamp: Date.now(),
+      };
+    }
+
+    return pools;
+  }
+
   public static async getPoolByIds(poolIds: number[]) {
     const pools = await view<PoolInfo[]>(
       import.meta.env.VITE_REF_CONTRACT_ID,

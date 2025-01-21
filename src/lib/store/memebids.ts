@@ -3,7 +3,6 @@ import { derived, get, writable } from "svelte/store";
 import { client, type Trade } from "$lib/api/client";
 import { EXTERNAL_MEMES } from "$lib/external_memes";
 import { type Meme, type MemeInfo } from "$lib/models/memecooking";
-import { Ref } from "$lib/near";
 import { MemeCooking } from "$lib/near/memecooking";
 import { projectedPoolStats } from "$lib/util/projectedMCap";
 
@@ -90,17 +89,6 @@ export async function updateMemebids() {
   try {
     const res = await client.GET("/meme");
     if (!res.data) return;
-    const poolIds = res.data
-      .map((meme) => meme.pool_id)
-      .filter((pool_id): pool_id is number => pool_id !== null);
-
-    // paginated by 1000 pools
-    const chunks = [];
-    for (let i = 0; i < poolIds.length; i += 1000) {
-      const poolIdsChunk = poolIds.slice(i, i + 1000);
-      chunks.push(Ref.getPoolByIds(poolIdsChunk));
-    }
-    await Promise.all(chunks);
 
     const memes: Meme[] = res.data.map((meme) => {
       return {
