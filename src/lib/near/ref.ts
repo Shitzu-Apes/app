@@ -83,10 +83,35 @@ export abstract class Ref {
     return new FixedNumber(shitzuOut, 18);
   }
 
+  private static poolCache: Record<
+    number,
+    {
+      pool: PoolInfo;
+      timestamp: number;
+    }
+  > = {};
+
   public static async getPool(poolId: number): Promise<PoolInfo> {
-    return view<PoolInfo>(import.meta.env.VITE_REF_CONTRACT_ID, "get_pool", {
-      pool_id: poolId,
-    });
+    if (
+      this.poolCache[poolId] &&
+      this.poolCache[poolId].timestamp > Date.now() - 1000 * 60 * 5
+    ) {
+      return this.poolCache[poolId].pool;
+    }
+
+    const pool = await view<PoolInfo>(
+      import.meta.env.VITE_REF_CONTRACT_ID,
+      "get_pool",
+      {
+        pool_id: poolId,
+      },
+    );
+
+    this.poolCache[poolId] = {
+      pool,
+      timestamp: Date.now(),
+    };
+    return pool;
   }
 
   public static async getPoolShares(poolId: number, accountId: string) {
