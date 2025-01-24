@@ -9,6 +9,7 @@
   import { z } from "zod";
 
   import FgBanner from "./FGBanner.svelte";
+  import GrowthMateBanner from "./GrowthMateBanner.svelte";
   import NewMemePreview from "./NewMemePreview.svelte";
   import SoftcapDefault, { CAP_DEFAULT_OPTIONS } from "./SoftcapDefault.svelte";
   import TeamAllocationToggle from "./TeamAllocationToggle.svelte";
@@ -650,6 +651,9 @@
             </div>
           </details>
         </div>
+
+        <!-- GrowthMate Banner -->
+        <GrowthMateBanner />
 
         <!-- Create Token Card -->
         <div class="bg-gray-800 rounded-lg p-4 space-y-4">
