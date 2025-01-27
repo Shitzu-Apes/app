@@ -41,7 +41,7 @@
 
   let selectedSort = sortOptions[0];
   let selectedDirection = orderOptions[0];
-  let activeTab: "launched" | "all" | "other" = "all";
+  let activeTab: "launched" | "all" | "other" | "metapool" = "all";
   let quickActionAmount = "5";
 
   let liveOnly = false;
@@ -49,6 +49,7 @@
   const tabs = [
     { id: "all", label: "Menu" },
     { id: "launched", label: "Cooked" },
+    { id: "metapool", label: "Meme Wars" },
     { id: "other", label: "Imported" },
   ];
 
@@ -67,6 +68,22 @@
         $searchQuery$,
         false,
         false,
+        false,
+      ).map((meme) => ({
+        meme,
+      })),
+    )
+    .with("metapool", () =>
+      filterAndSortMeme(
+        $memebids$,
+        {
+          sort: selectedSort.value,
+          order: selectedDirection.value,
+        },
+        $searchQuery$,
+        false,
+        false,
+        true,
       ).map((meme) => ({
         meme,
       })),
@@ -81,6 +98,7 @@
         $searchQuery$,
         liveOnly,
         activeTab === "launched",
+        false,
       ).map((meme) => ({
         meme,
       })),

@@ -23,6 +23,7 @@ export function filterAndSortMeme<T extends Meme>(
   searchQuery: string,
   liveOnly: boolean,
   ref: boolean,
+  metapool: boolean,
 ): T[] {
   // Filter out memes with 0 total deposit that are older than 2 days
   const twoDaysAgo = Date.now() - 2 * 24 * 60 * 60 * 1000;
@@ -64,6 +65,17 @@ export function filterAndSortMeme<T extends Meme>(
       const isMemeCooking = meme.meme_id >= 0;
       return hasPoolId && isMemeCooking;
     });
+  }
+  if (metapool) {
+    // Only include Metapool campaign memes
+    memes = memes.filter((meme) =>
+      [
+        "tattothetoo.near",
+        "lightwiki139.near",
+        "1459b3cf62120f42d0a53ee29e9a6d44fb8b70d187dcd201146bef9f3143d427",
+        "plebes.near",
+      ].includes(meme.owner),
+    );
   }
 
   switch (sort.sort) {
