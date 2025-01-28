@@ -74,6 +74,7 @@ export function filterAndSortMeme<T extends Meme>(
         "lightwiki139.near",
         "1459b3cf62120f42d0a53ee29e9a6d44fb8b70d187dcd201146bef9f3143d427",
         "plebes.near",
+        "domai.near",
       ].includes(meme.owner),
     );
   }
