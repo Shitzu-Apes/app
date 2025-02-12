@@ -103,7 +103,7 @@
           data: {
             title: "Error",
             description: "Please enter a valid amount",
-            color: "red",
+            type: "error",
           },
         },
       });
@@ -249,7 +249,7 @@
         data: {
           title: event.detail.title,
           description: event.detail.description,
-          color: "red",
+          type: "error",
         },
       },
     });

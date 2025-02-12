@@ -68,7 +68,7 @@
               data: {
                 title: "Login",
                 description: "This wallet does not yet support replying",
-                color: "red",
+                type: "error",
               },
             },
           });
@@ -82,7 +82,7 @@
           data: {
             title: "Reply cannot be empty",
             description: "Please enter a reply",
-            color: "red",
+            type: "error",
           },
         },
       });
@@ -95,7 +95,7 @@
           data: {
             title: "Reply too long",
             description: "Reply must be less than 255 characters",
-            color: "red",
+            type: "error",
           },
         },
       });
@@ -135,7 +135,7 @@
             data: {
               title: "Error",
               description: "Failed to post reply. Please try again.",
-              color: "red",
+              type: "error",
             },
           },
         });

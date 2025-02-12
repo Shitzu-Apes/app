@@ -199,7 +199,7 @@
               data: {
                 title: "Error",
                 description: "Image size should be less than 10KB",
-                color: "red",
+                type: "error",
               },
             },
           });
@@ -219,7 +219,7 @@
               data: {
                 title: "Error",
                 description: "Image is not a valid icon",
-                color: "red",
+                type: "error",
               },
             },
           });

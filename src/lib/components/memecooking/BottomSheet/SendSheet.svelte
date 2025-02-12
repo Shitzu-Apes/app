@@ -113,7 +113,7 @@
           data: {
             title: "Error",
             description: "Failed to send tokens",
-            color: "red",
+            type: "error",
           },
         },
       });

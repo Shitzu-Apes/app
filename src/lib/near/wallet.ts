@@ -288,7 +288,7 @@ export class Wallet {
           data: {
             title: "Error",
             description: "Failed to get nonce",
-            color: "red",
+            type: "error",
           },
         },
       });
@@ -313,7 +313,7 @@ export class Wallet {
             title: "Error",
             description:
               "You can only login with the same account that is currently connected",
-            color: "red",
+            type: "error",
           },
         },
       });

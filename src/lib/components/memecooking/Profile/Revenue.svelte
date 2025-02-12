@@ -43,7 +43,7 @@
           data: {
             title: "Error",
             description: "Please connect your wallet",
-            color: "red",
+            type: "error",
           },
         },
       });
@@ -61,7 +61,7 @@
               title: "Error",
               description:
                 "You have pending claimable Shitstars, but did not yet stake an NFT",
-              color: "red",
+              type: "error",
             },
           },
         });
@@ -72,7 +72,7 @@
             data: {
               title: "Error",
               description: "Nothing to claim",
-              color: "red",
+              type: "error",
             },
           },
         });

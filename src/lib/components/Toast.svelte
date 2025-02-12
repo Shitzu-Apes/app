@@ -5,7 +5,7 @@
         data: {
           title: string;
           description: string;
-          color?: string;
+          type?: "error" | "success";
         };
       }
     | {
@@ -73,7 +73,7 @@
         setTimeout(() => {
           try {
             helpers.removeToast(toast.id);
-          } catch (err) {
+          } catch (_err) {
             // already removed
           }
         }, 8_000);
@@ -100,8 +100,8 @@
 
 <script lang="ts">
   import { createToaster, melt } from "@melt-ui/svelte";
+  import type { ExecutionStatus } from "@near-js/types";
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
-  import type { ExecutionStatus } from "near-api-js/lib/providers/provider";
   import { fly, slide } from "svelte/transition";
 
   import TxSnackbar from "./TxSnackbar.svelte";
@@ -123,21 +123,10 @@
           <div>
             <h3
               use:melt={$title(id)}
-              class="flex items-center gap-2 text-sm font-medium"
-              style:color={data.data.color}
+              class="flex items-center gap-2 text-sm font-semibold"
+              class:text-red-500={data.data.type === "error"}
+              class:text-green-500={data.data.type === "success"}
             >
-              {#if data.data.color}
-                <div class="relative">
-                  <div
-                    class="absolute inset-0 rounded-full opacity-50 animate-ping"
-                    style:background={data.data.color}
-                  ></div>
-                  <div
-                    class="size-2 rounded-full"
-                    style:background={data.data.color}
-                  ></div>
-                </div>
-              {/if}
               {data.data.title}
             </h3>
             <div use:melt={$description(id)} class="text-sm text-gray-300">
@@ -151,6 +140,7 @@
           <button
             use:melt={$close(id)}
             class="absolute right-2 top-2 grid size-5 place-items-center rounded-md text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"
+            aria-label="Close"
           >
             <div class="i-mdi:close size-3" />
           </button>

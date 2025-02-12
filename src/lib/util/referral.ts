@@ -92,7 +92,7 @@ export async function shareWithReferral($accountId$?: string, meme?: Meme) {
               $accountId$ != null
                 ? "Link with referral copied!"
                 : "Link copied (need to register for referrals)",
-            color: "green",
+            type: "success",
           },
         },
       });

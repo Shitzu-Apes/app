@@ -31,7 +31,7 @@
             data: {
               title: "Woof-tastic!",
               description: `You've made ${woofIntensity} Shitzu${woofIntensity > 1 ? "s" : ""} very happy! 🐶`,
-              color: "green",
+              type: "success",
             },
           },
         });
@@ -65,7 +65,7 @@
             title: "Ruh-roh!",
             description:
               "The treat slipped out of our paws. Give it another go?",
-            color: "red",
+            type: "error",
           },
         },
       });

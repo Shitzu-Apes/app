@@ -28,7 +28,7 @@
           data: {
             title: "Failed to flag meme",
             description: "Please login to flag memes",
-            color: "red",
+            type: "error",
           },
         },
       });

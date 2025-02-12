@@ -15,7 +15,7 @@
 
   let messages: ShitChatMessage[] = [];
   let newMessage: string = "";
-  let chatContainer: HTMLElement;
+  let chatContainer: HTMLElement | null = null;
   let socket: WebSocket | null = null;
   let imageFile: File | null = null;
   let imagePreview: string | null = null;
@@ -97,7 +97,7 @@
           data: {
             title: "Login",
             description: "Please login to use ShitChat",
-            color: "red",
+            type: "error",
           },
         },
       });
@@ -272,7 +272,7 @@
                           title: "Login",
                           description:
                             "This wallet does not yet support replying",
-                          color: "red",
+                          type: "error",
                         },
                       },
                     });

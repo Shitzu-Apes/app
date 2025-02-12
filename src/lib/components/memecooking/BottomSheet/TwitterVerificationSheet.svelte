@@ -31,7 +31,7 @@
             data: {
               title: "Login",
               description: "This wallet does not yet support verification",
-              color: "red",
+              type: "error",
             },
           },
         });
@@ -50,7 +50,7 @@
           data: {
             title: "Unauthorized",
             description: "You must be the owner of this meme to verify it",
-            color: "red",
+            type: "error",
           },
         },
       });

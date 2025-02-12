@@ -60,7 +60,7 @@
                         data: {
                           title: "Copied",
                           description: "Contract address copied!",
-                          color: "green",
+                          type: "success",
                         },
                       },
                     });

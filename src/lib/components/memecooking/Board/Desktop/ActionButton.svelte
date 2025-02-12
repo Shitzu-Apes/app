@@ -180,7 +180,7 @@
               data: {
                 title: "Invalid Referral",
                 description: "Referral cannot be the same as depositor",
-                color: "red",
+                type: "error",
               },
             },
           });
@@ -193,7 +193,7 @@
               data: {
                 title: "Invalid Referral",
                 description: "Referral not registered",
-                color: "red",
+                type: "error",
               },
             },
           });

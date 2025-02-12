@@ -36,7 +36,7 @@
           data: {
             title: "Success",
             description: "Referral link copied to clipboard!",
-            color: "green",
+            type: "success",
           },
         },
       });

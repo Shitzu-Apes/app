@@ -60,7 +60,7 @@ export function webWalletLogin(currentAccountId: string) {
             title: "Error",
             description:
               "You can only login with the same account that is currently connected",
-            color: "red",
+            type: "error",
           },
         },
       });

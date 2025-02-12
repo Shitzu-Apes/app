@@ -81,7 +81,7 @@
             "Twitter Verification " +
             (status === "error" ? "Error" : "Success"),
           description: message,
-          color: status === "error" ? "red" : "green",
+          type: status === "error" ? "error" : "success",
         },
       },
     });
