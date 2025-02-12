@@ -1,11 +1,14 @@
-import type { HereCall } from "@here-wallet/core";
-import type { Action, FinalExecutionOutcome } from "@near-wallet-selector/core";
+import type {
+  Action,
+  FinalExecutionOutcome,
+  Transaction,
+} from "@near-wallet-selector/core";
 import { derived, get, writable, type Writable } from "svelte/store";
 
 import { Ft } from "./fungibleToken";
 import { checkIfAccountExists } from "./rpc";
 import { view } from "./utils";
-import { wallet, Wallet, type TransactionCallbacks } from "./wallet";
+import { nearWallet, Wallet, type TransactionCallbacks } from "./wallet";
 
 import { client } from "$lib/api/client";
 import type {
@@ -225,7 +228,7 @@ export abstract class MemeCooking {
     needStorageDeposit: { depositAmount: string } | null = null,
     wrapNearDeposit: { depositAmount: string } | null = null,
   ) {
-    const transactions: HereCall[] = [];
+    const transactions: Omit<Transaction, "signerId">[] = [];
 
     if (needStorageDeposit) {
       transactions.push({
@@ -244,7 +247,7 @@ export abstract class MemeCooking {
       });
     }
 
-    const actions: HereCall["actions"] = [];
+    const actions: Action[] = [];
 
     if (wrapNearDeposit) {
       actions.push({
@@ -301,7 +304,7 @@ export abstract class MemeCooking {
     args: { memeId: number; amount: string; unwrapNear: boolean },
     callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
   ) {
-    const transactions: HereCall[] = [];
+    const transactions: Omit<Transaction, "signerId">[] = [];
 
     transactions.push({
       receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
@@ -354,7 +357,7 @@ export abstract class MemeCooking {
     },
     callback: TransactionCallbacks<FinalExecutionOutcome[]> = {},
   ) {
-    const transactions: HereCall[] = [];
+    const transactions: Omit<Transaction, "signerId">[] = [];
     const { meme, isWithdraw, unwrapNear, unwrapAmount } = args;
 
     const MIN_STORAGE_DEPOSIT = 1_250_000_000_000_000_000_000n;
@@ -481,7 +484,7 @@ export abstract class MemeCooking {
     const tokenId = getTokenId(args.meme);
     const isRegistered = await Ft.isUserRegistered(tokenId, accountId);
 
-    const transactions: HereCall[] = [];
+    const transactions: Omit<Transaction, "signerId">[] = [];
 
     if (!isRegistered) {
       const MIN_STORAGE_DEPOSIT = 1_250_000_000_000_000_000_000n;
@@ -599,7 +602,7 @@ export abstract class MemeCooking {
     ]);
     const isRegistered = !!storageBalance;
 
-    const transactions: HereCall[] = [];
+    const transactions: Omit<Transaction, "signerId">[] = [];
     if (!isRegistered) {
       transactions.push({
         receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
@@ -642,7 +645,7 @@ const _mcAccount$: Writable<Promise<McAccount | undefined>> = writable(
 );
 export const mcAccount$ = derived(_mcAccount$, (a) => a);
 
-wallet.accountId$.subscribe((accountId) => {
+nearWallet.accountId$.subscribe((accountId) => {
   if (accountId) {
     updateMcAccount(accountId);
   } else {

@@ -30,7 +30,7 @@
     openBottomSheet,
   } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme, TeamAllocation } from "$lib/models/memecooking";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
   import {
     imageFileToIcon,
@@ -127,7 +127,7 @@
     localStorage.removeItem("meme_to_cto");
   }
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   const storageCost$ = writable<ReturnType<typeof fetchStorageCost>>(
     new Promise<never>(() => {}),
@@ -326,32 +326,37 @@
             : undefined,
       };
 
-      return MemeCooking.createMeme(wallet, createParams, await $storageCost$, {
-        onSuccess: async (outcome) => {
-          function isFinalExecutionStatus(
-            status: FinalExecutionStatus | FinalExecutionStatusBasic,
-          ): status is FinalExecutionStatus {
-            return (
-              typeof status === "object" &&
-              (status.SuccessValue !== undefined ||
-                status.Failure !== undefined)
-            );
-          }
-
-          // replace with logic to make sure that all the data is ready to be displayed
-          if (outcome) {
-            if (
-              isFinalExecutionStatus(outcome.status) &&
-              typeof outcome.status.SuccessValue === "string"
-            ) {
-              const decodedOutcome = atob(outcome.status.SuccessValue);
-
-              goto(`/meme/${decodedOutcome}`);
-              closeBottomSheet();
+      return MemeCooking.createMeme(
+        nearWallet,
+        createParams,
+        await $storageCost$,
+        {
+          onSuccess: async (outcome) => {
+            function isFinalExecutionStatus(
+              status: FinalExecutionStatus | FinalExecutionStatusBasic,
+            ): status is FinalExecutionStatus {
+              return (
+                typeof status === "object" &&
+                (status.SuccessValue !== undefined ||
+                  status.Failure !== undefined)
+              );
             }
-          }
+
+            // replace with logic to make sure that all the data is ready to be displayed
+            if (outcome) {
+              if (
+                isFinalExecutionStatus(outcome.status) &&
+                typeof outcome.status.SuccessValue === "string"
+              ) {
+                const decodedOutcome = atob(outcome.status.SuccessValue);
+
+                goto(`/meme/${decodedOutcome}`);
+                closeBottomSheet();
+              }
+            }
+          },
         },
-      });
+      );
     };
 
     openBottomSheet(CreateCoinSheet, {

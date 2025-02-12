@@ -4,7 +4,7 @@
   import { addToast } from "../Toast.svelte";
 
   import { Button } from "$lib/components";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
 
   export let checkpoint: number | null;
   export let claimable: number;
@@ -48,7 +48,7 @@
   }
 
   async function claim() {
-    return wallet.signAndSendTransaction(
+    return nearWallet.signAndSendTransaction(
       {
         receiverId: "memeseason.0xshitzu.near",
         actions: [

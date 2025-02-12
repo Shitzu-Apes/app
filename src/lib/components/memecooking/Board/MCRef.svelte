@@ -24,7 +24,7 @@
     Ft,
     nearBalance,
     refreshNearBalance,
-    wallet,
+    nearWallet,
     type TransactionCallbacks,
   } from "$lib/near";
   import { updateMcAccount } from "$lib/near/memecooking";
@@ -42,7 +42,7 @@
     { id: "sell", label: "Sell" },
   ];
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   let input: TokenInput;
   $: input$ = input?.u128$;

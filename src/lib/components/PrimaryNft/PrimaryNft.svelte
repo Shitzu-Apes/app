@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { HereCall } from "@here-wallet/core";
+  import type { Transaction } from "@near-wallet-selector/core";
   import { slide } from "svelte/transition";
 
   import Squircle from "../Squircle.svelte";
@@ -8,12 +8,12 @@
 
   import { BuyNftBanner, Button } from "$lib/components";
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
-  import { Nft, wallet, type Token } from "$lib/near";
+  import { Nft, nearWallet, type Token } from "$lib/near";
   import { primaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
 
   let selectedNftTokenId = "";
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   let nfts: Promise<Token[] | null> = new Promise((resolve) => resolve(null));
 
@@ -31,7 +31,7 @@
   }
 
   async function stake() {
-    const transactions: HereCall[] = [];
+    const transactions: Omit<Transaction, "signerId">[] = [];
     if (await $primaryNftTokenId) {
       transactions.push({
         receiverId: import.meta.env.VITE_REWARDER_CONTRACT_ID,
@@ -66,7 +66,7 @@
         },
       ],
     });
-    await wallet.signAndSendTransactions(
+    await nearWallet.signAndSendTransactions(
       { transactions },
       {
         onSuccess: () => {
@@ -81,7 +81,7 @@
   }
 
   async function unstake() {
-    await wallet.signAndSendTransaction(
+    await nearWallet.signAndSendTransaction(
       {
         receiverId: import.meta.env.VITE_REWARDER_CONTRACT_ID,
         actions: [

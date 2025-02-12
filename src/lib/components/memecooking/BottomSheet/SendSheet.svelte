@@ -13,13 +13,13 @@
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { Ft, wallet, type TransactionCallbacks } from "$lib/near";
+  import { Ft, nearWallet, type TransactionCallbacks } from "$lib/near";
   import { FixedNumber } from "$lib/util";
   import { getTokenId } from "$lib/util/getTokenId";
 
   export let meme: Meme;
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   let input: TokenInput;
   $: input$ = input?.u128$;
@@ -94,7 +94,7 @@
       },
     });
     try {
-      await wallet.signAndSendTransactions(
+      await nearWallet.signAndSendTransactions(
         {
           transactions: [
             {

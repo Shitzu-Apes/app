@@ -17,7 +17,7 @@
   import McIcon from "$lib/components/MCIcon.svelte";
   import { ScreenSize } from "$lib/models";
   import type { Meme } from "$lib/models/memecooking";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
   import { screenSize$ } from "$lib/screen-size";
 
   let reply: string = "";
@@ -27,7 +27,7 @@
   let className: string = "";
   export { className as class };
 
-  const { accountId$, walletId$ } = wallet;
+  const { accountId$, walletId$ } = nearWallet;
 
   let scrollContainer: HTMLDivElement;
   let postingReply: boolean = false;
@@ -73,7 +73,7 @@
             },
           });
         })
-        .otherwise(wallet.login);
+        .otherwise(nearWallet.login);
     }
     if (reply.trim() === "") {
       addToast({

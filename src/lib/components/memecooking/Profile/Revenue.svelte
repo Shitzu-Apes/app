@@ -7,7 +7,7 @@
 
   import Near from "$lib/assets/Near.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
-  import { Rewarder, wallet } from "$lib/near";
+  import { Rewarder, nearWallet } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
   import { FixedNumber } from "$lib/util";
   import { shareWithReferral } from "$lib/util/referral";
@@ -32,7 +32,7 @@
 
   let amount = hasRevenue ? revenue![0].amount : "0";
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   async function claim() {
     const accountId = $accountId$;
@@ -80,7 +80,7 @@
       return;
     }
     MemeCooking.claimIncome(
-      wallet,
+      nearWallet,
       {
         token_ids: revenue!.map((r) => r.token_id),
       },

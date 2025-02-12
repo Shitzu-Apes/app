@@ -4,10 +4,10 @@
   import { addToast } from "$lib/components/Toast.svelte";
   import XOauthButton from "$lib/components/XOauthButton.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
 
   export let meme: Meme;
-  const { accountId$, walletId$ } = wallet;
+  const { accountId$, walletId$ } = nearWallet;
 
   let currentStep = 1;
   const totalSteps = 2;
@@ -34,7 +34,7 @@
         });
         return;
       }
-      await wallet.login();
+      await nearWallet.login();
       currentStep = 2;
       return;
     }

@@ -6,9 +6,9 @@
   import TeamAllocationSheet from "$lib/components/memecooking/BottomSheet/TeamAllocationSheet.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   export let meme: Meme;
 </script>

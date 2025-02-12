@@ -1,6 +1,6 @@
 import { addToast } from "$lib/components/Toast.svelte";
 import type { Meme } from "$lib/models/memecooking";
-import { wallet } from "$lib/near";
+import { nearWallet } from "$lib/near";
 import { MemeCooking } from "$lib/near/memecooking";
 
 export const REFERRAL_LOCALSTORAGE_KEY = "memecooking_referral";
@@ -56,7 +56,7 @@ export async function shareWithReferral($accountId$?: string, meme?: Meme) {
       ]);
     const isRegistered = storageBalance != null;
     if (!isRegistered) {
-      await wallet.signAndSendTransaction(
+      await nearWallet.signAndSendTransaction(
         {
           receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
           actions: [

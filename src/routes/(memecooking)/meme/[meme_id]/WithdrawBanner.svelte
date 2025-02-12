@@ -4,7 +4,7 @@
   import Near from "$lib/assets/Near.svelte";
   import SHITZU_MC from "$lib/assets/static/shitzu_mc.png";
   import type { Meme } from "$lib/models/memecooking";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
   import {
     mcAccount$,
     MemeCooking,
@@ -17,7 +17,7 @@
   export let meme: Meme;
 
   let depositAmount: FixedNumber | null = null;
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   $: if ($mcAccount$ && meme) {
     updateDepositAmount($mcAccount$, meme);
@@ -42,7 +42,7 @@
 
     try {
       await MemeCooking.claim(
-        wallet,
+        nearWallet,
         {
           meme,
           isWithdraw: true,

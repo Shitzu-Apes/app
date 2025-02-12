@@ -8,10 +8,10 @@
   import Chatlist from "$lib/components/ShitChat/Chatlist.svelte";
   import type { ShitChatMessage } from "$lib/components/ShitChat/types";
   import { addToast } from "$lib/components/Toast.svelte";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
   import { resolvedPrimaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
 
-  const { accountId$, walletId$ } = wallet;
+  const { accountId$, walletId$ } = nearWallet;
 
   let messages: ShitChatMessage[] = [];
   let newMessage: string = "";
@@ -278,7 +278,7 @@
                     });
                   })
                   .otherwise(async () => {
-                    await wallet.login();
+                    await nearWallet.login();
                     await fetchIsLoggedIn();
                     initializeSocket();
                   });

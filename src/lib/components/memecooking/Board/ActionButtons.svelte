@@ -3,13 +3,13 @@
   import { flagMeme, unflagMeme, myFlags$ } from "$lib/auth/flag";
   import { fetchIsLoggedIn, isLoggedIn$ } from "$lib/auth/login";
   import { addToast } from "$lib/components/Toast.svelte";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
   import { updateMemeFlagCount } from "$lib/store/memebids";
   import { shareWithReferral } from "$lib/util/referral";
 
   export let meme: Meme;
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   $: twitterShareText = `Check out $${meme.symbol} token launch pool on @memedotcooking:\n\n`;
   $: twitterShareUrl = `https://meme.cooking/meme/${meme.meme_id}?referral=${$accountId$ ?? ""}`;
@@ -32,7 +32,7 @@
           },
         },
       });
-      return await wallet.login();
+      return nearWallet.login();
     }
     if (isFlagged) {
       unflagMeme(meme.meme_id);

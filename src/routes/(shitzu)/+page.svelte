@@ -5,10 +5,10 @@
     RefMemeSeason,
     ShitzuEcosystem,
   } from "$lib/components";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
   import { memes } from "$lib/store";
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 </script>
 
 <div class="flex flex-col gap-[1.2rem]">

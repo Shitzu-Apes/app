@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { HereCall } from "@here-wallet/core";
+  import type { Transaction } from "@near-wallet-selector/core";
   import { createEventDispatcher } from "svelte";
   import { get } from "svelte/store";
 
   import Button from "./Button.svelte";
 
-  import { Dogshit, Ft, wallet } from "$lib/near";
+  import { Dogshit, Ft, nearWallet } from "$lib/near";
 
   const dispatch = createEventDispatcher();
 
@@ -14,11 +14,11 @@
 
   async function handleClaimButton() {
     dispatch("claimStart", { loading: true });
-    const transactions: HereCall[] = [];
+    const transactions: Omit<Transaction, "signerId">[] = [];
     const tokenIds = await Dogshit.getUndistributedRewards().then((rewards) =>
       rewards.map(([tokenId]) => tokenId),
     );
-    const accountId = get(wallet.accountId$);
+    const accountId = get(nearWallet.accountId$);
     if (!accountId) return;
     await Promise.all(
       tokenIds.map(async (tokenId) => {
@@ -42,7 +42,7 @@
       }),
     );
 
-    await wallet.signAndSendTransactions(
+    await nearWallet.signAndSendTransactions(
       {
         transactions: [
           ...transactions,

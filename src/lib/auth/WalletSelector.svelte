@@ -12,16 +12,16 @@
   } from "$lib/layout/BottomSheet/Container.svelte";
   import type { UnionModuleState } from "$lib/models";
   import type { colorVariant } from "$lib/models/variant";
-  import { NEAR_WALLETS, wallet } from "$lib/near";
+  import { NEAR_WALLETS, nearWallet } from "$lib/near";
 
   export let variant: colorVariant = "lime";
 
-  const modules$ = wallet.modules$;
+  const modules$ = nearWallet.modules$;
 
   let disclaimerAccepted = hasAcceptedWalletDisclaimer();
 
   async function handleWalletClick(unionMod: UnionModuleState) {
-    await wallet.loginViaWalletSelector(unionMod);
+    await nearWallet.loginViaWalletSelector(unionMod);
     closeBottomSheet();
   }
 </script>
@@ -41,11 +41,7 @@
         on:acceptDisclaimer={() => {
           acceptWalletDisclaimer();
 
-          if (wallet.isTG) {
-            wallet.loginViaHere();
-          } else {
-            disclaimerAccepted = true;
-          }
+          disclaimerAccepted = true;
         }}
       />
     {:else}

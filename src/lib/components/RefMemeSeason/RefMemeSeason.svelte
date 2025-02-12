@@ -10,11 +10,11 @@
     LPFarm,
     Ref,
     MemeSeason,
-    wallet,
+    nearWallet,
   } from "$lib/near";
   import { FixedNumber } from "$lib/util";
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   $: xRefStaked = new Promise((resolve, reject) => {
     if (!$accountId$) {

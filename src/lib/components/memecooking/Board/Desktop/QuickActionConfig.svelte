@@ -5,7 +5,7 @@
   import Near from "$lib/assets/Near.svelte";
   import TokenInput from "$lib/components/TokenInput.svelte";
   import { nearBalance, refreshNearBalance } from "$lib/near";
-  import { wallet } from "$lib/near/wallet";
+  import { nearWallet } from "$lib/near/wallet";
 
   export let quickActionAmount = "5";
   let formattedBalance = "0";
@@ -15,7 +15,7 @@
   }
 
   onMount(() => {
-    const accountId = get(wallet.accountId$);
+    const accountId = get(nearWallet.accountId$);
     if (accountId) {
       refreshNearBalance(accountId);
     }

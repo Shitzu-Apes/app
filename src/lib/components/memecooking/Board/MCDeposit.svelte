@@ -18,7 +18,7 @@
     openBottomSheet,
   } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { Ft, nearBalance, refreshNearBalance, wallet } from "$lib/near";
+  import { Ft, nearBalance, refreshNearBalance, nearWallet } from "$lib/near";
   import {
     mcAccount$,
     MemeCooking,
@@ -39,7 +39,7 @@
 
   let activeTab = "deposit";
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   let input: TokenInput;
   $: input$ = input?.u128$;
@@ -210,7 +210,7 @@
 
       const amount = $input$.clone();
       await MemeCooking.deposit(
-        wallet,
+        nearWallet,
         {
           amount: $input$.toU128(),
           extraNearDeposit: extraNearDeposit.toString(),
@@ -275,7 +275,7 @@
       };
       if (meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now()) {
         return MemeCooking.claim(
-          wallet,
+          nearWallet,
           {
             meme,
             unwrapNear,
@@ -287,7 +287,7 @@
         );
       } else {
         return MemeCooking.withdraw(
-          wallet,
+          nearWallet,
           {
             amount: $input$.toU128(),
             memeId: meme.meme_id,

@@ -9,7 +9,7 @@
 
   import Near from "$lib/assets/Near.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
   import type { Portfolio } from "$lib/store/portfolio";
   import type { FixedNumber } from "$lib/util";
   import { getNearPrice, nearPrice } from "$lib/util/projectedMCap";
@@ -18,7 +18,7 @@
   export let portfolio: Portfolio | null;
   export let nearBalance: FixedNumber | null;
 
-  $: isOwnAccount = accountId === get(wallet.accountId$);
+  $: isOwnAccount = accountId === get(nearWallet.accountId$);
 
   getNearPrice();
 

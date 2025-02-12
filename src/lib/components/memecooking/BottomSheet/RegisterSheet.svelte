@@ -1,18 +1,18 @@
 <script lang="ts">
-  import type { HereCall } from "@here-wallet/core";
+  import type { Transaction } from "@near-wallet-selector/core";
 
   import { addToast } from "../../Toast.svelte";
 
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
 
   export let accountId: string;
-  export let transactions: HereCall[];
+  export let transactions: Omit<Transaction, "signerId">[];
 
   function sendRegister() {
     closeBottomSheet();
-    wallet.signAndSendTransactions(
+    nearWallet.signAndSendTransactions(
       { transactions },
       {
         onSuccess: () => {

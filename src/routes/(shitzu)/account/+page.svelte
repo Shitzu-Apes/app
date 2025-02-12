@@ -9,7 +9,7 @@
   import RefMemeSeason from "$lib/components/RefMemeSeason/RefMemeSeason.svelte";
   import Squircle from "$lib/components/Squircle.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
-  import { Pool, wallet } from "$lib/near";
+  import { Pool, nearWallet } from "$lib/near";
   import {
     primaryNftTokenId,
     refreshPrimaryNftOf,
@@ -17,7 +17,7 @@
   } from "$lib/store";
   import { FixedNumber } from "$lib/util";
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   $: {
     if ($accountId$) {
@@ -74,7 +74,7 @@
   <div class="flex flex-col w-full relative">
     <button
       class="w-fit text-red hover:bg-red/10 px-3 py-2 rounded-full text-sm flex items-center justify-center gap-1 mt-2 self-end"
-      on:click={() => wallet.signOut()}
+      on:click={() => nearWallet.signOut()}
     >
       <div class="i-mdi:logout size-4" />
       disconnect

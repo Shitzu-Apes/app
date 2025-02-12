@@ -10,7 +10,7 @@
   import Near from "$lib/assets/Near.svelte";
   import { TokenInput, BurnTheShit, Button } from "$lib/components";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
   import { memes, primaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
   import { FixedNumber } from "$lib/util";
 
@@ -19,7 +19,7 @@
   export let stake: FixedNumber;
   export let afterUpdateBalances: () => void;
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   $: {
     if ($accountId$) {
@@ -98,7 +98,7 @@
 
   async function handleStakeButton() {
     if (!$input$ || $input$.valueOf() === 0n) return;
-    await wallet.signAndSendTransaction(
+    await nearWallet.signAndSendTransaction(
       {
         receiverId: import.meta.env.VITE_VALIDATOR_CONTRACT_ID,
         actions: [

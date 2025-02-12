@@ -5,10 +5,10 @@
   import RefWhitelistSheet from "$lib/components/memecooking/BottomSheet/RefWhitelistSheet.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
 
   export let meme: Meme;
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 </script>
 
 {#if $accountId$ === meme.owner && meme.pool_id}

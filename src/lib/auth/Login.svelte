@@ -5,10 +5,10 @@
 
   import { page } from "$app/stores";
   import { Button, Squircle } from "$lib/components";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
   import { resolvedPrimaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
 
-  const accountId$ = wallet.accountId$;
+  const accountId$ = nearWallet.accountId$;
 
   const {
     elements: { menu, item, trigger },
@@ -32,12 +32,10 @@
           class={isActive ? "text-emerald" : "text-lime"}
         />
       </a>
-      {#if !wallet.isTG}
-        <button
-          use:melt={$trigger}
-          class="bg-lime hover:bg-lime/15 flex justify-center items-center decoration-none i-mdi:menu size-6"
-        />
-      {/if}
+      <button
+        use:melt={$trigger}
+        class="bg-lime hover:bg-lime/15 flex justify-center items-center decoration-none i-mdi:menu size-6"
+      />
     </div>
   {:else}
     <Button
@@ -60,7 +58,7 @@
     <div
       use:melt={$item}
       on:m-click={() => {
-        wallet.signOut();
+        nearWallet.signOut();
       }}
       class="cursor-pointer hover:bg-lime/15 rounded-xl p-2"
     >

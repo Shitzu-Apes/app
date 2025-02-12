@@ -1,7 +1,7 @@
 import type { FinalExecutionOutcome } from "near-api-js/lib/providers";
 
 import { view } from "./utils";
-import { wallet, type TransactionCallbacks } from "./wallet";
+import { nearWallet, type TransactionCallbacks } from "./wallet";
 
 import type { FungibleTokenMetadata } from "$lib/abi";
 import { FixedNumber } from "$lib/util";
@@ -65,7 +65,7 @@ export abstract class Ft {
     memo: string,
     callback: TransactionCallbacks<FinalExecutionOutcome> = {},
   ) {
-    return wallet.signAndSendTransaction(
+    return nearWallet.signAndSendTransaction(
       {
         receiverId: tokenId,
         actions: [

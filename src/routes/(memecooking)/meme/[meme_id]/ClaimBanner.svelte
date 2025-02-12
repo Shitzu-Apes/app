@@ -4,7 +4,7 @@
   import SHITZU_LIKE from "$lib/assets/static/shitzu_like.png";
   import McIcon from "$lib/components/MCIcon.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
   import { MemeCooking, updateMcAccount } from "$lib/near/memecooking";
   import { fetchBlockHeight } from "$lib/near/rpc";
   import { FixedNumber } from "$lib/util";
@@ -12,7 +12,7 @@
   export let meme: Meme;
 
   let claimAmount: FixedNumber | null = null;
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   $: if ($accountId$) {
     MemeCooking.getClaimable($accountId$, meme.meme_id).then((amount) => {
@@ -29,7 +29,7 @@
 
     try {
       await MemeCooking.claim(
-        wallet,
+        nearWallet,
         {
           meme,
         },

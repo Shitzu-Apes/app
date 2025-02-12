@@ -9,7 +9,7 @@
 
   import SHITZU from "$lib/assets/logo/shitzu.webp";
   import SHITZU_FACE from "$lib/assets/logo/shitzu_face.svg";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
   import {
     primaryNftTokenId,
     refreshPrimaryNftOf,
@@ -33,7 +33,7 @@
 
   const dispatch = createEventDispatcher();
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   $: {
     if ($accountId$) {
@@ -66,7 +66,7 @@
       return;
     }
 
-    return wallet.signAndSendTransaction(
+    return nearWallet.signAndSendTransaction(
       {
         receiverId: "token.0xshitzu.near",
         actions: [

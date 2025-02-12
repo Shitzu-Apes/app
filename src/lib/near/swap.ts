@@ -1,5 +1,8 @@
-import type { HereCall } from "@here-wallet/core";
-import type { Action, FinalExecutionOutcome } from "@near-wallet-selector/core";
+import type {
+  Action,
+  FinalExecutionOutcome,
+  Transaction,
+} from "@near-wallet-selector/core";
 import { get } from "svelte/store";
 
 import type { Meme } from "$lib/models/memecooking";
@@ -7,7 +10,7 @@ import {
   Ft,
   nearBalance,
   Ref,
-  wallet,
+  nearWallet,
   type TransactionCallbacks,
 } from "$lib/near";
 import { FixedNumber } from "$lib/util";
@@ -31,7 +34,7 @@ export async function handleBuy(
     .div(new FixedNumber("100", 2))
     .toU128();
 
-  const transactions: HereCall[] = [];
+  const transactions: Omit<Transaction, "signerId">[] = [];
 
   const [
     isRegistered,
@@ -144,7 +147,7 @@ export async function handleBuy(
     actions,
   });
 
-  await wallet.signAndSendTransactions({ transactions }, callback);
+  await nearWallet.signAndSendTransactions({ transactions }, callback);
 }
 
 const SHITZU_CONTRACT_ID = import.meta.env.VITE_SHITZU_CONTRACT_ID;
@@ -174,7 +177,7 @@ export async function handleSell(
     .div(new FixedNumber("100", 2))
     .toU128();
 
-  const transactions: HereCall[] = [];
+  const transactions: Omit<Transaction, "signerId">[] = [];
 
   const isWnearRegistered = await Ft.isUserRegistered(
     import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
@@ -307,5 +310,5 @@ export async function handleSell(
     ],
   });
 
-  await wallet.signAndSendTransactions({ transactions }, callback);
+  await nearWallet.signAndSendTransactions({ transactions }, callback);
 }

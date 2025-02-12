@@ -8,7 +8,7 @@
   import { Faq, Stake, MessageBox, ValidatorStatistics } from "$lib/components";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import {
-    wallet,
+    nearWallet,
     nearBalance,
     refreshNearBalance,
     type PoolFarm,
@@ -26,7 +26,7 @@
   let farm: PoolFarm | null = null;
   let undistributedRewards: [AccountId, string][] = [];
 
-  let accountId$ = wallet.accountId$;
+  let accountId$ = nearWallet.accountId$;
 
   $: hasStakedNft = $accountId$
     ? Rewarder.primaryNftOf($accountId$).then((nft) => nft != null)
@@ -63,7 +63,7 @@
   let loading = false;
   async function withdraw() {
     loading = true;
-    await wallet.signAndSendTransaction(
+    await nearWallet.signAndSendTransaction(
       {
         receiverId: import.meta.env.VITE_VALIDATOR_CONTRACT_ID,
         actions: [

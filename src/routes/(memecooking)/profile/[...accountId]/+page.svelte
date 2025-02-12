@@ -13,7 +13,7 @@
   import Tabs from "$lib/components/memecooking/Board/Tabs.svelte";
   import MemeList from "$lib/components/memecooking/Profile/MemeList.svelte";
   import Revenue from "$lib/components/memecooking/Profile/Revenue.svelte";
-  import { fetchAccountBalance, wallet } from "$lib/near";
+  import { fetchAccountBalance, nearWallet } from "$lib/near";
   import {
     fetchMcAccount,
     mcAccount$,
@@ -27,7 +27,7 @@
   import { nearPrice } from "$lib/util/projectedMCap";
 
   $: accountId = $page.params.accountId;
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   $: isOwnAccount = accountId === $accountId$;
   $: displayAccountId =

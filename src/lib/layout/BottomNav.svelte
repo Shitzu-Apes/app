@@ -2,11 +2,11 @@
   import { page } from "$app/stores";
   import { showWalletSelector } from "$lib/auth/showWalletSelector";
   import Squircle from "$lib/components/Squircle.svelte";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
   import paths from "$lib/paths";
   import { resolvedPrimaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
 
-  const accountId$ = wallet.accountId$;
+  const accountId$ = nearWallet.accountId$;
 
   const icons: {
     [key in (typeof paths)[number]["slug"]]: string;

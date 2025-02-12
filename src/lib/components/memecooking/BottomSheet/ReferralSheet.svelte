@@ -7,13 +7,13 @@
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
   import type { FixedNumber } from "$lib/util";
 
   export let amount: FixedNumber;
   export let meme: Meme;
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   const twitterShareText = `I just deposited into the $${meme.symbol} token launch pool on @memedotcooking!\n\nGo check it out here:\n`;
   $: twitterShareUrl = `https://meme.cooking/meme/${meme.meme_id}?referral=${$accountId$ ?? ""}`;

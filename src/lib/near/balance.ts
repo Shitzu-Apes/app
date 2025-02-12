@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 
-import { wallet } from "./wallet";
+import { nearWallet } from "./wallet";
 
 import { FixedNumber } from "$lib/util";
 
@@ -48,7 +48,7 @@ export async function refreshNearBalance(accountId?: string): Promise<void> {
   }
 }
 
-wallet.accountId$.subscribe((accountId) => {
+nearWallet.accountId$.subscribe((accountId) => {
   if (accountId == null) return;
   refreshNearBalance(accountId);
 });

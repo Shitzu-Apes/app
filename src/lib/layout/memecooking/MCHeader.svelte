@@ -11,9 +11,9 @@
   import Chef from "$lib/components/memecooking/Chef.svelte";
   import MemeCreationNotification from "$lib/components/memecooking/Notification/MemeCreationNotification.svelte";
   import Notification from "$lib/components/memecooking/Notification/Notification.svelte";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
 
-  const { accountId$, iconUrl$, walletName$ } = wallet;
+  const { accountId$, iconUrl$, walletName$ } = nearWallet;
 
   const {
     elements: { trigger, item, menu },
@@ -195,7 +195,7 @@
                   </Chef>
                   <button
                     class="text-gray-300 hover:text-white text-sm"
-                    on:click={wallet.signOut}
+                    on:click={nearWallet.signOut}
                   >
                     <div class="i-mdi:logout text-xl" />
                   </button>
@@ -205,9 +205,7 @@
           {:else}
             <button
               class="px-4 py-1 rounded-lg text-sm bg-shitzu-4 text-black font-medium hover:bg-shitzu-5 transition-colors duration-200"
-              on:click={wallet.isTG
-                ? wallet.loginViaHere
-                : () => showWalletSelector("shitzu")}
+              on:click={() => showWalletSelector("shitzu")}
             >
               Connect Wallet
             </button>

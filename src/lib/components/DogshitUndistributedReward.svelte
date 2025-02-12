@@ -3,10 +3,10 @@
   import TokenBalance from "./TokenBalance.svelte";
 
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
-  import { Dogshit, Pool, wallet } from "$lib/near";
+  import { Dogshit, Pool, nearWallet } from "$lib/near";
   import { getTokenSortIndex } from "$lib/store";
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   let rewardsPromise: Promise<Awaited<ReturnType<typeof Dogshit.simulateBurn>>>;
 

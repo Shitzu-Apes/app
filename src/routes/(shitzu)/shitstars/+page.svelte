@@ -2,11 +2,11 @@
   import { slide } from "svelte/transition";
 
   import { Faq, Donation, Leaderboard } from "$lib/components";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
   import { refreshPrimaryNftOf, resolvedPrimaryNftTokenId } from "$lib/store";
   import { ranking, refreshRanking } from "$lib/store/ranking";
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   const limit = 500;
   const displayPerPage = 7;

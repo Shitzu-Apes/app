@@ -21,7 +21,7 @@
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import MCHeader from "$lib/layout/memecooking/MCHeader.svelte";
   import { ScreenSize } from "$lib/models";
-  import { Ref, wagmiConfig, wallet } from "$lib/near";
+  import { Ref, wagmiConfig, nearWallet } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
   import { screenSize$ } from "$lib/screen-size";
   import {
@@ -103,7 +103,7 @@
     $ws.close();
   });
 
-  let resizeObserver: ResizeObserver;
+  let resizeObserver: ResizeObserver | undefined;
   onMount(() => {
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
@@ -136,7 +136,7 @@
 
     watchAccount(wagmiConfig, {
       onChange: async (data) => {
-        const selector = await get(wallet.selector$);
+        const selector = await get(nearWallet.selector$);
         if (!data.address || selector.store.getState().selectedWalletId) {
           return;
         }
@@ -149,7 +149,7 @@
     });
   });
 
-  const { accountId$, walletId$ } = wallet;
+  const { accountId$, walletId$ } = nearWallet;
   derived([accountId$, walletId$], (stores) => Promise.all(stores)).subscribe(
     async (stores) => {
       const [accountId, walletId] = await stores;

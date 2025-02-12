@@ -10,7 +10,7 @@
   import ReferralSheet from "$lib/components/memecooking/BottomSheet/ReferralSheet.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { Ref, wallet } from "$lib/near";
+  import { Ref, nearWallet } from "$lib/near";
   import { Ft } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
   import { handleBuy } from "$lib/near/swap";
@@ -18,7 +18,7 @@
   import { getTokenId } from "$lib/util/getTokenId";
   import { getReferral, removeReferral } from "$lib/util/referral";
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
   export let update:
     | ((
         outcome: FinalExecutionOutcome | FinalExecutionOutcome[] | undefined,
@@ -42,7 +42,7 @@
     try {
       if (memebid.end_timestamp_ms < Date.now()) {
         await MemeCooking.claim(
-          wallet,
+          nearWallet,
           {
             meme: memebid,
             isWithdraw: true,
@@ -53,7 +53,7 @@
         );
       } else {
         await MemeCooking.withdraw(
-          wallet,
+          nearWallet,
           {
             memeId: memebid.meme_id,
             amount: depositAmount,
@@ -70,7 +70,11 @@
   async function claim(ev: Event) {
     ev.preventDefault();
     try {
-      await MemeCooking.claim(wallet, { meme: memebid }, { onSuccess: update });
+      await MemeCooking.claim(
+        nearWallet,
+        { meme: memebid },
+        { onSuccess: update },
+      );
     } catch (e) {
       console.error(e);
     }
@@ -196,7 +200,7 @@
         }
 
         await MemeCooking.deposit(
-          wallet,
+          nearWallet,
           {
             amount: input.toU128(),
             extraNearDeposit: extraNearDeposit.toString(),

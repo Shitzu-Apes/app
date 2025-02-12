@@ -14,14 +14,14 @@
   import BottomNav from "$lib/layout/BottomNav.svelte";
   import { BottomSheet } from "$lib/layout/BottomSheet";
   import { ScreenSize } from "$lib/models";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
   import { screenSize$ } from "$lib/screen-size";
   import { refreshShitzuBalance } from "$lib/store";
 
   // eslint-disable-next-line import/no-named-as-default-member
   dayjs.extend(localizedFormat);
 
-  let resizeObserver: ResizeObserver;
+  let resizeObserver: ResizeObserver | undefined;
   onMount(() => {
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
@@ -49,7 +49,7 @@
     resizeObserver.unobserve(window.document.body);
   });
 
-  wallet.accountId$.subscribe((accountId) => {
+  nearWallet.accountId$.subscribe((accountId) => {
     if (accountId == null) return;
     refreshShitzuBalance(accountId);
   });

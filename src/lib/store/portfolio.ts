@@ -1,7 +1,7 @@
 import { derived, get, writable } from "svelte/store";
 import { z } from "zod";
 
-import { wallet } from "$lib/near/wallet";
+import { nearWallet } from "$lib/near/wallet";
 import { memebids$ } from "$lib/store/memebids";
 import { getTokenPrice, updateTokenPrice } from "$lib/util/projectedMCap";
 
@@ -104,7 +104,7 @@ export async function fetchPortfolio(
 }
 
 // Derived store that updates when account changes
-export const portfolio$ = derived(wallet.accountId$, ($accountId, set) => {
+export const portfolio$ = derived(nearWallet.accountId$, ($accountId, set) => {
   if (!$accountId) {
     set(null);
     return;
@@ -115,7 +115,7 @@ export const portfolio$ = derived(wallet.accountId$, ($accountId, set) => {
 
 // Helper function to manually refresh portfolio
 export function refreshPortfolio() {
-  const accountId = get(wallet.accountId$);
+  const accountId = get(nearWallet.accountId$);
   if (!accountId) return;
 
   fetchPortfolio(accountId).then(portfolioStore.set);

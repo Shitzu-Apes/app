@@ -10,7 +10,7 @@
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { MemeInfo } from "$lib/models/memecooking";
   import { MemeCooking } from "$lib/near/memecooking";
-  import { wallet } from "$lib/near/wallet";
+  import { nearWallet } from "$lib/near/wallet";
   import { FixedNumber } from "$lib/util";
 
   export let meme: Meme & {
@@ -28,7 +28,7 @@
 
   async function loadData() {
     try {
-      const accountId = get(wallet.accountId$);
+      const accountId = get(nearWallet.accountId$);
       if (!accountId) {
         error = "Please connect wallet first";
         return;
@@ -87,7 +87,7 @@
     if (!meme || !claimable) return;
 
     await MemeCooking.claimVesting(
-      wallet,
+      nearWallet,
       { meme },
       {
         onSuccess: () => {

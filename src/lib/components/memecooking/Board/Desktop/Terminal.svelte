@@ -15,7 +15,7 @@
   import SelectBox from "$lib/components/SelectBox.svelte";
   import { external_memes } from "$lib/external_memes";
   import { ScreenSize } from "$lib/models";
-  import { wallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
   import { screenSize$, widthAtLeast$ } from "$lib/screen-size";
   import {
     memebids$,
@@ -37,7 +37,7 @@
     );
   }
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   let selectedSort = sortOptions[0];
   let selectedDirection = orderOptions[0];

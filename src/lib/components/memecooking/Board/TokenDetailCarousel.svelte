@@ -18,8 +18,8 @@
   import TeamAllocation from "$lib/components/memecooking/Board/TokenAllocation.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { wallet } from "$lib/near";
-  const { accountId$ } = wallet;
+  import { nearWallet } from "$lib/near";
+  const { accountId$ } = nearWallet;
 
   export let meme: Meme;
 </script>

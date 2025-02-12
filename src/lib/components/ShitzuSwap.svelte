@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { HereCall } from "@here-wallet/core";
+  import type { Transaction } from "@near-wallet-selector/core";
   import { writable } from "svelte/store";
 
   import { Near } from "$lib/assets";
@@ -7,7 +7,13 @@
   import { ConnectWallet } from "$lib/auth";
   import { DayPriceChart } from "$lib/components";
   import { TokenInput } from "$lib/components";
-  import { Ft, Ref, nearBalance, refreshNearBalance, wallet } from "$lib/near";
+  import {
+    Ft,
+    Ref,
+    nearBalance,
+    refreshNearBalance,
+    nearWallet,
+  } from "$lib/near";
   import {
     shitzuBalance,
     shitzuPriceHistory,
@@ -54,7 +60,7 @@
     }
   }
 
-  const { accountId$ } = wallet;
+  const { accountId$ } = nearWallet;
 
   let shitzuOut:
     | {
@@ -105,7 +111,7 @@
       .div(new FixedNumber("100", 2))
       .toU128();
 
-    const transactions: HereCall[] = [];
+    const transactions: Omit<Transaction, "signerId">[] = [];
 
     if (!isRegistered) {
       const deposit = await Ft.storageRequirement("token.0xshitzu.near");
@@ -163,7 +169,7 @@
       ],
     });
 
-    await wallet.signAndSendTransactions(
+    await nearWallet.signAndSendTransactions(
       { transactions },
       {
         onSuccess: () => {
