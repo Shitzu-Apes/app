@@ -11,7 +11,13 @@ import {
 import { match, P } from "ts-pattern";
 import { erc20Abi } from "viem";
 
-import { evmWallet$, config } from "$lib/evm/wallet";
+import {
+  evmWallet$,
+  config,
+  baseConfig,
+  arbitrumConfig,
+  mainnetConfig,
+} from "$lib/evm/wallet";
 import type { Balance, EvmChain, Network, Token } from "$lib/models/tokens";
 import { Ft, nearWallet } from "$lib/near";
 import { solanaWallet } from "$lib/solana/wallet";
@@ -144,11 +150,12 @@ async function fetchEvmBalance(
       return undefined;
     }
 
-    console.log("[tokenAddress]", tokenAddress);
-    console.log("[address]", address);
-    console.log("[chain]", chain);
-    console.log("[config]", config);
-    const balance = await readContract(config, {
+    const chainConfig = match(chain)
+      .with("base", () => baseConfig)
+      .with("arbitrum", () => arbitrumConfig)
+      .with("ethereum", () => mainnetConfig)
+      .otherwise(() => config);
+    const balance = await readContract(chainConfig, {
       address: tokenAddress,
       abi: erc20Abi,
       functionName: "balanceOf",
@@ -201,7 +208,6 @@ evmWallet$.subscribe(async (wallet) => {
   }
 
   for (const token of Object.keys(TOKENS) as (keyof typeof TOKENS)[]) {
-    console.log("fetching", token, "balance");
     const baseBalance = await match(TOKENS[token].addresses.base)
       .with(P.string, () => {
         return fetchEvmBalance(token, "base", wallet.address);
@@ -209,7 +215,6 @@ evmWallet$.subscribe(async (wallet) => {
       .otherwise(() => {
         return undefined;
       });
-    console.log("[baseBalance]", baseBalance);
     const arbitrumBalance = await match(TOKENS[token].addresses.arbitrum)
       .with(P.string, () => {
         return fetchEvmBalance(token, "arbitrum", wallet.address);
@@ -217,7 +222,6 @@ evmWallet$.subscribe(async (wallet) => {
       .otherwise(() => {
         return undefined;
       });
-    console.log("[arbitrumBalance]", arbitrumBalance);
     const ethereumBalance = await match(TOKENS[token].addresses.ethereum)
       .with(P.string, () => {
         return fetchEvmBalance(token, "ethereum", wallet.address);
@@ -225,7 +229,6 @@ evmWallet$.subscribe(async (wallet) => {
       .otherwise(() => {
         return undefined;
       });
-    console.log("[ethereumBalance]", ethereumBalance);
     balances$[token].update((b) => ({
       ...b,
       base: baseBalance,

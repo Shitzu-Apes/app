@@ -50,6 +50,25 @@ export const config = createConfig({
   connectors: [injected()],
   transports,
 });
+export const baseConfig = createConfig({
+  chains:
+    import.meta.env.VITE_NETWORK_ID === "mainnet" ? [base] : [baseSepolia],
+  connectors: [injected()],
+  transports,
+});
+export const arbitrumConfig = createConfig({
+  chains:
+    import.meta.env.VITE_NETWORK_ID === "mainnet"
+      ? [arbitrum]
+      : [arbitrumSepolia],
+  connectors: [injected()],
+  transports,
+});
+export const mainnetConfig = createConfig({
+  chains: import.meta.env.VITE_NETWORK_ID === "mainnet" ? [mainnet] : [sepolia],
+  connectors: [injected()],
+  transports,
+});
 
 // Create and export a readable wallet store
 export type Wallet = GetAccountReturnType;
