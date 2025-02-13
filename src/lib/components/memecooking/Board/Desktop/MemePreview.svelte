@@ -53,8 +53,11 @@
   const poolStatQuery = createPoolStatQuery(memebid);
   const nearPriceQuery = createNearPriceQuery();
 
-  $: isLoading = $poolStatQuery.isLoading || $nearPriceQuery.isLoading;
-  $: isError = $poolStatQuery.isError || $nearPriceQuery.isError;
+  $: isLoading =
+    $poolStatQuery?.status === "pending" ||
+    $nearPriceQuery?.status === "pending";
+  $: isError =
+    $poolStatQuery?.status === "error" || $nearPriceQuery?.status === "error";
 </script>
 
 <div
