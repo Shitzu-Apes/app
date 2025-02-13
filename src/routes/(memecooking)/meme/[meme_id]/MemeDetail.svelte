@@ -16,7 +16,7 @@
   import StatusBar from "$lib/components/memecooking/Board/StatusBar.svelte";
   import TeamAllocation from "$lib/components/memecooking/Board/TokenAllocation.svelte";
   import TokenChart from "$lib/components/memecooking/Board/TokenChart.svelte";
-  import TokenHolder from "$lib/components/memecooking/Board/TokenHolder.svelte";
+  import TokenHolder from "$lib/components/memecooking/Board/TokenHolder/index.svelte";
   import Chef from "$lib/components/memecooking/Chef.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { getTokenId } from "$lib/util/getTokenId";

@@ -11,7 +11,7 @@
   import StatusBar from "./StatusBar.svelte";
   import TokenChart from "./TokenChart.svelte";
   import TokenDetail from "./TokenDetail.svelte";
-  import TokenHolder from "./TokenHolder.svelte";
+  import TokenHolder from "./TokenHolder/index.svelte";
 
   import { goto } from "$app/navigation";
   import McIcon from "$lib/components/MCIcon.svelte";
