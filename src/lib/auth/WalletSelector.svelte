@@ -2,7 +2,7 @@
   import type { SignerWalletAdapter } from "@solana/wallet-adapter-base";
   import { connect, getConnectors, disconnect } from "@wagmi/core";
 
-  import { config, evmWallet$, switchToBase } from "$lib/evm/wallet";
+  import { config, evmWallet$, switchToChain } from "$lib/evm/wallet";
   import {
     closeBottomSheet,
     openBottomSheet,
@@ -55,7 +55,7 @@
   async function handleBaseWalletClick(connector: (typeof connectors)[number]) {
     try {
       await connect(config, { connector });
-      await switchToBase();
+      await switchToChain();
       closeBottomSheet();
     } catch (error) {
       console.error("Failed to connect Base wallet:", error);

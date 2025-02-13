@@ -3,8 +3,11 @@ import { WalletSelector } from ".";
 import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
 import type { colorVariant } from "$lib/models/variant";
 
-export async function showWalletSelector(variant: colorVariant = "lime") {
-  openBottomSheet(WalletSelector, { variant });
+export async function showWalletSelector(
+  variant: colorVariant = "lime",
+  initialNetwork?: Network,
+) {
+  openBottomSheet(WalletSelector, { variant, initialNetwork });
 }
 
 export const ACCEPT_DISCLAIMER_LOCAL_STORAGE_KEY = "accept-disclaimer";

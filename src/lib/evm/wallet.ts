@@ -9,13 +9,26 @@ import {
   switchChain as _switchChain,
   injected,
 } from "@wagmi/core";
-import { base, baseSepolia } from "@wagmi/core/chains";
+import {
+  arbitrum,
+  arbitrumSepolia,
+  base,
+  baseSepolia,
+  mainnet,
+  sepolia,
+} from "@wagmi/core/chains";
 import { writable } from "svelte/store";
 
 import { browser } from "$app/environment";
 import { addToast } from "$lib/components/Toast.svelte";
 
-export type ConfiguredChain = typeof base;
+export type ConfiguredChain =
+  | typeof base
+  | typeof baseSepolia
+  | typeof arbitrum
+  | typeof arbitrumSepolia
+  | typeof mainnet
+  | typeof sepolia;
 export type ConfiguredChainId = ConfiguredChain["id"];
 
 // Initialize chain-specific transports
@@ -27,7 +40,9 @@ const transports: Record<number, Transport> = {
 // Create wagmi config
 export const config = createConfig({
   chains:
-    import.meta.env.VITE_NETWORK_ID === "mainnet" ? [base] : [baseSepolia],
+    import.meta.env.VITE_NETWORK_ID === "mainnet"
+      ? [arbitrum, base, mainnet]
+      : [arbitrumSepolia, baseSepolia, sepolia],
   connectors: [injected()],
   transports,
 });
@@ -72,10 +87,9 @@ if (browser) {
 /**
  * Request wallet to switch to Base chain
  */
-export function switchToBase() {
+export function switchToChain(chainId: ConfiguredChainId) {
   return _switchChain(config, {
-    chainId:
-      import.meta.env.VITE_NETWORK_ID === "mainnet" ? base.id : baseSepolia.id,
+    chainId,
   });
 }
 
