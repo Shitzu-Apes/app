@@ -35,6 +35,10 @@ export type ConfiguredChainId = ConfiguredChain["id"];
 const transports: Record<number, Transport> = {
   [base.id]: http(),
   [baseSepolia.id]: http(),
+  [arbitrum.id]: http(),
+  [arbitrumSepolia.id]: http(),
+  [mainnet.id]: http(),
+  [sepolia.id]: http(),
 };
 
 // Create wagmi config
@@ -64,7 +68,7 @@ if (browser) {
             type: "simple",
             data: {
               title: "Connect",
-              description: `Successfully connected Base account ${account.address.slice(0, 6)}...${account.address.slice(-4)}`,
+              description: `Successfully connected EVM account ${account.address.slice(0, 6)}...${account.address.slice(-4)}`,
             },
           },
         });
@@ -74,7 +78,7 @@ if (browser) {
             type: "simple",
             data: {
               title: "Disconnect",
-              description: "Disconnected Base wallet",
+              description: "Disconnected EVM wallet",
             },
           },
         });
@@ -85,7 +89,7 @@ if (browser) {
 }
 
 /**
- * Request wallet to switch to Base chain
+ * Request wallet to switch to EVM chain
  */
 export function switchToChain(chainId: ConfiguredChainId) {
   return _switchChain(config, {

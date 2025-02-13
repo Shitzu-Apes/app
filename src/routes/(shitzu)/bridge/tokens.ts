@@ -1,8 +1,14 @@
 import { getAssociatedTokenAddress, getAccount } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import { readContract } from "@wagmi/core";
-import { writable, get, type Writable } from "svelte/store";
-import { match } from "ts-pattern";
+import {
+  writable,
+  get,
+  type Writable,
+  derived,
+  type Readable,
+} from "svelte/store";
+import { match, P } from "ts-pattern";
 import { erc20Abi } from "viem";
 
 import { evmWallet$, config } from "$lib/evm/wallet";
@@ -15,9 +21,9 @@ const { account$ } = nearWallet;
 const { publicKey$ } = solanaWallet;
 
 export const TOKENS = {
-  JLU: {
-    symbol: "JLU",
-    icon: "https://raw.githubusercontent.com/Shitzu-Apes/jlu/c9b2bdbd004aef8a02eea1894aa8ab77e9fb83ad/app/static/logo.webp",
+  BURN: {
+    symbol: "BURN",
+    icon: "https://plum-necessary-chameleon-942.mypinata.cloud/ipfs/QmVA9RFwK7WEuEAxkVBBoe8Jn8n41fSj759znKB321CCpJ",
     decimals: {
       near: 18,
       solana: 9,
@@ -26,13 +32,49 @@ export const TOKENS = {
       ethereum: undefined,
     },
     addresses: {
-      near: import.meta.env.VITE_JLU_TOKEN_ID,
-      solana: import.meta.env.VITE_JLU_TOKEN_ID_SOLANA,
-      base: import.meta.env.VITE_JLU_TOKEN_ID_BASE as `0x${string}`,
+      near: "burn-1411.meme-cooking.near",
+      solana: "DUTnBCHccnt6JMwdfjhsnDWC7bTpQZMQSVQkP24WxmAo",
+      base: "0xadaeb24f2c12131ceedb85c6061bdabbd51f8232",
       arbitrum: undefined,
       ethereum: undefined,
     },
   },
+  SOMES: {
+    symbol: "SOMES",
+    icon: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjUiIGhlaWdodD0iNjYiIHZpZXdCb3g9IjAgMCA2NSA2NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTY0IDEwLjQzODVDNjQuNTUyMyAxMC40Mzg1IDY1IDEwLjg4NjIgNjUgMTEuNDM4NVY1NC45Mzg1QzY1IDU1LjQ5MDggNjQuNTUyMyA1NS45Mzg1IDY0IDU1LjkzODVINjAuMTI1VjU5LjgxMzVDNjAuMTI1IDYwLjM2NTggNTkuNjc3MyA2MC44MTM1IDU5LjEyNSA2MC44MTM1SDU1LjI1VjY0LjY4ODVDNTUuMjUgNjUuMjQwOCA1NC44MDIzIDY1LjY4ODUgNTQuMjUgNjUuNjg4NUgxMC43NUMxMC4xOTc3IDY1LjY4ODUgOS43NSA2NS4yNDA4IDkuNzUgNjQuNjg4NVY2MC44MTM1SDUuODc1QzUuMzIyNzIgNjAuODEzNSA0Ljg3NSA2MC4zNjU4IDQuODc1IDU5LjgxMzVWNTUuOTM4NUgxQzAuNDQ3NzE1IDU1LjkzODUgMCA1NS40OTA4IDAgNTQuOTM4NVYxMS40Mzg1QzAgMTAuODg2MiAwLjQ0NzcxNSAxMC40Mzg1IDEgMTAuNDM4NUg0Ljg3NVY2LjU2MzQ4QzQuODc1IDYuMDExMTkgNS4zMjI3MiA1LjU2MzQ4IDUuODc1IDUuNTYzNDhIOS43NVYxLjY4ODQ4QzkuNzUgMS4xMzYxOSAxMC4xOTc3IDAuNjg4NDc3IDEwLjc1IDAuNjg4NDc3SDU0LjI1QzU0LjgwMjMgMC42ODg0NzcgNTUuMjUgMS4xMzYxOSA1NS4yNSAxLjY4ODQ4VjUuNTYzNDhINTkuMTI1QzU5LjY3NzMgNS41NjM0OCA2MC4xMjUgNi4wMTExOSA2MC4xMjUgNi41NjM0OFYxMC40Mzg1SDY0WiIgZmlsbD0iIzA2MDYwNiIvPgo8ZyBjbGlwLXBhdGg9InVybCgjY2xpcDBfNjg2MF82NzA0KSI+CjxwYXRoIGQ9Ik00My41Mzg2IDE0SDE1VjIyLjAyODhIMzcuNzk5OUMzOS44MTYyIDIyLjAyODggNDEuNjU2MyAyMi44NTI0IDQxLjY1NjMgMjQuNjU2OFYyOS4zMjgxQzQxLjY1NjMgMzEuNjYzNyAzOS44MTYyIDMyLjI0NzIgMzcuNzk5OSAzMi4yNDcySDI0LjMwNjFMMzkuMDQwNyA1Mi42ODRINTAuOTgzNUw0MC4xMjY0IDM4LjA4NjNINDMuNTM4NkM0My41Mzg2IDM4LjA4NjMgNTAuOTgzNSAzOC42NzA3IDUwLjk4MzUgMzAuNDk1OVYyMS4xNTMzQzUwLjk4MzUgMTUuMzE0MiA0Ni43Nzk2IDE0IDQzLjUzODYgMTRaIiBmaWxsPSIjOUVGRjAwIi8+CjxwYXRoIGQ9Ik0xNSA1Mi42ODU0VjM2LjYyNzlMMjYuNjMyNiA1Mi42ODU0SDE1WiIgZmlsbD0iIzlFRkYwMCIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzY4NjBfNjcwNCI+CjxyZWN0IHdpZHRoPSIzNiIgaGVpZ2h0PSIzOC42NDcxIiBmaWxsPSJ3aGl0ZSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTUgMTQpIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==",
+    decimals: {
+      near: 18,
+      solana: 9,
+      base: 18,
+      arbitrum: undefined,
+      ethereum: undefined,
+    },
+    addresses: {
+      near: "somes.tkn.primitives.near",
+      solana: "JDErYzAaEVbCHkD6K8SuESoCBtdoSCG17UFGyvtBKWYy",
+      base: undefined,
+      arbitrum: undefined,
+      ethereum: undefined,
+    },
+  },
+  // JLU: {
+  //   symbol: "JLU",
+  //   icon: "https://raw.githubusercontent.com/Shitzu-Apes/jlu/c9b2bdbd004aef8a02eea1894aa8ab77e9fb83ad/app/static/logo.webp",
+  //   decimals: {
+  //     near: 18,
+  //     solana: 9,
+  //     base: 18,
+  //     arbitrum: undefined,
+  //     ethereum: undefined,
+  //   },
+  //   addresses: {
+  //     near: "jlu-1018.meme-cooking.near",
+  //     solana: undefined,
+  //     base: undefined,
+  //     arbitrum: undefined,
+  //     ethereum: undefined,
+  //   },
+  // },
 } as const satisfies Record<string, Token>;
 
 export const TOKEN_ENTRIES = Object.entries(TOKENS) as [
@@ -41,7 +83,9 @@ export const TOKEN_ENTRIES = Object.entries(TOKENS) as [
 ][];
 
 export const balances$: Record<keyof typeof TOKENS, Writable<Balance>> = {
-  JLU: writable<Balance>({}),
+  BURN: writable<Balance>({}),
+  SOMES: writable<Balance>({}),
+  // JLU: writable<Balance>({}),
 };
 
 async function fetchNearBalance(
@@ -97,10 +141,13 @@ async function fetchEvmBalance(
     const decimals = TOKENS[token].decimals[chain];
 
     if (!tokenAddress || !decimals) {
-      console.warn(`Token ${token} not supported on ${chain}`);
       return undefined;
     }
 
+    console.log("[tokenAddress]", tokenAddress);
+    console.log("[address]", address);
+    console.log("[chain]", chain);
+    console.log("[config]", config);
     const balance = await readContract(config, {
       address: tokenAddress,
       abi: erc20Abi,
@@ -124,10 +171,7 @@ account$.subscribe(async (account) => {
   }
 
   for (const token of Object.keys(TOKENS) as (keyof typeof TOKENS)[]) {
-    const balance = await fetchNearBalance(
-      TOKENS[token].addresses.near,
-      account.accountId,
-    );
+    const balance = await fetchNearBalance(token, account.accountId);
     balances$[token].update((b) => ({ ...b, near: balance }));
   }
 });
@@ -142,10 +186,7 @@ publicKey$.subscribe(async (publicKey) => {
   }
 
   for (const token of Object.keys(TOKENS) as (keyof typeof TOKENS)[]) {
-    const balance = await fetchSolanaBalance(
-      TOKENS[token].addresses.solana,
-      publicKey,
-    );
+    const balance = await fetchSolanaBalance(token, publicKey);
     balances$[token].update((b) => ({ ...b, solana: balance }));
   }
 });
@@ -160,26 +201,43 @@ evmWallet$.subscribe(async (wallet) => {
   }
 
   for (const token of Object.keys(TOKENS) as (keyof typeof TOKENS)[]) {
-    const baseBalance = await fetchEvmBalance(token, "base", wallet.address);
-    const arbitrumBalance = await fetchEvmBalance(
-      token,
-      "arbitrum",
-      wallet.address,
-    );
+    console.log("fetching", token, "balance");
+    const baseBalance = await match(TOKENS[token].addresses.base)
+      .with(P.string, () => {
+        return fetchEvmBalance(token, "base", wallet.address);
+      })
+      .otherwise(() => {
+        return undefined;
+      });
+    console.log("[baseBalance]", baseBalance);
+    const arbitrumBalance = await match(TOKENS[token].addresses.arbitrum)
+      .with(P.string, () => {
+        return fetchEvmBalance(token, "arbitrum", wallet.address);
+      })
+      .otherwise(() => {
+        return undefined;
+      });
+    console.log("[arbitrumBalance]", arbitrumBalance);
+    const ethereumBalance = await match(TOKENS[token].addresses.ethereum)
+      .with(P.string, () => {
+        return fetchEvmBalance(token, "ethereum", wallet.address);
+      })
+      .otherwise(() => {
+        return undefined;
+      });
+    console.log("[ethereumBalance]", ethereumBalance);
     balances$[token].update((b) => ({
       ...b,
       base: baseBalance,
       arbitrum: arbitrumBalance,
+      ethereum: ethereumBalance,
     }));
   }
 });
 
 // Function to manually update balance
 let updateTimeoutId: ReturnType<typeof setTimeout>;
-export function updateTokenBalance(
-  token: keyof typeof TOKENS,
-  diff?: FixedNumber,
-): void {
+export function updateTokenBalance(token: keyof typeof TOKENS): void {
   clearTimeout(updateTimeoutId);
   updateTimeoutId = setTimeout(async () => {
     const account = get(account$);
@@ -188,57 +246,35 @@ export function updateTokenBalance(
 
     // Update NEAR balance if connected
     if (account?.accountId) {
-      if (diff) {
-        balances$[token].update((balance) => ({
-          ...balance,
-          near: balance.near ? balance.near.add(diff) : diff,
-        }));
-      } else {
-        const nearBalance = await fetchNearBalance(token, account.accountId);
-        balances$[token].update((b) => ({ ...b, near: nearBalance }));
-      }
+      const nearBalance = await fetchNearBalance(token, account.accountId);
+      balances$[token].update((b) => ({ ...b, near: nearBalance }));
     }
 
     // Update Solana balance if connected
     if (publicKey) {
-      if (diff) {
-        balances$[token].update((balance) => ({
-          ...balance,
-          solana: balance.solana ? balance.solana.add(diff) : diff,
-        }));
-      } else {
-        const solanaBalance = await fetchSolanaBalance(
-          TOKENS[token].addresses.solana,
-          publicKey,
-        );
-        balances$[token].update((b) => ({ ...b, solana: solanaBalance }));
-      }
+      const solanaBalance = await fetchSolanaBalance(token, publicKey);
+      balances$[token].update((b) => ({ ...b, solana: solanaBalance }));
     }
 
-    // Update Base balance if connected
+    // Update EVM balances if connected
     if (wallet.status === "connected") {
-      if (diff) {
-        balances$[token].update((balance) => ({
-          ...balance,
-          base: balance.base ? balance.base.add(diff) : diff,
-        }));
-      } else {
-        const baseBalance = await fetchEvmBalance(
-          token,
-          "base",
-          wallet.address,
-        );
-        const arbitrumBalance = await fetchEvmBalance(
-          token,
-          "arbitrum",
-          wallet.address,
-        );
-        balances$[token].update((b) => ({
-          ...b,
-          base: baseBalance,
-          arbitrum: arbitrumBalance,
-        }));
-      }
+      const baseBalance = await fetchEvmBalance(token, "base", wallet.address);
+      const arbitrumBalance = await fetchEvmBalance(
+        token,
+        "arbitrum",
+        wallet.address,
+      );
+      const ethereumBalance = await fetchEvmBalance(
+        token,
+        "ethereum",
+        wallet.address,
+      );
+      balances$[token].update((b) => ({
+        ...b,
+        base: baseBalance,
+        arbitrum: arbitrumBalance,
+        ethereum: ethereumBalance,
+      }));
     }
   }, 1000);
 }
@@ -265,6 +301,10 @@ export function findTokenByAddress(
 
   if (!chain) return undefined;
 
+  if (address.includes(":")) {
+    address = address.split(":")[1];
+  }
+
   return Object.entries(TOKENS).find(
     ([_, token]) =>
       token.addresses[chain]?.toLowerCase() === address.toLowerCase(),
@@ -275,13 +315,27 @@ export function findTokenByAddress(
 export function getTokenBalance(
   network: Network,
   token: keyof typeof TOKENS,
-): bigint {
-  const balance = get(balances$[token]);
-  return match(network)
-    .with("near", () => balance.near?.valueOf() ?? 0n)
-    .with("solana", () => (balance.solana?.valueOf() ?? 0n) * 1000000000n)
-    .with("base", () => balance.base?.valueOf() ?? 0n)
-    .with("arbitrum", () => balance.arbitrum?.valueOf() ?? 0n)
-    .with("ethereum", () => balance.ethereum?.valueOf() ?? 0n)
-    .exhaustive();
+): Readable<FixedNumber> {
+  return derived(balances$[token], ($balance) => {
+    const rawBalance = match(network)
+      .with("near", () => $balance.near?.valueOf() ?? 0n)
+      .with("solana", () => $balance.solana?.valueOf() ?? 0n)
+      .with("base", () => $balance.base?.valueOf() ?? 0n)
+      .with("arbitrum", () => $balance.arbitrum?.valueOf() ?? 0n)
+      .with("ethereum", () => $balance.ethereum?.valueOf() ?? 0n)
+      .exhaustive();
+
+    return new FixedNumber(
+      rawBalance.toString(),
+      TOKENS[token].decimals[network] ?? 18,
+    );
+  });
+}
+
+// Add this helper function to check if a token is available on a network
+export function isTokenAvailableOnNetwork(
+  token: keyof typeof TOKENS,
+  network: Network,
+): boolean {
+  return TOKENS[token].addresses[network] !== undefined;
 }

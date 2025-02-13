@@ -4,7 +4,7 @@
   import { onMount } from "svelte";
   import { match } from "ts-pattern";
 
-  import { updateTokenBalance, findTokenByAddress } from "./tokens";
+  import { updateTokenBalance, findTokenByAddress, TOKENS } from "./tokens";
   import { transfers } from "./transfers";
 
   import { FixedNumber } from "$lib/util";
@@ -13,6 +13,12 @@
   const {
     transfer_message: { amount },
   } = transfer;
+
+  $: tokenKey = findTokenByAddress(
+    transfer.id.origin_chain,
+    transfer.transfer_message.token,
+  );
+  $: token = tokenKey ? TOKENS[tokenKey] : undefined;
 
   let pollInterval: ReturnType<typeof setInterval>;
 
@@ -132,18 +138,22 @@
   });
 </script>
 
-<div class="flex flex-col gap-3 p-3 bg-purple-900/20 rounded-lg">
+<div class="flex flex-col gap-3 p-3 bg-lime/10 rounded-lg">
   <div class="flex items-center justify-between">
     <div class="flex flex-col gap-1">
-      <div class="text-sm font-medium">
-        {formattedAmount.format({
-          compactDisplay: "short",
-          notation: "compact",
-          maximumFractionDigits: 3,
-          maximumSignificantDigits: 8,
-        })} JLU
+      <div class="text-sm font-medium flex items-center gap-1">
+        {#if token}
+          {formattedAmount.format({
+            compactDisplay: "short",
+            notation: "compact",
+            maximumFractionDigits: 3,
+            maximumSignificantDigits: 8,
+          })}
+          <img src={token.icon} alt={token.symbol} class="inline w-4 h-4" />
+          {token.symbol}
+        {/if}
       </div>
-      <div class="text-xs text-purple-200/70">
+      <div class="text-xs text-lime/70">
         {new Date(
           (transfer.initialized?.NearReceipt?.block_timestamp_seconds ??
             transfer.initialized?.EVMLog?.block_timestamp_seconds ??
@@ -154,13 +164,13 @@
     </div>
     <div class="flex items-center gap-2 text-sm">
       {#if transfer.finalised != null}
-        <div class="i-mdi:check-circle text-green-500 text-xl" />
-        <span class="text-green-500">Transfer completed</span>
+        <div class="i-mdi:check-circle text-emerald-500 text-xl" />
+        <span class="text-emerald-500">Transfer completed</span>
       {:else}
-        <div class="i-mdi:loading animate-spin text-purple-200/70 text-xl" />
+        <div class="i-mdi:loading animate-spin text-lime/70 text-xl" />
         <div class="flex flex-col items-end">
-          <span class="text-purple-200/70">Transfer in progress...</span>
-          <span class="text-xs text-purple-200/50"
+          <span class="text-lime/70">Transfer in progress...</span>
+          <span class="text-xs text-lime/50"
             >Est. completion: {estimatedCompletion}</span
           >
         </div>
@@ -174,7 +184,7 @@
       {@const [senderChain, senderAddress] =
         transfer.transfer_message.sender.split(":")}
       <div class="flex items-center gap-2">
-        <span class="text-purple-200/70">From:</span>
+        <span class="text-lime/70">From:</span>
         <div class="flex items-center gap-1.5">
           <img
             src={getChainIcon(senderChain)}
@@ -185,7 +195,7 @@
             href={getExplorerUrl(senderChain, senderAddress)}
             target="_blank"
             rel="noopener noreferrer"
-            class="text-purple-100 hover:text-purple-300 transition-colors flex items-center gap-1"
+            class="text-lime hover:text-lime/80 transition-colors flex items-center gap-1"
           >
             <span>{formatAddress(senderAddress)}</span>
             <div class="i-mdi:open-in-new text-sm opacity-70" />
@@ -199,7 +209,7 @@
               )}
               target="_blank"
               rel="noopener noreferrer"
-              class="text-purple-200/70 hover:text-purple-100 transition-colors"
+              class="text-lime/70 hover:text-lime transition-colors"
               title="View source transaction"
               aria-label="View source transaction"
             >
@@ -214,7 +224,7 @@
               )}
               target="_blank"
               rel="noopener noreferrer"
-              class="text-purple-200/70 hover:text-purple-100 transition-colors"
+              class="text-lime/70 hover:text-lime transition-colors"
               title="View source transaction"
               aria-label="View source transaction"
             >
@@ -229,7 +239,7 @@
               )}
               target="_blank"
               rel="noopener noreferrer"
-              class="text-purple-200/70 hover:text-purple-100 transition-colors"
+              class="text-lime/70 hover:text-lime transition-colors"
               title="View source transaction"
               aria-label="View source transaction"
             >
@@ -243,7 +253,7 @@
       {@const [recipientChain, recipientAddress] =
         transfer.transfer_message.recipient.split(":")}
       <div class="flex items-center gap-2">
-        <span class="text-purple-200/70">To:</span>
+        <span class="text-lime/70">To:</span>
         <div class="flex items-center gap-1.5">
           <img
             src={getChainIcon(recipientChain)}
@@ -254,7 +264,7 @@
             href={getExplorerUrl(recipientChain, recipientAddress)}
             target="_blank"
             rel="noopener noreferrer"
-            class="text-purple-100 hover:text-purple-300 transition-colors flex items-center gap-1"
+            class="text-lime hover:text-lime/80 transition-colors flex items-center gap-1"
           >
             <span>{formatAddress(recipientAddress)}</span>
             <div class="i-mdi:open-in-new text-sm opacity-70" />
@@ -268,7 +278,7 @@
               )}
               target="_blank"
               rel="noopener noreferrer"
-              class="text-purple-200/70 hover:text-purple-100 transition-colors"
+              class="text-lime/70 hover:text-lime transition-colors"
               title="View destination transaction"
               aria-label="View destination transaction"
             >
@@ -283,7 +293,7 @@
               )}
               target="_blank"
               rel="noopener noreferrer"
-              class="text-purple-200/70 hover:text-purple-100 transition-colors"
+              class="text-lime/70 hover:text-lime transition-colors"
               title="View destination transaction"
               aria-label="View destination transaction"
             >
@@ -298,7 +308,7 @@
               )}
               target="_blank"
               rel="noopener noreferrer"
-              class="text-purple-200/70 hover:text-purple-100 transition-colors"
+              class="text-lime/70 hover:text-lime transition-colors"
               title="View destination transaction"
               aria-label="View destination transaction"
             >

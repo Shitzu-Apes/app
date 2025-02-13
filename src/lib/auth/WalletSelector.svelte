@@ -2,7 +2,7 @@
   import type { SignerWalletAdapter } from "@solana/wallet-adapter-base";
   import { connect, getConnectors, disconnect } from "@wagmi/core";
 
-  import { config, evmWallet$, switchToChain } from "$lib/evm/wallet";
+  import { config, evmWallet$ } from "$lib/evm/wallet";
   import {
     closeBottomSheet,
     openBottomSheet,
@@ -23,7 +23,7 @@
 
   // Add wallet state subscriptions
   $: nearConnected = $account$ != null;
-  $: baseConnected = $evmWallet$.isConnected;
+  $: evmConnected = $evmWallet$.isConnected;
 
   export let initialNetwork: "near" | "solana" | "evm" | undefined = undefined;
   let selectedNetwork: "near" | "solana" | "evm" = initialNetwork ?? "near";
@@ -52,13 +52,12 @@
     }
   }
 
-  async function handleBaseWalletClick(connector: (typeof connectors)[number]) {
+  async function handleEvmWalletClick(connector: (typeof connectors)[number]) {
     try {
       await connect(config, { connector });
-      await switchToChain();
       closeBottomSheet();
     } catch (error) {
-      console.error("Failed to connect Base wallet:", error);
+      console.error("Failed to connect EVM wallet:", error);
     }
   }
 
@@ -73,7 +72,7 @@
     closeBottomSheet();
   }
 
-  async function handleBaseDisconnect() {
+  async function handleEvmDisconnect() {
     await disconnect(config);
     closeBottomSheet();
   }
@@ -277,8 +276,8 @@
             {/each}
           {/if}
         {:else}
-          <!-- Base Wallet Section -->
-          {#if baseConnected}
+          <!-- EVM Wallet Section -->
+          {#if evmConnected}
             <div
               class="flex items-center gap-3 p-4 rounded-xl bg-purple-900/20 mb-4"
             >
@@ -300,11 +299,11 @@
               </div>
             </div>
             <button
-              on:click={handleBaseDisconnect}
+              on:click={handleEvmDisconnect}
               class="w-full hover:bg-purple-800/50 p-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-white"
             >
               <div class="i-mdi:logout w-6 h-6" />
-              Disconnect Base Wallet
+              Disconnect EVM Wallet
             </button>
           {:else}
             <div class="flex flex-col gap-2">
@@ -312,7 +311,7 @@
                 {#if connector.id !== "injected"}
                   <div class="flex gap-2 items-center">
                     <button
-                      on:click={() => handleBaseWalletClick(connector)}
+                      on:click={() => handleEvmWalletClick(connector)}
                       class="hover:bg-purple-800/50 p-2 rounded-xl flex items-center flex-1 transition-colors"
                     >
                       <img

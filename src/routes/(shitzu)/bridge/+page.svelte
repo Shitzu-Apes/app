@@ -22,12 +22,14 @@
   import { match, P } from "ts-pattern";
 
   import TransferStatus from "./TransferStatus.svelte";
+  import UserMenu from "./UserMenu.svelte";
   import {
     updateTokenBalance,
     balances$,
     TOKENS,
     getTokenBalance,
     TOKEN_ENTRIES,
+    isTokenAvailableOnNetwork,
   } from "./tokens";
   import { transfers } from "./transfers";
 
@@ -39,7 +41,6 @@
   import type { Network } from "$lib/models/tokens";
   import { nearWallet } from "$lib/near";
   import { solanaWallet } from "$lib/solana/wallet";
-  import { FixedNumber } from "$lib/util";
 
   const { accountId$, selector$ } = nearWallet;
   const { publicKey$ } = solanaWallet;
@@ -60,6 +61,16 @@
       name: "Base",
       icon: "/base-logo.webp",
     },
+    {
+      id: "arbitrum",
+      name: "Arbitrum",
+      icon: "/arb-logo.webp",
+    },
+    {
+      id: "ethereum",
+      name: "Ethereum",
+      icon: "/evm-logo.svg",
+    },
   ] as const;
 
   const sourceNetwork$ = writable<Network>("near");
@@ -69,7 +80,7 @@
   let amountValue$ = writable<string | undefined>();
   const recipientAddress$ = writable<string>("");
 
-  const selectedToken$ = writable<keyof typeof TOKENS>("JLU");
+  const selectedToken$ = writable<keyof typeof TOKENS>("BURN");
 
   function handleSwapNetworks() {
     const source = $sourceNetwork$;
@@ -202,7 +213,7 @@
         );
         const tokenAddress = omniAddress(
           ChainKind.Near,
-          import.meta.env.VITE_JLU_TOKEN_ID,
+          TOKENS[$selectedToken$].addresses.near,
         );
 
         const fee = await api.getFee(sender, recipient, tokenAddress);
@@ -240,7 +251,7 @@
         );
         const tokenAddress = omniAddress(
           ChainKind.Sol,
-          import.meta.env.VITE_JLU_TOKEN_ID_SOLANA,
+          TOKENS[$selectedToken$].addresses.solana,
         );
 
         const fee = await api.getFee(sender, recipient, tokenAddress);
@@ -303,7 +314,7 @@
         );
         const tokenAddress = omniAddress(
           ChainKind.Base,
-          import.meta.env.VITE_JLU_TOKEN_ID_BASE,
+          TOKENS[$selectedToken$].addresses[network] ?? "",
         );
 
         const fee = await api.getFee(sender, recipient, tokenAddress);
@@ -418,14 +429,14 @@
     )
     .exhaustive();
 
-  $: currentBalance = getTokenBalance($sourceNetwork$, $selectedToken$);
+  $: currentBalance$ = getTokenBalance($sourceNetwork$, $selectedToken$);
 
   $: canBridge =
     Boolean($amount$) &&
     walletConnected &&
     $sourceNetwork$ !== $destinationNetwork$ &&
     $amount$ &&
-    $amount$.valueOf() <= currentBalance &&
+    $amount$.valueOf() <= $currentBalance$.valueOf() &&
     isValidAddress($recipientAddress$, $destinationNetwork$);
 
   $: needsWalletConnection = match($sourceNetwork$)
@@ -535,26 +546,55 @@
       loadBaseTransfers($evmWallet$.address);
     visibleCount = 10;
   }
+
+  // Add this near your other reactive statements
+  $: {
+    // When token changes, validate current network selections
+    if (!isTokenAvailableOnNetwork($selectedToken$, $sourceNetwork$)) {
+      // Find first available network for this token
+      const firstAvailable = networks.find((n) =>
+        isTokenAvailableOnNetwork($selectedToken$, n.id),
+      );
+      if (firstAvailable) {
+        sourceNetwork$.set(firstAvailable.id);
+      }
+    }
+    if (!isTokenAvailableOnNetwork($selectedToken$, $destinationNetwork$)) {
+      // Find first available network that's not the source
+      const firstAvailable = networks.find(
+        (n) =>
+          isTokenAvailableOnNetwork($selectedToken$, n.id) &&
+          n.id !== $sourceNetwork$,
+      );
+      if (firstAvailable) {
+        destinationNetwork$.set(firstAvailable.id);
+      }
+    }
+  }
+
+  // Add this with your other reactive declarations
+  $: availableBalance = $currentBalance$;
 </script>
 
-<main class="w-full max-w-2xl mx-auto py-6 px-4">
-  <div class="flex flex-col gap-6">
-    <div class="flex flex-col items-center gap-3">
-      <h1 class="text-4xl font-bold text-purple-100">Bridge JLU</h1>
-      <p class="text-lg text-purple-200/70">
-        Transfer your JLU tokens between networks
-      </p>
-    </div>
+<div class="w-full">
+  <div class="text-center mb-6" class:pb-6={!walletConnected}>
+    <h1 class="mb-0">Omni Bridge</h1>
+    <div>Transfer tokens between networks</div>
+  </div>
 
-    <div class="flex flex-col gap-1.5 bg-purple-900/20 rounded-xl p-5 mb-4">
-      <div class="text-sm text-purple-200/70">Token</div>
+  <div
+    class="pb-12 border-2 border-lime rounded-t-xl px-3 pt-3 bg-gradient-to-r from-lime to-emerald text-black"
+  >
+    <!-- Token Selection -->
+    <div class="flex flex-col gap-3 pb-6 border-b border-black">
+      <div class="text-lg font-bold">Select Token</div>
       <div class="grid grid-cols-1 gap-2">
         {#each TOKEN_ENTRIES as [tokenId, token]}
           <button
-            class="flex items-center gap-3 p-3 rounded-xl border border-purple-900/20 {$selectedToken$ ===
+            class="flex items-center gap-3 p-3 rounded-xl border {$selectedToken$ ===
             tokenId
-              ? 'bg-purple-900/40 border-purple-500/50'
-              : 'hover:bg-purple-900/30'} transition-colors"
+              ? 'bg-black/20 border-black'
+              : 'border-black/20 hover:bg-black/10'} transition-colors"
             on:click={() => selectedToken$.set(tokenId)}
           >
             <img
@@ -568,17 +608,24 @@
       </div>
     </div>
 
-    <div class="flex flex-col gap-5 bg-purple-900/20 rounded-xl p-5">
+    <UserMenu token={$selectedToken$} tokenData={TOKENS[$selectedToken$]} />
+  </div>
+
+  <div
+    class="-mt-6 z-10 pb-6 border-2 border-lime rounded-xl px-3 pt-3 bg-black"
+  >
+    <!-- Network Selection -->
+    <div class="flex flex-col gap-5">
       <!-- Source Network -->
       <div class="flex flex-col gap-1.5">
-        <div class="text-sm text-purple-200/70">From</div>
+        <div class="text-sm text-lime">From</div>
         <div class="grid grid-cols-3 gap-2">
-          {#each networks as network}
+          {#each networks.filter( (network) => isTokenAvailableOnNetwork($selectedToken$, network.id), ) as network}
             <button
-              class="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-purple-900/20 {$sourceNetwork$ ===
+              class="flex flex-col items-center gap-1.5 p-3 rounded-xl border {$sourceNetwork$ ===
               network.id
-                ? 'bg-purple-900/40 border-purple-500/50'
-                : 'hover:bg-purple-900/30'} transition-colors"
+                ? 'bg-lime/20 border-lime'
+                : 'border-lime/20 hover:bg-lime/10'} transition-colors"
               on:click={() => handleSourceNetworkChange(network.id)}
             >
               <img
@@ -595,24 +642,24 @@
       <!-- Swap Button -->
       <div class="flex justify-center">
         <button
-          class="p-2 rounded-lg hover:bg-purple-900/30 transition-colors"
+          class="p-2 rounded-lg hover:bg-lime/10 transition-colors"
           on:click={handleSwapNetworks}
           aria-label="Swap networks"
         >
-          <div class="i-mdi:swap-vertical text-2xl text-purple-200/70" />
+          <div class="i-mdi:swap-vertical text-2xl text-lime/70" />
         </button>
       </div>
 
       <!-- Destination Network -->
       <div class="flex flex-col gap-1.5">
-        <div class="text-sm text-purple-200/70">To</div>
+        <div class="text-sm text-lime">To</div>
         <div class="grid grid-cols-3 gap-2">
-          {#each networks as network}
+          {#each networks.filter( (network) => isTokenAvailableOnNetwork($selectedToken$, network.id), ) as network}
             <button
-              class="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-purple-900/20 {$destinationNetwork$ ===
+              class="flex flex-col items-center gap-1.5 p-3 rounded-xl border {$destinationNetwork$ ===
               network.id
-                ? 'bg-purple-900/40 border-purple-500/50'
-                : 'hover:bg-purple-900/30'} transition-colors"
+                ? 'bg-lime/20 border-lime'
+                : 'border-lime/20 hover:bg-lime/10'} transition-colors"
               on:click={() => handleDestinationNetworkChange(network.id)}
             >
               <img
@@ -628,41 +675,48 @@
 
       <!-- Amount -->
       <div class="flex flex-col gap-1.5">
-        <div class="flex items-center justify-between">
-          <div class="text-sm text-purple-200/70">Amount</div>
-          {#if getTokenBalance($sourceNetwork$, $selectedToken$) > 0n}
-            <div class="flex items-center gap-2 text-purple-200/70">
-              <img src="/logo.webp" alt="JLU" class="w-4 h-4 rounded-full" />
-              <span class="text-sm font-medium text-purple-100">
-                {new FixedNumber(
-                  getTokenBalance($sourceNetwork$, $selectedToken$).toString(),
-                  TOKENS[$selectedToken$].decimals[$sourceNetwork$] ?? 18,
-                ).format({
+        <div class="flex justify-between items-center text-sm text-lime">
+          <div>Amount</div>
+          <div class="flex items-center gap-1">
+            Available:
+            {#if availableBalance.valueOf() > 0n}
+              <span class="font-medium flex items-center gap-1">
+                <img
+                  src={TOKENS[$selectedToken$].icon}
+                  alt={TOKENS[$selectedToken$].symbol}
+                  class="w-4 h-4 rounded-full"
+                />
+                {availableBalance.format({
                   maximumSignificantDigits: 8,
                 })}
+                {TOKENS[$selectedToken$].symbol}
               </span>
-              <span class="text-sm">Available</span>
-            </div>
-          {/if}
+            {:else}
+              <span>-</span>
+            {/if}
+          </div>
         </div>
         <div class="relative">
           <div
             class="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2 z-10"
           >
-            <img src="/logo.webp" alt="JLU" class="w-5 h-5 rounded-full" />
-            <span class="text-sm font-medium">JLU</span>
+            <img
+              src={TOKENS[$selectedToken$].icon}
+              alt={TOKENS[$selectedToken$].symbol}
+              class="w-5 h-5 rounded-full"
+            />
           </div>
           <TokenInput
             bind:this={amount}
             bind:value={$amountValue$}
-            decimals={18}
-            class="w-full bg-zinc-900/50 text-white border border-purple-900/20 rounded-xl pl-20 pr-16 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+            decimals={TOKENS[$selectedToken$].decimals[$sourceNetwork$] ?? 18}
+            class="w-full bg-black text-white border border-lime/20 rounded-xl pl-10 py-3 focus:outline-none focus:ring-2 focus:ring-lime/50"
             placeholder="0.0"
           />
-          {#if getTokenBalance($sourceNetwork$, $selectedToken$) > 0n}
+          {#if $currentBalance$.valueOf() > 0n}
             <button
               on:click={() => handleMaxAmount($selectedToken$)}
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-purple-200/70 hover:text-purple-100 hover:bg-purple-900/30 px-2 py-0.5 rounded transition-colors z-10"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-lime/70 hover:text-lime hover:bg-lime/10 px-2 py-0.5 rounded transition-colors z-10"
             >
               Max
             </button>
@@ -672,18 +726,18 @@
 
       <!-- Recipient Address -->
       <div class="flex flex-col gap-1.5">
-        <div class="text-sm text-purple-200/70">Recipient Address</div>
+        <div class="text-sm text-lime">Recipient Address</div>
         <div class="relative">
           <input
             type="text"
             bind:value={$recipientAddress$}
-            class="w-full bg-zinc-900/50 text-white border border-purple-900/20 rounded-xl pl-4 pr-[120px] py-3 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+            class="w-full bg-black text-white border border-lime/20 rounded-xl pl-4 pr-[120px] py-3 focus:outline-none focus:ring-2 focus:ring-lime/50"
             placeholder="{networks.find((n) => n.id === $destinationNetwork$)
               ?.name} address"
           />
           <button
             on:click={handleFillRecipient}
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-purple-200/70 hover:text-purple-100 hover:bg-purple-900/30 px-2 py-0.5 rounded transition-colors z-10"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-lime/70 hover:text-lime hover:bg-lime/10 px-2 py-0.5 rounded transition-colors z-10"
           >
             {getWalletButtonText($destinationNetwork$)}
           </button>
@@ -705,52 +759,54 @@
             notation: "compact",
             maximumFractionDigits: 4,
             maximumSignificantDigits: 8,
-          })} JLU
+          })}
+          {TOKENS[$selectedToken$].symbol}
         {/if}
       </Button>
-
-      {#if $transfers.length > 0}
-        <div class="flex flex-col gap-2">
-          <div class="text-sm text-purple-200/70">Recent Transfers</div>
-          <div class="flex flex-col gap-1.5">
-            {#each visibleTransfers as transfer (transfer.id.origin_chain + ":" + transfer.id.origin_nonce)}
-              <div in:slide|global class="flex flex-col">
-                <TransferStatus {transfer} />
-              </div>
-            {/each}
-            {#if hasMore}
-              <button
-                on:click={handleLoadMore}
-                disabled={isLoadingMore}
-                class="mt-2 px-4 py-2 rounded-lg bg-purple-900/20 hover:bg-purple-900/30 text-purple-200/70 hover:text-purple-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {#if isLoadingMore}
-                  <div class="i-mdi:loading animate-spin" />
-                  Loading...
-                {:else}
-                  Load More
-                {/if}
-              </button>
-            {/if}
-          </div>
-        </div>
-      {/if}
-
-      <div class="flex flex-col gap-1.5 text-sm text-purple-200/70">
-        <p>Note:</p>
-        <ul class="list-disc list-inside flex flex-col gap-1">
-          <li>
-            Bridge fees may apply depending on the source and destination
-            network
-          </li>
-          <li>Estimated transfer times:</li>
-          <ul class="list-[circle] list-inside ml-4 flex flex-col gap-1">
-            <li>NEAR to EVM/Solana: ~30 seconds</li>
-            <li>Solana to NEAR: ~30 seconds</li>
-            <li>EVM to NEAR: ~20 minutes</li>
-          </ul>
-        </ul>
-      </div>
     </div>
+
+    <!-- Recent Transfers -->
+    {#if $transfers.length > 0}
+      <div class="flex flex-col gap-2 mt-6 pt-6 border-t border-lime">
+        <div class="text-sm text-lime">Recent Transfers</div>
+        <div class="flex flex-col gap-1.5">
+          {#each visibleTransfers as transfer (transfer.id.origin_chain + ":" + transfer.id.origin_nonce)}
+            <div in:slide|global class="flex flex-col">
+              <TransferStatus {transfer} />
+            </div>
+          {/each}
+          {#if hasMore}
+            <button
+              on:click={handleLoadMore}
+              disabled={isLoadingMore}
+              class="mt-2 px-4 py-2 rounded-lg bg-lime/10 hover:bg-lime/20 text-lime/70 hover:text-lime transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {#if isLoadingMore}
+                <div class="i-mdi:loading animate-spin" />
+                Loading...
+              {:else}
+                Load More
+              {/if}
+            </button>
+          {/if}
+        </div>
+      </div>
+    {/if}
   </div>
-</main>
+
+  <!-- Notes Section -->
+  <div class="mt-6 flex flex-col gap-1.5 text-sm text-lime/70">
+    <p>Note:</p>
+    <ul class="list-disc list-inside flex flex-col gap-1">
+      <li>
+        Bridge fees may apply depending on the source and destination network
+      </li>
+      <li>Estimated transfer times:</li>
+      <ul class="list-[circle] list-inside ml-4 flex flex-col gap-1">
+        <li>NEAR to EVM/Solana: ~30 seconds</li>
+        <li>Solana to NEAR: ~30 seconds</li>
+        <li>EVM to NEAR: ~20 minutes</li>
+      </ul>
+    </ul>
+  </div>
+</div>

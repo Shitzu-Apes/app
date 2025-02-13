@@ -13,6 +13,7 @@
   } = {
     "/": "i-mdi-house",
     "/stake": "i-mdi-lightning-bolt",
+    "/bridge": "i-mdi:bridge",
     "/shitstars": "i-mdi-stars",
     "/shitchat": "i-mdi:shield-key",
   };
@@ -30,7 +31,7 @@
   }
 </script>
 
-<nav class="fixed bottom-0 left-0 right-0 bg-[#222] border-t border-lime">
+<nav class="fixed bottom-0 left-0 right-0 bg-[#222] border-t border-lime z-100">
   <div class="flex justify-between items-stretch max-w-lg mx-auto">
     {#each paths as { slug, title }}
       <a
