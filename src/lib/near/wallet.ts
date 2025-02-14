@@ -8,7 +8,7 @@ import type {
   Wallet as NearWallet,
   SignedMessage,
 } from "@near-wallet-selector/core";
-import { injected, walletConnect } from "@wagmi/connectors";
+import { injected, walletConnect } from "@tarnadas/wagmi-connectors";
 import { createConfig, http } from "@wagmi/core";
 import type { SvelteComponent } from "svelte";
 import { derived, get, readable, writable } from "svelte/store";
@@ -112,7 +112,7 @@ export class Wallet {
           import("@near-wallet-selector/my-near-wallet"),
           import("@near-wallet-selector/wallet-connect"),
           import("@near-wallet-selector/ethereum-wallets"),
-          import("@web3modal/wagmi"),
+          // import("@web3modal/wagmi"),
           import("@keypom/one-click-connect"),
         ]).then(
           ([
@@ -125,7 +125,7 @@ export class Wallet {
             { setupMyNearWallet },
             { setupWalletConnect },
             { setupEthereumWallets },
-            { createWeb3Modal },
+            // { createWeb3Modal },
             { setupOneClickConnect },
           ]) => {
             this.isLoading$.set(false);
@@ -162,13 +162,13 @@ export class Wallet {
                 setupEthereumWallets({
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   wagmiConfig: wagmiConfig as any,
-                  web3Modal: createWeb3Modal({
-                    wagmiConfig,
-                    projectId:
-                      import.meta.env.VITE_WC_PROJECT_ID ??
-                      "dba65fff73650d32ae5157f3492c379e",
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  }) as any,
+                  // web3Modal: createWeb3Modal({
+                  //   wagmiConfig,
+                  //   projectId:
+                  //     import.meta.env.VITE_WC_PROJECT_ID ??
+                  //     "dba65fff73650d32ae5157f3492c379e",
+                  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  // }) as any,
                 }),
                 setupOneClickConnect({
                   contractId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,

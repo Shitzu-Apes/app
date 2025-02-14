@@ -1,9 +1,7 @@
 import { AnchorProvider, type Provider } from "@coral-xyz/anchor";
 import type { SignerWalletAdapter } from "@solana/wallet-adapter-base";
-import {
-  PhantomWalletAdapter,
-  SolflareWalletAdapter,
-} from "@solana/wallet-adapter-wallets";
+import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
+import { SolflareWalletAdapter } from "@solana/wallet-adapter-solflare";
 import { clusterApiUrl, Connection, type PublicKey } from "@solana/web3.js";
 import { derived, get, writable } from "svelte/store";
 
