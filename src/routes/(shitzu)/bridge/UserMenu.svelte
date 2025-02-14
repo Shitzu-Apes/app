@@ -54,6 +54,11 @@
             {#if $balance$.near}
               <div class="flex items-center gap-2 text-sm text-lime/70 mt-1">
                 <img
+                  src="/near-logo.webp"
+                  alt="Near"
+                  class="w-4 h-4 rounded-full"
+                />
+                <img
                   src={tokenData.icon}
                   alt={tokenData.symbol}
                   class="w-4 h-4 rounded-full"
@@ -116,12 +121,17 @@
           {#if $balance$.solana}
             <div class="flex items-center gap-2 text-sm text-lime/70 mt-1">
               <img
+                src="/sol-logo.webp"
+                alt="Solana"
+                class="w-4 h-4 rounded-full"
+              />
+              <img
                 src={tokenData.icon}
                 alt={tokenData.symbol}
                 class="w-4 h-4 rounded-full"
               />
               <span class="font-medium text-lime"
-                >{$balance$.solana?.format({
+                >{$balance$.solana.format({
                   compactDisplay: "short",
                   notation: "compact",
                   maximumFractionDigits: 2,
@@ -174,12 +184,17 @@
           {#if $balance$.base}
             <div class="flex items-center gap-2 text-sm text-lime/70 mt-1">
               <img
+                src="/base-logo.webp"
+                alt="Base"
+                class="w-4 h-4 rounded-full"
+              />
+              <img
                 src={tokenData.icon}
                 alt={tokenData.symbol}
                 class="w-4 h-4 rounded-full"
               />
               <span class="font-medium text-lime"
-                >{$balance$.base?.format({
+                >{$balance$.base.format({
                   compactDisplay: "short",
                   notation: "compact",
                   maximumFractionDigits: 2,
@@ -191,12 +206,17 @@
           {#if $balance$.arbitrum}
             <div class="flex items-center gap-2 text-sm text-lime/70 mt-1">
               <img
+                src="/arb-logo.webp"
+                alt="Arbitrum"
+                class="w-4 h-4 rounded-full"
+              />
+              <img
                 src={tokenData.icon}
                 alt={tokenData.symbol}
                 class="w-4 h-4 rounded-full"
               />
               <span class="font-medium text-lime"
-                >{$balance$.arbitrum?.format({
+                >{$balance$.arbitrum.format({
                   compactDisplay: "short",
                   notation: "compact",
                   maximumFractionDigits: 2,
@@ -207,6 +227,11 @@
           {/if}
           {#if $balance$.ethereum}
             <div class="flex items-center gap-2 text-sm text-lime/70 mt-1">
+              <img
+                src="/evm-logo.svg"
+                alt="Ethereum"
+                class="w-4 h-4 rounded-full"
+              />
               <img
                 src={tokenData.icon}
                 alt={tokenData.symbol}

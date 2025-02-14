@@ -2,7 +2,7 @@
   import dayjs from "dayjs";
   import { OmniBridgeAPI, type Transfer } from "omni-bridge-sdk";
   import { onMount } from "svelte";
-  import { match } from "ts-pattern";
+  import { match, P } from "ts-pattern";
 
   import { updateTokenBalance, findTokenByAddress, TOKENS } from "./tokens";
   import { transfers } from "./transfers";
@@ -42,20 +42,38 @@
 
   $: estimatedCompletion = getTransferEta(transfer);
 
-  const formattedAmount = match(transfer.id.origin_chain)
-    .with("Near", () => new FixedNumber(String(amount), 18))
-    .with("Sol", () => new FixedNumber(String(amount), 9))
-    .with("Base", () => new FixedNumber(String(amount), 18))
-    .otherwise(() => {
-      throw new Error("Invalid chain");
-    });
+  $: formattedAmount = match([transfer.id.origin_chain, token])
+    .with([P.any, P.nullish], () => undefined)
+    .with(
+      ["Near", P.select()],
+      (token) => new FixedNumber(String(amount), token!.decimals.near),
+    )
+    .with(
+      ["Sol", P.select()],
+      (token) => new FixedNumber(String(amount), token!.decimals.solana),
+    )
+    .with(
+      ["Base", P.select()],
+      (token) => new FixedNumber(String(amount), token!.decimals.base),
+    )
+    .with(
+      ["Arb", P.select()],
+      (token) => new FixedNumber(String(amount), token!.decimals.arbitrum),
+    )
+    .with(
+      ["Eth", P.select()],
+      (token) => new FixedNumber(String(amount), token!.decimals.ethereum),
+    )
+    .exhaustive();
 
   function getChainIcon(chainId: string): string {
-    return match(chainId.toLowerCase())
+    return match(chainId as "near" | "sol" | "base" | "arb" | "eth")
       .with("near", () => "/near-logo.webp")
       .with("sol", () => "/sol-logo.webp")
       .with("base", () => "/base-logo.webp")
-      .otherwise(() => "");
+      .with("arb", () => "/arb-logo.webp")
+      .with("eth", () => "/evm-logo.svg")
+      .exhaustive();
   }
 
   function getExplorerUrl(
@@ -63,7 +81,7 @@
     address: string,
     type: "address" | "tx" = "address",
   ): string {
-    return match(chain.toLowerCase())
+    return match(chain as "near" | "sol" | "base" | "arb" | "eth")
       .with(
         "near",
         () =>
@@ -72,14 +90,24 @@
       .with(
         "sol",
         () =>
-          `https://explorer.solana.com/${type}/${address}${import.meta.env.VITE_NETWORK_ID === "mainnet" ? "" : "?cluster=devnet"}`,
+          `https://solscan.io/${type === "address" ? "account" : "tx"}/${address}`,
       )
       .with(
         "base",
         () =>
           `https://${import.meta.env.VITE_NETWORK_ID === "mainnet" ? "" : "sepolia."}basescan.org/${type === "address" ? "address" : "tx"}/${address}`,
       )
-      .otherwise(() => "");
+      .with(
+        "arb",
+        () =>
+          `https://${import.meta.env.VITE_NETWORK_ID === "mainnet" ? "" : "sepolia."}arbiscan.io/${type === "address" ? "address" : "tx"}/${address}`,
+      )
+      .with(
+        "eth",
+        () =>
+          `https://${import.meta.env.VITE_NETWORK_ID === "mainnet" ? "" : "sepolia."}etherscan.io/${type === "address" ? "address" : "tx"}/${address}`,
+      )
+      .exhaustive();
   }
 
   function formatAddress(address: string): string {
@@ -142,14 +170,18 @@
   <div class="flex items-center justify-between">
     <div class="flex flex-col gap-1">
       <div class="text-sm font-medium flex items-center gap-1">
-        {#if token}
+        {#if token && formattedAmount}
           {formattedAmount.format({
             compactDisplay: "short",
             notation: "compact",
             maximumFractionDigits: 3,
             maximumSignificantDigits: 8,
           })}
-          <img src={token.icon} alt={token.symbol} class="inline w-4 h-4" />
+          <img
+            src={token.icon}
+            alt={token.symbol}
+            class="inline w-4 h-4 rounded-full"
+          />
           {token.symbol}
         {/if}
       </div>
@@ -233,7 +265,7 @@
           {:else if transfer.initialized?.EVMLog?.transaction_hash}
             <a
               href={getExplorerUrl(
-                "base",
+                senderChain,
                 transfer.initialized.EVMLog.transaction_hash,
                 "tx",
               )}
@@ -302,7 +334,7 @@
           {:else if transfer.finalised?.EVMLog?.transaction_hash}
             <a
               href={getExplorerUrl(
-                "base",
+                recipientChain,
                 transfer.finalised.EVMLog.transaction_hash,
                 "tx",
               )}

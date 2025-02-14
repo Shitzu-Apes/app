@@ -80,7 +80,7 @@
   let amountValue$ = writable<string | undefined>();
   const recipientAddress$ = writable<string>("");
 
-  const selectedToken$ = writable<keyof typeof TOKENS>("BURN");
+  const selectedToken$ = writable<keyof typeof TOKENS>("NEAR");
 
   function handleSwapNetworks() {
     const source = $sourceNetwork$;
