@@ -269,7 +269,7 @@
 
         const fee = await api.getFee(sender, recipient, tokenAddress);
         return client.initTransfer({
-          amount: BigInt(amount) / 1_000_000_000n,
+          amount: BigInt(amount),
           fee: fee.transferred_token_fee ?? 0n,
           nativeFee: fee.native_token_fee ?? 0n,
           recipient,
@@ -475,7 +475,7 @@
   }
 
   $: if ($evmWallet$.status === "connected") {
-    loadBaseTransfers($evmWallet$.address);
+    loadEvmTransfers($evmWallet$.address);
   } else {
     transfers.removeTransfersByChain("Base");
   }
@@ -516,22 +516,27 @@
     }
   }
 
-  async function loadBaseTransfers(address: string) {
+  async function loadEvmTransfers(address: string) {
     const api = new OmniBridgeAPI({
       baseUrl:
         import.meta.env.VITE_NETWORK_ID === "mainnet"
           ? "https://mainnet.api.bridge.nearone.org"
           : "https://testnet.api.bridge.nearone.org",
     });
-    try {
-      const baseTransfers = await api.findOmniTransfers({
-        sender: `base:${address}`,
-        limit: 50,
-      });
-      transfers.addTransfers(baseTransfers);
-    } catch (err) {
-      console.error("Failed to load Base transfers:", err);
-    }
+    const findEvmTransfers = async (chainKind: ChainKind) => {
+      try {
+        const evmTransfers = await api.findOmniTransfers({
+          sender: omniAddress(chainKind, address),
+          limit: 50,
+        });
+        transfers.addTransfers(evmTransfers);
+      } catch (err) {
+        console.error(`Failed to load ${chainKind} transfers:`, err);
+      }
+    };
+    findEvmTransfers(ChainKind.Base);
+    findEvmTransfers(ChainKind.Arb);
+    findEvmTransfers(ChainKind.Eth);
   }
 
   let isLoadingMore = false;
@@ -556,7 +561,7 @@
     if ($accountId$) loadNearTransfers($accountId$);
     if ($publicKey$) loadSolanaTransfers($publicKey$.toBase58());
     if ($evmWallet$.status === "connected")
-      loadBaseTransfers($evmWallet$.address);
+      loadEvmTransfers($evmWallet$.address);
     visibleCount = 10;
   }
 
