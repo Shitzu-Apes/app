@@ -5,7 +5,9 @@
   import { page } from "$app/stores";
   import COINGECKO_LOGO from "$lib/assets/logo/coingecko.png";
   import DEXSCREENER_LOGO from "$lib/assets/logo/dexscreener.png";
+  import JUICY_LUCY_LOGO from "$lib/assets/logo/jlu.png";
   import MEMECOOKING_LOGO from "$lib/assets/logo/meme-cooking.webp";
+  import PIKESPEAK_LOGO from "$lib/assets/logo/pikespeak.png";
   import REF_LOGO from "$lib/assets/logo/ref.png";
   import { NFT_LINKS } from "$lib/components/BuyNft.svelte";
   import DexscreenerSheet from "$lib/components/DexscreenerSheet.svelte";
@@ -19,14 +21,16 @@
       external: true,
     },
     {
-      slug: "/shitstars",
-      title: "Shitstars",
-      icon: "i-mdi-stars",
+      slug: "https://juicylucy.ai/",
+      title: "Juicy Lucy",
+      customLogo: JUICY_LUCY_LOGO,
+      external: true,
     },
     {
-      slug: "/shitchat",
-      title: "Shitchat",
-      icon: "i-mdi:shield-key",
+      slug: "https://pikespeak.ai/money/tokens/token.0xshitzu.near",
+      title: "Pikespeak",
+      customLogo: PIKESPEAK_LOGO,
+      external: true,
     },
     {
       slug: "/stake",
@@ -80,6 +84,16 @@
       title: "Meme Season",
       customLogo: REF_LOGO,
       external: true,
+    },
+    {
+      slug: "/shitstars",
+      title: "Shitstars",
+      icon: "i-mdi-stars",
+    },
+    {
+      slug: "/shitchat",
+      title: "Shitchat",
+      icon: "i-mdi:shield-key",
     },
   ];
 

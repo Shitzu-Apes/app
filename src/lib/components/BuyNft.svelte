@@ -2,16 +2,10 @@
 <script lang="ts" context="module">
   import MintBaseLogo from "$lib/assets/logo/MintBase.png";
   import MitteLogo from "$lib/assets/logo/Mitte.jpg";
-  import ParasLogo from "$lib/assets/logo/Paras.png";
   import TradeportLogo from "$lib/assets/logo/Tradeport.png";
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
 
   export const NFT_LINKS = [
-    {
-      platform: "Paras",
-      logo: ParasLogo,
-      link: "https://paras.id/collection/shitzu.bodega-lab.near",
-    },
     {
       platform: "MintBase",
       logo: MintBaseLogo,
