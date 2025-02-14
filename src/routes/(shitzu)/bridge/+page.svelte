@@ -41,6 +41,11 @@
   import type { Network } from "$lib/models/tokens";
   import { nearWallet } from "$lib/near";
   import { solanaWallet } from "$lib/solana/wallet";
+  import {
+    FixedNumber,
+    getFormattedNumber,
+    getNumberAsUInt128,
+  } from "$lib/util";
 
   const { accountId$, selector$ } = nearWallet;
   const { publicKey$ } = solanaWallet;
@@ -95,6 +100,8 @@
       destinationNetwork$.set($sourceNetwork$);
     }
     sourceNetwork$.set(network);
+    $amountValue$ = undefined;
+    $recipientAddress$ = "";
   }
 
   function handleDestinationNetworkChange(network: Network) {
@@ -117,7 +124,13 @@
       .exhaustive();
 
     if (currentBalance) {
-      $amountValue$ = currentBalance.toString();
+      const decimals = Math.min(
+        TOKENS[$selectedToken$].decimals[$sourceNetwork$] ?? 24,
+        TOKENS[$selectedToken$].decimals[$destinationNetwork$] ?? 24,
+      );
+      let quantity = getFormattedNumber(currentBalance.toString(), decimals);
+      const [res] = getNumberAsUInt128(quantity, decimals);
+      $amountValue$ = new FixedNumber(res, decimals).toString();
     }
   }
 
@@ -709,7 +722,10 @@
           <TokenInput
             bind:this={amount}
             bind:value={$amountValue$}
-            decimals={TOKENS[$selectedToken$].decimals[$sourceNetwork$] ?? 18}
+            decimals={Math.min(
+              TOKENS[$selectedToken$].decimals[$sourceNetwork$] ?? 24,
+              TOKENS[$selectedToken$].decimals[$destinationNetwork$] ?? 24,
+            )}
             class="w-full bg-black text-white border border-lime/20 rounded-xl pl-10 py-3 focus:outline-none focus:ring-2 focus:ring-lime/50"
             placeholder="0.0"
           />
