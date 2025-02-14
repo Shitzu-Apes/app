@@ -16,6 +16,7 @@
   export let readonly = false;
   export let placeholder = "0.0";
   export let decimals: number | undefined;
+  export let maxDecimals: number | undefined = undefined;
   let className: string | undefined = undefined;
   export { className as class };
   export let style: string | undefined = undefined;
@@ -33,7 +34,7 @@
 
   $: if (value != null && decimals != null) {
     value = filterAllowedCharacters(value);
-    let quantity = getFormattedNumber(value, decimals);
+    let quantity = getFormattedNumber(value, maxDecimals ?? decimals);
     const [res] = getNumberAsUInt128(quantity, decimals);
     u128.set(new FixedNumber(res, decimals));
   } else {
@@ -49,7 +50,7 @@
   {placeholder}
   {style}
   on:input={onInputChange}
-  on:change={(event) => formatWithMaxDecimals(event, decimals)}
+  on:change={(event) => formatWithMaxDecimals(event, maxDecimals ?? decimals)}
   class:readonly
   autocomplete="off"
   class={className}

@@ -608,7 +608,10 @@
             tokenId
               ? 'bg-black/20 border-black'
               : 'border-black/20 hover:bg-black/10'} transition-colors"
-            on:click={() => selectedToken$.set(tokenId)}
+            on:click={() => {
+              selectedToken$.set(tokenId);
+              $amountValue$ = undefined;
+            }}
           >
             <img
               src={token.icon}
@@ -701,6 +704,7 @@
                 />
                 {availableBalance.format({
                   maximumSignificantDigits: 8,
+                  maximumFractionDigits: 6,
                 })}
                 {TOKENS[$selectedToken$].symbol}
               </span>
@@ -722,7 +726,8 @@
           <TokenInput
             bind:this={amount}
             bind:value={$amountValue$}
-            decimals={Math.min(
+            decimals={TOKENS[$selectedToken$].decimals[$sourceNetwork$] ?? 24}
+            maxDecimals={Math.min(
               TOKENS[$selectedToken$].decimals[$sourceNetwork$] ?? 24,
               TOKENS[$selectedToken$].decimals[$destinationNetwork$] ?? 24,
             )}
