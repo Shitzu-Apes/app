@@ -598,6 +598,14 @@
   <div class="text-center mb-6" class:pb-6={!walletConnected}>
     <h1 class="mb-0">Omni Bridge</h1>
     <div>Transfer tokens between networks</div>
+    <a
+      href="https://near.org/blog/omnibridge-nears-universal-solution-for-cross-chain-liquidity"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-block mt-2 text-sm text-lime/70 hover:text-lime transition-colors"
+    >
+      Learn more about NEAR's next-gen cross-chain infrastructure →
+    </a>
   </div>
 
   <div
