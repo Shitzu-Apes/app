@@ -1,17 +1,16 @@
 <script lang="ts">
   import Chef from "../Chef.svelte";
 
-  import { createRefGetPoolQuery } from "$lib/api/queries/ref";
+  import { useMemeStatsQuery } from "$lib/api/queries/memeStats";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import SHITZU_STONK from "$lib/assets/static/shitzu_stonk.png";
   import McIcon from "$lib/components/MCIcon.svelte";
   import { addToast } from "$lib/components/Toast.svelte";
   import type { Meme } from "$lib/models/memecooking";
   import { getTokenId } from "$lib/util/getTokenId";
-  import { calculateTokenStatsFromPoolInfo } from "$lib/util/projectedMCap";
   export let memebid: Meme;
 
-  const poolStatQuery = createRefGetPoolQuery(memebid.meme_id);
+  const poolStatQuery = useMemeStatsQuery(memebid);
 
   const twitterLink = memebid.twitter_link!;
   const telegramLink = memebid.telegram_link!;
@@ -86,11 +85,7 @@
                 {:else if $poolStatQuery.isError}
                   Error
                 {:else if $poolStatQuery.data}
-                  ${calculateTokenStatsFromPoolInfo(
-                    memebid,
-                    $poolStatQuery.data,
-                    memebid.decimals,
-                  ).mcap.format({
+                  ${$poolStatQuery.data.mcap.format({
                     maximumFractionDigits: 3,
                     notation: "compact",
                   })}
@@ -114,11 +109,7 @@
                 {:else if $poolStatQuery.isError}
                   Error
                 {:else if $poolStatQuery.data}
-                  ${calculateTokenStatsFromPoolInfo(
-                    memebid,
-                    $poolStatQuery.data,
-                    memebid.decimals,
-                  ).liquidity.format({
+                  ${$poolStatQuery.data.liquidity.format({
                     maximumFractionDigits: 3,
                     notation: "compact",
                   })}

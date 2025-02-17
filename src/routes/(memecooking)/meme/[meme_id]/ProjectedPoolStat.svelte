@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { createRefGetPoolQuery } from "$lib/api/queries/ref";
+  import { useMemeStatsQuery } from "$lib/api/queries/memeStats";
   import type { Meme } from "$lib/models/memecooking";
-  import { calculateTokenStatsFromPoolInfo } from "$lib/util/projectedMCap";
 
   export let meme: Meme;
-  const poolStatQuery = createRefGetPoolQuery(meme.meme_id);
+  const poolStatQuery = useMemeStatsQuery(meme);
 </script>
 
 <div class="flex items-center gap-6">
@@ -16,11 +15,7 @@
       {:else if $poolStatQuery.isError}
         <div class="i-mdi:alert-circle text-rose-4" />
       {:else if $poolStatQuery.data}
-        ${calculateTokenStatsFromPoolInfo(
-          meme,
-          $poolStatQuery.data,
-          meme.decimals,
-        ).liquidity.format({
+        ${$poolStatQuery.data.liquidity.format({
           maximumFractionDigits: 3,
           notation: "compact",
         })}
@@ -37,11 +32,7 @@
       {:else if $poolStatQuery.isError}
         <div class="i-mdi:alert-circle text-rose-4" />
       {:else if $poolStatQuery.data}
-        ${calculateTokenStatsFromPoolInfo(
-          meme,
-          $poolStatQuery.data,
-          meme.decimals,
-        ).mcap.format({
+        ${$poolStatQuery.data.mcap.format({
           maximumFractionDigits: 3,
           notation: "compact",
         })}
