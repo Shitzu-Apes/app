@@ -19,7 +19,7 @@ import {
   mainnetConfig,
 } from "$lib/evm/wallet";
 import type { Balance, EvmChain, Network, Token } from "$lib/models/tokens";
-import { Ft, nearWallet } from "$lib/near";
+import { Ft, nearBalance, nearWallet } from "$lib/near";
 import { solanaWallet } from "$lib/solana/wallet";
 import { FixedNumber } from "$lib/util";
 
@@ -161,9 +161,17 @@ async function fetchNearBalance(
       TOKENS[token].addresses.near,
       accountId,
       TOKENS[token].decimals.near,
-    );
+    ).then((balance) => {
+      if (token === "NEAR") {
+        const nearBal = get(nearBalance);
+        if (nearBal) {
+          return balance.add(nearBal);
+        }
+      }
+      return balance;
+    });
   } catch (err) {
-    console.error("Failed to fetch NEAR JLU balance:", err);
+    console.error(`Failed to fetch NEAR ${token} balance:`, err);
   }
 }
 
@@ -186,10 +194,10 @@ async function fetchSolanaBalance(
       return new FixedNumber(account.amount, 9);
     } catch (err) {
       // Account doesn't exist yet (no tokens) or other error
-      console.error("Failed to fetch Solana JLU balance:", err);
+      console.error(`Failed to fetch Solana ${token} balance:`, err);
     }
   } catch (err) {
-    console.error("Failed to fetch Solana JLU balance:", err);
+    console.error(`Failed to fetch Solana ${token} balance:`, err);
   }
 }
 
@@ -327,8 +335,6 @@ async function updateEvmBalance(
     ethereum: ethereumBalance,
   }));
 }
-
-export { balances$ as jluBalance$ };
 
 // Add this helper function to find token by address
 export function findTokenByAddress(

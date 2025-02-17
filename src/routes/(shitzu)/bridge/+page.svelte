@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Transaction } from "@near-wallet-selector/core";
   import { getConnectorClient, type Config } from "@wagmi/core";
   import {
     arbitrum,
@@ -39,7 +40,7 @@
   import TokenInput from "$lib/components/TokenInput.svelte";
   import { evmWallet$, config, switchToChain } from "$lib/evm/wallet";
   import type { Network } from "$lib/models/tokens";
-  import { nearWallet } from "$lib/near";
+  import { nearBalance, nearWallet, refreshNearBalance } from "$lib/near";
   import { solanaWallet } from "$lib/solana/wallet";
   import {
     FixedNumber,
@@ -199,7 +200,6 @@
       return;
     }
 
-    const amount = $amount$.toU128();
     const api = new OmniBridgeAPI({
       baseUrl:
         import.meta.env.VITE_NETWORK_ID === "mainnet"
@@ -229,14 +229,43 @@
           TOKENS[$selectedToken$].addresses.near,
         );
 
+        let amount = $amount$;
+        const additionalTransactions: Omit<Transaction, "signerId">[] = [];
+        if ($selectedToken$ === "NEAR") {
+          const extraNearDeposit = $amount$
+            .sub(get(balances$["NEAR"]).near ?? new FixedNumber(0n, 24))
+            .add(get(nearBalance) ?? new FixedNumber(0n, 24));
+          if (extraNearDeposit.toBigInt() > 0n) {
+            additionalTransactions.push({
+              receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
+              actions: [
+                {
+                  type: "FunctionCall",
+                  params: {
+                    methodName: "near_deposit",
+                    args: {},
+                    gas: 30_000_000_000_000n.toString(),
+                    deposit: extraNearDeposit.toU128(),
+                  },
+                },
+              ],
+            });
+          }
+        }
+
         const fee = await api.getFee(sender, recipient, tokenAddress);
-        return client.initTransfer({
-          amount: BigInt(amount),
-          fee: fee.transferred_token_fee ?? 0n,
-          nativeFee: fee.native_token_fee ?? 0n,
-          recipient,
-          tokenAddress,
-        });
+        return client.initTransfer(
+          {
+            amount: amount.toBigInt(),
+            fee: fee.transferred_token_fee ?? 0n,
+            nativeFee: fee.native_token_fee ?? 0n,
+            recipient,
+            tokenAddress,
+          },
+          {
+            additionalTransactions,
+          },
+        );
       })
       .with("solana", async () => {
         const wallet = get(solanaWallet.selectedWallet$);
@@ -269,7 +298,7 @@
 
         const fee = await api.getFee(sender, recipient, tokenAddress);
         return client.initTransfer({
-          amount: BigInt(amount),
+          amount: $amount$.toBigInt(),
           fee: fee.transferred_token_fee ?? 0n,
           nativeFee: fee.native_token_fee ?? 0n,
           recipient,
@@ -332,7 +361,7 @@
 
         const fee = await api.getFee(sender, recipient, tokenAddress);
         return client.initTransfer({
-          amount: BigInt(amount),
+          amount: $amount$.toBigInt(),
           fee: fee.transferred_token_fee ?? 0n,
           nativeFee: fee.native_token_fee ?? 0n,
           recipient,
@@ -418,7 +447,10 @@
     // Reset input fields after successful bridge
     $amountValue$ = undefined;
     $recipientAddress$ = "";
-    return updateTokenBalance($selectedToken$ as keyof typeof TOKENS);
+    return Promise.all([
+      updateTokenBalance($selectedToken$ as keyof typeof TOKENS),
+      refreshNearBalance($accountId$),
+    ]);
   }
 
   function isValidAddress(address: string, network: Network): boolean {
