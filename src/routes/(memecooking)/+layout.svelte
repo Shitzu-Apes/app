@@ -20,11 +20,12 @@
   import Tooltip from "$lib/components/Tooltip.svelte";
   import LaunchSheet from "$lib/components/memecooking/BottomSheet/LaunchSheet.svelte";
   import RegisterSheet from "$lib/components/memecooking/BottomSheet/RegisterSheet.svelte";
+  import WithRefPools from "$lib/components/memecooking/WithRefPools.svelte";
   import { BottomSheet } from "$lib/layout/BottomSheet";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import MCHeader from "$lib/layout/memecooking/MCHeader.svelte";
   import { ScreenSize } from "$lib/models";
-  import { Ref, wagmiConfig, wallet } from "$lib/near";
+  import { wagmiConfig, wallet } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
   import { screenSize$ } from "$lib/screen-size";
   import {
@@ -186,31 +187,6 @@
     const symbol = Symbol("new_meme");
     MCMemeSubscribe(symbol, appendNewMeme);
   });
-
-  let loading = true;
-  onMount(async () => {
-    try {
-      let promises = [];
-      let doBreak = false;
-      for (let i = 0; i < 100_000; i += 1_000) {
-        const poolPromise = Ref.getPools(i, 1_000).then((pools) => {
-          if (pools.length < 1_000) {
-            doBreak = true;
-          }
-        });
-        promises.push(poolPromise);
-        if (promises.length >= 5) {
-          await Promise.all(promises);
-          promises = [];
-          if (doBreak) break;
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      loading = false;
-    }
-  });
 </script>
 
 <QueryClientProvider client={queryClient}>
@@ -224,11 +200,10 @@
     >
       <div class="text-white min-h-screen flex flex-col">
         <MCHeader />
-        {#if loading}
-          <div class="i-mdi:loading size-[10rem] animate-spin ma" />
-        {:else}
+
+        <WithRefPools>
           <slot />
-        {/if}
+        </WithRefPools>
         <div
           class="fixed bottom-0 right-0 p-2 text-xs text-white bg-gray-800/70 hidden sm:block"
         >

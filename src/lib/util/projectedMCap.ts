@@ -4,7 +4,7 @@ import { FixedNumber } from "./FixedNumber";
 import { getProjectedMemePriceInNear } from "./getProjectedMemePriceInNear";
 
 import type { Meme } from "$lib/api/client";
-import { Ref } from "$lib/near";
+import { Ref, type PoolInfo } from "$lib/near";
 
 // Centralized store for token prices
 const tokenPrices = writable<
@@ -34,12 +34,46 @@ export function projectedPoolStats(
 }
 
 export async function calculateTokenStats(meme: Meme) {
+  if (meme.pool_id) {
+    const stats = await getPoolStats(meme.pool_id, meme.decimals);
+    const totalSupplyBigInt = BigInt(meme.total_supply!);
+    const price = new FixedNumber(stats.price, 24);
+    const mcap = new FixedNumber(
+      stats.price * totalSupplyBigInt,
+      meme.decimals + 24,
+    );
+    const liquidity = new FixedNumber(stats.liquidity, 24);
+
+    return { mcap, liquidity, price };
+  } else {
+    return calculateTokenStatsFromMeme(meme);
+  }
+}
+
+export function calculateTokenStatsFromMeme(meme: Meme) {
+  const pricePerTokenInNear = getProjectedMemePriceInNear(meme);
+  const totalSupply = BigInt(meme.total_supply || 0);
+  const price = new FixedNumber(pricePerTokenInNear, 24);
+  const mcap = new FixedNumber(
+    pricePerTokenInNear * totalSupply,
+    24 + meme.decimals,
+  );
+  const liquidity = new FixedNumber(BigInt(meme.total_deposit!) * 2n, 24);
+
+  return { mcap, liquidity, price };
+}
+
+export function calculateTokenStatsFromPoolInfo(
+  meme: Meme,
+  poolInfo: PoolInfo,
+  decimals: number,
+) {
   let mcap: FixedNumber;
   let liquidity: FixedNumber;
   let price: FixedNumber;
 
   if (meme.pool_id) {
-    const stats = await getPoolStats(meme.pool_id, meme.decimals);
+    const stats = getPoolStatsFromPoolInfo(poolInfo, decimals);
     const totalSupplyBigInt = BigInt(meme.total_supply!);
     price = new FixedNumber(stats.price, 24);
     mcap = new FixedNumber(stats.price * totalSupplyBigInt, meme.decimals + 24);
@@ -76,25 +110,25 @@ async function getPoolStats(
 ): Promise<{ price: bigint; liquidity: bigint }> {
   const pool = await Ref.getPool(poolId);
 
-  const denomIdx = pool.token_account_ids.indexOf(
+  return getPoolStatsFromPoolInfo(pool, decimals);
+}
+
+function getPoolStatsFromPoolInfo(poolInfo: PoolInfo, decimals: number) {
+  const denomIdx = poolInfo.token_account_ids.indexOf(
     import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
   );
   const tokenIdx = denomIdx === 0 ? 1 : 0;
 
-  const denomAmount = pool.amounts[denomIdx];
-  const tokenAmount = pool.amounts[tokenIdx];
+  const denomAmount = poolInfo.amounts[denomIdx];
+  const tokenAmount = poolInfo.amounts[tokenIdx];
 
   const price = new FixedNumber(BigInt(denomAmount), 24)
     .div(new FixedNumber(BigInt(tokenAmount), decimals))
     .toBigInt();
 
-  // Liquidity is 2x the NEAR amount since it's a 50/50 pool
   const liquidity = BigInt(denomAmount) * 2n;
 
-  return {
-    price,
-    liquidity,
-  };
+  return { price, liquidity };
 }
 
 export const nearPrice = writable<bigint>(0n);

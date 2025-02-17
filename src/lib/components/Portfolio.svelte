@@ -27,8 +27,6 @@
   }, 30e3);
 
   onDestroy(() => clearInterval(refreshInterval));
-  console.log("[Portfolio.svelte] portfolio", portfolio);
-  console.log("[Portfolio.svelte] nearPrice", $nearPrice);
 </script>
 
 {#if $portfolioQuery.isLoading}
