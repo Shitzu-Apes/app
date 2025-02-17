@@ -1,5 +1,8 @@
 import { AnchorProvider, type Provider } from "@coral-xyz/anchor";
-import type { SignerWalletAdapter } from "@solana/wallet-adapter-base";
+import {
+  WalletConnectionError,
+  type SignerWalletAdapter,
+} from "@solana/wallet-adapter-base";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import { SolflareWalletAdapter } from "@solana/wallet-adapter-solflare";
 import { clusterApiUrl, Connection, type PublicKey } from "@solana/web3.js";
@@ -10,11 +13,14 @@ import { addToast } from "$lib/components/Toast.svelte";
 
 const network =
   import.meta.env.VITE_NETWORK_ID === "mainnet" ? "mainnet-beta" : "devnet";
+const isMultichain =
+  import.meta.env.VITE_WALLET_SELECTOR_MULTICHAIN === undefined ||
+  import.meta.env.VITE_WALLET_SELECTOR_MULTICHAIN !== "false";
 const connection = new Connection(
   import.meta.env.VITE_SOLANA_RPC_URL ?? clusterApiUrl(network),
 );
 
-class SolanaWallet {
+export class SolanaWallet {
   private _wallets$ = writable<SignerWalletAdapter[]>([]);
   private _selectedWallet$ = writable<SignerWalletAdapter | undefined>(
     undefined,
@@ -24,7 +30,9 @@ class SolanaWallet {
   private _provider: Provider | null = null; // Add a provider instance variable
 
   constructor() {
-    const wallets = [new PhantomWalletAdapter(), new SolflareWalletAdapter()];
+    const wallets = isMultichain
+      ? [new PhantomWalletAdapter(), new SolflareWalletAdapter()]
+      : [];
     this._wallets$.set(wallets);
 
     // Try to auto-connect on initialization
@@ -84,9 +92,26 @@ class SolanaWallet {
   public async connect(wallet: SignerWalletAdapter) {
     try {
       await wallet.connect();
+
+      if (wallet.publicKey == null) {
+        addToast({
+          data: {
+            type: "simple",
+            data: {
+              title: "Connection Failed",
+              description: "Please unlock your wallet, then try again.",
+              type: "error",
+            },
+          },
+        });
+        return;
+      }
+
       this._selectedWallet$.set(wallet);
       this._publicKey$.set(wallet.publicKey ?? undefined);
-      this.updateProvider(); // <--- VERY IMPORTANT
+      this.updateProvider();
+
+      console.log("wallet", wallet);
 
       addToast({
         data: {
@@ -99,6 +124,20 @@ class SolanaWallet {
       });
     } catch (error) {
       console.error("Failed to connect wallet:", error);
+
+      if (error instanceof WalletConnectionError) {
+        addToast({
+          data: {
+            type: "simple",
+            data: {
+              title: "Connection Failed",
+              description: "Please unlock your wallet, then try again.",
+              type: "error",
+            },
+          },
+        });
+        return;
+      }
       addToast({
         data: {
           type: "simple",

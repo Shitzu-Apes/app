@@ -50,6 +50,9 @@ jobs:
       - name: Add contract connect ID to .env
         run: echo "VITE_CONNECT_ID=factory.v10.meme-cooking.testnet" >> .env.testnet
 
+      - name: Add multichain wallet selector to .env
+        run: echo "VITE_WALLET_SELECTOR_MULTICHAIN=false" >> .env.testnet
+
       - name: Add Pinate JWT to .env
         run: echo "PINATA_JWT=$PINATA_JWT" >> .env.testnet
         env:

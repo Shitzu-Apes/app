@@ -29,6 +29,7 @@ export type TransactionCallbacks<T> = {
 };
 
 async function fetchAccountDetail() {
+  // TODO MC check. If not => don't fetch flag
   return Promise.all([fetchIsLoggedIn(), fetchMyFlags()]);
 }
 

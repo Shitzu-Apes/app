@@ -262,7 +262,7 @@
         type="secondary"
         onClick={(e) => {
           e.preventDefault();
-          showWalletSelector(undefined, "evm");
+          showWalletSelector(undefined, "ethereum");
         }}
         class="w-full"
       >

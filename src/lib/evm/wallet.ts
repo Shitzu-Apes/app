@@ -7,6 +7,8 @@ import {
   reconnect,
   disconnect as _disconnect,
   switchChain as _switchChain,
+  connect as _connect,
+  type Connector,
   injected,
 } from "@wagmi/core";
 import {
@@ -81,27 +83,6 @@ if (browser) {
   watchAccount(config, {
     onChange: (account) => {
       evmWallet$.set(account);
-      if (account.status === "connected") {
-        addToast({
-          data: {
-            type: "simple",
-            data: {
-              title: "Connect",
-              description: `Successfully connected EVM account ${account.address.slice(0, 6)}...${account.address.slice(-4)}`,
-            },
-          },
-        });
-      } else if (account.status === "disconnected") {
-        addToast({
-          data: {
-            type: "simple",
-            data: {
-              title: "Disconnect",
-              description: "Disconnected EVM wallet",
-            },
-          },
-        });
-      }
     },
   });
   reconnect(config);
@@ -121,4 +102,40 @@ export function switchToChain(chainId: ConfiguredChainId) {
  */
 export function disconnect() {
   _disconnect(config);
+  addToast({
+    data: {
+      type: "simple",
+      data: {
+        title: "Disconnect",
+        description: "Disconnected EVM wallet",
+      },
+    },
+  });
+}
+
+/**
+ * Connect to a wallet
+ */
+export async function connect(
+  connector: Connector,
+): Promise<GetAccountReturnType> {
+  try {
+    await _connect(config, { connector });
+    const account = getAccount(config);
+    if (account.status === "connected") {
+      addToast({
+        data: {
+          type: "simple",
+          data: {
+            title: "Connect",
+            description: `Successfully connected EVM account ${account.address.slice(0, 6)}...${account.address.slice(-4)}`,
+          },
+        },
+      });
+    }
+    return account;
+  } catch (error) {
+    console.error("Failed to connect EVM wallet:", error);
+    throw error;
+  }
 }

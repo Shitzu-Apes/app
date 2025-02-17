@@ -120,22 +120,23 @@ async function decode(
   sourceType: "avif" | "jpeg" | "jxl" | "png" | "webp",
   fileBuffer: Uint8Array,
 ) {
+  const arrayBuffer = fileBuffer.buffer as ArrayBuffer;
   let result;
   switch (sourceType) {
     case "avif":
-      result = await avif.decode(fileBuffer);
+      result = await avif.decode(arrayBuffer);
       break;
     case "jpeg":
-      result = await jpeg.decode(fileBuffer);
+      result = await jpeg.decode(arrayBuffer);
       break;
     case "jxl":
-      result = await jxl.decode(fileBuffer);
+      result = await jxl.decode(arrayBuffer);
       break;
     case "png":
-      result = await png.decode(fileBuffer);
+      result = await png.decode(arrayBuffer);
       break;
     case "webp":
-      result = await webp.decode(fileBuffer);
+      result = await webp.decode(arrayBuffer);
       break;
     default:
       throw new Error(`Unknown source type: ${sourceType}`);
