@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
-  import { onDestroy, onMount } from "svelte";
-  import { derived, writable } from "svelte/store";
+  import { writable } from "svelte/store";
   import { match } from "ts-pattern";
 
   import { page } from "$app/stores";
+  import { useAccountBalanceQuery, useMcAccountQuery } from "$lib/api/queries";
   import { usePortfolioQuery } from "$lib/api/queries/portfolio";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import FormatNumber from "$lib/components/FormatNumber.svelte";
@@ -14,13 +14,8 @@
   import Tabs from "$lib/components/memecooking/Board/Tabs.svelte";
   import MemeList from "$lib/components/memecooking/Profile/MemeList.svelte";
   import Revenue from "$lib/components/memecooking/Profile/Revenue.svelte";
-  import { fetchAccountBalance, nearWallet } from "$lib/near";
-  import {
-    fetchMcAccount,
-    mcAccount$,
-    updateMcAccount,
-    type McAccount,
-  } from "$lib/near/memecooking";
+  import { nearWallet } from "$lib/near";
+  import { type McAccount } from "$lib/near/memecooking";
   import { fetchBlockHeight } from "$lib/near/rpc";
   import { FixedNumber } from "$lib/util";
   import { nearPrice } from "$lib/util/projectedMCap";
@@ -35,43 +30,25 @@
       : accountId;
 
   let account: McAccount | undefined;
+  $: mcAccountQuery = useMcAccountQuery(accountId);
+  $: if (!isOwnAccount) {
+    account = $mcAccountQuery.data ?? undefined;
+  }
 
   $: portfolioQuery = usePortfolioQuery(accountId);
   $: portfolio = $portfolioQuery.data ?? null;
 
   const nearBalance = writable<FixedNumber | null>(null);
-
-  $: {
-    fetchAccountBalance($page.params.accountId).then((result) => {
-      if (result) {
-        nearBalance.set(
-          new FixedNumber(result.amount, 24).sub(
-            new FixedNumber(result.locked, 24),
-          ),
-        );
-      } else {
-        nearBalance.set(null);
-      }
-    });
+  $: balanceQuery = useAccountBalanceQuery(accountId);
+  $: if ($balanceQuery.data) {
+    nearBalance.set(
+      new FixedNumber($balanceQuery.data.amount, 24).sub(
+        new FixedNumber($balanceQuery.data.locked, 24),
+      ),
+    );
+  } else {
+    nearBalance.set(null);
   }
-
-  const unsubscribe = derived([accountId$, page], ([$id, $p]) => ({
-    accountId: $id,
-    page: $p,
-  })).subscribe(async ({ accountId: ownAccountId, page }) => {
-    if (ownAccountId === page.params.accountId) return;
-    const acc = await fetchMcAccount(page.params.accountId);
-    account = acc;
-  });
-
-  onDestroy(() => {
-    unsubscribe();
-  });
-
-  onMount(() => {
-    if (!$accountId$ || !isOwnAccount) return;
-    updateMcAccount($accountId$);
-  });
 
   let activeTab = "portfolio";
   $: tabs = match(isOwnAccount)
@@ -121,8 +98,8 @@
     if (outcome == null) return;
     const ownAccountId = $accountId$;
     if (!ownAccountId) return;
-    const blockHeight = await fetchBlockHeight(outcome);
-    updateMcAccount(ownAccountId, true, blockHeight);
+    await fetchBlockHeight(outcome);
+    $mcAccountQuery.refetch();
   }
 
   $: totalValue =
@@ -214,9 +191,11 @@
   </div>
 
   <div class="w-full">
-    {#await $mcAccount$}
+    {#if $mcAccountQuery.status === "pending"}
       <LoadingLambo />
-    {:then info}
+    {:else if $mcAccountQuery.status === "error"}
+      <div class="text-red-500">Error loading account</div>
+    {:else if $mcAccountQuery.status === "success"}
       <div class="grid lg:grid-cols-[2fr_minmax(300px,1fr)] gap-8">
         <!-- Left Panel with Tabs -->
         <div>
@@ -224,7 +203,7 @@
             tabs={tabs.map((tab) => ({
               ...tab,
               label: tab.getCount
-                ? `${tab.label} (${info ? tab.getCount(info) : 0})`
+                ? `${tab.label} (${account ? tab.getCount(account) : 0})`
                 : tab.label,
             }))}
             bind:activeTab
@@ -238,15 +217,15 @@
               nearBalance={$nearBalance}
               {portfolioQuery}
             />
-          {:else if info && isOwnAccount}
+          {:else if account && isOwnAccount}
             <MemeList
               props={activeTab === "not-finalized"
-                ? { type: "not-finalized", data: info.deposits }
+                ? { type: "not-finalized", data: account.deposits }
                 : activeTab === "finalized"
-                  ? { type: "finalized", data: info.claims }
+                  ? { type: "finalized", data: account.claims }
                   : activeTab === "created"
-                    ? { type: "created", data: info.created }
-                    : { type: "created", data: info.created }}
+                    ? { type: "created", data: account.created }
+                    : { type: "created", data: account.created }}
               {isOwnAccount}
               {update}
             />
@@ -263,10 +242,10 @@
         <div class="order-first lg:order-last">
           {#if isOwnAccount}
             <Revenue
-              revenue={info?.revenue}
-              shitstarClaim={info?.shitstarClaim}
-              referralFees={info?.referralFees}
-              withdrawFees={info?.withdrawFees}
+              revenue={account?.revenue}
+              shitstarClaim={account?.shitstarClaim}
+              referralFees={account?.referralFees}
+              withdrawFees={account?.withdrawFees}
               {update}
               {isOwnAccount}
             />
@@ -282,6 +261,6 @@
           {/if}
         </div>
       </div>
-    {/await}
+    {/if}
   </div>
 </section>
