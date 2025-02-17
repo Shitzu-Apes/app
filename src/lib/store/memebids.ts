@@ -20,15 +20,14 @@ export const memebidsLoading$ = writable(false);
 export const memebidsError$ = writable<Error | null>(null);
 
 export function appendNewMeme(meme: Meme) {
-  const memes = get(_memebids$);
-
-  memes.push({
-    ...meme,
-    projectedPoolStats: undefined,
-    pool_id: null,
-  });
-  console.log("[appendNewMeme] memes", memes);
-  _memebids$.set([...memes]);
+  const memes = queryClient.getQueryData<Meme[]>(
+    memesQueryFactory.memes.all().queryKey,
+  );
+  if (!memes) return;
+  queryClient.setQueryData(memesQueryFactory.memes.all().queryKey, [
+    ...memes,
+    meme,
+  ]);
 }
 
 export function bumpMeme(meme_id: number) {

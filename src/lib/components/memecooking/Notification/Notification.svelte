@@ -2,13 +2,15 @@
   import { onDestroy, onMount } from "svelte";
   import { slide } from "svelte/transition";
 
+  import type { Meme } from "$lib/api/client";
+  import { queryClient } from "$lib/api/queries";
+  import { memesQueryFactory } from "$lib/api/queries/memes";
   import Near from "$lib/assets/Near.svelte";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import McIcon from "$lib/components/MCIcon.svelte";
   import { external_memes, EXTERNAL_MEMES } from "$lib/external_memes";
   import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/MCWebSocket";
   import { EXTTradeSubscribe, EXTunsubscribe } from "$lib/store/externalTrades";
-  import { memebids$ } from "$lib/store/memebids";
   import { FixedNumber } from "$lib/util";
 
   type Notification = {
@@ -103,7 +105,10 @@
           if (relevantToken.includes("meme-cooking")) {
             // Handle meme cooking tokens
             const memeId = parseInt(relevantToken.split("-")[1]);
-            const memeInfo = $memebids$.find((meme) => meme.meme_id === memeId);
+            const memes = queryClient.getQueryData<Meme[]>(
+              memesQueryFactory.memes.all().queryKey,
+            );
+            const memeInfo = memes?.find((m) => m.meme_id === memeId);
             if (!memeInfo) return;
             notifications = [
               {
