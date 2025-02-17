@@ -1,7 +1,8 @@
 <script lang="ts">
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
 
-  import { createPoolStatQuery } from "$lib/api/queries/poolStat";
+  import MemePreviewStats from "./MemePreviewStats.svelte";
+
   import { createNearPriceQuery } from "$lib/api/queries/prices";
   import McIcon from "$lib/components/MCIcon.svelte";
   import ActionButton from "$lib/components/memecooking/Board/Desktop/ActionButton.svelte";
@@ -50,14 +51,7 @@
       "bg-memecooking-400 text-black animated animated-heart-beat animated-infinite animated-duration-1000 hover:animate-none",
   }[status];
 
-  const poolStatQuery = createPoolStatQuery(memebid);
   const nearPriceQuery = createNearPriceQuery();
-
-  $: isLoading =
-    $poolStatQuery?.status === "pending" ||
-    $nearPriceQuery?.status === "pending";
-  $: isError =
-    $poolStatQuery?.status === "error" || $nearPriceQuery?.status === "error";
 </script>
 
 <div
@@ -131,41 +125,13 @@
 
         <!-- Stats -->
         <div class="flex items-center justify-between text-sm mt-auto">
-          <div class="flex flex-col">
-            <div class="flex items-center gap-1">
-              <span class="text-memecooking-400">MC:</span>
-              <span class="font-medium">
-                {#if isLoading}
-                  <div class="i-svg-spinners:bars-fade size-4" />
-                {:else if isError}
-                  <div class="i-mdi:alert-circle text-rose-4" />
-                  {$poolStatQuery.error}
-                {:else if $poolStatQuery.data && $nearPriceQuery.data}
-                  ${$poolStatQuery.data.mcap.mul($nearPriceQuery.data).format({
-                    maximumFractionDigits: 3,
-                    notation: "compact",
-                  })}
-                {/if}
-              </span>
-            </div>
-            <div class="flex items-center gap-1">
-              <span class="text-memecooking-400">L:</span>
-              <span class="font-medium">
-                {#if $poolStatQuery.isLoading}
-                  <div class="i-svg-spinners:bars-fade size-4" />
-                {:else if $poolStatQuery.isError}
-                  <div class="i-mdi:alert-circle text-rose-4" />
-                {:else if $poolStatQuery.data && $nearPriceQuery.data}
-                  ${$poolStatQuery.data.liquidity
-                    .mul($nearPriceQuery.data)
-                    .format({
-                      maximumFractionDigits: 3,
-                      notation: "compact",
-                    })}
-                {/if}
-              </span>
-            </div>
-          </div>
+          {#if $nearPriceQuery.status === "pending"}
+            <div class="i-svg-spinners:bars-fade size-4" />
+          {:else if $nearPriceQuery.status === "error"}
+            <div class="i-mdi:alert-circle text-rose-4" />
+          {:else}
+            <MemePreviewStats {memebid} nearPrice={$nearPriceQuery.data} />
+          {/if}
 
           <div class="flex flex-col">
             {#if isLaunched}

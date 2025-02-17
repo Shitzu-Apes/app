@@ -11,13 +11,10 @@
   import QuickActionConfig from "./QuickActionConfig.svelte";
   import SortToggle from "./SortToggle.svelte";
 
-  import { queryClient } from "$lib/api/queries";
   import { createPaginatedMemesQuery } from "$lib/api/queries/memes";
-  import { poolStatQueryFactory } from "$lib/api/queries/poolStat";
   import SelectBox from "$lib/components/SelectBox.svelte";
   import { EXTERNAL_MEMES } from "$lib/external_memes";
   import { ScreenSize } from "$lib/models";
-  import type { Meme } from "$lib/models/memecooking/types";
   import { nearWallet } from "$lib/near";
   import { widthAtLeast$ } from "$lib/screen-size";
   import { searchQuery$ } from "$lib/store/memebids";
@@ -48,17 +45,6 @@
   }
 
   $: memesQuery = createPaginatedMemesQuery();
-
-  $: {
-    if ($memesQuery.data) {
-      $memesQuery.data.forEach((meme: Meme) => {
-        queryClient.prefetchQuery({
-          ...poolStatQueryFactory.poolStat.detail(meme),
-          staleTime: Infinity,
-        });
-      });
-    }
-  }
 
   $: displayedMemebids = match(activeTab)
     .with("other", () =>

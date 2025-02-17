@@ -4,16 +4,14 @@ import { z } from "zod";
 
 import { queryClient } from ".";
 import { memesQueryFactory } from "./memes";
-import { poolStatQueryFactory } from "./poolStat";
+import { ref } from "./ref";
 
 import type { Meme } from "$lib/api/client";
-import { FixedNumber } from "$lib/util";
-
-interface TokenStats {
-  price: FixedNumber | null;
-  marketCap: FixedNumber | null;
-  volume24h: FixedNumber | null;
-}
+import type { PoolInfo } from "$lib/near/ref";
+import {
+  calculateTokenStatsFromMeme,
+  calculateTokenStatsFromPoolInfo,
+} from "$lib/util/projectedMCap";
 
 // Zod schema for portfolio data validation
 const TokenSchema = z.object({
@@ -80,28 +78,42 @@ export const portfolioKeys = createQueryKeys("portfolio", {
 
           if (meme) {
             try {
-              // Get pool stats from cache or fetch if needed
-              const poolStats = queryClient.getQueryData(
-                poolStatQueryFactory.poolStat.detail(meme).queryKey,
-              ) as TokenStats | undefined;
+              if (meme.pool_id) {
+                // Get pool stats from cache or fetch if needed
+                const poolStats = queryClient.getQueryData(
+                  ref.detail(meme.pool_id).queryKey,
+                ) as PoolInfo | undefined;
 
-              if (!poolStats) {
-                // If not in cache, fetch pool stats
-                await queryClient.fetchQuery(
-                  poolStatQueryFactory.poolStat.detail(meme),
+                if (!poolStats) {
+                  // If not in cache, fetch pool stats
+                  await queryClient.fetchQuery(ref.detail(meme.pool_id));
+                }
+
+                const currentPoolStats = queryClient.getQueryData(
+                  ref.detail(meme.pool_id).queryKey,
+                ) as PoolInfo;
+
+                const stats = calculateTokenStatsFromPoolInfo(
+                  meme,
+                  currentPoolStats,
+                  meme.decimals,
                 );
+
+                return {
+                  ...token,
+                  ...meme,
+                  balance: token.balance,
+                  price: stats.price.toNumber(),
+                };
+              } else {
+                const stats = calculateTokenStatsFromMeme(meme);
+                return {
+                  ...token,
+                  ...meme,
+                  balance: token.balance,
+                  price: stats.price.toNumber(),
+                };
               }
-
-              const currentPoolStats = queryClient.getQueryData(
-                poolStatQueryFactory.poolStat.detail(meme).queryKey,
-              ) as TokenStats | undefined;
-
-              return {
-                ...token,
-                ...meme,
-                balance: token.balance,
-                price: currentPoolStats?.price?.toNumber() ?? null,
-              };
             } catch (err) {
               return {
                 ...token,

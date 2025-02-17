@@ -20,6 +20,7 @@
   import Tooltip from "$lib/components/Tooltip.svelte";
   import LaunchSheet from "$lib/components/memecooking/BottomSheet/LaunchSheet.svelte";
   import RegisterSheet from "$lib/components/memecooking/BottomSheet/RegisterSheet.svelte";
+  import WithRefPools from "$lib/components/memecooking/WithRefPools.svelte";
   import { BottomSheet } from "$lib/layout/BottomSheet";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import MCHeader from "$lib/layout/memecooking/MCHeader.svelte";
@@ -185,31 +186,6 @@
   onMount(() => {
     const symbol = Symbol("new_meme");
     MCMemeSubscribe(symbol, appendNewMeme);
-  });
-
-  let loading = true;
-  onMount(async () => {
-    try {
-      let promises = [];
-      let doBreak = false;
-      for (let i = 0; i < 100_000; i += 1_000) {
-        const poolPromise = Ref.getPools(i, 1_000).then((pools) => {
-          if (pools.length < 1_000) {
-            doBreak = true;
-          }
-        });
-        promises.push(poolPromise);
-        if (promises.length >= 5) {
-          await Promise.all(promises);
-          promises = [];
-          if (doBreak) break;
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      loading = false;
-    }
   });
 </script>
 

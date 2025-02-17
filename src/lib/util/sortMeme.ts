@@ -1,8 +1,11 @@
-import type { FixedNumber } from ".";
+import { FixedNumber } from ".";
+import { getProjectedMemePriceInNear } from "./getProjectedMemePriceInNear";
+import { calculateTokenStatsFromPoolInfo } from "./projectedMCap";
 
 import { queryClient } from "$lib/api/queries";
-import { poolStatQueryFactory } from "$lib/api/queries/poolStat";
+import { ref as refQuery } from "$lib/api/queries/ref";
 import type { Meme } from "$lib/models/memecooking";
+import type { PoolInfo } from "$lib/near/ref";
 
 export const sortOptions = [
   { label: "bump order", value: "bump order" },
@@ -81,11 +84,28 @@ export function filterAndSortMeme<T extends Meme>(
     );
   }
 
-  const cache = queryClient.getQueryCache();
   function getPoolStatFromCache(meme: Meme) {
-    const poolStat = cache.find(poolStatQueryFactory.poolStat.detail(meme))
-      ?.state.data as { mcap: FixedNumber; liquidity: FixedNumber } | null;
-    return poolStat;
+    if (meme.pool_id === null || meme.pool_id === undefined) {
+      const pricePerTokenInNear = getProjectedMemePriceInNear(meme);
+      const totalSupply = BigInt(meme.total_supply || 0);
+      const price = new FixedNumber(pricePerTokenInNear, 24);
+      const mcap = new FixedNumber(
+        pricePerTokenInNear * totalSupply,
+        24 + meme.decimals,
+      );
+      const liquidity = new FixedNumber(BigInt(meme.total_deposit!) * 2n, 24);
+      return { mcap, liquidity, price };
+    }
+    const allPoolStats = queryClient.getQueryData(
+      refQuery.all().queryKey,
+    ) as PoolInfo[];
+    const poolStat = allPoolStats[meme.pool_id];
+
+    if (!poolStat) {
+      throw new Error("Pool stat not found");
+    }
+
+    return calculateTokenStatsFromPoolInfo(meme, poolStat, meme.decimals);
   }
 
   switch (sort.sort) {
