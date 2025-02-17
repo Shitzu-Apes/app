@@ -29,8 +29,6 @@
   let selectedDirection = orderOptions[0];
   let activeTab: "launched" | "all" | "other" | "metapool" = "all";
   let quickActionAmount = "5";
-  let currentPage = 1;
-  let itemsPerPage = 10;
 
   let liveOnly = false;
 
@@ -45,26 +43,17 @@
     liveOnly = false;
   }
 
-  $: memesQuery = createPaginatedMemesQuery({
-    page: currentPage,
-    limit: itemsPerPage,
-    tab: activeTab as "launched" | "all" | "other" | "metapool",
-    isLive: liveOnly,
-  });
+  $: memesQuery = createPaginatedMemesQuery();
 
   $: {
-    if ($memesQuery.data?.memes) {
-      $memesQuery.data.memes.forEach((meme: Meme) => {
+    if ($memesQuery.data) {
+      $memesQuery.data.forEach((meme: Meme) => {
         queryClient.prefetchQuery({
           ...poolStatQueryFactory.poolStat.detail(meme),
           staleTime: Infinity,
         });
       });
     }
-  }
-
-  function handlePageChange(newPage: number) {
-    currentPage = newPage;
   }
 
   // $: displayedMemebids = match(activeTab)
@@ -152,45 +141,20 @@
     </div>
   </div>
 
-  {#if $memesQuery.isLoading}
+  {#if $memesQuery.status === "pending"}
     <div class="w-full my-10">
       <LoadingLambo />
     </div>
-  {:else if $memesQuery.isError}
+  {:else if $memesQuery.status === "error"}
     <div class="w-full my-10">Something went wrong</div>
   {:else}
     <VirtualMemeList
-      items={$memesQuery.data?.memes.map((meme) => ({ meme })) ?? []}
+      items={$memesQuery.data.map((meme) => ({ meme })) ?? []}
       showCook={true}
       {quickActionAmount}
       emptyMessage="No memes found"
       update={() => {}}
       className="px-1"
     />
-
-    <div class="flex justify-center mt-4 gap-2">
-      <button
-        class="px-3 py-1 rounded bg-memecooking-400 disabled:opacity-50"
-        disabled={currentPage === 1}
-        on:click={() => handlePageChange(currentPage - 1)}
-      >
-        Previous
-      </button>
-
-      <span class="px-3 py-1">
-        Page {currentPage} of {Math.ceil(
-          ($memesQuery.data?.total ?? 0) / itemsPerPage,
-        )}
-      </span>
-
-      <button
-        class="px-3 py-1 rounded bg-memecooking-400 disabled:opacity-50"
-        disabled={currentPage >=
-          Math.ceil(($memesQuery.data?.total ?? 0) / itemsPerPage)}
-        on:click={() => handlePageChange(currentPage + 1)}
-      >
-        Next
-      </button>
-    </div>
   {/if}
 </div>
