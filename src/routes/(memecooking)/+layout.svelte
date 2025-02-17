@@ -38,17 +38,13 @@
     indexer_last_block_height$,
     node_last_block_height$,
   } from "$lib/store/indexer";
-  import { appendNewMeme, updateMemebids } from "$lib/store/memebids";
+  import { appendNewMeme } from "$lib/store/memebids";
   import { readAndSetReferral } from "$lib/util/referral";
 
   // eslint-disable-next-line import/no-named-as-default-member
   dayjs.extend(duration);
   // eslint-disable-next-line import/no-named-as-default-member
   dayjs.extend(relativeTime);
-
-  onMount(() => {
-    updateMemebids();
-  });
 
   onMount(() => {
     const initWebSocket = () => {
