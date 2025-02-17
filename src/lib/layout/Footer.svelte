@@ -1,9 +1,18 @@
 <script lang="ts">
   import { BuiltOnNear } from "$lib/assets";
+  import GrowthMateAdDekstop from "$lib/components/memecooking/GrowthMate/GrowthMateAdDekstop.svelte";
 </script>
 
-<div class="mt-6 w-full px-2 py-3">
-  <div class="flex justify-between items-center max-w-lg mx-auto">
+<div class="mt-4 w-full space-y-4">
+  <div class="max-w-[min(28rem,100%)] px-3 mx-auto">
+    <GrowthMateAdDekstop
+      unitId="KYbe4YbGrnN89wR359x4fA=="
+      format="Small Rectangle"
+      network="Near"
+      className="rounded-xl mx-auto"
+    />
+  </div>
+  <div class="flex justify-between items-center w-fit mx-auto">
     <div class="flex items-center gap-4">
       <a href="https://near.org/" target="_blank" rel="noopener">
         <BuiltOnNear style="height: 1.1rem;" />

@@ -20,7 +20,7 @@
     <RefBanner />
   {/if}
   <div
-    class="mt-2 bg-gradient-to-r bg-gradient-from-lime bg-gradient-to-emerald py-4 px-4 rounded-xl text-black flex flex-col not-prose"
+    class="bg-gradient-to-r bg-gradient-from-lime bg-gradient-to-emerald py-4 px-4 rounded-xl text-black flex flex-col not-prose"
   >
     <h2 class="text-base font-bold">EARN $DOGSHIT</h2>
     <div class="text-sm">

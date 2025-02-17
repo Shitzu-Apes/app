@@ -16,7 +16,9 @@
   import TextAreaField from "./TextAreaField.svelte";
   import TextInputField from "./TextInputField.svelte";
 
+  import { browser } from "$app/environment";
   import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
   import Near from "$lib/assets/Near.svelte";
   import { showWalletSelector } from "$lib/auth";
   import { TokenInput } from "$lib/components";
@@ -106,25 +108,79 @@
 
   $: imageReady = imageCID || imageFile;
 
-  const memeToCto = localStorage.getItem("meme_to_cto");
-  if (memeToCto) {
-    const savedMeme = JSON.parse(memeToCto) as Meme;
+  // Handle query params and localStorage initialization
+  const initializeFromParams = async () => {
+    if (browser) {
+      // First check URL params
+      const searchParams = $page.url.searchParams;
+      const urlParams = {
+        name: searchParams.get("name"),
+        symbol: searchParams.get("symbol"),
+        description: searchParams.get("description"),
+        image: searchParams.get("image"),
+        twitter: searchParams.get("twitter"),
+        telegram: searchParams.get("telegram"),
+        website: searchParams.get("website"),
+        softCap: searchParams.get("softCap"),
+        hardCap: searchParams.get("hardCap"),
+      };
 
-    name = savedMeme.name;
-    ticker = savedMeme.symbol;
-    description = savedMeme.description || "";
-    image = `${import.meta.env.VITE_IPFS_GATEWAY}/${savedMeme.image}` || null;
-    if (image) {
-      imageUrlToBase64(image).then((base64) => {
-        base64ToIcon(base64).then((newIcon) => {
-          icon = newIcon;
-        });
-      });
+      // Then check localStorage
+      const memeToCto = localStorage.getItem("meme_to_cto");
+      const savedMeme = memeToCto ? (JSON.parse(memeToCto) as Meme) : null;
+
+      // Apply values in order of priority: URL params > localStorage > defaults
+      name = urlParams.name || savedMeme?.name || "";
+      ticker = urlParams.symbol || savedMeme?.symbol || "";
+      description = urlParams.description || savedMeme?.description || "";
+      twitterLink = urlParams.twitter || savedMeme?.twitter_link || "";
+      telegramLink = urlParams.telegram || savedMeme?.telegram_link || "";
+      website = urlParams.website || savedMeme?.website || "";
+
+      // Handle softCap and hardCap
+      if (urlParams.softCap) {
+        softCap = `${urlParams.softCap}000000000000000000000000`;
+      }
+      if (urlParams.hardCap) {
+        hardCap = `${urlParams.hardCap}000000000000000000000000`;
+        hardCapEnabled = true;
+      } else if (urlParams.hardCap === "") {
+        // If hardCap is explicitly set to empty string, disable it
+        hardCap = null;
+        hardCapEnabled = false;
+      }
+
+      // Handle image separately since it needs processing
+      if (urlParams.image) {
+        image = urlParams.image;
+        try {
+          const base64 = await imageUrlToBase64(urlParams.image);
+          icon = await base64ToIcon(base64);
+          imageCID = urlParams.image.split("/").pop() || null;
+        } catch (e) {
+          console.error("Failed to process image from URL params:", e);
+        }
+      } else if (savedMeme?.image) {
+        image = `${import.meta.env.VITE_IPFS_GATEWAY}/${savedMeme.image}`;
+        try {
+          const base64 = await imageUrlToBase64(image);
+          icon = await base64ToIcon(base64);
+          imageCID = savedMeme.image;
+        } catch (e) {
+          console.error("Failed to process image from localStorage:", e);
+        }
+      }
+
+      if (savedMeme) {
+        ctoFrom = savedMeme.meme_id;
+        localStorage.removeItem("meme_to_cto");
+      }
     }
-    imageCID = image?.split("/").pop() || null;
-    ctoFrom = savedMeme.meme_id;
+  };
 
-    localStorage.removeItem("meme_to_cto");
+  // Initialize form fields when component mounts
+  $: if ($page) {
+    initializeFromParams();
   }
 
   const { accountId$ } = nearWallet;

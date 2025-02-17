@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { get } from "svelte/store";
+  import { onMount } from "svelte";
   import { match } from "ts-pattern";
 
   import GrowthMateAdDekstop from "../../GrowthMate/GrowthMateAdDekstop.svelte";
@@ -15,8 +15,8 @@
   import SelectBox from "$lib/components/SelectBox.svelte";
   import { external_memes } from "$lib/external_memes";
   import { ScreenSize } from "$lib/models";
-  import { nearWallet } from "$lib/near";
-  import { screenSize$, widthAtLeast$ } from "$lib/screen-size";
+  import { nearWallet, Ref } from "$lib/near";
+  import { widthAtLeast$ } from "$lib/screen-size";
   import {
     memebids$,
     memebidsLoading$,
@@ -28,14 +28,6 @@
     filterAndSortMeme,
     sortOptions,
   } from "$lib/util/sortMeme";
-
-  $: {
-    console.log("[screenSize$]", $screenSize$);
-    console.log(
-      "[widthAtLeast$(ScreenSize.Mobile)]",
-      get(widthAtLeast$(ScreenSize.Mobile)),
-    );
-  }
 
   const { accountId$ } = nearWallet;
 
@@ -105,6 +97,31 @@
     );
 
   $: isDekstop = widthAtLeast$(ScreenSize.Tablet);
+
+  let loading = true;
+  onMount(async () => {
+    try {
+      let promises = [];
+      let doBreak = false;
+      for (let i = 0; i < 100_000; i += 1_000) {
+        const poolPromise = Ref.getPools(i, 1_000).then((pools) => {
+          if (pools.length < 1_000) {
+            doBreak = true;
+          }
+        });
+        promises.push(poolPromise);
+        if (promises.length >= 5) {
+          await Promise.all(promises);
+          promises = [];
+          if (doBreak) break;
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      loading = false;
+    }
+  });
 </script>
 
 <div class="w-full">
@@ -159,7 +176,7 @@
     </div>
   </div>
 
-  {#if $memebidsLoading$}
+  {#if $memebidsLoading$ || loading}
     <div class="w-full my-10">
       <LoadingLambo />
     </div>
