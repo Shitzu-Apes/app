@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { match } from "ts-pattern";
+
   import GrowthMateAdDekstop from "../../GrowthMate/GrowthMateAdDekstop.svelte";
   import SearchBox from "../../SearchBox.svelte";
   import VirtualMemeList from "../../VirtualMemeList.svelte";
@@ -13,13 +15,15 @@
   import { createPaginatedMemesQuery } from "$lib/api/queries/memes";
   import { poolStatQueryFactory } from "$lib/api/queries/poolStat";
   import SelectBox from "$lib/components/SelectBox.svelte";
+  import { EXTERNAL_MEMES } from "$lib/external_memes";
   import { ScreenSize } from "$lib/models";
   import type { Meme } from "$lib/models/memecooking/types";
   import { nearWallet } from "$lib/near";
   import { widthAtLeast$ } from "$lib/screen-size";
+  import { searchQuery$ } from "$lib/store/memebids";
   import {
     orderOptions,
-    // filterAndSortMeme,
+    filterAndSortMeme,
     sortOptions,
   } from "$lib/util/sortMeme";
 
@@ -56,35 +60,37 @@
     }
   }
 
-  // $: displayedMemebids = match(activeTab)
-  //   .with("other", () =>
-  //     filterAndSortMeme(
-  //       Object.values(external_memes),
-  //       {
-  //         sort: selectedSort.value,
-  //         order: selectedDirection.value,
-  //       },
-  //       $searchQuery$,
-  //       false,
-  //       false,
-  //     ).map((meme) => ({
-  //       meme,
-  //     })),
-  //   )
-  //   .otherwise(() =>
-  //     filterAndSortMeme(
-  //       $memebids$,
-  //       {
-  //         sort: selectedSort.value,
-  //         order: selectedDirection.value,
-  //       },
-  //       $searchQuery$,
-  //       liveOnly,
-  //       activeTab === "launched",
-  //     ).map((meme) => ({
-  //       meme,
-  //     })),
-  //   );
+  $: displayedMemebids = match(activeTab)
+    .with("other", () =>
+      filterAndSortMeme(
+        Object.values(EXTERNAL_MEMES),
+        {
+          sort: selectedSort.value,
+          order: selectedDirection.value,
+        },
+        $searchQuery$,
+        false,
+        false,
+        false,
+      ).map((meme) => ({
+        meme,
+      })),
+    )
+    .otherwise(() =>
+      filterAndSortMeme(
+        $memesQuery.data ?? [],
+        {
+          sort: selectedSort.value,
+          order: selectedDirection.value,
+        },
+        $searchQuery$,
+        liveOnly,
+        activeTab === "launched",
+        false,
+      ).map((meme) => ({
+        meme,
+      })),
+    );
 
   $: isDekstop = widthAtLeast$(ScreenSize.Tablet);
 </script>
@@ -149,7 +155,7 @@
     <div class="w-full my-10">Something went wrong</div>
   {:else}
     <VirtualMemeList
-      items={$memesQuery.data.map((meme) => ({ meme })) ?? []}
+      items={displayedMemebids}
       showCook={true}
       {quickActionAmount}
       emptyMessage="No memes found"
