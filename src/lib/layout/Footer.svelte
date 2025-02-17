@@ -4,13 +4,12 @@
 </script>
 
 <div class="mt-4 w-full space-y-4">
-  <!-- 300x100 -->
-  <div class="w-[300px] h-[100px] mx-auto">
+  <div class="max-w-[min(28rem,100%)] px-3 mx-auto">
     <GrowthMateAdDekstop
       unitId="KYbe4YbGrnN89wR359x4fA=="
       format="Small Rectangle"
       network="Near"
-      className="rounded-md !max-w-md flex-order-[-1] mx-auto"
+      className="rounded-xl mx-auto"
     />
   </div>
   <div class="flex justify-between items-center w-fit mx-auto">
