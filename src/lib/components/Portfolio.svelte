@@ -1,22 +1,22 @@
 <script lang="ts">
+  import type { CreateQueryResult } from "@tanstack/svelte-query";
   import { onDestroy } from "svelte";
   import { get } from "svelte/store";
 
   import FormatNumber from "./FormatNumber.svelte";
-  import McIcon from "./MCIcon.svelte";
+  import PortfolioRow from "./PortfolioRow.svelte";
   import LoadingLambo from "./memecooking/Board/LoadingLambo.svelte";
-  import SendSheet from "./memecooking/BottomSheet/SendSheet.svelte";
 
+  import type { Portfolio } from "$lib/api/queries/portfolio";
   import Near from "$lib/assets/Near.svelte";
-  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import { nearWallet } from "$lib/near";
-  import type { Portfolio } from "$lib/store/portfolio";
-  import type { FixedNumber } from "$lib/util";
+  import { FixedNumber } from "$lib/util";
   import { getNearPrice, nearPrice } from "$lib/util/projectedMCap";
 
   export let accountId: string;
   export let portfolio: Portfolio | null;
   export let nearBalance: FixedNumber | null;
+  export let portfolioQuery: CreateQueryResult<Portfolio, Error>;
 
   $: isOwnAccount = accountId === get(nearWallet.accountId$);
 
@@ -27,9 +27,19 @@
   }, 30e3);
 
   onDestroy(() => clearInterval(refreshInterval));
+  console.log("[Portfolio.svelte] portfolio", portfolio);
+  console.log("[Portfolio.svelte] nearPrice", $nearPrice);
 </script>
 
-{#if portfolio}
+{#if $portfolioQuery.isLoading}
+  <div class="text-center py-8 text-white">
+    <LoadingLambo />
+  </div>
+{:else if $portfolioQuery.isError}
+  <div class="text-center py-8 text-red-500">
+    Error loading portfolio: {$portfolioQuery.error.message}
+  </div>
+{:else if portfolio}
   <div
     class="w-full overflow-x-auto rounded-lg bg-gray-800 border border-gray-800 my-4"
   >
@@ -79,113 +89,54 @@
               >${(Number($nearPrice) / 1e24).toFixed(10)}</td
             >
             <td class="hidden sm:table-cell px-4 py-3 text-right font-medium">
-              $<FormatNumber
+              <!-- $<FormatNumber
                 number={(Number($nearPrice) / 1e24) * 1e9}
                 totalDigits={6}
-              />
+              /> -->
             </td>
           </tr>
         {/if}
         {#each portfolio.tokens
           .filter((t) => {
-            const d = t.contract_id === "wrap.near" ? 24 : t.decimals ?? 18;
-            const bal = Number(t.balance) / 10 ** d;
-            const p = t.price ? (t.price * Number($nearPrice)) / 1e24 : 0;
-            const val = bal * p;
-            return val >= 0.0001; // Filter out tokens worth less than 1 cent
+            const decimals = t.decimals ?? 24;
+            const balance = new FixedNumber(t.balance, decimals);
+            const price = t.price ? new FixedNumber(BigInt(Math.round(t.price * 1e24)), 24) : null;
+            const nearPriceFixed = new FixedNumber($nearPrice, 24);
+
+            const value = price ? balance
+                  .mul(price)
+                  .mul(nearPriceFixed)
+                  .toNumber() : 0;
+
+            return value >= 0.0001;
           })
           .sort((a, b) => {
-            const [aD, bD] = [a.contract_id === "wrap.near" ? 24 : a.decimals ?? 18, b.contract_id === "wrap.near" ? 24 : b.decimals ?? 18];
-            const [aB, bB] = [Number(a.balance) / 10 ** aD, Number(b.balance) / 10 ** bD];
-            const [aP, bP] = [a.price ? (a.price * Number($nearPrice)) / 1e24 : 0, b.price ? (b.price * Number($nearPrice)) / 1e24 : 0];
-            return bB * bP - aB * aP;
+            const aDecimals = a.decimals ?? 24;
+            const bDecimals = b.decimals ?? 24;
+
+            const aBalance = new FixedNumber(a.balance, aDecimals);
+            const bBalance = new FixedNumber(b.balance, bDecimals);
+
+            const aPrice = a.price ? new FixedNumber(BigInt(Math.round(a.price * 1e24)), 24) : new FixedNumber("0", 24);
+            const bPrice = b.price ? new FixedNumber(BigInt(Math.round(b.price * 1e24)), 24) : new FixedNumber("0", 24);
+
+            const nearPriceFixed = new FixedNumber($nearPrice, 24);
+
+            const aValue = aBalance.mul(aPrice).mul(nearPriceFixed).toNumber();
+            const bValue = bBalance.mul(bPrice).mul(nearPriceFixed).toNumber();
+
+            return bValue - aValue;
           }) as t, i}
-          {@const d = t.contract_id === "wrap.near" ? 24 : t.decimals ?? 18}
-          {@const bal = (+t.balance / 10 ** d).toFixed(4)}
-          {@const p = t.price ? (t.price * Number($nearPrice)) / 1e24 : 0}
-          {@const val = (p * Number(bal)).toFixed(2)}
-          {@const mcap = t.total_supply
-            ? p * (Number(t.total_supply) / 10 ** d)
-            : 0}
-          <tr
-            class="{i % 2 === 0 ? 'bg-gray-700/20' : ''} hover:bg-gray-800/50"
-          >
-            <td class="px-4 py-3 truncate max-w-[200px]">
-              {#if t.image}
-                <a
-                  href={`/meme/${t.meme_id && t.meme_id < 0 ? t.contract_id : t.meme_id}`}
-                  class="flex items-center gap-3 hover:opacity-80 hover:text-shitzu-4"
-                >
-                  {#key t.image}
-                    <McIcon
-                      meme={{ image: t.image, name: t.contract_id }}
-                      class="w-8 h-8 rounded-full"
-                    />
-                  {/key}
-                  <div class="flex flex-col">
-                    <span class="font-medium flex items-center gap-1">
-                      {t.name || t.contract_id}
-                      <span class="text-xs text-gray-400"
-                        >({t.symbol || t.contract_id})</span
-                      >
-                    </span>
-                    <span class="text-xs text-gray-400 sm:hidden"
-                      >$<FormatNumber number={p} totalDigits={6} /></span
-                    >
-                    <span class="text-xs text-gray-400 hidden sm:block"
-                      >{t.contract_id}</span
-                    >
-                  </div>
-                </a>
-              {:else}
-                <div class="flex flex-col">
-                  <span class="font-medium"
-                    >{t.symbol || t.name || t.contract_id}</span
-                  >
-                  <span class="text-xs text-gray-400">${p.toFixed(4)}</span>
-                </div>
-              {/if}
-            </td>
-            <td class="px-4 py-3 text-right">
-              <div class="flex flex-col items-end">
-                <span class="font-medium"
-                  ><FormatNumber number={Number(bal)} totalDigits={6} /></span
-                >
-                <span class="text-xs text-gray-400">${val}</span>
-              </div>
-            </td>
-            <td class="hidden sm:table-cell px-4 py-3 text-right font-medium">
-              $<FormatNumber number={p} totalDigits={6} />
-            </td>
-            <td class="hidden sm:table-cell px-4 py-3 text-right font-medium">
-              {#if mcap}
-                $<FormatNumber number={mcap} totalDigits={6} />
-              {:else}
-                <span class="text-gray-400">-</span>
-              {/if}
-            </td>
-            {#if isOwnAccount}
-              <td
-                class="hidden sm:flex py-3 text-right flex-col items-center gap-1"
-              >
-                <button
-                  class="px-1 py-1 bg-shitzu-4 hover:bg-shitzu-5 text-white rounded-md text-sm flex flex-col items-center gap-1"
-                  on:click={() => {
-                    openBottomSheet(SendSheet, { meme: t });
-                  }}
-                >
-                  <div class="i-mdi:arrow-right" />
-                </button>
-                <span class="text-xs text-gray-400">send</span>
-              </td>
-            {/if}
-          </tr>
+          <PortfolioRow
+            token={t}
+            {isOwnAccount}
+            index={i}
+            nearPrice={new FixedNumber($nearPrice, 24)}
+          />
         {/each}
       </tbody>
     </table>
   </div>
 {:else}
-  <div class="text-center py-8 text-white">
-    <LoadingLambo />
-  </div>
+  <div class="text-center py-8 text-white">No portfolio data available</div>
 {/if}
