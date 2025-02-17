@@ -5,6 +5,7 @@
   import { match } from "ts-pattern";
 
   import { page } from "$app/stores";
+  import { usePortfolioQuery } from "$lib/api/queries/portfolio";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import FormatNumber from "$lib/components/FormatNumber.svelte";
   import Portfolio from "$lib/components/Portfolio.svelte";
@@ -21,8 +22,6 @@
     type McAccount,
   } from "$lib/near/memecooking";
   import { fetchBlockHeight } from "$lib/near/rpc";
-  import { portfolio$, fetchPortfolio } from "$lib/store/portfolio";
-  import type { Portfolio as TPortfolio } from "$lib/store/portfolio";
   import { FixedNumber } from "$lib/util";
   import { nearPrice } from "$lib/util/projectedMCap";
 
@@ -36,7 +35,9 @@
       : accountId;
 
   let account: McAccount | undefined;
-  let portfolio: TPortfolio | null = null;
+
+  $: portfolioQuery = usePortfolioQuery(accountId);
+  $: portfolio = $portfolioQuery.data ?? null;
 
   const nearBalance = writable<FixedNumber | null>(null);
 
@@ -54,26 +55,14 @@
     });
   }
 
-  const unsubscribe = derived(
-    [accountId$, page, portfolio$],
-    ([$id, $p, $portfolio]) => ({
-      accountId: $id,
-      page: $p,
-      portfolio: $portfolio,
-    }),
-  ).subscribe(
-    async ({ accountId: ownAccountId, page, portfolio: curPortfolio }) => {
-      if (ownAccountId === page.params.accountId) {
-        portfolio = curPortfolio as TPortfolio;
-      } else {
-        portfolio = await fetchPortfolio(page.params.accountId);
-      }
-
-      if (ownAccountId === page.params.accountId) return;
-      const acc = await fetchMcAccount(page.params.accountId);
-      account = acc;
-    },
-  );
+  const unsubscribe = derived([accountId$, page], ([$id, $p]) => ({
+    accountId: $id,
+    page: $p,
+  })).subscribe(async ({ accountId: ownAccountId, page }) => {
+    if (ownAccountId === page.params.accountId) return;
+    const acc = await fetchMcAccount(page.params.accountId);
+    account = acc;
+  });
 
   onDestroy(() => {
     unsubscribe();
@@ -243,7 +232,12 @@
           />
 
           {#if activeTab === "portfolio"}
-            <Portfolio {accountId} {portfolio} nearBalance={$nearBalance} />
+            <Portfolio
+              {accountId}
+              {portfolio}
+              nearBalance={$nearBalance}
+              {portfolioQuery}
+            />
           {:else if info && isOwnAccount}
             <MemeList
               props={activeTab === "not-finalized"
