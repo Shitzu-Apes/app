@@ -31,7 +31,8 @@
 
   let account: McAccount | undefined;
   $: mcAccountQuery = useMcAccountQuery(accountId);
-  $: if (!isOwnAccount) {
+  $: {
+    console.log("[mcAccountQuery] $mcAccountQuery.data", $mcAccountQuery.data);
     account = $mcAccountQuery.data ?? undefined;
   }
 

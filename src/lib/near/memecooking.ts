@@ -11,6 +11,8 @@ import { view } from "./utils";
 import { nearWallet, Wallet, type TransactionCallbacks } from "./wallet";
 
 import { client } from "$lib/api/client";
+import { queryClient } from "$lib/api/queries";
+import { memesQueryFactory } from "$lib/api/queries/memes";
 import type {
   MemeInfo,
   MCAccountInfo,
@@ -23,7 +25,6 @@ import {
   awaitIndexerBlockHeight,
   awaitRpcBlockHeight,
 } from "$lib/store/indexer";
-import { memeMap$ } from "$lib/store/memebids";
 import { FixedNumber } from "$lib/util";
 import { getTokenId } from "$lib/util/getTokenId";
 import { projectedPoolStats } from "$lib/util/projectedMCap";
@@ -691,8 +692,13 @@ export function fetchMcAccount(accountId: string, blockHeight?: number) {
       profile,
     });
     if (!account || !unclaimed || !profile) return;
-    const memeMap = get(memeMap$);
+    const memeMap = new Map(
+      queryClient
+        .getQueryData<Meme[]>(memesQueryFactory.memes.all().queryKey)
+        ?.map((m) => [m.meme_id, m]),
+    );
 
+    if (!memeMap) return;
     const deposits = account.deposits
       .map((deposit) => {
         const meme = memeMap.get(deposit[0]);
