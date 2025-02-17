@@ -7,6 +7,7 @@ import { client, type Meme } from "../client";
 
 import { queryClient } from ".";
 
+import { EXTERNAL_MEMES } from "$lib/external_memes";
 import type { McAccount } from "$lib/near/memecooking";
 
 export const memesQueryFactory = createQueryKeyStore({
@@ -18,7 +19,7 @@ export const memesQueryFactory = createQueryKeyStore({
         if (!res.data) {
           throw new Error("No memes found");
         }
-        return res.data;
+        return [...res.data, ...EXTERNAL_MEMES];
       },
     }),
     detail: (memeId: string) => ({
