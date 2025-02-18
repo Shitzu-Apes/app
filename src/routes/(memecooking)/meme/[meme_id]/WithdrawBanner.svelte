@@ -54,7 +54,7 @@
             if (!outcome || !$accountId$) return;
             depositAmount = new FixedNumber(0n, meme.decimals);
             const blockHeight = await fetchBlockHeight(outcome);
-            updateMcAccount($accountId$, true, blockHeight);
+            updateMcAccount($accountId$, blockHeight);
           },
         },
       );

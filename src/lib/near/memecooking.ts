@@ -11,7 +11,7 @@ import { view } from "./utils";
 import { nearWallet, Wallet, type TransactionCallbacks } from "./wallet";
 
 import { client } from "$lib/api/client";
-import { queryClient } from "$lib/api/queries";
+import { queryClient, memecookingKeys } from "$lib/api/queries";
 import { memesQueryFactory } from "$lib/api/queries/memes";
 import type {
   MemeInfo,
@@ -654,183 +654,25 @@ nearWallet.accountId$.subscribe((accountId) => {
   }
 });
 
-export function fetchMcAccount(accountId: string, blockHeight?: number) {
-  const res = Promise.all([
-    MemeCooking.getAccount(accountId),
-    MemeCooking.getUnclaimed(accountId),
-    client
-      .GET(`/profile/{accountId}`, {
-        params: {
-          path: {
-            accountId,
-          },
-          headers:
-            blockHeight != null
-              ? {
-                  "X-Block-Height": String(blockHeight),
-                }
-              : {},
-        },
-      })
-      .then((res) => {
-        console.log("[Profile] fetching full account", res);
-        if (!res.data) {
-          throw new Error(`[Profile] Account ${accountId} not found`);
-        }
-
-        return res.data;
-      })
-      .catch((err) => {
-        console.error("[Profile] fetching full account", err);
-        return null;
-      }),
-    blockHeight != null ? awaitRpcBlockHeight(blockHeight) : Promise.resolve(),
-  ]).then(async ([account, unclaimed, profile]) => {
-    console.log("[Profile] fetching full account", {
-      account,
-      unclaimed,
-      profile,
-    });
-    if (!account || !unclaimed || !profile) return;
-    const memeMap = new Map(
-      queryClient
-        .getQueryData<Meme[]>(memesQueryFactory.memes.all().queryKey)
-        ?.map((m) => [m.meme_id, m]),
-    );
-
-    if (!memeMap) return;
-    const deposits = account.deposits
-      .map((deposit) => {
-        const meme = memeMap.get(deposit[0]);
-        if (!meme) return null;
-        return {
-          meme_id: deposit[0],
-          amount: deposit[1].toString(),
-          meme: {
-            ...meme,
-            projectedPoolStats: projectedPoolStats(meme),
-          },
-        };
-      })
-      .filter(
-        (deposit): deposit is NonNullable<typeof deposit> => deposit != null,
-      )
-      .sort((a, b) => sortMemeByEndtimestamp(a.meme, b.meme));
-    const unclaimedInfo = await Promise.all(
-      unclaimed.map(async (meme_id) => {
-        // find meme id from data
-        const meme = memeMap.get(meme_id);
-        if (!meme) return null;
-        const token_id = getTokenId(meme);
-        const amount = await MemeCooking.getClaimable(accountId, meme.meme_id);
-        if (amount === null) return null;
-        return {
-          token_id,
-          amount,
-          meme,
-        };
-      }),
-    );
-
-    const claims = Array.from(
-      new Set([
-        ...unclaimedInfo.map((info) => info?.meme.meme_id),
-        ...profile.deposited.map((m) => m.meme_id),
-      ]),
-    )
-      .map((meme_id) => {
-        if (meme_id == null) return;
-        // try to get meme from unclaimedInfo
-        const unclaimed = unclaimedInfo.find(
-          (m) => m && m.meme.meme_id === meme_id,
-        );
-        if (unclaimed)
-          return {
-            token_id: unclaimed.token_id,
-            amount: new FixedNumber(unclaimed.amount, unclaimed.meme.decimals),
-            meme: {
-              ...unclaimed.meme,
-              projectedPoolStats: projectedPoolStats(unclaimed.meme),
-            },
-          };
-        const meme = memeMap.get(meme_id);
-        if (meme)
-          return {
-            token_id: getTokenId(meme),
-            amount: new FixedNumber(0n, meme.decimals),
-            meme: {
-              ...meme,
-              projectedPoolStats: projectedPoolStats(meme),
-            },
-          };
-        return null;
-      })
-      .filter((claim): claim is NonNullable<typeof claim> => {
-        return claim != null;
-      })
-      .sort((a, b) =>
-        sortMemeByUnclaimedThenEndTimestamp(
-          {
-            unclaimed: a.amount.valueOf() > 0n,
-            end_timestamp_ms: a.meme.end_timestamp_ms ?? 0,
-          },
-          {
-            unclaimed: b.amount.valueOf() > 0n,
-            end_timestamp_ms: b.meme.end_timestamp_ms ?? 0,
-          },
-        ),
-      );
-
-    const revenue = account.income.map((income) => {
-      return {
-        token_id: income[0],
-        amount: income[1],
-      };
-    });
-
-    console.log("[claims]", claims);
-    console.log("[revenue]", revenue);
-
-    return {
-      account,
-      deposits,
-      claims,
-      created: profile.created
-        .map(({ meme_id }) => {
-          const meme = memeMap.get(meme_id);
-          if (!meme) return;
-          return {
-            ...meme,
-            projectedPoolStats: projectedPoolStats(meme),
-          };
-        })
-        .filter((meme) => meme != null),
-      revenue,
-      shitstarClaim: new FixedNumber(account.shitstar_claim, 18),
-      referralFees: new FixedNumber(profile.referral_fees, 24),
-      withdrawFees: new FixedNumber(profile.withdraw_fees, 24),
-    } satisfies McAccount;
-  });
-  return res;
-}
-
-export async function updateMcAccount(
-  accountId: string,
-  setLoading = false,
-  blockHeight?: number,
-) {
-  if (setLoading) {
-    _mcAccount$.set(new Promise(() => {}));
-  }
+export async function updateMcAccount(accountId: string, blockHeight?: number) {
   if (blockHeight != null) {
     await Promise.all([
       awaitIndexerBlockHeight(blockHeight),
       awaitRpcBlockHeight(blockHeight),
     ]);
   }
-  const res = fetchMcAccount(accountId, blockHeight);
-  _mcAccount$.set(res);
-  return res;
+  // invalidate the query
+  queryClient.invalidateQueries({
+    queryKey: memecookingKeys.account.base(accountId).queryKey,
+  });
+
+  queryClient.invalidateQueries({
+    queryKey: memecookingKeys.account.unclaimed(accountId).queryKey,
+  });
+
+  queryClient.invalidateQueries({
+    queryKey: memecookingKeys.account.profile(accountId).queryKey,
+  });
 }
 
 export type McAccount = {
