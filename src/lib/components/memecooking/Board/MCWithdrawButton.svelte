@@ -22,6 +22,7 @@
   export let finished: boolean;
   export let hasEnoughTokens: boolean;
   export let depositAmount: FixedNumber;
+  export let onTransact: () => void;
 
   async function withdraw() {
     const onSuccess = async (outcome: FinalExecutionOutcome[] | undefined) => {
@@ -45,6 +46,8 @@
       refreshNearBalance(accountId);
       updateMcAccount(accountId);
     };
+
+    onTransact();
     if (meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now()) {
       return MemeCooking.claim(
         wallet,

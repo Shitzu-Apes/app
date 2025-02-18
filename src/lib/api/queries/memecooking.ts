@@ -177,7 +177,7 @@ export function useMcMemeDepositQuery(
       isError: false as const,
       data: {
         meme_id: deposit[0],
-        amount: new FixedNumber(deposit[1], 18),
+        amount: new FixedNumber(deposit[1], 24),
       },
     };
   });

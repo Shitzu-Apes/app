@@ -33,6 +33,7 @@
   export let wrapNearBalance: CreateQueryResult<FixedNumber>;
   export let finished: boolean;
   export let hasEnoughTokens: boolean;
+  export let onTransact: () => void;
 
   const referral = getReferral();
   const wrapNearRegistrationQuery = useTokenRegistrationQuery(
@@ -198,6 +199,7 @@
     }
 
     const amount = input.clone();
+    onTransact();
     await MemeCooking.deposit(
       wallet,
       {
