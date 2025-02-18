@@ -114,16 +114,19 @@ export function useMcAccountQuery(
       isLoading: false;
       isError: false;
       data: McAccount;
+      refetch: () => Promise<void>;
     }
   | {
       isLoading: true;
       isError: false;
       data: undefined;
+      refetch: () => Promise<void>;
     }
   | {
       isLoading: false;
       isError: true;
       data: undefined;
+      refetch: () => Promise<void>;
     }
 > {
   const baseAccountQuery = useMcBaseAccountQuery(accountId, blockHeight);
@@ -134,16 +137,30 @@ export function useMcAccountQuery(
   return derived(
     [baseAccountQuery, unclaimedQuery, profileQuery, memesQuery],
     ([$baseAccount, $unclaimed, $profile, $memes]) => {
+      const refetch = async () => {
+        await Promise.all([
+          $baseAccount.refetch(),
+          $unclaimed.refetch(),
+          $profile.refetch(),
+          $memes.refetch(),
+        ]);
+      };
+
       if (
         $baseAccount.status === "pending" ||
         $unclaimed.status === "pending" ||
         $profile.status === "pending" ||
-        $memes.status === "pending"
+        $memes.status === "pending" ||
+        $baseAccount.isFetching ||
+        $unclaimed.isFetching ||
+        $profile.isFetching ||
+        $memes.isFetching
       )
         return {
           isLoading: true as const,
           isError: false as const,
           data: undefined,
+          refetch,
         };
 
       if (
@@ -156,6 +173,7 @@ export function useMcAccountQuery(
           isLoading: false as const,
           isError: true as const,
           data: undefined,
+          refetch,
         };
 
       if (
@@ -168,6 +186,7 @@ export function useMcAccountQuery(
           isLoading: true as const,
           isError: false as const,
           data: undefined,
+          refetch,
         };
 
       const memeMap = new Map($memes.data.map((m: Meme) => [m.meme_id, m]));
@@ -279,6 +298,7 @@ export function useMcAccountQuery(
           referralFees: new FixedNumber($profile.data.referral_fees, 24),
           withdrawFees: new FixedNumber($profile.data.withdraw_fees, 24),
         },
+        refetch,
       };
     },
   );
