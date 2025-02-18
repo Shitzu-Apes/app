@@ -1,11 +1,8 @@
-import { createQueryKeys } from "@lukemorales/query-key-factory";
-import { createQuery } from "@tanstack/svelte-query";
+import { derived, type Readable } from "svelte/store";
 
-import { queryClient } from ".";
-import { ref } from "./ref";
+import { useMemeDetailQuery } from "./memes";
+import { createRefPoolsQuery } from "./ref";
 
-import type { Meme } from "$lib/models/memecooking";
-import type { PoolInfo } from "$lib/near/ref";
 import type { FixedNumber } from "$lib/util";
 import {
   calculateTokenStatsFromMeme,
@@ -17,29 +14,99 @@ export type MemeStats = {
   liquidity: FixedNumber;
 };
 
-export const memeStatsKeys = createQueryKeys("memeStats", {
-  detail: (meme: Meme) => ({
-    queryKey: [meme.meme_id],
-    queryFn: async (): Promise<MemeStats> => {
-      if (!meme.pool_id) {
-        return calculateTokenStatsFromMeme(meme);
+// Create a derived meme stats query that combines meme data with pool stats
+export function useMemeStatsQuery(memeId: number): Readable<{
+  isLoading: boolean;
+  isError: boolean;
+  data: MemeStats | undefined;
+  error: Error | null;
+  refetch: () => Promise<void>;
+}> {
+  const memeQuery = useMemeDetailQuery(memeId);
+  const refPoolQuery = createRefPoolsQuery();
+
+  return derived([memeQuery, refPoolQuery], ([$meme, $refPool]) => {
+    const refetch = async () => {
+      await Promise.all([$meme.refetch(), $refPool.refetch()]);
+    };
+
+    if ($meme.isFetching || $refPool.isFetching) {
+      return {
+        isLoading: true,
+        isError: false,
+        data: undefined,
+        error: null,
+        refetch,
+      };
+    }
+
+    if ($meme.status === "error" || $refPool.status === "error") {
+      return {
+        isLoading: false,
+        isError: true,
+        data: undefined,
+        error: $meme.error || $refPool.error,
+        refetch,
+      };
+    }
+
+    if (!$meme.data) {
+      return {
+        isLoading: true,
+        isError: false,
+        data: undefined,
+        error: null,
+        refetch,
+      };
+    }
+
+    const meme = $meme.data.meme;
+    if (!meme) {
+      return {
+        isLoading: false,
+        isError: true,
+        data: undefined,
+        error: new Error(`Meme with id ${memeId} not found`),
+        refetch,
+      };
+    }
+
+    try {
+      if (meme.pool_id && $refPool.data) {
+        const poolStats = $refPool.data[meme.pool_id];
+        if (poolStats) {
+          return {
+            isLoading: false,
+            isError: false,
+            data: calculateTokenStatsFromPoolInfo(
+              meme,
+              poolStats,
+              meme.decimals,
+            ),
+            error: null,
+            refetch,
+          };
+        }
       }
 
-      // Get pool stats from cache or fetch if needed
-      const allPoolStats = queryClient.getQueryData(
-        ref.all().queryKey,
-      ) as PoolInfo[];
-      const poolStat = allPoolStats[meme.pool_id];
-
-      if (!poolStat) {
-        throw new Error("Failed to fetch pool data");
-      }
-
-      return calculateTokenStatsFromPoolInfo(meme, poolStat, meme.decimals);
-    },
-  }),
-});
-
-export function useMemeStatsQuery(meme: Meme) {
-  return createQuery(memeStatsKeys.detail(meme));
+      return {
+        isLoading: false,
+        isError: false,
+        data: calculateTokenStatsFromMeme(meme),
+        error: null,
+        refetch,
+      };
+    } catch (err) {
+      return {
+        isLoading: false,
+        isError: true,
+        data: undefined,
+        error:
+          err instanceof Error
+            ? err
+            : new Error("Failed to calculate meme stats"),
+        refetch,
+      };
+    }
+  });
 }

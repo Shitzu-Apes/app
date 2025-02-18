@@ -6,7 +6,7 @@
   export let memebid: Meme;
   export let nearPrice: FixedNumber;
 
-  const statsQuery = useMemeStatsQuery(memebid);
+  const statsQuery = useMemeStatsQuery(memebid.meme_id);
 </script>
 
 <div class="flex flex-col">
