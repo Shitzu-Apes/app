@@ -29,12 +29,7 @@
       ? `${accountId.substring(0, 6)}...${accountId.slice(-4)}`
       : accountId;
 
-  let account: McAccount | undefined;
   $: mcAccountQuery = useMcAccountQuery(accountId);
-  $: {
-    console.log("[mcAccountQuery] $mcAccountQuery.data", $mcAccountQuery.data);
-    account = $mcAccountQuery.data ?? undefined;
-  }
 
   $: portfolioQuery = usePortfolioQuery(accountId);
   $: portfolio = $portfolioQuery.data ?? null;
@@ -72,7 +67,7 @@
         id: "finalized",
         label: "Claim",
         getCount: (info: McAccount) =>
-          info.claims.filter((claim) => claim.amount.valueOf() > 0n).length,
+          info.claims.filter((claim) => claim.amount.toBigInt() > 0n).length,
       },
       {
         id: "created",
@@ -100,7 +95,6 @@
     const ownAccountId = $accountId$;
     if (!ownAccountId) return;
     await fetchBlockHeight(outcome);
-    $mcAccountQuery.refetch();
   }
 
   $: totalValue =
@@ -192,11 +186,11 @@
   </div>
 
   <div class="w-full">
-    {#if $mcAccountQuery.status === "pending"}
+    {#if $mcAccountQuery.isLoading}
       <LoadingLambo />
-    {:else if $mcAccountQuery.status === "error"}
+    {:else if $mcAccountQuery.isError}
       <div class="text-red-500">Error loading account</div>
-    {:else if $mcAccountQuery.status === "success"}
+    {:else if $mcAccountQuery.data}
       <div class="grid lg:grid-cols-[2fr_minmax(300px,1fr)] gap-8">
         <!-- Left Panel with Tabs -->
         <div>
@@ -204,7 +198,7 @@
             tabs={tabs.map((tab) => ({
               ...tab,
               label: tab.getCount
-                ? `${tab.label} (${account ? tab.getCount(account) : 0})`
+                ? `${tab.label} (${$mcAccountQuery.data ? tab.getCount($mcAccountQuery.data) : 0})`
                 : tab.label,
             }))}
             bind:activeTab
@@ -218,21 +212,21 @@
               nearBalance={$nearBalance}
               {portfolioQuery}
             />
-          {:else if account && isOwnAccount}
+          {:else if $mcAccountQuery.data && isOwnAccount}
             <MemeList
               props={activeTab === "not-finalized"
-                ? { type: "not-finalized", data: account.deposits }
+                ? { type: "not-finalized", data: $mcAccountQuery.data.deposits }
                 : activeTab === "finalized"
-                  ? { type: "finalized", data: account.claims }
+                  ? { type: "finalized", data: $mcAccountQuery.data.claims }
                   : activeTab === "created"
-                    ? { type: "created", data: account.created }
-                    : { type: "created", data: account.created }}
+                    ? { type: "created", data: $mcAccountQuery.data.created }
+                    : { type: "created", data: $mcAccountQuery.data.created }}
               {isOwnAccount}
               {update}
             />
-          {:else if account != null}
+          {:else if $mcAccountQuery.data}
             <MemeList
-              props={{ type: "created", data: account.created }}
+              props={{ type: "created", data: $mcAccountQuery.data.created }}
               {isOwnAccount}
               {update}
             />
@@ -243,19 +237,19 @@
         <div class="order-first lg:order-last">
           {#if isOwnAccount}
             <Revenue
-              revenue={account?.revenue}
-              shitstarClaim={account?.shitstarClaim}
-              referralFees={account?.referralFees}
-              withdrawFees={account?.withdrawFees}
+              revenue={$mcAccountQuery.data?.revenue}
+              shitstarClaim={$mcAccountQuery.data?.shitstarClaim}
+              referralFees={$mcAccountQuery.data?.referralFees}
+              withdrawFees={$mcAccountQuery.data?.withdrawFees}
               {update}
               {isOwnAccount}
             />
           {:else}
             <Revenue
-              revenue={account?.revenue}
-              shitstarClaim={account?.shitstarClaim}
-              referralFees={account?.referralFees}
-              withdrawFees={account?.withdrawFees}
+              revenue={$mcAccountQuery.data?.revenue}
+              shitstarClaim={$mcAccountQuery.data?.shitstarClaim}
+              referralFees={$mcAccountQuery.data?.referralFees}
+              withdrawFees={$mcAccountQuery.data?.withdrawFees}
               {update}
               {isOwnAccount}
             />
