@@ -12,6 +12,7 @@
   import SortToggle from "./SortToggle.svelte";
 
   import { useMemesQuery } from "$lib/api/queries/memes";
+  import { useRefPoolsQuery } from "$lib/api/queries/ref";
   import SelectBox from "$lib/components/SelectBox.svelte";
   import { EXTERNAL_MEMES } from "$lib/external_memes";
   import { ScreenSize } from "$lib/models";
@@ -45,11 +46,13 @@
   }
 
   $: memesQuery = useMemesQuery();
+  $: refPoolsQuery = useRefPoolsQuery();
 
   $: displayedMemebids = match(activeTab)
     .with("other", () =>
       filterAndSortMeme(
         Object.values(EXTERNAL_MEMES),
+        $refPoolsQuery.data ?? [],
         {
           sort: selectedSort.value,
           order: selectedDirection.value,
@@ -65,6 +68,7 @@
     .otherwise(() =>
       filterAndSortMeme(
         $memesQuery.data ?? [],
+        $refPoolsQuery.data ?? [],
         {
           sort: selectedSort.value,
           order: selectedDirection.value,
@@ -133,11 +137,11 @@
     </div>
   </div>
 
-  {#if $memesQuery.status === "pending"}
+  {#if $memesQuery.status === "pending" || $refPoolsQuery.status === "pending"}
     <div class="w-full my-10">
       <LoadingLambo />
     </div>
-  {:else if $memesQuery.status === "error"}
+  {:else if $memesQuery.status === "error" || $refPoolsQuery.status === "error"}
     <div class="w-full my-10">Something went wrong</div>
   {:else}
     <VirtualMemeList

@@ -2,8 +2,6 @@ import { FixedNumber } from ".";
 import { getProjectedMemePriceInNear } from "./getProjectedMemePriceInNear";
 import { calculateTokenStatsFromPoolInfo } from "./projectedMCap";
 
-import { queryClient } from "$lib/api/queries";
-import { ref as refQuery } from "$lib/api/queries/ref";
 import type { Meme } from "$lib/models/memecooking";
 import type { PoolInfo } from "$lib/near/ref";
 
@@ -21,6 +19,7 @@ export const orderOptions = [
 
 export function filterAndSortMeme<T extends Meme>(
   memes: T[],
+  refPools: PoolInfo[],
   sort: {
     sort: string;
     order: string;
@@ -96,10 +95,7 @@ export function filterAndSortMeme<T extends Meme>(
       const liquidity = new FixedNumber(BigInt(meme.total_deposit!) * 2n, 24);
       return { mcap, liquidity, price };
     }
-    const allPoolStats = queryClient.getQueryData(
-      refQuery.all().queryKey,
-    ) as PoolInfo[];
-    const poolStat = allPoolStats[meme.pool_id];
+    const poolStat = refPools[meme.pool_id];
 
     if (!poolStat) {
       throw new Error("Pool stat not found");

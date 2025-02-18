@@ -20,7 +20,6 @@
   import Tooltip from "$lib/components/Tooltip.svelte";
   import LaunchSheet from "$lib/components/memecooking/BottomSheet/LaunchSheet.svelte";
   import RegisterSheet from "$lib/components/memecooking/BottomSheet/RegisterSheet.svelte";
-  import WithRefPools from "$lib/components/memecooking/WithRefPools.svelte";
   import { BottomSheet } from "$lib/layout/BottomSheet";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import MCHeader from "$lib/layout/memecooking/MCHeader.svelte";
@@ -189,36 +188,42 @@
   {#key "memecooking"}
     <BottomSheet variant="shitzu" />
 
-  <div
-    in:blur={{ duration: 500, delay: 500, easing: cubicIn }}
-    out:blur={{ duration: 500, easing: cubicOut }}
-    class="w-full container mx-auto bg-dark"
-  >
-    <div class="text-white min-h-screen flex flex-col">
-      <MCHeader />
-      <slot />
-      <div
-        class="fixed bottom-0 right-0 p-2 text-xs text-white bg-gray-800/70 hidden sm:block"
-      >
-        <div class="flex items-center gap-1">
-          <Tooltip
-            info="Red: Indexer >105 blocks behind. Green: Indexer up-to-date or slightly behind."
-          >
-            {#if $indexer_last_block_height$ && $node_last_block_height$}
-              {#if $node_last_block_height$ - $indexer_last_block_height$ > 105}
-                <span class="inline-flex relative mr-1">
-                  <span class="w-2 h-2 bg-red-500 rounded-full"></span>
-                  <span
-                    class="w-2 h-2 bg-red-500 rounded-full absolute animate-ping"
-                  ></span>
-                </span>
-              {:else}
-                <span class="inline-flex relative mr-1">
-                  <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span
-                    class="w-2 h-2 bg-green-500 rounded-full absolute animate-ping"
-                  ></span>
-                </span>
+    <div
+      in:blur={{ duration: 500, delay: 500, easing: cubicIn }}
+      out:blur={{ duration: 500, easing: cubicOut }}
+      class="w-full container mx-auto bg-dark"
+    >
+      <div class="text-white min-h-screen flex flex-col">
+        <MCHeader />
+
+        <slot />
+        <div
+          class="fixed bottom-0 right-0 p-2 text-xs text-white bg-gray-800/70 hidden sm:block"
+        >
+          <div class="flex items-center gap-1">
+            <Tooltip
+              info="Red: Indexer >105 blocks behind. Green: Indexer up-to-date or slightly behind."
+            >
+              {#if $indexer_last_block_height$ && $node_last_block_height$}
+                {#if $node_last_block_height$ - $indexer_last_block_height$ > 105}
+                  <span class="inline-flex relative mr-1">
+                    <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                    <span
+                      class="w-2 h-2 bg-red-500 rounded-full absolute animate-ping"
+                    ></span>
+                  </span>
+                {:else}
+                  <span class="inline-flex relative mr-1">
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span
+                      class="w-2 h-2 bg-green-500 rounded-full absolute animate-ping"
+                    ></span>
+                  </span>
+                {/if}
+                <span class="font-mono"
+                  >{$indexer_last_block_height$} ({$node_last_block_height$ -
+                    $indexer_last_block_height$})</span
+                >
               {/if}
             </Tooltip>
             <Tooltip info="commit: {import.meta.env.VITE_COMMIT_HASH}">
