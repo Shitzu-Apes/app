@@ -95,6 +95,7 @@
     const ownAccountId = $accountId$;
     if (!ownAccountId) return;
     await fetchBlockHeight(outcome);
+    await $mcAccountQuery.refetch();
   }
 
   $: totalValue =
@@ -112,13 +113,22 @@
     ) ?? 0;
 </script>
 
-<a
-  href="/board"
-  class="text-white flex items-center hover:text-shitzu-3 mb-4 w-fit"
->
-  <div class="i-mdi:chevron-left size-8" />
-  Back
-</a>
+<div class="w-full flex items-center justify-between mb-4">
+  <a
+    href="/board"
+    class="text-white flex items-center hover:text-shitzu-3 w-fit"
+  >
+    <div class="i-mdi:chevron-left size-8" />
+    Back
+  </a>
+
+  <button
+    class="text-white flex items-center hover:text-shitzu-3 w-fit"
+    on:click={() => $mcAccountQuery.refetch()}
+  >
+    <div class="i-mdi:refresh size-4" />
+  </button>
+</div>
 
 <section class="w-full flex flex-col items-center justify-center px-1">
   <!-- Welcome Banner -->
