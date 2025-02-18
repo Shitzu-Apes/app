@@ -99,6 +99,10 @@ export function useMemeDetailQuery(memeId: number) {
         memesQueryFactory.memes.all().queryKey,
       ) as Meme[] | undefined;
       const meme = memes?.find((meme) => meme.meme_id === memeId);
+      if (!meme) {
+        // no initial data
+        return undefined;
+      }
       return { meme };
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
