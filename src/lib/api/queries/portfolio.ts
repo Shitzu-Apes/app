@@ -1,13 +1,12 @@
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 import { createQuery } from "@tanstack/svelte-query";
+import { derived, type Readable } from "svelte/store";
 import { z } from "zod";
 
-import { queryClient } from ".";
 import { memesQueryFactory } from "./memes";
-import { ref } from "./ref";
+import { createRefPoolsQuery } from "./ref";
 
 import type { Meme } from "$lib/api/client";
-import type { PoolInfo } from "$lib/near/ref";
 import {
   calculateTokenStatsFromMeme,
   calculateTokenStatsFromPoolInfo,
@@ -39,14 +38,23 @@ const PortfolioSchema = z.object({
   tokens: z.array(TokenSchema),
 });
 
-export type Portfolio = z.infer<typeof PortfolioSchema>;
+export type FastNearPortfolio = z.infer<typeof PortfolioSchema>;
+export type EnrichedToken = FastNearPortfolio["tokens"][number] &
+  Partial<Omit<Meme, "reference" | "reference_hash" | "deposit_token_id">> & {
+    price: number | null;
+    reference?: string | null;
+    reference_hash?: string | null;
+    deposit_token_id?: string | null;
+  };
+export type Portfolio = Omit<FastNearPortfolio, "tokens"> & {
+  tokens: EnrichedToken[];
+};
 
 // Define query keys using Query Key Factory
 export const portfolioKeys = createQueryKeys("portfolio", {
-  detail: (accountId: string) => ({
-    queryKey: [accountId],
-    queryFn: async (): Promise<Portfolio> => {
-      // Fetch base portfolio data
+  fastNear: (accountId: string) => ({
+    queryKey: ["fastNear", accountId],
+    queryFn: async (): Promise<FastNearPortfolio> => {
       const res = await fetch(
         `https://api.fastnear.com/v1/account/${accountId}/ft`,
       );
@@ -54,48 +62,97 @@ export const portfolioKeys = createQueryKeys("portfolio", {
         throw new Error("Failed to fetch portfolio");
       }
       const data = await res.json();
-      const validated = PortfolioSchema.parse(data);
+      return PortfolioSchema.parse(data);
+    },
+  }),
+});
 
-      // Get meme data from the query cache
-      let memes = queryClient.getQueryData(
-        memesQueryFactory.memes.all().queryKey,
-      ) as Meme[] | undefined;
+// Create a reusable FastNear portfolio query
+export function useFastNearPortfolioQuery(accountId: string) {
+  return createQuery({
+    ...portfolioKeys.fastNear(accountId),
+    enabled: !!accountId,
+    staleTime: 30000, // 30 seconds
+  });
+}
 
-      if (!memes) {
-        await queryClient.fetchQuery(memesQueryFactory.memes.all());
-        memes = queryClient.getQueryData(
-          memesQueryFactory.memes.all().queryKey,
-        ) as Meme[] | undefined;
+// Create a derived portfolio query that combines FastNear data with meme data
+export function usePortfolioQuery(accountId: string): Readable<{
+  isLoading: boolean;
+  isError: boolean;
+  data: Portfolio | undefined;
+  error: Error | null;
+  refetch: () => Promise<void>;
+}> {
+  const fastNearQuery = useFastNearPortfolioQuery(accountId);
+  const memesQuery = createQuery(memesQueryFactory.memes.all());
+  const refPoolQuery = createRefPoolsQuery();
+
+  return derived(
+    [fastNearQuery, memesQuery, refPoolQuery],
+    ([$fastNear, $memes, $refPool]) => {
+      const refetch = async () => {
+        await Promise.all([$fastNear.refetch(), $memes.refetch()]);
+      };
+
+      if (
+        $fastNear.status === "pending" ||
+        $memes.status === "pending" ||
+        $refPool.status === "pending" ||
+        $fastNear.isFetching ||
+        $memes.isFetching ||
+        $refPool.isFetching
+      ) {
+        return {
+          isLoading: true,
+          isError: false,
+          data: undefined,
+          error: null,
+          refetch,
+        };
+      }
+
+      if (
+        $fastNear.status === "error" ||
+        $memes.status === "error" ||
+        $refPool.status === "error"
+      ) {
+        return {
+          isLoading: false,
+          isError: true,
+          data: undefined,
+          error: $fastNear.error || $memes.error || $refPool.error,
+          refetch,
+        };
+      }
+
+      if (!$fastNear.data || !$memes.data) {
+        return {
+          isLoading: true,
+          isError: false,
+          data: undefined,
+          error: null,
+          refetch,
+        };
       }
 
       // Process tokens with meme and pool stats data
-      const tokensWithData = await Promise.all(
-        validated.tokens.map(async (token) => {
-          // Find matching meme
-          const meme = memes?.find(
-            (m: Meme) => m.token_id === token.contract_id,
-          );
+      const tokensWithData = $fastNear.data.tokens.map((token) => {
+        // Find matching meme
+        const meme = $memes.data.find(
+          (m: Meme) => m.token_id === token.contract_id,
+        );
 
-          if (meme) {
-            try {
-              if (meme.pool_id) {
-                // Get pool stats from cache or fetch if needed
-                const poolStats = queryClient.getQueryData(
-                  ref.detail(meme.pool_id).queryKey,
-                ) as PoolInfo | undefined;
+        if (meme) {
+          try {
+            if (meme.pool_id) {
+              // Get pool stats from cache
+              const poolStats = $refPool.data[meme.pool_id];
 
-                if (!poolStats) {
-                  // If not in cache, fetch pool stats
-                  await queryClient.fetchQuery(ref.detail(meme.pool_id));
-                }
-
-                const currentPoolStats = queryClient.getQueryData(
-                  ref.detail(meme.pool_id).queryKey,
-                ) as PoolInfo;
-
+              if (poolStats) {
                 const stats = calculateTokenStatsFromPoolInfo(
                   meme,
-                  currentPoolStats,
+                  poolStats,
                   meme.decimals,
                 );
 
@@ -105,43 +162,40 @@ export const portfolioKeys = createQueryKeys("portfolio", {
                   balance: token.balance,
                   price: stats.price.toNumber(),
                 };
-              } else {
-                const stats = calculateTokenStatsFromMeme(meme);
-                return {
-                  ...token,
-                  ...meme,
-                  balance: token.balance,
-                  price: stats.price.toNumber(),
-                };
               }
-            } catch (err) {
-              return {
-                ...token,
-                price: null,
-              };
             }
-          }
 
-          return {
-            ...token,
-            price: null,
-          };
-        }),
-      );
+            const stats = calculateTokenStatsFromMeme(meme);
+            return {
+              ...token,
+              ...meme,
+              balance: token.balance,
+              price: stats.price.toNumber(),
+            };
+          } catch (err) {
+            return {
+              ...token,
+              price: null,
+            };
+          }
+        }
+
+        return {
+          ...token,
+          price: null,
+        };
+      });
 
       return {
-        ...validated,
-        tokens: tokensWithData,
+        isLoading: false,
+        isError: false,
+        data: {
+          ...($fastNear.data as FastNearPortfolio),
+          tokens: tokensWithData,
+        },
+        error: null,
+        refetch,
       };
     },
-  }),
-});
-
-// Create a reusable portfolio query
-export function usePortfolioQuery(accountId: string) {
-  return createQuery({
-    ...portfolioKeys.detail(accountId),
-    enabled: !!accountId,
-    staleTime: 30000, // 30 seconds
-  });
+  );
 }

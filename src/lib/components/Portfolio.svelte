@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { CreateQueryResult } from "@tanstack/svelte-query";
   import { onDestroy } from "svelte";
+  import type { Readable } from "svelte/store";
   import { get } from "svelte/store";
 
   import FormatNumber from "./FormatNumber.svelte";
@@ -16,7 +16,13 @@
   export let accountId: string;
   export let portfolio: Portfolio | null;
   export let nearBalance: FixedNumber | null;
-  export let portfolioQuery: CreateQueryResult<Portfolio, Error>;
+  export let portfolioQuery: Readable<{
+    isLoading: boolean;
+    isError: boolean;
+    data: Portfolio | undefined;
+    error: Error | null;
+    refetch: () => Promise<void>;
+  }>;
 
   $: isOwnAccount = accountId === get(nearWallet.accountId$);
 
@@ -35,7 +41,7 @@
   </div>
 {:else if $portfolioQuery.isError}
   <div class="text-center py-8 text-red-500">
-    Error loading portfolio: {$portfolioQuery.error.message}
+    Error loading portfolio: {$portfolioQuery.error?.message}
   </div>
 {:else if portfolio}
   <div
