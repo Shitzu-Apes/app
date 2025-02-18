@@ -124,7 +124,10 @@
 
   <button
     class="text-white flex items-center hover:text-shitzu-3 w-fit"
-    on:click={() => $mcAccountQuery.refetch()}
+    on:click={() => {
+      $mcAccountQuery.refetch();
+      $portfolioQuery.refetch();
+    }}
   >
     <div class="i-mdi:refresh size-4" />
   </button>
