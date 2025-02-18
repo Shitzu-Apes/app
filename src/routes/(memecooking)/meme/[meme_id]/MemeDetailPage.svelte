@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DefinedCreateQueryResult } from "@tanstack/svelte-query";
+  import type { CreateQueryResult } from "@tanstack/svelte-query";
 
   import MemeDetail from "./MemeDetail.svelte";
 
@@ -9,9 +9,9 @@
   import { ScreenSize } from "$lib/models";
   import { screenSize$ } from "$lib/screen-size";
 
-  export let memeDetailQuery: DefinedCreateQueryResult<
+  export let memeDetailQuery: CreateQueryResult<
     {
-      meme: Meme | undefined;
+      meme: Meme;
     } | null,
     Error
   >;
