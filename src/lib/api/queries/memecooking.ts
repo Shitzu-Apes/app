@@ -106,6 +106,57 @@ export function useMcProfileQuery(accountId: string, blockHeight?: number) {
   });
 }
 
+export function useMcMemeDepositQuery(
+  accountId: string,
+  memeId: number,
+): Readable<
+  | {
+      isLoading: false;
+      isError: false;
+      data: { meme_id: number; amount: FixedNumber };
+    }
+  | {
+      isLoading: true;
+      isError: false;
+      data: undefined;
+    }
+  | {
+      isLoading: false;
+      isError: true;
+      data: undefined;
+    }
+> {
+  const baseAccountQuery = useMcBaseAccountQuery(accountId);
+
+  return derived([baseAccountQuery], ([$baseAccount]) => {
+    if (!$baseAccount.data)
+      return {
+        isLoading: true as const,
+        isError: false as const,
+        data: undefined,
+      };
+
+    const deposit = $baseAccount.data.deposits.find(
+      (deposit) => deposit[0] === memeId,
+    );
+    if (!deposit)
+      return {
+        isLoading: false as const,
+        isError: true as const,
+        data: undefined,
+      };
+
+    return {
+      isLoading: false as const,
+      isError: false as const,
+      data: {
+        meme_id: deposit[0],
+        amount: new FixedNumber(deposit[1], 18),
+      },
+    };
+  });
+}
+
 export function useMcAccountQuery(
   accountId: string,
   blockHeight?: number,

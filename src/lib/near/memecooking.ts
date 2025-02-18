@@ -10,9 +10,7 @@ import { checkIfAccountExists } from "./rpc";
 import { view } from "./utils";
 import { nearWallet, Wallet, type TransactionCallbacks } from "./wallet";
 
-import { client } from "$lib/api/client";
 import { queryClient, memecookingKeys } from "$lib/api/queries";
-import { memesQueryFactory } from "$lib/api/queries/memes";
 import type {
   MemeInfo,
   MCAccountInfo,
@@ -27,11 +25,6 @@ import {
 } from "$lib/store/indexer";
 import { FixedNumber } from "$lib/util";
 import { getTokenId } from "$lib/util/getTokenId";
-import { projectedPoolStats } from "$lib/util/projectedMCap";
-import {
-  sortMemeByEndtimestamp,
-  sortMemeByUnclaimedThenEndTimestamp,
-} from "$lib/util/sortMemeByCreatedAt";
 
 export abstract class MemeCooking {
   public static getLatestMeme(
