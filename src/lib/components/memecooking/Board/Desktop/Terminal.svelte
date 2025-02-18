@@ -72,7 +72,7 @@
         $searchQuery$,
         liveOnly,
         activeTab === "launched",
-        false,
+        activeTab === "metapool",
       ).map((meme) => ({
         meme,
       })),
