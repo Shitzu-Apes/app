@@ -20,7 +20,6 @@
   import Tooltip from "$lib/components/Tooltip.svelte";
   import LaunchSheet from "$lib/components/memecooking/BottomSheet/LaunchSheet.svelte";
   import RegisterSheet from "$lib/components/memecooking/BottomSheet/RegisterSheet.svelte";
-  import WithRefPools from "$lib/components/memecooking/WithRefPools.svelte";
   import { BottomSheet } from "$lib/layout/BottomSheet";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import MCHeader from "$lib/layout/memecooking/MCHeader.svelte";
@@ -197,9 +196,7 @@
       <div class="text-white min-h-screen flex flex-col">
         <MCHeader />
 
-        <WithRefPools>
-          <slot />
-        </WithRefPools>
+        <slot />
         <div
           class="fixed bottom-0 right-0 p-2 text-xs text-white bg-gray-800/70 hidden sm:block"
         >
