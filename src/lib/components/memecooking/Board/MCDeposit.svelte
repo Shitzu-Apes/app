@@ -1,36 +1,19 @@
 <script lang="ts">
-  import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
   import { onDestroy } from "svelte";
   import { writable } from "svelte/store";
   import { match, P } from "ts-pattern";
 
-  import { addToast } from "../../Toast.svelte";
-  import ReferralSheet from "../BottomSheet/ReferralSheet.svelte";
-
+  import McDepositButton from "./MCDepositButton.svelte";
+  import McWithdrawButton from "./MCWithdrawButton.svelte";
   import Tabs from "./Tabs.svelte";
 
+  import { useMcMemeDepositQuery } from "$lib/api/queries";
+  import { useFtBalanceQuery } from "$lib/api/queries/balance";
   import Near from "$lib/assets/Near.svelte";
-  import { showWalletSelector } from "$lib/auth";
-  import { Button } from "$lib/components";
   import TokenInput from "$lib/components/TokenInput.svelte";
-  import {
-    closeBottomSheet,
-    openBottomSheet,
-  } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { Ft, nearBalance, refreshNearBalance, nearWallet } from "$lib/near";
-  import {
-    mcAccount$,
-    MemeCooking,
-    updateMcAccount,
-  } from "$lib/near/memecooking";
-  import { fetchBlockHeight } from "$lib/near/rpc";
-  import {
-    awaitIndexerBlockHeight,
-    awaitRpcBlockHeight,
-  } from "$lib/store/indexer";
+  import { nearBalance } from "$lib/near";
   import { FixedNumber } from "$lib/util";
-  import { getReferral, removeReferral } from "$lib/util/referral";
 
   const tabs = [
     { id: "deposit", label: "Deposit" },
@@ -39,7 +22,7 @@
 
   let activeTab = "deposit";
 
-  const { accountId$ } = nearWallet;
+  export let accountId: string;
 
   let input: TokenInput;
   $: input$ = input?.u128$;
@@ -48,18 +31,8 @@
   export let meme: Meme;
 
   let returnTab = writable<string>("near");
-  $: unwrapNear = $returnTab === "near";
 
-  const depositAmount$ = writable<FixedNumber | undefined>();
-  $: if ($mcAccount$) {
-    $mcAccount$.then((mcAccount) => {
-      if (!mcAccount) return;
-      const deposit = mcAccount.deposits.find(
-        ({ meme_id }) => meme_id === meme.meme_id,
-      );
-      $depositAmount$ = new FixedNumber(deposit?.amount ?? "0", 24);
-    });
-  }
+  const depositAmount$ = useMcMemeDepositQuery(accountId, meme.meme_id);
 
   $: finished =
     meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now();
@@ -72,17 +45,14 @@
     clearInterval(timer);
   });
 
-  let totalNearBalance$ = writable($nearBalance);
-  let wrapNearBalance: FixedNumber | null = null;
-  $: if ($accountId$ && $nearBalance) {
-    Ft.balanceOf(
-      import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
-      $accountId$,
-      24,
-    ).then((balance) => {
-      wrapNearBalance = balance;
-      $totalNearBalance$ = $nearBalance.add(balance);
-    });
+  let totalNearBalance$ = writable<FixedNumber | null>($nearBalance);
+  const wrapNearBalance$ = useFtBalanceQuery(
+    import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
+    accountId,
+    24,
+  );
+  $: if (accountId && $nearBalance && $wrapNearBalance$.data) {
+    totalNearBalance$.set($nearBalance.add($wrapNearBalance$.data));
   }
 
   $: hasEnoughTokens = match([
@@ -91,215 +61,19 @@
   ])
     .with(
       ["deposit", P.select()],
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       ([input, _, amount]) =>
-        amount != null && input != null && input.valueOf() <= amount.valueOf(),
+        amount != null &&
+        input != null &&
+        input.toBigInt() <= amount.toBigInt(),
     )
     .with(
       ["withdraw", P.select()],
       ([input, amount]) =>
-        amount != null && input != null && input.valueOf() <= amount.valueOf(),
+        amount?.data?.amount != null &&
+        input != null &&
+        input.toBigInt() <= amount.data.amount.toBigInt(),
     )
     .otherwise(() => false);
-
-  async function action() {
-    if (!$accountId$) {
-      showWalletSelector("shitzu");
-      return;
-    }
-    if (!$input$) {
-      addToast({
-        data: {
-          type: "simple",
-          data: {
-            title: "Error",
-            description: "Please enter a valid amount",
-            type: "error",
-          },
-        },
-      });
-      return;
-    }
-
-    if (activeTab === "deposit") {
-      let referrer = getReferral() || undefined;
-      // Check storage balance before depositing
-      const [
-        storageBalance,
-        { account: accountCost, perMemeDeposit },
-        wrapNearRegistered,
-        wrapNearMinDeposit,
-        referrerStorageBalance,
-      ] = await Promise.all([
-        MemeCooking.storageBalanceOf($accountId$),
-        MemeCooking.storageCosts(),
-        Ft.isUserRegistered(
-          import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
-          $accountId$,
-        ),
-        Ft.storageRequirement(import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!),
-        referrer ? MemeCooking.storageBalanceOf(referrer) : null,
-      ]);
-
-      let needStorageDeposit = null;
-      if (
-        // no storage balance or
-        // storage balance is less than min storage balance
-
-        storageBalance === null ||
-        (storageBalance !== null &&
-          new FixedNumber(storageBalance.available).toBigInt() <
-            new FixedNumber(accountCost).toBigInt())
-      ) {
-        needStorageDeposit = {
-          depositAmount: (
-            BigInt(accountCost) +
-            5n * BigInt(perMemeDeposit)
-          ).toString(),
-        };
-      } else if (BigInt(storageBalance.available) < BigInt(perMemeDeposit)) {
-        needStorageDeposit = {
-          depositAmount: (5n * BigInt(perMemeDeposit)).toString(),
-        };
-      }
-
-      let wrapNearDeposit = null;
-      if (!wrapNearRegistered) {
-        wrapNearDeposit = {
-          depositAmount: wrapNearMinDeposit,
-        };
-      }
-
-      const extraNearDeposit =
-        $input$.toBigInt() > (wrapNearBalance?.toBigInt() ?? 0n)
-          ? $input$.toBigInt() - (wrapNearBalance?.toBigInt() ?? 0n)
-          : 0n;
-
-      if ($nearBalance && extraNearDeposit > $nearBalance.toBigInt()) {
-        console.error("Not enough NEAR balance");
-        return;
-      }
-
-      if (referrer === $accountId$) {
-        referrer = undefined;
-        addToast({
-          data: {
-            type: "simple",
-            data: {
-              title: "Invalid Referral",
-              description: "Referral cannot be the same as depositor",
-              type: "error",
-            },
-          },
-        });
-      } else if (referrer && referrerStorageBalance === null) {
-        referrer = undefined;
-        removeReferral();
-
-        addToast({
-          data: {
-            type: "simple",
-            data: {
-              title: "Invalid Referral",
-              description: "Referral not registered",
-              type: "error",
-            },
-          },
-        });
-      }
-
-      const amount = $input$.clone();
-      await MemeCooking.deposit(
-        nearWallet,
-        {
-          amount: $input$.toU128(),
-          extraNearDeposit: extraNearDeposit.toString(),
-          memeId: meme.meme_id,
-          referrer,
-        },
-        {
-          onSuccess: async (outcome) => {
-            $inputValue$ = "";
-            addToast({
-              data: {
-                type: "simple",
-                data: {
-                  title: "Deposit Success",
-                  description: `You successfully deposited ${$input$.format()} NEAR`,
-                },
-              },
-            });
-
-            if (!outcome) return;
-            const blockHeight = await fetchBlockHeight(outcome);
-            await Promise.all([
-              awaitIndexerBlockHeight(blockHeight),
-              awaitRpcBlockHeight(blockHeight),
-            ]);
-            refreshNearBalance($accountId$);
-            updateMcAccount($accountId$);
-          },
-        },
-        needStorageDeposit,
-        wrapNearDeposit,
-      );
-
-      openBottomSheet(ReferralSheet, {
-        amount,
-        meme,
-      });
-    } else {
-      const onSuccess = async (
-        outcome: FinalExecutionOutcome[] | undefined,
-      ) => {
-        $inputValue$ = "";
-        addToast({
-          data: {
-            type: "simple",
-            data: {
-              title: "Withdraw Success",
-              description: `You have successfully withdrawn ${$input$.format()} NEAR`,
-            },
-          },
-        });
-        closeBottomSheet();
-
-        if (!outcome) return;
-        const blockHeight = await fetchBlockHeight(outcome);
-        await Promise.all([
-          awaitIndexerBlockHeight(blockHeight),
-          awaitRpcBlockHeight(blockHeight),
-        ]);
-        refreshNearBalance($accountId$);
-        updateMcAccount($accountId$);
-      };
-      if (meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now()) {
-        return MemeCooking.claim(
-          nearWallet,
-          {
-            meme,
-            unwrapNear,
-            unwrapAmount: $depositAmount$?.toU128() ?? "",
-          },
-          {
-            onSuccess,
-          },
-        );
-      } else {
-        return MemeCooking.withdraw(
-          nearWallet,
-          {
-            amount: $input$.toU128(),
-            memeId: meme.meme_id,
-            unwrapNear,
-          },
-          {
-            onSuccess,
-          },
-        );
-      }
-    }
-  }
 
   function setMax() {
     if (activeTab === "deposit") {
@@ -311,10 +85,10 @@
         $inputValue$ = input.toString();
       }
     } else {
-      if (!$depositAmount$) {
+      if (!$depositAmount$?.data?.amount) {
         return;
       }
-      $inputValue$ = $depositAmount$.toString();
+      $inputValue$ = $depositAmount$.data.amount.toString();
     }
   }
 
@@ -392,8 +166,8 @@
             : 'text-rose-4'} flex-grow basis-0"
         >
           {#if activeTab === "withdraw"}
-            {#if $depositAmount$ != null}
-              {$depositAmount$.format()}
+            {#if $depositAmount$?.data?.amount}
+              {$depositAmount$.data.amount.format()}
             {:else}
               -
             {/if}
@@ -421,9 +195,9 @@
                   24,
                 ).toString();
               } else {
-                if ($depositAmount$ == null) return;
+                if (!$depositAmount$?.data?.amount) return;
                 const bps = new FixedNumber(defaultValue[activeTab].value, 2);
-                $inputValue$ = $depositAmount$.mul(bps).toString();
+                $inputValue$ = $depositAmount$.data.amount.mul(bps).toString();
               }
             }}
           >
@@ -453,27 +227,25 @@
         />
       </div>
     {/if}
-    <Button
-      onClick={async () => {
-        await action();
-      }}
-      type="custom"
-      disabled={$input$ == null ||
-        $input$.toNumber() == 0 ||
-        finished ||
-        !hasEnoughTokens}
-      class="{activeTab === 'deposit'
-        ? 'bg-shitzu-4'
-        : 'bg-rose-4'} w-full py-2 rounded text-xl tracking-wider text-black {activeTab ===
-      'deposit'
-        ? 'border-shitzu-5'
-        : 'border-rose-5'} active:translate-y-1 my-4 capitalize"
-    >
-      {#if finished}
-        finished
-      {:else}
-        {activeTab}
-      {/if}
-    </Button>
+    {#if activeTab === "deposit"}
+      <McDepositButton
+        {accountId}
+        input={$input$ ?? new FixedNumber(0n, 24)}
+        {finished}
+        {hasEnoughTokens}
+        wrapNearBalance={wrapNearBalance$}
+        {meme}
+      />
+    {:else}
+      <McWithdrawButton
+        {accountId}
+        {meme}
+        input={$input$ ?? new FixedNumber(0n, 24)}
+        unwrapNear={true}
+        {finished}
+        {hasEnoughTokens}
+        depositAmount={$depositAmount$.data?.amount ?? new FixedNumber(0n, 24)}
+      />
+    {/if}
   </div>
 </div>

@@ -34,6 +34,14 @@ export const memecookingKeys = createQueryKeyStore({
       queryKey: ["memecooking", "account", accountId, blockHeight],
       queryFn: () => MemeCooking.getAccount(accountId),
     }),
+    storageBalance: (accountId: string) => ({
+      queryKey: ["memecooking", "storage", accountId],
+      queryFn: () => MemeCooking.storageBalanceOf(accountId),
+    }),
+    storageCosts: () => ({
+      queryKey: ["memecooking", "storageCosts"],
+      queryFn: () => MemeCooking.storageCosts(),
+    }),
     unclaimed: (accountId: string, blockHeight?: number) => ({
       queryKey: ["memecooking", "unclaimed", accountId, blockHeight],
       queryFn: async () => {
@@ -104,6 +112,24 @@ export function useMcProfileQuery(accountId: string, blockHeight?: number) {
     ...memecookingKeys.account.profile(accountId, blockHeight),
     enabled: !!accountId,
   });
+}
+
+export function useMcStorageBalanceQuery(accountId: string) {
+  return createQuery({
+    ...memecookingKeys.account.storageBalance(accountId),
+    enabled: !!accountId,
+  });
+}
+
+export function useMcReferrerStorageBalanceQuery(referrer: string | undefined) {
+  return createQuery({
+    ...memecookingKeys.account.storageBalance(referrer ?? ""),
+    enabled: !!referrer,
+  });
+}
+
+export function useMcStorageCostsQuery() {
+  return createQuery(memecookingKeys.account.storageCosts());
 }
 
 export function useMcMemeDepositQuery(
