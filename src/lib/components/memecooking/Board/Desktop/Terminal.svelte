@@ -11,7 +11,7 @@
   import QuickActionConfig from "./QuickActionConfig.svelte";
   import SortToggle from "./SortToggle.svelte";
 
-  import { createPaginatedMemesQuery } from "$lib/api/queries/memes";
+  import { useMemesQuery } from "$lib/api/queries/memes";
   import SelectBox from "$lib/components/SelectBox.svelte";
   import { EXTERNAL_MEMES } from "$lib/external_memes";
   import { ScreenSize } from "$lib/models";
@@ -44,7 +44,7 @@
     liveOnly = false;
   }
 
-  $: memesQuery = createPaginatedMemesQuery();
+  $: memesQuery = useMemesQuery();
 
   $: displayedMemebids = match(activeTab)
     .with("other", () =>
