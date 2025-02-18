@@ -4,9 +4,12 @@
     href?: string;
     linkText?: string;
   }[] = [];
+
+  let className: string = "";
+  export { className as class };
 </script>
 
-<ol class="relative border-l border-gray-600 ml-4">
+<ol class="relative border-l border-gray-600 ml-4 {className}">
   {#each steps as { text, href, linkText }, i}
     <li class="mb-6 ml-6">
       <span
