@@ -60,7 +60,7 @@ export const ref = createQueryKeys("ref", {
   }),
 });
 
-export function createRefPoolsQuery() {
+export function useRefPoolsQuery() {
   return createQuery({
     ...ref.all(),
     staleTime: 1000 * 60, // 1 minute

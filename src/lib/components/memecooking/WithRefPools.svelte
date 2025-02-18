@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { createRefPoolsQuery } from "$lib/api/queries/ref";
+  import { useRefPoolsQuery } from "$lib/api/queries/ref";
 
-  $: refPoolsQuery = createRefPoolsQuery();
+  $: refPoolsQuery = useRefPoolsQuery();
 </script>
 
 {#if $refPoolsQuery.status === "pending"}

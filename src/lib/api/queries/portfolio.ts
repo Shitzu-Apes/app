@@ -4,7 +4,7 @@ import { derived, type Readable } from "svelte/store";
 import { z } from "zod";
 
 import { memesQueryFactory } from "./memes";
-import { createRefPoolsQuery } from "./ref";
+import { useRefPoolsQuery } from "./ref";
 
 import type { Meme } from "$lib/api/client";
 import {
@@ -86,7 +86,7 @@ export function usePortfolioQuery(accountId: string): Readable<{
 }> {
   const fastNearQuery = useFastNearPortfolioQuery(accountId);
   const memesQuery = createQuery(memesQueryFactory.memes.all());
-  const refPoolQuery = createRefPoolsQuery();
+  const refPoolQuery = useRefPoolsQuery();
 
   return derived(
     [fastNearQuery, memesQuery, refPoolQuery],

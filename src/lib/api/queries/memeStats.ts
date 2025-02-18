@@ -1,7 +1,7 @@
 import { derived, type Readable } from "svelte/store";
 
 import { useMemeDetailQuery } from "./memes";
-import { createRefPoolsQuery } from "./ref";
+import { useRefPoolsQuery } from "./ref";
 
 import type { FixedNumber } from "$lib/util";
 import {
@@ -23,7 +23,7 @@ export function useMemeStatsQuery(memeId: number): Readable<{
   refetch: () => Promise<void>;
 }> {
   const memeQuery = useMemeDetailQuery(memeId);
-  const refPoolQuery = createRefPoolsQuery();
+  const refPoolQuery = useRefPoolsQuery();
 
   return derived([memeQuery, refPoolQuery], ([$meme, $refPool]) => {
     const refetch = async () => {
