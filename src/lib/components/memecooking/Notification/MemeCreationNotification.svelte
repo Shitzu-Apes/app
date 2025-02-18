@@ -2,9 +2,9 @@
   import { onMount } from "svelte";
   import { cubicOut } from "svelte/easing";
 
+  import { createPaginatedMemesQuery } from "$lib/api/queries/memes";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import { MCMemeSubscribe } from "$lib/store/MCWebSocket";
-  import { memebids$ } from "$lib/store/memebids";
   import { timesAgo } from "$lib/util/timesAgo";
 
   let notification: {
@@ -14,6 +14,8 @@
     icon: string;
     at: number;
   } | null = null;
+
+  const memes = createPaginatedMemesQuery();
 
   function slideFromRight(node: Element, { delay = 0, duration = 400 } = {}) {
     return {
@@ -34,13 +36,12 @@
   }
 
   $: {
-    const memes = $memebids$;
-    if (memes.length > 0) {
-      const firstMeme = memes.sort(
+    if ($memes.data && $memes.data.length > 0) {
+      const firstMeme = $memes.data.sort(
         (a, b) =>
           Number(b.created_timestamp_ms) - Number(a.created_timestamp_ms),
       )[0];
-      console.log("[MemeCreationNotification] meme", firstMeme);
+
       notification = {
         meme_id: firstMeme.meme_id,
         party: firstMeme.owner,
