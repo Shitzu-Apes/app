@@ -235,6 +235,9 @@
         {hasEnoughTokens}
         wrapNearBalance={wrapNearBalance$}
         {meme}
+        onTransact={() => {
+          $inputValue$ = "";
+        }}
       />
     {:else}
       <McWithdrawButton
@@ -245,6 +248,9 @@
         {finished}
         {hasEnoughTokens}
         depositAmount={$depositAmount$.data?.amount ?? new FixedNumber(0n, 24)}
+        onTransact={() => {
+          $inputValue$ = "";
+        }}
       />
     {/if}
   </div>
