@@ -46,7 +46,7 @@ export const memesQueryFactory = createQueryKeyStore({
   },
 });
 
-export function createPaginatedMemesQuery() {
+export function useMemesQuery() {
   return createQuery({
     ...memesQueryFactory.memes.all(),
     staleTime: 30000, // 30 seconds

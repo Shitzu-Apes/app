@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { cubicOut } from "svelte/easing";
 
-  import { createPaginatedMemesQuery } from "$lib/api/queries/memes";
+  import { useMemesQuery } from "$lib/api/queries/memes";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import { MCMemeSubscribe } from "$lib/store/MCWebSocket";
   import { timesAgo } from "$lib/util/timesAgo";
@@ -15,7 +15,7 @@
     at: number;
   } | null = null;
 
-  const memes = createPaginatedMemesQuery();
+  const memes = useMemesQuery();
 
   function slideFromRight(node: Element, { delay = 0, duration = 400 } = {}) {
     return {
