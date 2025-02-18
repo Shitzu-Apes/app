@@ -16,6 +16,7 @@
     );
     console.log("[meme::+page] meme", meme);
     if (!meme) {
+      console.log("[meme::+page] meme not found", page.params.meme_id);
       return useMemeDetailQuery(Number(page.params.meme_id));
     }
     return useMemeDetailQuery(meme.meme_id);
