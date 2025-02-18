@@ -1,7 +1,6 @@
 import { createQueryKeyStore } from "@lukemorales/query-key-factory";
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 import { createQuery } from "@tanstack/svelte-query";
-import { derived, type Readable } from "svelte/store";
 
 import { client, type Meme } from "../client";
 
@@ -25,6 +24,14 @@ export const memesQueryFactory = createQueryKeyStore({
     detail: (memeId: string) => ({
       queryKey: ["memes", "detail", memeId],
       queryFn: async () => {
+        if (Number(memeId) < 0) {
+          const meme = EXTERNAL_MEMES.find(
+            (meme) =>
+              meme.meme_id === Number(memeId) || meme.token_id === memeId,
+          );
+          if (meme) return { meme };
+        }
+
         const res = await client.GET(`/meme/{id}`, {
           params: {
             path: {
@@ -44,24 +51,6 @@ export function createPaginatedMemesQuery() {
     ...memesQueryFactory.memes.all(),
     staleTime: 30000, // 30 seconds
   });
-}
-
-export function createMemeDetailQuery(memeId: Readable<number>) {
-  return createQuery(
-    derived(memeId, (memeId) => {
-      const memes = queryClient.getQueryData(
-        memesQueryFactory.memes.all().queryKey,
-      ) as Meme[] | undefined;
-      const meme = memes?.find(
-        (meme) => Number(meme.meme_id) === Number(memeId),
-      );
-      return {
-        ...memesQueryFactory.memes.detail(memeId.toString()),
-        staleTime: Infinity,
-        initialData: meme ? { meme } : undefined,
-      };
-    }),
-  );
 }
 
 export const memeKeys = createQueryKeys("memes", {
@@ -96,6 +85,25 @@ export const memeKeys = createQueryKeys("memes", {
     },
   }),
 });
+
+export function useMemeDetailQuery(memeId: number) {
+  return createQuery({
+    ...memesQueryFactory.memes.detail(memeId.toString()),
+    enabled: !!memeId,
+    initialData: () => {
+      if (Number(memeId) < 0) {
+        const meme = EXTERNAL_MEMES.find((meme) => meme.meme_id === memeId);
+        if (meme) return { meme };
+      }
+      const memes = queryClient.getQueryData(
+        memesQueryFactory.memes.all().queryKey,
+      ) as Meme[] | undefined;
+      const meme = memes?.find((meme) => meme.meme_id === memeId);
+      return { meme };
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+}
 
 export function useDepositsQuery(accountId: string) {
   return createQuery({

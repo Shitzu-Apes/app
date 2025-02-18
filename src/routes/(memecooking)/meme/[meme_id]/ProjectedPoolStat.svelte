@@ -3,7 +3,7 @@
   import type { Meme } from "$lib/models/memecooking";
 
   export let meme: Meme;
-  const poolStatQuery = useMemeStatsQuery(meme);
+  const poolStatQuery = useMemeStatsQuery(meme.meme_id);
 </script>
 
 <div class="flex items-center gap-6">

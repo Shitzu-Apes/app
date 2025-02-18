@@ -10,7 +10,7 @@
   import { getTokenId } from "$lib/util/getTokenId";
   export let memebid: Meme;
 
-  const poolStatQuery = useMemeStatsQuery(memebid);
+  const poolStatQuery = useMemeStatsQuery(memebid.meme_id);
 
   const twitterLink = memebid.twitter_link!;
   const telegramLink = memebid.telegram_link!;

@@ -2,20 +2,24 @@
   import { onMount } from "svelte";
   import { derived } from "svelte/store";
 
-  import MemeDetail from "./MemeDetail.svelte";
+  import MemeDetailPage from "./MemeDetailPage.svelte";
 
   import { page } from "$app/stores";
-  import { createMemeDetailQuery } from "$lib/api/queries/memes";
+  import { useMemeDetailQuery } from "$lib/api/queries/memes";
   import { getXCallbackParams } from "$lib/auth/x-callback";
   import { addToast } from "$lib/components/Toast.svelte";
-  import LoadingLambo from "$lib/components/memecooking/Board/LoadingLambo.svelte";
-  import TokenDetailCarousel from "$lib/components/memecooking/Board/TokenDetailCarousel.svelte";
-  import { ScreenSize } from "$lib/models";
-  import { screenSize$ } from "$lib/screen-size";
+  import { EXTERNAL_MEMES } from "$lib/external_memes";
 
-  const memeDetailQuery = createMemeDetailQuery(
-    derived(page, (page) => Number(page.params.meme_id)),
-  );
+  const memeDetailQuery = derived(page, (page) => {
+    const meme = EXTERNAL_MEMES.find(
+      (meme) => meme.token_id === page.params.meme_id,
+    );
+    console.log("[meme::+page] meme", meme);
+    if (!meme) {
+      return useMemeDetailQuery(Number(page.params.meme_id));
+    }
+    return useMemeDetailQuery(meme.meme_id);
+  });
   // const loading = writable(true);
   // const memeStore = derived([page, memeMap$], ([page, memeMap]) => {
   //   console.log("[meme::+page] memeMap", memeMap);
@@ -90,20 +94,4 @@
   });
 </script>
 
-{#if $memeDetailQuery.isLoading}
-  <div class="my-10">
-    <LoadingLambo />
-  </div>
-{:else if $memeDetailQuery.isError}
-  <div>Error: {$memeDetailQuery.error.message}</div>
-{:else if $memeDetailQuery.data?.meme}
-  {#if $screenSize$ > ScreenSize.Tablet}
-    <div class="w-full p-2 pb-25">
-      <MemeDetail meme={$memeDetailQuery.data.meme} />
-    </div>
-  {:else}
-    <TokenDetailCarousel meme={$memeDetailQuery.data.meme} />
-  {/if}
-{:else}
-  <div>Meme not found</div>
-{/if}
+<MemeDetailPage memeDetailQuery={$memeDetailQuery} />

@@ -63,6 +63,7 @@ export const ref = createQueryKeys("ref", {
 export function createRefPoolsQuery() {
   return createQuery({
     ...ref.all(),
+    staleTime: 1000 * 60, // 1 minute
   });
 }
 
@@ -79,5 +80,6 @@ export function createRefGetPoolQuery(poolId: number) {
   return createQuery({
     ...ref.detail(poolId),
     initialData,
+    staleTime: 1000 * 60, // 1 minute
   });
 }
