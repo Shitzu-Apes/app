@@ -92,7 +92,11 @@ export function usePortfolioQuery(accountId: string): Readable<{
     [fastNearQuery, memesQuery, refPoolQuery],
     ([$fastNear, $memes, $refPool]) => {
       const refetch = async () => {
-        await Promise.all([$fastNear.refetch(), $memes.refetch()]);
+        await Promise.all([
+          $fastNear.refetch(),
+          $memes.refetch(),
+          $refPool.refetch(),
+        ]);
       };
 
       if (
@@ -127,6 +131,7 @@ export function usePortfolioQuery(accountId: string): Readable<{
       }
 
       if (!$fastNear.data || !$memes.data) {
+        console.log("portfolio is loading", $fastNear.data, $memes.data);
         return {
           isLoading: true,
           isError: false,

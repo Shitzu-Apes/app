@@ -6,7 +6,7 @@ import { client } from "../client";
 
 import { memesQueryFactory } from "./memes";
 
-import type { MCAccountInfo, Meme } from "$lib/models/memecooking";
+import type { Meme } from "$lib/models/memecooking";
 import { MemeCooking } from "$lib/near/memecooking";
 import {
   awaitIndexerBlockHeight,
@@ -46,7 +46,8 @@ export const memecookingKeys = createQueryKeyStore({
       queryKey: ["memecooking", "unclaimed", accountId, blockHeight],
       queryFn: async () => {
         const memesIds = await MemeCooking.getUnclaimed(accountId);
-        if (!memesIds) return;
+        console.log("[unclaimed::memesIds]", memesIds);
+        if (!memesIds || memesIds.length === 0) return [];
 
         const unclaimedAmounts = await Promise.all(
           memesIds.map((memeId) => MemeCooking.getClaimable(accountId, memeId)),
@@ -54,10 +55,12 @@ export const memecookingKeys = createQueryKeyStore({
 
         console.log("[unclaimedAmounts]", unclaimedAmounts);
 
-        return unclaimedAmounts.map((amount, index) => ({
-          meme_id: memesIds[index],
-          amount,
-        }));
+        return unclaimedAmounts
+          .map((amount, index) => ({
+            meme_id: memesIds[index],
+            amount,
+          }))
+          .filter(({ amount }) => amount != null);
       },
     }),
     profile: (accountId: string, blockHeight?: number) => ({
@@ -232,59 +235,50 @@ export function useMcAccountQuery(
         $unclaimed.isFetching ||
         $profile.isFetching ||
         $memes.isFetching
-      )
+      ) {
         return {
           isLoading: true as const,
           isError: false as const,
           data: undefined,
           refetch,
         };
+      }
 
       if (
         $baseAccount.status === "error" ||
         $unclaimed.status === "error" ||
         $profile.status === "error" ||
         $memes.status === "error"
-      )
+      ) {
         return {
           isLoading: false as const,
           isError: true as const,
           data: undefined,
           refetch,
         };
-
-      if (
-        !$baseAccount.data ||
-        !$unclaimed.data ||
-        !$profile.data ||
-        !$memes.data
-      )
-        return {
-          isLoading: true as const,
-          isError: false as const,
-          data: undefined,
-          refetch,
-        };
+      }
 
       const memeMap = new Map($memes.data.map((m: Meme) => [m.meme_id, m]));
 
       // Process deposits
-      const deposits = $baseAccount.data.deposits
-        .map((deposit: [number, string]) => {
-          const meme = memeMap.get(deposit[0]);
-          if (!meme) return null;
-          return {
-            meme_id: deposit[0],
-            amount: deposit[1].toString(),
-            meme: {
-              ...meme,
-            },
-          };
-        })
-        .filter(
-          (deposit): deposit is NonNullable<typeof deposit> => deposit != null,
-        )
-        .sort((a, b) => sortMemeByEndtimestamp(a.meme, b.meme));
+      const deposits =
+        $baseAccount.data?.deposits
+          .map((deposit: [number, string]) => {
+            const meme = memeMap.get(deposit[0]);
+            if (!meme) return null;
+            return {
+              meme_id: deposit[0],
+              amount: deposit[1].toString(),
+              meme: {
+                ...meme,
+              },
+            };
+          })
+          .filter(
+            (deposit): deposit is NonNullable<typeof deposit> =>
+              deposit != null,
+          )
+          .sort((a, b) => sortMemeByEndtimestamp(a.meme, b.meme)) ?? [];
 
       // Process unclaimed info
       const unclaimedInfo = $unclaimed.data.map(({ meme_id, amount }) => {
@@ -340,15 +334,13 @@ export function useMcAccountQuery(
             },
           ),
         );
-      console.log("[claims]", claims);
 
       // Process revenue
-      const revenue = $baseAccount.data.income.map(
-        (income: [string, string]) => ({
+      const revenue =
+        $baseAccount.data?.income.map((income: [string, string]) => ({
           token_id: income[0],
           amount: income[1],
-        }),
-      );
+        })) ?? [];
 
       // Process created memes
       const created = $profile.data.created
@@ -366,12 +358,14 @@ export function useMcAccountQuery(
         isLoading: false as const,
         isError: false as const,
         data: {
-          account: $baseAccount.data,
           deposits,
           claims,
           created,
           revenue,
-          shitstarClaim: new FixedNumber($baseAccount.data.shitstar_claim, 18),
+          shitstarClaim: new FixedNumber(
+            $baseAccount.data?.shitstar_claim ?? 0n,
+            18,
+          ),
           referralFees: new FixedNumber($profile.data.referral_fees, 24),
           withdrawFees: new FixedNumber($profile.data.withdraw_fees, 24),
         },
@@ -382,7 +376,6 @@ export function useMcAccountQuery(
 }
 
 export type McAccount = {
-  account: MCAccountInfo;
   deposits: {
     meme_id: number;
     amount: string;
