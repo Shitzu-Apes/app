@@ -2,11 +2,10 @@
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
   import { writable } from "svelte/store";
 
-  import BettearBanner from "../../../../routes/(memecooking)/create/BettearBanner.svelte";
-  import { addToast } from "../../Toast.svelte";
-  import TipDaoSheet from "../BottomSheet/TipDaoSheet.svelte";
-
-  import ExpectedReturn from "./MCRefHybridReturn.svelte";
+  import BettearBanner from "../../../../../routes/(memecooking)/create/BettearBanner.svelte";
+  import { addToast } from "../../../Toast.svelte";
+  import TipDaoSheet from "../../BottomSheet/TipDaoSheet.svelte";
+  import ExpectedReturn from "../MCRefHybridReturn.svelte";
 
   import Near from "$lib/assets/Near.svelte";
   import { showWalletSelector } from "$lib/auth";
