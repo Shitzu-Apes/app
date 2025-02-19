@@ -22,6 +22,7 @@
   import { slide } from "svelte/transition";
   import { match, P } from "ts-pattern";
 
+  import OmniBridgeSheet from "./OmniBridgeSheet.svelte";
   import TransferStatus from "./TransferStatus.svelte";
   import UserMenu from "./UserMenu.svelte";
   import {
@@ -39,6 +40,7 @@
   import { addToast } from "$lib/components/Toast.svelte";
   import TokenInput from "$lib/components/TokenInput.svelte";
   import { evmWallet$, config, switchToChain } from "$lib/evm/wallet";
+  import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Network } from "$lib/models/tokens";
   import { nearBalance, nearWallet, refreshNearBalance } from "$lib/near";
   import { solanaWallet } from "$lib/solana/wallet";
@@ -628,16 +630,14 @@
 
 <div class="w-full">
   <div class="text-center mb-6" class:pb-6={!walletConnected}>
-    <h1 class="mb-0">Omni Bridge</h1>
+    <h1 class="mb-0">OmniBridge</h1>
     <div>Transfer tokens between networks</div>
-    <a
-      href="https://near.org/blog/omnibridge-nears-universal-solution-for-cross-chain-liquidity"
-      target="_blank"
-      rel="noopener noreferrer"
+    <button
+      on:click={() => openBottomSheet(OmniBridgeSheet)}
       class="inline-block mt-2 text-sm text-lime/70 hover:text-lime transition-colors"
     >
       Learn more about NEAR's next-gen cross-chain infrastructure →
-    </a>
+    </button>
   </div>
 
   <div
