@@ -72,7 +72,7 @@ export class SolanaWallet {
       const wallets = get(this._wallets$);
       for (const wallet of wallets) {
         try {
-          await wallet.connect();
+          await wallet.autoConnect();
           // Don't show toast for auto-connect
           this._selectedWallet$.set(wallet);
           this._publicKey$.set(wallet.publicKey ?? undefined);
