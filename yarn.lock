@@ -10434,10 +10434,10 @@ ohash@^1.1.3, ohash@^1.1.4:
   resolved "https://registry.yarnpkg.com/ohash/-/ohash-1.1.4.tgz#ae8d83014ab81157d2c285abf7792e2995fadd72"
   integrity sha512-FlDryZAahJmEF3VR3w1KogSEdWX3WhA5GPakFx4J81kEAiHyLMpdLLElS8n8dfNadMgAne/MywcvmogzscVt4g==
 
-omni-bridge-sdk@^0.8.2:
-  version "0.8.2"
-  resolved "https://registry.yarnpkg.com/omni-bridge-sdk/-/omni-bridge-sdk-0.8.2.tgz#4a56d3f3cb8468c1b886cf48cc9fc3c9264641b0"
-  integrity sha512-1gsXg8iebB7mND5+jBWaw15lmYYeILK8MKg5EcpJMsLOhBhy4GVyDtDI5+mQmr2d5RIjit1v93AhLWtVXXmLpQ==
+omni-bridge-sdk@^0.9.1:
+  version "0.9.1"
+  resolved "https://registry.yarnpkg.com/omni-bridge-sdk/-/omni-bridge-sdk-0.9.1.tgz#9d1cbdd44cd248ea3613a33462ca2eefe3557353"
+  integrity sha512-/HazGcTL19f1rUvCxWPVykFfxa3/zl1cvWsemsM+vVvaUhmy+RQvwE/u7s+a4bVpwLAq3S4KjbrRQnhPgL3nkw==
   dependencies:
     "@coral-xyz/anchor" "^0.30.1"
     "@ethereumjs/mpt" "7.0.0-alpha.1"
