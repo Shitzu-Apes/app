@@ -199,33 +199,33 @@
   </div>
 
   <div class="w-full">
-    {#if $mcAccountQuery.isLoading}
-      <LoadingLambo />
-    {:else if $mcAccountQuery.isError}
-      <div class="text-red-500">Error loading account</div>
-    {:else if $mcAccountQuery.data}
-      <div class="grid lg:grid-cols-[2fr_minmax(300px,1fr)] gap-8">
-        <!-- Left Panel with Tabs -->
-        <div>
-          <Tabs
-            tabs={tabs.map((tab) => ({
-              ...tab,
-              label: tab.getCount
-                ? `${tab.label} (${$mcAccountQuery.data ? tab.getCount($mcAccountQuery.data) : 0})`
-                : tab.label,
-            }))}
-            bind:activeTab
-            class="w-full text-sm"
-          />
+    <div class="grid lg:grid-cols-[2fr_minmax(300px,1fr)] gap-8">
+      <!-- Left Panel with Tabs -->
+      <div>
+        <Tabs
+          tabs={tabs.map((tab) => ({
+            ...tab,
+            label: tab.getCount
+              ? `${tab.label} (${$mcAccountQuery.data ? tab.getCount($mcAccountQuery.data) : 0})`
+              : tab.label,
+          }))}
+          bind:activeTab
+          class="w-full text-sm"
+        />
 
-          {#if activeTab === "portfolio"}
-            <Portfolio
-              {accountId}
-              {portfolio}
-              nearBalance={$nearBalance}
-              {portfolioQuery}
-            />
-          {:else if $mcAccountQuery.data && isOwnAccount}
+        {#if activeTab === "portfolio"}
+          <Portfolio
+            {accountId}
+            {portfolio}
+            nearBalance={$nearBalance}
+            {portfolioQuery}
+          />
+        {:else if $mcAccountQuery.isLoading}
+          <LoadingLambo />
+        {:else if $mcAccountQuery.isError}
+          <div class="text-red-500">Error loading account</div>
+        {:else if $mcAccountQuery.data}
+          {#if isOwnAccount}
             <MemeList
               props={activeTab === "not-finalized"
                 ? { type: "not-finalized", data: $mcAccountQuery.data.deposits }
@@ -237,38 +237,38 @@
               {isOwnAccount}
               {update}
             />
-          {:else if $mcAccountQuery.data}
+          {:else}
             <MemeList
               props={{ type: "created", data: $mcAccountQuery.data.created }}
               {isOwnAccount}
               {update}
             />
           {/if}
-        </div>
-
-        <!-- Right Panel with Revenue -->
-        <div class="order-first lg:order-last">
-          {#if isOwnAccount}
-            <Revenue
-              revenue={$mcAccountQuery.data?.revenue}
-              shitstarClaim={$mcAccountQuery.data?.shitstarClaim}
-              referralFees={$mcAccountQuery.data?.referralFees}
-              withdrawFees={$mcAccountQuery.data?.withdrawFees}
-              {update}
-              {isOwnAccount}
-            />
-          {:else}
-            <Revenue
-              revenue={$mcAccountQuery.data?.revenue}
-              shitstarClaim={$mcAccountQuery.data?.shitstarClaim}
-              referralFees={$mcAccountQuery.data?.referralFees}
-              withdrawFees={$mcAccountQuery.data?.withdrawFees}
-              {update}
-              {isOwnAccount}
-            />
-          {/if}
-        </div>
+        {/if}
       </div>
-    {/if}
+
+      <!-- Right Panel with Revenue -->
+      <div class="order-first lg:order-last">
+        {#if isOwnAccount}
+          <Revenue
+            revenue={$mcAccountQuery.data?.revenue}
+            shitstarClaim={$mcAccountQuery.data?.shitstarClaim}
+            referralFees={$mcAccountQuery.data?.referralFees}
+            withdrawFees={$mcAccountQuery.data?.withdrawFees}
+            {update}
+            {isOwnAccount}
+          />
+        {:else}
+          <Revenue
+            revenue={$mcAccountQuery.data?.revenue}
+            shitstarClaim={$mcAccountQuery.data?.shitstarClaim}
+            referralFees={$mcAccountQuery.data?.referralFees}
+            withdrawFees={$mcAccountQuery.data?.withdrawFees}
+            {update}
+            {isOwnAccount}
+          />
+        {/if}
+      </div>
+    </div>
   </div>
 </section>
