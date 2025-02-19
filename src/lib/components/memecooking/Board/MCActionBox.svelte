@@ -1,6 +1,6 @@
 <script lang="ts">
   import McDeposit from "./MCDeposit.svelte";
-  import McRef from "./MCRef.svelte";
+  import McRef from "./MCRef/index.svelte";
 
   import type { Meme } from "$lib/models/memecooking";
   import { wallet } from "$lib/near";
