@@ -92,13 +92,6 @@
 
   let isTokenDropdownOpen = false;
 
-  function handleSwapNetworks() {
-    const source = $sourceNetwork$;
-    const destination = $destinationNetwork$;
-    sourceNetwork$.set(destination);
-    destinationNetwork$.set(source);
-  }
-
   function handleSourceNetworkChange(network: Network) {
     if (network === $destinationNetwork$) {
       // If selecting same network as destination, swap them
@@ -697,10 +690,10 @@
   </div>
 
   <div
-    class="pb-12 border-2 border-lime rounded-t-xl px-3 pt-3 bg-gradient-to-r from-lime to-emerald text-black"
+    class="pb-8 border-2 border-lime rounded-t-xl px-3 pt-3 bg-gradient-to-r from-lime to-emerald text-black"
   >
     <!-- Token Selection -->
-    <div class="flex flex-col gap-3 pb-6 border-b border-black">
+    <div class="flex flex-col gap-2 pb-4 border-b border-black">
       <div class="text-lg font-bold">Select Token</div>
       <div class="relative">
         <button
@@ -760,17 +753,17 @@
   </div>
 
   <div
-    class="-mt-6 z-10 pb-6 border-2 border-lime rounded-xl px-3 pt-3 bg-black"
+    class="-mt-6 z-10 pb-4 border-2 border-lime rounded-xl px-3 pt-3 bg-black"
   >
     <!-- Network Selection -->
-    <div class="flex flex-col gap-5">
+    <div class="flex flex-col gap-4">
       <!-- Source Network -->
-      <div class="flex flex-col gap-1.5">
+      <div class="flex flex-col gap-1">
         <div class="text-sm text-lime">From</div>
         <div class="grid grid-cols-3 gap-2">
           {#each networks.filter( (network) => isTokenAvailableOnNetwork($selectedToken$, network.id), ) as network}
             <button
-              class="flex flex-col items-center gap-1.5 p-3 rounded-xl border {$sourceNetwork$ ===
+              class="flex flex-col items-center gap-1 p-2 rounded-xl border {$sourceNetwork$ ===
               network.id
                 ? 'bg-lime/20 border-lime'
                 : 'border-lime/20 hover:bg-lime/10'} transition-colors"
@@ -779,32 +772,21 @@
               <img
                 src={network.icon}
                 alt={network.name}
-                class="w-8 h-8 rounded-full"
+                class="w-6 h-6 rounded-full"
               />
-              <span class="text-sm font-medium">{network.name}</span>
+              <span class="text-xs font-medium">{network.name}</span>
             </button>
           {/each}
         </div>
       </div>
 
-      <!-- Swap Button -->
-      <div class="flex justify-center">
-        <button
-          class="p-2 rounded-lg hover:bg-lime/10 transition-colors"
-          on:click={handleSwapNetworks}
-          aria-label="Swap networks"
-        >
-          <div class="i-mdi:swap-vertical text-2xl text-lime/70" />
-        </button>
-      </div>
-
       <!-- Destination Network -->
-      <div class="flex flex-col gap-1.5">
+      <div class="flex flex-col gap-1">
         <div class="text-sm text-lime">To</div>
         <div class="grid grid-cols-3 gap-2">
           {#each networks.filter( (network) => isTokenAvailableOnNetwork($selectedToken$, network.id), ) as network}
             <button
-              class="flex flex-col items-center gap-1.5 p-3 rounded-xl border {$destinationNetwork$ ===
+              class="flex flex-col items-center gap-1 p-2 rounded-xl border {$destinationNetwork$ ===
               network.id
                 ? 'bg-lime/20 border-lime'
                 : 'border-lime/20 hover:bg-lime/10'} transition-colors"
@@ -813,16 +795,16 @@
               <img
                 src={network.icon}
                 alt={network.name}
-                class="w-8 h-8 rounded-full"
+                class="w-6 h-6 rounded-full"
               />
-              <span class="text-sm font-medium">{network.name}</span>
+              <span class="text-xs font-medium">{network.name}</span>
             </button>
           {/each}
         </div>
       </div>
 
       <!-- Amount -->
-      <div class="flex flex-col gap-1.5">
+      <div class="flex flex-col gap-1">
         <div class="flex justify-between items-center text-sm text-lime">
           <div>Amount</div>
           <div class="flex items-center gap-1">
@@ -892,7 +874,7 @@
       </div>
 
       <!-- Recipient Address -->
-      <div class="flex flex-col gap-1.5">
+      <div class="flex flex-col gap-1">
         <div class="text-sm text-lime">Recipient Address</div>
         <div class="relative">
           <input
@@ -934,7 +916,7 @@
 
     <!-- Recent Transfers -->
     {#if $transfers.length > 0}
-      <div class="flex flex-col gap-2 mt-6 pt-6 border-t border-lime">
+      <div class="flex flex-col gap-1.5 mt-4 pt-4 border-t border-lime">
         <div class="text-sm text-lime">Recent Transfers</div>
         <div class="flex flex-col gap-1.5">
           {#each visibleTransfers as transfer (transfer.id.origin_chain + ":" + transfer.id.origin_nonce)}
