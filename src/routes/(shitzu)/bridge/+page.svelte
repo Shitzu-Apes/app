@@ -90,6 +90,8 @@
 
   const selectedToken$ = writable<keyof typeof TOKENS>("NEAR");
 
+  let isTokenDropdownOpen = false;
+
   function handleSwapNetworks() {
     const source = $sourceNetwork$;
     const destination = $destinationNetwork$;
@@ -131,7 +133,28 @@
         TOKENS[$selectedToken$].decimals[$sourceNetwork$] ?? 24,
         TOKENS[$selectedToken$].decimals[$destinationNetwork$] ?? 24,
       );
-      let quantity = getFormattedNumber(currentBalance.toString(), decimals);
+
+      // If it's NEAR token on NEAR network, leave 0.1 NEAR for gas
+      let maxAmount = currentBalance;
+      if (token === "NEAR" && $sourceNetwork$ === "near") {
+        const minNearBalance = new FixedNumber(100000000000000000000000n, 24); // 0.1 NEAR
+        if (currentBalance.valueOf() <= minNearBalance.valueOf()) {
+          addToast({
+            data: {
+              type: "simple",
+              data: {
+                title: "Insufficient Balance",
+                description: "You need to keep at least 0.1 NEAR for gas fees",
+                type: "error",
+              },
+            },
+          });
+          return;
+        }
+        maxAmount = currentBalance.sub(minNearBalance);
+      }
+
+      let quantity = getFormattedNumber(maxAmount.toString(), decimals);
       const [res] = getNumberAsUInt128(quantity, decimals);
       $amountValue$ = new FixedNumber(res, decimals).toString();
     }
@@ -484,7 +507,18 @@
     $sourceNetwork$ !== $destinationNetwork$ &&
     $amount$ &&
     $amount$.valueOf() <= $currentBalance$.valueOf() &&
-    isValidAddress($recipientAddress$, $destinationNetwork$);
+    isValidAddress($recipientAddress$, $destinationNetwork$) &&
+    !(
+      $selectedToken$ === "NEAR" &&
+      $sourceNetwork$ === "near" &&
+      $amount$ &&
+      (() => {
+        const nearBalance = get(balances$["NEAR"]).near;
+        if (!nearBalance) return false;
+        const minNearBalance = new FixedNumber(100000000000000000000000n, 24);
+        return $amount$.valueOf() > nearBalance.sub(minNearBalance).valueOf();
+      })()
+    );
 
   $: needsWalletConnection = match($sourceNetwork$)
     .with("near", () => !$accountId$)
@@ -626,6 +660,28 @@
 
   // Add this with your other reactive declarations
   $: availableBalance = $currentBalance$;
+
+  // Add validation for NEAR token amount
+  $: {
+    if ($selectedToken$ === "NEAR" && $sourceNetwork$ === "near" && $amount$) {
+      const minNearBalance = new FixedNumber(100000000000000000000000n, 24); // 0.1 NEAR
+      const nearBalance = get(balances$["NEAR"]).near;
+
+      if (
+        nearBalance &&
+        $amount$.valueOf() > nearBalance.sub(minNearBalance).valueOf()
+      ) {
+        $amountValue$ = undefined;
+      }
+    }
+  }
+
+  // Close dropdown when clicking outside
+  function handleClickOutside(_event: MouseEvent) {
+    if (isTokenDropdownOpen) {
+      isTokenDropdownOpen = false;
+    }
+  }
 </script>
 
 <div class="w-full">
@@ -646,26 +702,57 @@
     <!-- Token Selection -->
     <div class="flex flex-col gap-3 pb-6 border-b border-black">
       <div class="text-lg font-bold">Select Token</div>
-      <div class="grid grid-cols-1 gap-2">
-        {#each TOKEN_ENTRIES as [tokenId, token]}
-          <button
-            class="flex items-center gap-3 p-3 rounded-xl border {$selectedToken$ ===
-            tokenId
-              ? 'bg-black/20 border-black'
-              : 'border-black/20 hover:bg-black/10'} transition-colors"
-            on:click={() => {
-              selectedToken$.set(tokenId);
-              $amountValue$ = undefined;
-            }}
-          >
+      <div class="relative">
+        <button
+          class="w-full flex items-center justify-between p-3 rounded-xl border border-black/20 hover:bg-black/10 transition-colors group"
+          on:click|stopPropagation={() => {
+            isTokenDropdownOpen = !isTokenDropdownOpen;
+          }}
+        >
+          <div class="flex items-center gap-3">
             <img
-              src={token.icon}
-              alt={token.symbol}
+              src={TOKENS[$selectedToken$].icon}
+              alt={TOKENS[$selectedToken$].symbol}
               class="w-8 h-8 rounded-full"
             />
-            <span class="text-sm font-medium">{token.symbol}</span>
-          </button>
-        {/each}
+            <span class="text-sm font-medium"
+              >{TOKENS[$selectedToken$].symbol}</span
+            >
+          </div>
+          <div
+            class="i-mdi:chevron-down text-xl transition-transform"
+            class:rotate-180={isTokenDropdownOpen}
+          />
+        </button>
+
+        {#if isTokenDropdownOpen}
+          <div
+            class="absolute top-full left-0 right-0 mt-1 bg-black/90 backdrop-blur-sm border border-lime/20 rounded-xl py-2 z-20"
+            transition:slide|local={{ duration: 200 }}
+          >
+            {#each TOKEN_ENTRIES as [tokenId, token]}
+              {#if tokenId !== $selectedToken$}
+                <button
+                  class="w-full flex items-center gap-3 px-3 py-2 hover:bg-lime/10 transition-colors"
+                  on:click={() => {
+                    selectedToken$.set(tokenId);
+                    $amountValue$ = undefined;
+                    isTokenDropdownOpen = false;
+                  }}
+                >
+                  <img
+                    src={token.icon}
+                    alt={token.symbol}
+                    class="w-8 h-8 rounded-full"
+                  />
+                  <span class="text-sm font-medium text-white"
+                    >{token.symbol}</span
+                  >
+                </button>
+              {/if}
+            {/each}
+          </div>
+        {/if}
       </div>
     </div>
 
@@ -788,6 +875,20 @@
             </button>
           {/if}
         </div>
+        {#if $selectedToken$ === "NEAR" && $sourceNetwork$ === "near" && $amount$}
+          {#if (() => {
+            const nearBalance = get(balances$["NEAR"]).near;
+            if (!nearBalance) return false;
+            const minNearBalance = new FixedNumber(100000000000000000000000n, 24);
+            return $amount$.valueOf() > nearBalance
+                .sub(minNearBalance)
+                .valueOf();
+          })()}
+            <div transition:slide|local class="text-red-500 text-sm mt-1.5">
+              You need to keep at least 0.1 NEAR for gas fees
+            </div>
+          {/if}
+        {/if}
       </div>
 
       <!-- Recipient Address -->
@@ -876,3 +977,5 @@
     </ul>
   </div>
 </div>
+
+<svelte:window on:click={handleClickOutside} />

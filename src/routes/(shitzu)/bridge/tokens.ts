@@ -29,7 +29,7 @@ const { publicKey$ } = solanaWallet;
 export const TOKENS = {
   NEAR: {
     symbol: "NEAR",
-    icon: "https://assets.coingecko.com/coins/images/10365/standard/near.jpg?1696510367",
+    icon: "/wnear.webp",
     decimals: {
       near: 24,
       solana: 9,
