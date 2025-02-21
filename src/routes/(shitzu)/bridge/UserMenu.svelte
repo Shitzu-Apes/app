@@ -40,18 +40,6 @@
     hasSolanaWallet && "Solana",
     hasEvmWallet && "EVM",
   ].filter(Boolean);
-
-  function getNetworkBalance(
-    network: "near" | "solana" | "base" | "arbitrum" | "ethereum",
-  ) {
-    return (
-      $balance$[network]?.format({
-        compactDisplay: "short",
-        notation: "compact",
-        maximumFractionDigits: 2,
-      }) ?? "0"
-    );
-  }
 </script>
 
 <div
@@ -117,7 +105,11 @@
                   class="w-3 h-3 rounded-full"
                 />
                 <span class="font-medium text-lime"
-                  >{getNetworkBalance("near")}</span
+                  >{$balance$.near.format({
+                    compactDisplay: "short",
+                    notation: "compact",
+                    maximumFractionDigits: 2,
+                  })}</span
                 >
                 <span>{tokenData.symbol}</span>
               </div>
@@ -135,7 +127,11 @@
                   class="w-3 h-3 rounded-full"
                 />
                 <span class="font-medium text-lime"
-                  >{getNetworkBalance("solana")}</span
+                  >{$balance$.solana.format({
+                    compactDisplay: "short",
+                    notation: "compact",
+                    maximumFractionDigits: 2,
+                  })}</span
                 >
                 <span>{tokenData.symbol}</span>
               </div>
@@ -154,7 +150,11 @@
                     class="w-3 h-3 rounded-full"
                   />
                   <span class="font-medium text-lime"
-                    >{getNetworkBalance("base")}</span
+                    >{$balance$.base.format({
+                      compactDisplay: "short",
+                      notation: "compact",
+                      maximumFractionDigits: 2,
+                    })}</span
                   >
                   <span>{tokenData.symbol}</span>
                 </div>
@@ -172,7 +172,11 @@
                     class="w-3 h-3 rounded-full"
                   />
                   <span class="font-medium text-lime"
-                    >{getNetworkBalance("arbitrum")}</span
+                    >{$balance$.arbitrum.format({
+                      compactDisplay: "short",
+                      notation: "compact",
+                      maximumFractionDigits: 2,
+                    })}</span
                   >
                   <span>{tokenData.symbol}</span>
                 </div>
@@ -190,7 +194,11 @@
                     class="w-3 h-3 rounded-full"
                   />
                   <span class="font-medium text-lime"
-                    >{getNetworkBalance("ethereum")}</span
+                    >{$balance$.ethereum.format({
+                      compactDisplay: "short",
+                      notation: "compact",
+                      maximumFractionDigits: 2,
+                    })}</span
                   >
                   <span>{tokenData.symbol}</span>
                 </div>
