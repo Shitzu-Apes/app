@@ -19,6 +19,7 @@
     type Transfer,
   } from "omni-bridge-sdk";
   import { writable, get } from "svelte/store";
+  import { derived } from "svelte/store";
   import { slide } from "svelte/transition";
   import { match, P } from "ts-pattern";
 
@@ -717,23 +718,36 @@
     }
   }
 
-  // Add this with your other reactive declarations
+  // Create a derived store that combines all token balances
+  const tokenBalances$ = derived(
+    TOKEN_ENTRIES.map(([tokenId]) => balances$[tokenId]),
+    ($balances) => {
+      return TOKEN_ENTRIES.map(([tokenId], index) => {
+        const balance = $balances[index];
+        const decimals = TOKENS[tokenId].decimals.near ?? 24;
+        let total = new FixedNumber(0n, decimals);
+
+        if (balance.near) total = total.add(balance.near);
+        if (balance.solana) total = total.add(balance.solana);
+        if (balance.base) total = total.add(balance.base);
+        if (balance.arbitrum) total = total.add(balance.arbitrum);
+        if (balance.ethereum) total = total.add(balance.ethereum);
+
+        return {
+          tokenId,
+          balance: total,
+        };
+      });
+    },
+  );
+
+  // Add back availableBalance
   $: availableBalance = $currentBalance$;
 
-  // Add validation for NEAR token amount
-  $: {
-    if ($selectedToken$ === "NEAR" && $sourceNetwork$ === "near" && $amount$) {
-      const minNearBalance = new FixedNumber(100000000000000000000000n, 24); // 0.1 NEAR
-      const nearBalance = get(balances$["NEAR"]).near;
-
-      if (
-        nearBalance &&
-        $amount$.valueOf() > nearBalance.sub(minNearBalance).valueOf()
-      ) {
-        $amountValue$ = undefined;
-      }
-    }
-  }
+  // Fix selected token balance access
+  $: selectedTokenBalance =
+    $tokenBalances$.find((t) => t.tokenId === $selectedToken$)?.balance ??
+    new FixedNumber(0n, TOKENS[$selectedToken$].decimals.near ?? 24);
 
   // Close dropdown when clicking outside
   function handleClickOutside(_event: MouseEvent) {
@@ -789,9 +803,19 @@
               alt={TOKENS[$selectedToken$].symbol}
               class="w-8 h-8 rounded-full"
             />
-            <span class="text-sm font-medium"
-              >{TOKENS[$selectedToken$].symbol}</span
-            >
+            <div class="flex flex-col items-start">
+              <span class="text-sm font-medium"
+                >{TOKENS[$selectedToken$].symbol}</span
+              >
+              <span class="text-xs font-medium text-black/80">
+                {selectedTokenBalance.format({
+                  maximumSignificantDigits: 6,
+                  maximumFractionDigits: 4,
+                  notation: "compact",
+                  compactDisplay: "short",
+                })}
+              </span>
+            </div>
           </div>
           <div
             class="i-mdi:chevron-down text-xl transition-transform"
@@ -804,7 +828,7 @@
             class="absolute top-full left-0 right-0 mt-1 bg-black/90 backdrop-blur-sm border border-lime/20 rounded-xl py-2 z-20"
             transition:slide|local={{ duration: 200 }}
           >
-            {#each TOKEN_ENTRIES as [tokenId, token]}
+            {#each $tokenBalances$ as { tokenId, balance }}
               {#if tokenId !== $selectedToken$}
                 <button
                   class="w-full flex items-center gap-3 px-3 py-2 hover:bg-lime/10 transition-colors"
@@ -815,13 +839,23 @@
                   }}
                 >
                   <img
-                    src={token.icon}
-                    alt={token.symbol}
+                    src={TOKENS[tokenId].icon}
+                    alt={TOKENS[tokenId].symbol}
                     class="w-8 h-8 rounded-full"
                   />
-                  <span class="text-sm font-medium text-white"
-                    >{token.symbol}</span
-                  >
+                  <div class="flex flex-col items-start">
+                    <span class="text-sm font-medium text-white"
+                      >{TOKENS[tokenId].symbol}</span
+                    >
+                    <span class="text-xs text-lime/70">
+                      {balance.format({
+                        maximumSignificantDigits: 6,
+                        maximumFractionDigits: 4,
+                        notation: "compact",
+                        compactDisplay: "short",
+                      })}
+                    </span>
+                  </div>
                 </button>
               {/if}
             {/each}
