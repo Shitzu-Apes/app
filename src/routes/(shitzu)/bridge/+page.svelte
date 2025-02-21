@@ -92,6 +92,72 @@
 
   let isTokenDropdownOpen = false;
 
+  let nativeFee: bigint | undefined;
+  let usdFee: number | undefined;
+  let isFeeLoading = false;
+  let feeTimeout: ReturnType<typeof setTimeout>;
+
+  async function getFee() {
+    if (!$amount$ || !walletConnected) return;
+
+    isFeeLoading = true;
+    try {
+      const api = new OmniBridgeAPI({
+        baseUrl:
+          import.meta.env.VITE_NETWORK_ID === "mainnet"
+            ? "https://mainnet.api.bridge.nearone.org"
+            : "https://testnet.api.bridge.nearone.org",
+      });
+
+      const sender = match($sourceNetwork$)
+        .with("near", () => omniAddress(ChainKind.Near, $accountId$ ?? ""))
+        .with("solana", () => {
+          const publicKey = $publicKey$?.toBase58();
+          return publicKey ? omniAddress(ChainKind.Sol, publicKey) : undefined;
+        })
+        .with(P.union("base", "arbitrum", "ethereum"), () =>
+          $evmWallet$.status === "connected"
+            ? omniAddress(ChainKind.Base, $evmWallet$.address)
+            : undefined,
+        )
+        .exhaustive();
+
+      if (!sender) return;
+
+      const recipient = omniAddress(
+        match($destinationNetwork$)
+          .with("near", () => ChainKind.Near)
+          .with("solana", () => ChainKind.Sol)
+          .with("base", () => ChainKind.Base)
+          .with("arbitrum", () => ChainKind.Arb)
+          .with("ethereum", () => ChainKind.Eth)
+          .exhaustive(),
+        $recipientAddress$,
+      );
+
+      const tokenAddress = omniAddress(
+        match($sourceNetwork$)
+          .with("near", () => ChainKind.Near)
+          .with("solana", () => ChainKind.Sol)
+          .with("base", () => ChainKind.Base)
+          .with("arbitrum", () => ChainKind.Arb)
+          .with("ethereum", () => ChainKind.Eth)
+          .exhaustive(),
+        TOKENS[$selectedToken$].addresses[$sourceNetwork$] ?? "",
+      );
+
+      const fee = await api.getFee(sender, recipient, tokenAddress);
+      nativeFee = fee.native_token_fee ?? 0n;
+      usdFee = fee.usd_fee;
+    } catch (err) {
+      console.error("Failed to fetch fee:", err);
+      nativeFee = undefined;
+      usdFee = undefined;
+    } finally {
+      isFeeLoading = false;
+    }
+  }
+
   function handleSourceNetworkChange(network: Network) {
     if (network === $destinationNetwork$) {
       // If selecting same network as destination, swap them
@@ -675,6 +741,21 @@
       isTokenDropdownOpen = false;
     }
   }
+
+  // Add reactive statement to trigger fee fetch
+  $: {
+    if (
+      $amount$ &&
+      walletConnected &&
+      $sourceNetwork$ !== $destinationNetwork$ &&
+      isValidAddress($recipientAddress$, $destinationNetwork$)
+    ) {
+      clearTimeout(feeTimeout);
+      feeTimeout = setTimeout(getFee, 500);
+    } else {
+      nativeFee = undefined;
+    }
+  }
 </script>
 
 <div class="w-full">
@@ -893,25 +974,53 @@
         </div>
       </div>
 
-      <Button
-        onClick={handleBridge}
-        disabled={!needsWalletConnection && !canBridge}
-        class="w-full"
-      >
-        {#if needsWalletConnection}
-          Connect Wallet
-        {:else if !$amount$}
-          Enter Amount
-        {:else}
-          Bridge {$amount$.format({
-            compactDisplay: "short",
-            notation: "compact",
-            maximumFractionDigits: 4,
-            maximumSignificantDigits: 8,
-          })}
-          {TOKENS[$selectedToken$].symbol}
+      <div class="flex flex-col gap-2">
+        <Button
+          onClick={handleBridge}
+          disabled={!needsWalletConnection && !canBridge}
+          class="w-full"
+        >
+          {#if needsWalletConnection}
+            Connect Wallet
+          {:else if !$amount$}
+            Enter Amount
+          {:else}
+            Bridge {$amount$.format({
+              compactDisplay: "short",
+              notation: "compact",
+              maximumFractionDigits: 4,
+              maximumSignificantDigits: 8,
+            })}
+            {TOKENS[$selectedToken$].symbol}
+          {/if}
+        </Button>
+        {#if isFeeLoading}
+          <div class="text-center text-xs text-lime/70">Calculating fee...</div>
+        {:else if nativeFee !== undefined}
+          <div class="text-center text-xs text-lime/70">
+            Network fee: {new FixedNumber(
+              nativeFee,
+              match($sourceNetwork$)
+                .with("near", () => 24)
+                .with("solana", () => 9)
+                .with(P.union("base", "arbitrum", "ethereum"), () => 18)
+                .exhaustive(),
+            ).format({
+              maximumFractionDigits: 4,
+            })}
+            {$sourceNetwork$ === "near"
+              ? "NEAR"
+              : $sourceNetwork$ === "solana"
+                ? "SOL"
+                : "ETH"}
+            {#if usdFee !== undefined}
+              <span class="opacity-75">
+                (${usdFee.toFixed(2)})
+              </span>
+            {/if}
+          </div>
         {/if}
-      </Button>
+      </div>
     </div>
 
     <!-- Recent Transfers -->
