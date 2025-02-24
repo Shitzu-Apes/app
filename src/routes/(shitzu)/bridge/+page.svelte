@@ -24,6 +24,7 @@
   import { match, P } from "ts-pattern";
 
   import OmniBridgeSheet from "./OmniBridgeSheet.svelte";
+  import TokenInfo from "./TokenInfo.svelte";
   import TransferStatus from "./TransferStatus.svelte";
   import UserMenu from "./UserMenu.svelte";
   import { bridgePortfolio$, type TokenPortfolio } from "./portfolio";
@@ -93,6 +94,7 @@
   const selectedToken$ = writable<keyof typeof TOKENS>("NEAR");
 
   let isTokenDropdownOpen = false;
+  let isTokenInfoOpen = false;
 
   let nativeFee: bigint | undefined;
   let usdFee: number | undefined;
@@ -798,7 +800,17 @@
   >
     <!-- Token Selection -->
     <div class="flex flex-col gap-2 pb-4 border-b border-black">
-      <div class="text-lg font-bold">Select Token</div>
+      <div class="flex items-center justify-between">
+        <div class="text-lg font-bold">Select Token</div>
+        <button
+          class="text-lime hover:text-lime/80 transition-colors p-1.5 hover:bg-black/10 rounded-lg"
+          on:click={() => (isTokenInfoOpen = !isTokenInfoOpen)}
+        >
+          <div
+            class="i-mdi:information-slab-circle-outline size-6 text-black"
+          />
+        </button>
+      </div>
       <div class="relative">
         <button
           class="w-full flex items-center justify-between p-3 rounded-xl border border-black/20 hover:bg-black/10 transition-colors group"
@@ -923,6 +935,10 @@
           </div>
         {/if}
       </div>
+      <TokenInfo
+        token={TOKENS[$selectedToken$]}
+        bind:isOpen={isTokenInfoOpen}
+      />
     </div>
 
     <UserMenu token={$selectedToken$} tokenData={TOKENS[$selectedToken$]} />
