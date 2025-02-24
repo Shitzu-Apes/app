@@ -3,6 +3,7 @@ import type { FixedNumber } from "$lib/util";
 export interface Token {
   symbol: string;
   icon: string;
+  pool_id?: number; // Optional Pool ID for price calculation (only for tokens with NEAR pools)
   decimals: Record<Network, number | undefined>;
   addresses: Record<Network, string | `0x${string}` | undefined>;
 }

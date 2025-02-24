@@ -26,6 +26,7 @@
   import OmniBridgeSheet from "./OmniBridgeSheet.svelte";
   import TransferStatus from "./TransferStatus.svelte";
   import UserMenu from "./UserMenu.svelte";
+  import { bridgePortfolio$, type TokenPortfolio } from "./portfolio";
   import {
     updateTokenBalance,
     balances$,
@@ -97,6 +98,14 @@
   let usdFee: number | undefined;
   let isFeeLoading = false;
   let feeTimeout: ReturnType<typeof setTimeout>;
+
+  // Add helper function to get token price
+  function getTokenPrice(tokenId: keyof typeof TOKENS, prices: TokenPortfolio) {
+    const token = prices.tokens.find(
+      (t) => t.contract_id === TOKENS[tokenId].addresses.near,
+    );
+    return token?.price ?? null;
+  }
 
   async function getFee() {
     if (!$amount$ || !walletConnected) return;
@@ -807,14 +816,41 @@
               <span class="text-sm font-medium"
                 >{TOKENS[$selectedToken$].symbol}</span
               >
-              <span class="text-xs font-medium text-black/80">
-                {selectedTokenBalance.format({
-                  maximumSignificantDigits: 6,
-                  maximumFractionDigits: 4,
-                  notation: "compact",
-                  compactDisplay: "short",
-                })}
-              </span>
+              <div
+                class="flex items-center gap-1.5 text-xs font-medium text-black/80"
+              >
+                <span>
+                  {selectedTokenBalance.format({
+                    maximumSignificantDigits: 6,
+                    maximumFractionDigits: 4,
+                    notation: "compact",
+                    compactDisplay: "short",
+                  })}
+                </span>
+                {#if $bridgePortfolio$.prices && getTokenPrice($selectedToken$, $bridgePortfolio$.prices)}
+                  <span class="text-black/60">
+                    ($
+                    {new FixedNumber(
+                      BigInt(
+                        Math.floor(
+                          selectedTokenBalance.toNumber() *
+                            (getTokenPrice(
+                              $selectedToken$,
+                              $bridgePortfolio$.prices,
+                            ) ?? 0) *
+                            1e24,
+                        ),
+                      ),
+                      24,
+                    ).format({
+                      compactDisplay: "short",
+                      notation: "compact",
+                      maximumFractionDigits: 2,
+                      maximumSignificantDigits: 5,
+                    })})
+                  </span>
+                {/if}
+              </div>
             </div>
           </div>
           <div
@@ -847,14 +883,39 @@
                     <span class="text-sm font-medium text-white"
                       >{TOKENS[tokenId].symbol}</span
                     >
-                    <span class="text-xs text-lime/70">
-                      {balance.format({
-                        maximumSignificantDigits: 6,
-                        maximumFractionDigits: 4,
-                        notation: "compact",
-                        compactDisplay: "short",
-                      })}
-                    </span>
+                    <div class="flex items-center gap-1.5 text-xs text-lime/70">
+                      <span>
+                        {balance.format({
+                          maximumSignificantDigits: 6,
+                          maximumFractionDigits: 4,
+                          notation: "compact",
+                          compactDisplay: "short",
+                        })}
+                      </span>
+                      {#if $bridgePortfolio$.prices && getTokenPrice(tokenId, $bridgePortfolio$.prices)}
+                        <span class="opacity-75">
+                          ($
+                          {new FixedNumber(
+                            BigInt(
+                              Math.floor(
+                                balance.toNumber() *
+                                  (getTokenPrice(
+                                    tokenId,
+                                    $bridgePortfolio$.prices,
+                                  ) ?? 0) *
+                                  1e24,
+                              ),
+                            ),
+                            24,
+                          ).format({
+                            compactDisplay: "short",
+                            notation: "compact",
+                            maximumFractionDigits: 2,
+                            maximumSignificantDigits: 5,
+                          })})
+                        </span>
+                      {/if}
+                    </div>
                   </div>
                 </button>
               {/if}
@@ -921,7 +982,34 @@
       <!-- Amount -->
       <div class="flex flex-col gap-1">
         <div class="flex justify-between items-center text-sm text-lime">
-          <div>Amount</div>
+          <div class="flex items-center gap-2">
+            <span>Amount</span>
+            {#if $bridgePortfolio$.prices && getTokenPrice($selectedToken$, $bridgePortfolio$.prices)}
+              <span class="text-lime/70">
+                ≈ $
+                {$amount$
+                  ? new FixedNumber(
+                      BigInt(
+                        Math.floor(
+                          $amount$.toNumber() *
+                            (getTokenPrice(
+                              $selectedToken$,
+                              $bridgePortfolio$.prices,
+                            ) ?? 0) *
+                            1e24,
+                        ),
+                      ),
+                      24,
+                    ).format({
+                      compactDisplay: "short",
+                      notation: "compact",
+                      maximumFractionDigits: 2,
+                      maximumSignificantDigits: 5,
+                    })
+                  : "0.00"}
+              </span>
+            {/if}
+          </div>
           <div class="flex items-center gap-1">
             Available:
             {#if availableBalance.valueOf() > 0n}
