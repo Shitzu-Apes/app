@@ -24,7 +24,7 @@ import { solanaWallet } from "$lib/solana/wallet";
 import { FixedNumber } from "$lib/util";
 
 export type TokenLinks = {
-  buy: {
+  buy?: {
     url: string;
     icon?: string;
     colors?: {
@@ -33,11 +33,11 @@ export type TokenLinks = {
       text: string;
     };
   };
-  dexscreener: {
+  dexscreener?: {
     url: string;
     icon?: string;
   };
-  explorer: {
+  explorer?: {
     url: string;
     icon?: string;
   };
@@ -105,7 +105,7 @@ export const TOKENS = {
           },
         },
         dexscreener: {
-          url: "https://dexscreener.com/TODO",
+          url: "https://dexscreener.com/solana/gyyigqg8vdemkdnttvl6at2msbhdtdwyb6bccyr238u",
           icon: "/icons/dexscreener.svg",
         },
         explorer: {
@@ -155,19 +155,19 @@ export const TOKENS = {
         },
       },
       solana: {
-        buy: {
-          url: "https://raydium.io/swap/?outputMint=AFbJW5rdaGidnF6o8ZqTtkDBpq3fotSBdJN8fGRN3VRS",
-          icon: "/icons/raydium.svg",
-          colors: {
-            bg: "#070a15",
-            hover: "#0c1020",
-            text: "white",
-          },
-        },
-        dexscreener: {
-          url: "https://dexscreener.com/TODO",
-          icon: "/icons/dexscreener.svg",
-        },
+        // buy: {
+        //   url: "https://raydium.io/swap/?outputMint=AFbJW5rdaGidnF6o8ZqTtkDBpq3fotSBdJN8fGRN3VRS",
+        //   icon: "/icons/raydium.svg",
+        //   colors: {
+        //     bg: "#070a15",
+        //     hover: "#0c1020",
+        //     text: "white",
+        //   },
+        // },
+        // dexscreener: {
+        //   url: "https://dexscreener.com/TODO",
+        //   icon: "/icons/dexscreener.svg",
+        // },
         explorer: {
           url: "https://solscan.io/token/AFbJW5rdaGidnF6o8ZqTtkDBpq3fotSBdJN8fGRN3VRS",
           icon: "/icons/solscan.webp",
@@ -234,19 +234,19 @@ export const TOKENS = {
         },
       },
       solana: {
-        buy: {
-          url: "https://raydium.io/swap/?outputMint=BAop4gZwr5JXGLLJXdt1jiLqzX7fxif7FTAEimntJMMS",
-          icon: "/icons/raydium.svg",
-          colors: {
-            bg: "#070a15",
-            hover: "#0c1020",
-            text: "white",
-          },
-        },
-        dexscreener: {
-          url: "https://dexscreener.com/TODO",
-          icon: "/icons/dexscreener.svg",
-        },
+        // buy: {
+        //   url: "https://raydium.io/swap/?outputMint=BAop4gZwr5JXGLLJXdt1jiLqzX7fxif7FTAEimntJMMS",
+        //   icon: "/icons/raydium.svg",
+        //   colors: {
+        //     bg: "#070a15",
+        //     hover: "#0c1020",
+        //     text: "white",
+        //   },
+        // },
+        // dexscreener: {
+        //   url: "https://dexscreener.com/TODO",
+        //   icon: "/icons/dexscreener.svg",
+        // },
         explorer: {
           url: "https://solscan.io/token/BAop4gZwr5JXGLLJXdt1jiLqzX7fxif7FTAEimntJMMS",
           icon: "/icons/solscan.webp",
@@ -273,124 +273,124 @@ export const TOKENS = {
       // },
     },
   },
-  // PURGE: {
-  //   symbol: "PURGE",
-  //   icon: "data:image/png;base64,UklGRrIDAABXRUJQVlA4IKYDAAAwGACdASpgAGAAP7G6zmc8ryknvH94A5A2CWoAzkCCqaGFPaS9yv83xxkQvw+Konsv/3wkCUUQ1Oq2Qz9qOOkUY1hDSymYmVqiZagBtpTgBjSXnvmiIWVEkKtAewltk9gBFQ6x5KBAnSChG+08xYO4vyI2YizvPlNVV2Z5ypjEyb8YWAHmL/fHe4LBHR7y8u6lcrQ9v7tj92poQcgjyrtb8Ejwv0VtC51uD3geQjzhIi2RVOM2qzWb+DyZ6RPRrMkJKdLFKUDPMJNAAPJv5vhOy7BgcCIMMJ1XglA8W3PstAv/VFDmqQSf03x6lmEw7drRJkAkEZS1o1Zxi7vuxWme5dlaFsep8L93ni75ZuC1ac5zBIXVzqkwXj1Y5rAah85aVfbUVN0ZSqv5RroDzs1MpiZ33/eqXG+udld11eDn4vxkjCDziWOa0JwTTpXYpwRGIFwGCwka81dIvk1w8SM7BbS0ad83FcM32tBX9CfS1CIu3xkT8UFENC9BpdZiosh6aLBBNFZJRAEcFBF9cuV2vMxzzmDEDm8nzZ76nyZSVgD+r2CP6DwWqABDqUwX48V2tpjvD7BgGSwsCjKCTTzYdBuWTXOMwz53jD2M6kN6bUr4e6ICJgv4GygYwCTs4lWdn5LXyMaDEQiUGn2V3T/KTMlzGpd9sRQyguh6RuYArudcezBDrN8lbmTrFFe2eGR7qEdySQn/lJg5Z5gkphPICr1KkZSepuAeF21pT5jAcB6MS/0KU7N/ahGT3od/0TGzW+0GGpoVWmbaxupLdGFAHfHhvrLl8T3XyuxUkl8mkFv6JFvPVwomr4yv0GVgg7CcOxBHhJKMbRl7VqWORgeyfEzPpSiv87l6326/Txg/emIFICrtnOcXcr46GBT/jNdDgdlsMOHD6QiArvwtrUrcJTyv3gzyrO4MfSuwJTgeTYSDud8rH+Fyh2qDhKumJjVcI3kS5r1tTMi/9XF8y1uFGYLPkG/Ra/eYEGug5YFR+9hIlnHTmusGOyPdhCSnO4eXz3hDtGLTIpaqhaMmhopxRNdneBhSnPSIGgL1r4B1jG760bJqMCCcNNNNl6Hh6cuNQaoGnwlZ6vsXe26i89ALMz4TZk/R6MvVbGAP/6tdGIPdB7WQa8bBg3/CxmnfKnMGwjbk/iXNOSsmjGYkKWEmsY9RIrKaGTAibzrCnC32H3Y9HedSxq67ACnzFPVEbKP2O/2Z5p4S+ro6rLuHAdETfSIGcAAA",
-  //   pool_id: 5650,
-  //   decimals: {
-  //     near: 18,
-  //     solana: 9,
-  //     base: 18,
-  //     arbitrum: undefined,
-  //     ethereum: undefined,
-  //   },
-  //   addresses: {
-  //     near: "purge-558.meme-cooking.near",
-  //     solana: "GqcYoMUr1x4N3kU7ViFd3T3EUx3C2cWKRdWFjYxSkKuh",
-  //     base: undefined,
-  //     arbitrum: undefined,
-  //     ethereum: undefined,
-  //   },
-  //   links: {
-  //     near: {
-  //       buy: {
-  //         url: "https://meme.cooking/meme/558",
-  //         icon: "https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/bc9e35fda8a41fe263afbcc802d60d5ee23ad2ad/logo/meme-cooking.webp",
-  //         colors: {
-  //           bg: "#72E3B6",
-  //           hover: "#5ED3A2",
-  //           text: "black",
-  //         },
-  //       },
-  //       dexscreener: {
-  //         url: "https://dexscreener.com/near/refv1-5650",
-  //         icon: "/icons/dexscreener.svg",
-  //       },
-  //       explorer: {
-  //         url: "https://nearblocks.io/token/purge-558.meme-cooking.near",
-  //         icon: "/nearblocks.webp",
-  //       },
-  //     },
-  //     solana: {
-  //       buy: {
-  //         url: "https://raydium.io/swap/?outputMint=GqcYoMUr1x4N3kU7ViFd3T3EUx3C2cWKRdWFjYxSkKuh",
-  //         icon: "/icons/raydium.svg",
-  //         colors: {
-  //           bg: "#070a15",
-  //           hover: "#0c1020",
-  //           text: "white",
-  //         },
-  //       },
-  //       dexscreener: {
-  //         url: "https://dexscreener.com/TODO",
-  //         icon: "/icons/dexscreener.svg",
-  //       },
-  //       explorer: {
-  //         url: "https://solscan.io/token/GqcYoMUr1x4N3kU7ViFd3T3EUx3C2cWKRdWFjYxSkKuh",
-  //         icon: "/icons/solscan.webp",
-  //       },
-  //     },
-  //   },
-  // },
-  // POPPY: {
-  //   symbol: "POPPY",
-  //   icon: "data:image/png;base64,UklGRsIBAABXRUJQVlA4ILYBAACQEACdASpgAGAAP9He32i/tyyqrxWso/A6CWprT1munruBHK8u+8/fIKG0m1o1w/BsZyyOgLlvXaMAwowjJplr35mMUTkXgUF6qX2BJUkAJ4Gj1J34d89V5Ye83TDzqx3rZeLzPLx0O6DZL4TwxoTC0CCFb6hYvEwtPdSUgZEpXyEw+BwFUBF08y+mCAAA/uey2FccYHRrQqh8eiAjTppIkNC9X7/2xn0VjV5giDFahkLP2xVHBj7N09m5BsWT7C4cJ6y3KaGG7PitSuCWsFVqcdIxowtjVCj2ND6oj20BB81uQZXG2PSpL4qCzWCUUqeEJDF2CBZnUYEbhkRMA7kIUua/kQ5PzGq/tiIwFaII7kUUaPASlkJr5wpd6b45Iw1e9+Fhjtl2+yFXiqADbZFtQlWWuS7P9e+acQvK4FxwMJSR9ueqOpR1ckRdwCXsNwTP9zjOo4u7DolJBKl6NUdbO8RNXoTGUoaCX9F7kLSzWY/vZ9gKrT2iAjvsITFFd50bCg3FwpNBbTMA3qYM4zk+Qb+B8bFcIUXWz3/J45Imq9sT1QEdqy9y25APrzL6lMQzrLAZAAA=",
-  //   pool_id: 5404,
-  //   decimals: {
-  //     near: 18,
-  //     solana: 9,
-  //     base: 18,
-  //     arbitrum: undefined,
-  //     ethereum: undefined,
-  //   },
-  //   addresses: {
-  //     near: "poppy-0.meme-cooking-test.near",
-  //     solana: "BdipjVpXcdamuEGkuvEkhebq8YortkswCVU2wuXncudb",
-  //     base: undefined,
-  //     arbitrum: undefined,
-  //     ethereum: undefined,
-  //   },
-  //   links: {
-  //     near: {
-  //       buy: {
-  //         url: "https://meme.cooking/meme/0",
-  //         icon: "https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/bc9e35fda8a41fe263afbcc802d60d5ee23ad2ad/logo/meme-cooking.webp",
-  //         colors: {
-  //           bg: "#72E3B6",
-  //           hover: "#5ED3A2",
-  //           text: "black",
-  //         },
-  //       },
-  //       dexscreener: {
-  //         url: "https://dexscreener.com/near/refv1-5404",
-  //         icon: "/icons/dexscreener.svg",
-  //       },
-  //       explorer: {
-  //         url: "https://nearblocks.io/token/poppy-0.meme-cooking-test.near",
-  //         icon: "/icons/nearblocks.webp",
-  //       },
-  //     },
-  //     solana: {
-  //       buy: {
-  //         url: "https://raydium.io/swap/?outputMint=BdipjVpXcdamuEGkuvEkhebq8YortkswCVU2wuXncudb",
-  //         icon: "/icons/raydium.svg",
-  //         colors: {
-  //           bg: "#070a15",
-  //           hover: "#0c1020",
-  //           text: "white",
-  //         },
-  //       },
-  //       dexscreener: {
-  //         url: "https://dexscreener.com/TODO",
-  //         icon: "/icons/dexscreener.svg",
-  //       },
-  //       explorer: {
-  //         url: "https://solscan.io/token/BdipjVpXcdamuEGkuvEkhebq8YortkswCVU2wuXncudb",
-  //         icon: "/icons/solscan.webp",
-  //       },
-  //     },
-  //   },
-  // },
+  PURGE: {
+    symbol: "PURGE",
+    icon: "data:image/png;base64,UklGRrIDAABXRUJQVlA4IKYDAAAwGACdASpgAGAAP7G6zmc8ryknvH94A5A2CWoAzkCCqaGFPaS9yv83xxkQvw+Konsv/3wkCUUQ1Oq2Qz9qOOkUY1hDSymYmVqiZagBtpTgBjSXnvmiIWVEkKtAewltk9gBFQ6x5KBAnSChG+08xYO4vyI2YizvPlNVV2Z5ypjEyb8YWAHmL/fHe4LBHR7y8u6lcrQ9v7tj92poQcgjyrtb8Ejwv0VtC51uD3geQjzhIi2RVOM2qzWb+DyZ6RPRrMkJKdLFKUDPMJNAAPJv5vhOy7BgcCIMMJ1XglA8W3PstAv/VFDmqQSf03x6lmEw7drRJkAkEZS1o1Zxi7vuxWme5dlaFsep8L93ni75ZuC1ac5zBIXVzqkwXj1Y5rAah85aVfbUVN0ZSqv5RroDzs1MpiZ33/eqXG+udld11eDn4vxkjCDziWOa0JwTTpXYpwRGIFwGCwka81dIvk1w8SM7BbS0ad83FcM32tBX9CfS1CIu3xkT8UFENC9BpdZiosh6aLBBNFZJRAEcFBF9cuV2vMxzzmDEDm8nzZ76nyZSVgD+r2CP6DwWqABDqUwX48V2tpjvD7BgGSwsCjKCTTzYdBuWTXOMwz53jD2M6kN6bUr4e6ICJgv4GygYwCTs4lWdn5LXyMaDEQiUGn2V3T/KTMlzGpd9sRQyguh6RuYArudcezBDrN8lbmTrFFe2eGR7qEdySQn/lJg5Z5gkphPICr1KkZSepuAeF21pT5jAcB6MS/0KU7N/ahGT3od/0TGzW+0GGpoVWmbaxupLdGFAHfHhvrLl8T3XyuxUkl8mkFv6JFvPVwomr4yv0GVgg7CcOxBHhJKMbRl7VqWORgeyfEzPpSiv87l6326/Txg/emIFICrtnOcXcr46GBT/jNdDgdlsMOHD6QiArvwtrUrcJTyv3gzyrO4MfSuwJTgeTYSDud8rH+Fyh2qDhKumJjVcI3kS5r1tTMi/9XF8y1uFGYLPkG/Ra/eYEGug5YFR+9hIlnHTmusGOyPdhCSnO4eXz3hDtGLTIpaqhaMmhopxRNdneBhSnPSIGgL1r4B1jG760bJqMCCcNNNNl6Hh6cuNQaoGnwlZ6vsXe26i89ALMz4TZk/R6MvVbGAP/6tdGIPdB7WQa8bBg3/CxmnfKnMGwjbk/iXNOSsmjGYkKWEmsY9RIrKaGTAibzrCnC32H3Y9HedSxq67ACnzFPVEbKP2O/2Z5p4S+ro6rLuHAdETfSIGcAAA",
+    pool_id: 5650,
+    decimals: {
+      near: 18,
+      solana: 9,
+      base: 18,
+      arbitrum: undefined,
+      ethereum: undefined,
+    },
+    addresses: {
+      near: "purge-558.meme-cooking.near",
+      solana: "GqcYoMUr1x4N3kU7ViFd3T3EUx3C2cWKRdWFjYxSkKuh",
+      base: undefined,
+      arbitrum: undefined,
+      ethereum: undefined,
+    },
+    links: {
+      near: {
+        buy: {
+          url: "https://meme.cooking/meme/558",
+          icon: "https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/bc9e35fda8a41fe263afbcc802d60d5ee23ad2ad/logo/meme-cooking.webp",
+          colors: {
+            bg: "#72E3B6",
+            hover: "#5ED3A2",
+            text: "black",
+          },
+        },
+        dexscreener: {
+          url: "https://dexscreener.com/near/refv1-5650",
+          icon: "/icons/dexscreener.svg",
+        },
+        explorer: {
+          url: "https://nearblocks.io/token/purge-558.meme-cooking.near",
+          icon: "/nearblocks.webp",
+        },
+      },
+      solana: {
+        // buy: {
+        //   url: "https://raydium.io/swap/?outputMint=GqcYoMUr1x4N3kU7ViFd3T3EUx3C2cWKRdWFjYxSkKuh",
+        //   icon: "/icons/raydium.svg",
+        //   colors: {
+        //     bg: "#070a15",
+        //     hover: "#0c1020",
+        //     text: "white",
+        //   },
+        // },
+        // dexscreener: {
+        //   url: "https://dexscreener.com/TODO",
+        //   icon: "/icons/dexscreener.svg",
+        // },
+        explorer: {
+          url: "https://solscan.io/token/GqcYoMUr1x4N3kU7ViFd3T3EUx3C2cWKRdWFjYxSkKuh",
+          icon: "/icons/solscan.webp",
+        },
+      },
+    },
+  },
+  POPPY: {
+    symbol: "POPPY",
+    icon: "data:image/png;base64,UklGRsIBAABXRUJQVlA4ILYBAACQEACdASpgAGAAP9He32i/tyyqrxWso/A6CWprT1munruBHK8u+8/fIKG0m1o1w/BsZyyOgLlvXaMAwowjJplr35mMUTkXgUF6qX2BJUkAJ4Gj1J34d89V5Ye83TDzqx3rZeLzPLx0O6DZL4TwxoTC0CCFb6hYvEwtPdSUgZEpXyEw+BwFUBF08y+mCAAA/uey2FccYHRrQqh8eiAjTppIkNC9X7/2xn0VjV5giDFahkLP2xVHBj7N09m5BsWT7C4cJ6y3KaGG7PitSuCWsFVqcdIxowtjVCj2ND6oj20BB81uQZXG2PSpL4qCzWCUUqeEJDF2CBZnUYEbhkRMA7kIUua/kQ5PzGq/tiIwFaII7kUUaPASlkJr5wpd6b45Iw1e9+Fhjtl2+yFXiqADbZFtQlWWuS7P9e+acQvK4FxwMJSR9ueqOpR1ckRdwCXsNwTP9zjOo4u7DolJBKl6NUdbO8RNXoTGUoaCX9F7kLSzWY/vZ9gKrT2iAjvsITFFd50bCg3FwpNBbTMA3qYM4zk+Qb+B8bFcIUXWz3/J45Imq9sT1QEdqy9y25APrzL6lMQzrLAZAAA=",
+    pool_id: 5404,
+    decimals: {
+      near: 18,
+      solana: 9,
+      base: 18,
+      arbitrum: undefined,
+      ethereum: undefined,
+    },
+    addresses: {
+      near: "poppy-0.meme-cooking-test.near",
+      solana: "BdipjVpXcdamuEGkuvEkhebq8YortkswCVU2wuXncudb",
+      base: undefined,
+      arbitrum: undefined,
+      ethereum: undefined,
+    },
+    links: {
+      near: {
+        buy: {
+          url: "https://meme.cooking/meme/0",
+          icon: "https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/bc9e35fda8a41fe263afbcc802d60d5ee23ad2ad/logo/meme-cooking.webp",
+          colors: {
+            bg: "#72E3B6",
+            hover: "#5ED3A2",
+            text: "black",
+          },
+        },
+        dexscreener: {
+          url: "https://dexscreener.com/near/refv1-5404",
+          icon: "/icons/dexscreener.svg",
+        },
+        explorer: {
+          url: "https://nearblocks.io/token/poppy-0.meme-cooking-test.near",
+          icon: "/icons/nearblocks.webp",
+        },
+      },
+      solana: {
+        // buy: {
+        //   url: "https://raydium.io/swap/?outputMint=BdipjVpXcdamuEGkuvEkhebq8YortkswCVU2wuXncudb",
+        //   icon: "/icons/raydium.svg",
+        //   colors: {
+        //     bg: "#070a15",
+        //     hover: "#0c1020",
+        //     text: "white",
+        //   },
+        // },
+        // dexscreener: {
+        //   url: "https://dexscreener.com/TODO",
+        //   icon: "/icons/dexscreener.svg",
+        // },
+        explorer: {
+          url: "https://solscan.io/token/BdipjVpXcdamuEGkuvEkhebq8YortkswCVU2wuXncudb",
+          icon: "/icons/solscan.webp",
+        },
+      },
+    },
+  },
 } as const satisfies Record<string, Token>;
 
 export const TOKEN_ENTRIES = Object.entries(TOKENS) as [
@@ -402,8 +402,8 @@ export const balances$: Record<keyof typeof TOKENS, Writable<Balance>> = {
   NEAR: writable<Balance>({}),
   SHITZU: writable<Balance>({}),
   JLU: writable<Balance>({}),
-  // PURGE: writable<Balance>({}),
-  // POPPY: writable<Balance>({}),
+  PURGE: writable<Balance>({}),
+  POPPY: writable<Balance>({}),
 };
 
 async function fetchNearBalance(
