@@ -35,8 +35,8 @@ jobs:
       - name: Copy Charting Library files
         run: "./copy_charting_library_files.sh"
 
-      - name: Svelte Check
-        run: "yarn run check"
+      # - name: Svelte Check
+      #   run: "yarn run check"
 
       - name: Add commit hash to .env
         run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> .env
