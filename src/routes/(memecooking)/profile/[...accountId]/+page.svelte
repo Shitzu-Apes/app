@@ -5,6 +5,7 @@
 
   import { page } from "$app/stores";
   import { useAccountBalanceQuery, useMcAccountQuery } from "$lib/api/queries";
+  import { type McAccount } from "$lib/api/queries/memecooking";
   import { usePortfolioQuery } from "$lib/api/queries/portfolio";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import FormatNumber from "$lib/components/FormatNumber.svelte";
@@ -15,7 +16,6 @@
   import MemeList from "$lib/components/memecooking/Profile/MemeList.svelte";
   import Revenue from "$lib/components/memecooking/Profile/Revenue.svelte";
   import { nearWallet } from "$lib/near";
-  import { type McAccount } from "$lib/near/memecooking";
   import { fetchBlockHeight } from "$lib/near/rpc";
   import { FixedNumber } from "$lib/util";
   import { nearPrice } from "$lib/util/projectedMCap";
