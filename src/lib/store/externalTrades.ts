@@ -19,11 +19,15 @@ const callbacks: Map<string | symbol, (data: ExternalTrade) => void> =
   new Map();
 
 export function initializeExternalWebsocket() {
-  const ws = new WebSocket("wss://ws-events.intear.tech/events/trade_swap");
+  const ws = new WebSocket("wss://ws-events-v3.intear.tech/events/trade_swap");
 
   ws.onopen = () => {
     console.log("[ExternalWebsocket] WebSocket connected");
-    ws.send("{}");
+    ws.send(
+      JSON.stringify({
+        And: [],
+      }),
+    );
   };
 
   ws.onerror = (error) => {
@@ -32,9 +36,11 @@ export function initializeExternalWebsocket() {
 
   ws.onmessage = (event) => {
     try {
-      const data = ExternalTradeSchema.parse(JSON.parse(event.data));
-      callbacks.forEach((callback) => {
-        callback(data);
+      const data = ExternalTradeSchema.array().parse(JSON.parse(event.data));
+      data.forEach((trade) => {
+        callbacks.forEach((callback) => {
+          callback(trade);
+        });
       });
     } catch (error) {
       console.error("[ExternalWebsocket] Error parsing message:", error);
