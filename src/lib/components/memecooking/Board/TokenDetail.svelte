@@ -85,7 +85,7 @@
                 {:else if $poolStatQuery.isError}
                   Error
                 {:else if $poolStatQuery.data}
-                  ${$poolStatQuery.data.mcap.format({
+                  ${$poolStatQuery.data.mcap.usd.format({
                     maximumFractionDigits: 3,
                     notation: "compact",
                   })}
@@ -109,7 +109,7 @@
                 {:else if $poolStatQuery.isError}
                   Error
                 {:else if $poolStatQuery.data}
-                  ${$poolStatQuery.data.liquidity.format({
+                  ${$poolStatQuery.data.liquidity.usd.format({
                     maximumFractionDigits: 3,
                     notation: "compact",
                   })}

@@ -1,10 +1,8 @@
 <script lang="ts">
   import { useMemeStatsQuery } from "$lib/api/queries/memeStats";
   import type { Meme } from "$lib/models/memecooking";
-  import type { FixedNumber } from "$lib/util";
 
   export let memebid: Meme;
-  export let nearPrice: FixedNumber;
 
   const statsQuery = useMemeStatsQuery(memebid.meme_id);
 </script>
@@ -19,7 +17,7 @@
         <div class="i-mdi:alert-circle text-rose-4" />
         {$statsQuery.error}
       {:else if $statsQuery.data}
-        ${$statsQuery.data.mcap.mul(nearPrice).format({
+        ${$statsQuery.data.mcap.usd.format({
           maximumFractionDigits: 3,
           notation: "compact",
         })}
@@ -34,7 +32,7 @@
       {:else if $statsQuery.isError}
         <div class="i-mdi:alert-circle text-rose-4" />
       {:else if $statsQuery.data}
-        ${$statsQuery.data.liquidity.mul(nearPrice).format({
+        ${$statsQuery.data.liquidity.usd.format({
           maximumFractionDigits: 3,
           notation: "compact",
         })}

@@ -3,6 +3,7 @@
   import type { Meme } from "$lib/models/memecooking";
 
   export let meme: Meme;
+
   const poolStatQuery = useMemeStatsQuery(meme.meme_id);
 </script>
 
@@ -15,7 +16,7 @@
       {:else if $poolStatQuery.isError}
         <div class="i-mdi:alert-circle text-rose-4" />
       {:else if $poolStatQuery.data}
-        ${$poolStatQuery.data.liquidity.format({
+        ${$poolStatQuery.data.liquidity.usd.format({
           maximumFractionDigits: 3,
           notation: "compact",
         })}
@@ -32,7 +33,7 @@
       {:else if $poolStatQuery.isError}
         <div class="i-mdi:alert-circle text-rose-4" />
       {:else if $poolStatQuery.data}
-        ${$poolStatQuery.data.mcap.format({
+        ${$poolStatQuery.data.mcap.usd.format({
           maximumFractionDigits: 3,
           notation: "compact",
         })}

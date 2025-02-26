@@ -130,7 +130,7 @@
           {:else if $nearPriceQuery.status === "error"}
             <div class="i-mdi:alert-circle text-rose-4" />
           {:else}
-            <MemePreviewStats {memebid} nearPrice={$nearPriceQuery.data} />
+            <MemePreviewStats {memebid} />
           {/if}
 
           <div class="flex flex-col">
