@@ -1,3 +1,17 @@
+<script lang="ts" context="module">
+  export type Notification = {
+    id: string;
+    meme_id: string;
+    amount: string;
+    decimals: number;
+    is_deposit: boolean;
+    is_mc: boolean;
+    party: string;
+    ticker: string;
+    icon: string;
+  };
+</script>
+
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
   import { slide } from "svelte/transition";
@@ -12,18 +26,6 @@
   import { MCTradeSubscribe, MCunsubscribe } from "$lib/store/MCWebSocket";
   import { EXTTradeSubscribe, EXTunsubscribe } from "$lib/store/externalTrades";
   import { FixedNumber } from "$lib/util";
-
-  type Notification = {
-    id: string;
-    meme_id: string;
-    amount: string;
-    decimals: number;
-    is_deposit: boolean;
-    is_mc: boolean;
-    party: string;
-    ticker: string;
-    icon: string;
-  };
 
   let notifications: Notification[] = [];
 

@@ -6,6 +6,7 @@ import { client, type Meme } from "../client";
 
 import { queryClient } from ".";
 
+import type { Notification } from "$lib/components/memecooking/Notification/Notification.svelte";
 import { EXTERNAL_MEMES } from "$lib/external_memes";
 import type { McAccount } from "$lib/near/memecooking";
 
@@ -18,7 +19,27 @@ export const memesQueryFactory = createQueryKeyStore({
         if (!res.data) {
           throw new Error("No memes found");
         }
-        return [...res.data, ...EXTERNAL_MEMES];
+
+        const loadedNotifications = JSON.parse(
+          localStorage.getItem("notifications") || "[]",
+        );
+
+        const uniqueMemeIds = new Set(
+          loadedNotifications.map((n: Notification) => n.meme_id),
+        );
+
+        const memes = [...res.data, ...EXTERNAL_MEMES];
+
+        // assign last_updated to each meme
+        memes.forEach((meme) => {
+          meme.last_change_ms = uniqueMemeIds.has(
+            String(meme.meme_id) || meme.token_id,
+          )
+            ? new Date().getTime()
+            : null;
+        });
+
+        return memes;
       },
     }),
     detail: (memeId: string) => ({
