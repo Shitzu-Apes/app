@@ -1,11 +1,9 @@
-import { get, writable } from "svelte/store";
+import { writable } from "svelte/store";
 
 import type { Meme, Trade } from "$lib/api/client";
-import {
-  bumpMeme,
-  memeMap$,
-  processTradeAndUpdateMemebids,
-} from "$lib/store/memebids";
+import { queryClient } from "$lib/api/queries";
+import { memesQueryFactory } from "$lib/api/queries/memes";
+import { bumpMeme, processTradeAndUpdateMemebids } from "$lib/store/memebids";
 
 type LiveData =
   | {
@@ -47,13 +45,16 @@ export function MCTradeSubscribe(
   const cb = async (data: LiveData) => {
     if (data.action === "new_trade") {
       const trade: Trade = data.data;
-      const meme = get(memeMap$).get(trade.meme_id);
-      if (meme) {
-        callback({
-          ...meme,
-          ...trade,
-        });
-      }
+      const memes = queryClient.getQueryData<Meme[]>(
+        memesQueryFactory.memes.all().queryKey,
+      );
+      if (!memes) return;
+      const meme = memes.find((m) => m.meme_id === trade.meme_id);
+      if (!meme) return;
+      callback({
+        ...meme,
+        ...trade,
+      });
     }
   };
   callbacks.set(id, cb);

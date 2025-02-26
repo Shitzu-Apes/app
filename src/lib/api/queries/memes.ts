@@ -106,6 +106,7 @@ export function useMemeDetailQuery(memeId: number) {
       return { meme };
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: true,
   });
 }
 

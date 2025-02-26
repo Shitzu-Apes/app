@@ -44,14 +44,14 @@ const MemeCookingDataFeed: IBasicDataFeed = {
     onResolveErrorCallback,
   ) => {
     try {
-      const cache = queryClient.getQueryCache();
-      const memeCache = cache.find(memesQueryFactory.memes.detail(meme_id))
-        ?.state.data as { meme: Meme } | null;
-      console.log("[resolveSymbol]: Meme", memeCache);
-      if (!memeCache) {
+      const data = queryClient.getQueryData(
+        memesQueryFactory.memes.detail(meme_id.toString()).queryKey,
+      ) as { meme: Meme } | undefined;
+      console.log("[resolveSymbol]: Meme", data);
+      if (!data) {
         throw new Error("Symbol not found");
       }
-      const meme = memeCache.meme;
+      const meme = data.meme;
 
       const symbolInfo: LibrarySymbolInfo = {
         ticker: meme.symbol,
