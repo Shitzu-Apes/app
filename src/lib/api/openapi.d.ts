@@ -4,1169 +4,1092 @@
  */
 
 export interface paths {
-    "/info": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Returns latest indexed block height */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description latest indexed block height */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            last_block_height: number;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  "/info": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/info/daily-stats": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Returns daily statistics about memes */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
+    /** @description Returns latest indexed block height */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description latest indexed block height */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              last_block_height: number;
             };
-            requestBody?: never;
-            responses: {
-                /** @description Statistics about memes */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            date: string;
-                            total_memes: number;
-                            total_launched_memes: number;
-                            total_finalized_memes: number;
-                            last_change_ms: number | null;
-                        }[];
-                    };
-                };
-            };
+          };
         };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+      };
     };
-    "/info/daily-token-stats": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Returns daily statistics about memes */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Statistics about memes */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            date: string;
-                            token_id: string;
-                            total_volume?: string | null;
-                            total_deposits?: string | null;
-                            total_withdrawals?: string | null;
-                            total_protocol_fees?: string | null;
-                            total_referral_fees?: string | null;
-                            total_withdraw_fees?: string | null;
-                            last_change_ms: number | null;
-                        }[];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/info/daily-stats": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/meme": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    /** @description Returns daily statistics about memes */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Statistics about memes */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              date: string;
+              total_memes: number;
+              total_launched_memes: number;
+              total_finalized_memes: number;
+              last_change_ms: number | null;
+            }[];
+          };
         };
-        /** @description Returns all meme token launches */
-        get: {
-            parameters: {
-                query?: {
-                    order_by?: "last_change_ms" | "meme_id" | "end_timestamp_ms" | "created_blockheight" | "total_deposit" | "total_deposit_fees" | "total_withdraw_fees";
-                    order_by_direction?: "asc" | "desc";
-                    is_finalized?: boolean | null;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description meme token launches */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            meme_id: number;
-                            owner: string;
-                            end_timestamp_ms: number | null;
-                            name: string;
-                            symbol: string;
-                            decimals: number;
-                            total_supply?: string | null;
-                            reference: string;
-                            reference_hash: string;
-                            deposit_token_id: string;
-                            soft_cap?: string | null;
-                            hard_cap?: string | null;
-                            last_change_ms: number | null;
-                            team_allocation?: string | null;
-                            vesting_duration_ms?: unknown;
-                            cliff_duration_ms?: unknown;
-                            created_blockheight?: string | null;
-                            created_timestamp_ms: number | null;
-                            total_deposit?: string | null;
-                            total_deposit_fees?: string | null;
-                            total_withdraw_fees?: string | null;
-                            is_finalized: boolean;
-                            token_id?: string | null;
-                            pool_id?: number | null;
-                            description?: string | null;
-                            twitter_link?: string | null;
-                            telegram_link?: string | null;
-                            website?: string | null;
-                            image?: string | null;
-                            /** @default false */
-                            twitter_verified: boolean;
-                            twitter_user_id?: string | null;
-                            twitter_username?: string | null;
-                            /** @default 0 */
-                            flag_count: number;
-                            replies_count: number | null;
-                            staker_count: number | null;
-                        }[];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+      };
     };
-    "/meme/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Returns a meme token launch by id */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description meme token launch by id */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            meme: {
-                                meme_id: number;
-                                owner: string;
-                                end_timestamp_ms: number | null;
-                                name: string;
-                                symbol: string;
-                                decimals: number;
-                                total_supply?: string | null;
-                                reference: string;
-                                reference_hash: string;
-                                deposit_token_id: string;
-                                soft_cap?: string | null;
-                                hard_cap?: string | null;
-                                last_change_ms: number | null;
-                                team_allocation?: string | null;
-                                vesting_duration_ms?: unknown;
-                                cliff_duration_ms?: unknown;
-                                created_blockheight?: string | null;
-                                created_timestamp_ms: number | null;
-                                total_deposit?: string | null;
-                                total_deposit_fees?: string | null;
-                                total_withdraw_fees?: string | null;
-                                is_finalized: boolean;
-                                token_id?: string | null;
-                                pool_id?: number | null;
-                                description?: string | null;
-                                twitter_link?: string | null;
-                                telegram_link?: string | null;
-                                website?: string | null;
-                                image?: string | null;
-                                /** @default false */
-                                twitter_verified: boolean;
-                                twitter_user_id?: string | null;
-                                twitter_username?: string | null;
-                                /** @default 0 */
-                                flag_count: number;
-                                replies_count: number | null;
-                                staker_count: number | null;
-                            };
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/info/daily-token-stats": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/meme/paginated": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    /** @description Returns daily statistics about memes */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Statistics about memes */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              date: string;
+              token_id: string;
+              total_volume?: string | null;
+              total_deposits?: string | null;
+              total_withdrawals?: string | null;
+              total_protocol_fees?: string | null;
+              total_referral_fees?: string | null;
+              total_withdraw_fees?: string | null;
+              last_change_ms: number | null;
+            }[];
+          };
         };
-        /** @description Returns paginated meme token launches */
-        get: {
-            parameters: {
-                query?: {
-                    page?: number;
-                    limit?: number;
-                    tab?: "all" | "launched";
-                    is_live?: boolean;
-                    order_by?: "last_change_ms" | "meme_id" | "end_timestamp_ms" | "created_blockheight" | "total_deposit" | "total_deposit_fees" | "total_withdraw_fees";
-                    order_by_direction?: "asc" | "desc";
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Paginated meme token launches */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            memes: {
-                                meme_id: number;
-                                owner: string;
-                                end_timestamp_ms: number | null;
-                                name: string;
-                                symbol: string;
-                                decimals: number;
-                                total_supply?: string | null;
-                                reference: string;
-                                reference_hash: string;
-                                deposit_token_id: string;
-                                soft_cap?: string | null;
-                                hard_cap?: string | null;
-                                last_change_ms: number | null;
-                                team_allocation?: string | null;
-                                vesting_duration_ms?: unknown;
-                                cliff_duration_ms?: unknown;
-                                created_blockheight?: string | null;
-                                created_timestamp_ms: number | null;
-                                total_deposit?: string | null;
-                                total_deposit_fees?: string | null;
-                                total_withdraw_fees?: string | null;
-                                is_finalized: boolean;
-                                token_id?: string | null;
-                                pool_id?: number | null;
-                                description?: string | null;
-                                twitter_link?: string | null;
-                                telegram_link?: string | null;
-                                website?: string | null;
-                                image?: string | null;
-                                /** @default false */
-                                twitter_verified: boolean;
-                                twitter_user_id?: string | null;
-                                twitter_username?: string | null;
-                                /** @default 0 */
-                                flag_count: number;
-                                replies_count: number | null;
-                                staker_count: number | null;
-                            }[];
-                            total: number;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+      };
     };
-    "/trades": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Returns all trades for given meme ID */
-        get: {
-            parameters: {
-                query: {
-                    meme_id: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description trades */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            meme_id: number;
-                            account_id: string;
-                            is_deposit?: boolean | null;
-                            amount?: string | null;
-                            fee?: string | null;
-                            timestamp_ms: number | null;
-                            receipt_id: string;
-                        }[];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/meme": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/tradingview/history": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    /** @description Returns all meme token launches */
+    get: {
+      parameters: {
+        query?: {
+          order_by?:
+            | "last_change_ms"
+            | "meme_id"
+            | "end_timestamp_ms"
+            | "created_blockheight"
+            | "total_deposit"
+            | "total_deposit_fees"
+            | "total_withdraw_fees";
+          order_by_direction?: "asc" | "desc";
+          is_finalized?: boolean | null;
         };
-        get?: never;
-        put?: never;
-        /** @description Returns OHLC data for given symbol and time range */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        meme_id: string;
-                        from: number;
-                        to: number;
-                        resolution: string;
-                        countBack: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description OHLC data */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            open: number;
-                            high: number;
-                            low: number;
-                            close: number;
-                            volume: number;
-                            time: number;
-                        }[];
-                    };
-                };
-                /** @description Meme not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description meme token launches */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              meme_id: number;
+              owner: string;
+              end_timestamp_ms: number | null;
+              name: string;
+              symbol: string;
+              decimals: number;
+              total_supply?: string | null;
+              reference: string;
+              reference_hash: string;
+              deposit_token_id: string;
+              soft_cap?: string | null;
+              hard_cap?: string | null;
+              last_change_ms: number | null;
+              team_allocation?: string | null;
+              vesting_duration_ms?: unknown;
+              cliff_duration_ms?: unknown;
+              created_blockheight?: string | null;
+              created_timestamp_ms: number | null;
+              total_deposit?: string | null;
+              total_deposit_fees?: string | null;
+              total_withdraw_fees?: string | null;
+              is_finalized: boolean;
+              token_id?: string | null;
+              pool_id?: number | null;
+              description?: string | null;
+              twitter_link?: string | null;
+              telegram_link?: string | null;
+              website?: string | null;
+              image?: string | null;
+              /** @default false */
+              twitter_verified: boolean;
+              twitter_user_id?: string | null;
+              twitter_username?: string | null;
+              /** @default 0 */
+              flag_count: number;
+              replies_count: number | null;
+              staker_count: number | null;
+            }[];
+          };
         };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+      };
     };
-    "/profile/{accountId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get profile
-         * @description Get profile
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    accountId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description return data related to accountId */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            accountId: string;
-                            deposited: {
-                                meme_id: number;
-                                account_id: string;
-                                balance?: string | null;
-                            }[];
-                            created: {
-                                meme_id: number;
-                            }[];
-                            referral_fees: string;
-                            withdraw_fees: string;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/meme/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/auth/x-callback/authorize": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    /** @description Returns a meme token launch by id */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
         };
-        /** @description Generate code verifier and redirect to Twitter auth */
-        get: {
-            parameters: {
-                query: {
-                    meme_id: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description meme token launch by id */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              meme: {
+                meme_id: number;
+                owner: string;
+                end_timestamp_ms: number | null;
+                name: string;
+                symbol: string;
+                decimals: number;
+                total_supply?: string | null;
+                reference: string;
+                reference_hash: string;
+                deposit_token_id: string;
+                soft_cap?: string | null;
+                hard_cap?: string | null;
+                last_change_ms: number | null;
+                team_allocation?: string | null;
+                vesting_duration_ms?: unknown;
+                cliff_duration_ms?: unknown;
+                created_blockheight?: string | null;
+                created_timestamp_ms: number | null;
+                total_deposit?: string | null;
+                total_deposit_fees?: string | null;
+                total_withdraw_fees?: string | null;
+                is_finalized: boolean;
+                token_id?: string | null;
+                pool_id?: number | null;
+                description?: string | null;
+                twitter_link?: string | null;
+                telegram_link?: string | null;
+                website?: string | null;
+                image?: string | null;
+                /** @default false */
+                twitter_verified: boolean;
+                twitter_user_id?: string | null;
+                twitter_username?: string | null;
+                /** @default 0 */
+                flag_count: number;
+                replies_count: number | null;
+                staker_count: number | null;
+              };
             };
-            requestBody?: never;
-            responses: {
-                /** @description Redirect to Twitter authorization page */
-                302: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
+          };
         };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+      };
     };
-    "/auth/x-callback": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description X (Twitter) OAuth callback endpoint */
-        get: {
-            parameters: {
-                query: {
-                    code: string;
-                    state?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Successfully authenticated and redirected */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Server error */
-                500: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/trades": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/auth/get_nonce": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    /** @description Returns all trades for given meme ID */
+    get: {
+      parameters: {
+        query: {
+          meme_id: string;
         };
-        /**
-         * Get nonce
-         * @description Get a nonce for authentication
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Nonce */
-                200: {
-                    headers: {
-                        /** @description The nonce cookie */
-                        "Set-Cookie"?: unknown;
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            nonce: string;
-                        };
-                    };
-                };
-            };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description trades */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              meme_id: number;
+              account_id: string;
+              is_deposit?: boolean | null;
+              amount?: string | null;
+              fee?: string | null;
+              timestamp_ms: number | null;
+              receipt_id: string;
+            }[];
+          };
         };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+      };
     };
-    "/auth/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Login */
-        get: {
-            parameters: {
-                query: {
-                    accountId: string;
-                    signature: string;
-                    publicKey: string;
-                    callbackUrl?: string;
-                    state?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Login successful */
-                200: {
-                    headers: {
-                        /** @description The session cookie */
-                        "Set-Cookie"?: unknown;
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/tradingview/history": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/auth/logout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    get?: never;
+    put?: never;
+    /** @description Returns OHLC data for given symbol and time range */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": {
+            meme_id: string;
+            from: number;
+            to: number;
+            resolution: string;
+            countBack: number;
+          };
         };
-        /**
-         * Logout
-         * @description Logs out the user by clearing the session cookie
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Logout successful */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
+      };
+      responses: {
+        /** @description OHLC data */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              open: number;
+              high: number;
+              low: number;
+              close: number;
+              volume: number;
+              time: number;
+            }[];
+          };
         };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        /** @description Meme not found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
     };
-    "/auth/check": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Check login status
-         * @description Checks if user is logged in
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Login check response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            isLoggedIn: boolean;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/profile/{accountId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/post-reply/replies": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    /**
+     * Get profile
+     * @description Get profile
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          accountId: string;
         };
-        get?: never;
-        put?: never;
-        /**
-         * Create a reply
-         * @description Create a reply to a meme
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description return data related to accountId */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              accountId: string;
+              deposited: {
+                meme_id: number;
+                account_id: string;
+                balance?: string | null;
+              }[];
+              created: {
+                meme_id: number;
+              }[];
+              referral_fees: string;
+              withdraw_fees: string;
             };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        memeId: string;
-                        content: string;
-                        replyToId?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description Reply created successfully */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            id?: number;
-                            meme_id: number;
-                            content: string;
-                            account_id: string;
-                            created_at_ms: number | null;
-                            reply_to_id?: number | null;
-                        };
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
+          };
         };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+      };
     };
-    "/get-replies/replies/{memeId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get replies
-         * @description Get replies
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    memeId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            id?: number;
-                            meme_id: number;
-                            content: string;
-                            account_id: string;
-                            created_at_ms: number | null;
-                            reply_to_id?: number | null;
-                            child_replies?: {
-                                id?: number;
-                                meme_id: number;
-                                content: string;
-                                account_id: string;
-                                created_at_ms: number | null;
-                                reply_to_id?: number | null;
-                            }[];
-                        }[];
-                    };
-                };
-                /** @description Internal Server Error */
-                500: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            error?: string;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/x-callback/authorize": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/leaderboard/referral": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    /** @description Generate code verifier and redirect to Twitter auth */
+    get: {
+      parameters: {
+        query: {
+          meme_id: string;
         };
-        /**
-         * Get referral fee leaderboard
-         * @description Get referral fee leaderboard
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description return data related to accountId */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            account_id: string;
-                            referral_fees: string;
-                        }[];
-                    };
-                };
-            };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Redirect to Twitter authorization page */
+        302: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
         };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        /** @description Bad request */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
     };
-    "/leaderboard/withdraw": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get withdraw fee leaderboard
-         * @description Get withdraw fee leaderboard
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description return data related to accountId */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            account_id: string;
-                            withdraw_fees: string;
-                        }[];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/x-callback": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/flag/{memeId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    /** @description X (Twitter) OAuth callback endpoint */
+    get: {
+      parameters: {
+        query: {
+          code: string;
+          state?: string;
         };
-        get?: never;
-        put?: never;
-        /**
-         * Flag a meme
-         * @description Flag a meme as inappropriate
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    memeId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Successfully flagged meme */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success: boolean;
-                        };
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Internal Server Error */
-                500: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Successfully authenticated and redirected */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
         };
-        /**
-         * Remove flag from meme
-         * @description Remove flag from a previously flagged meme
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    memeId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Successfully removed flag */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success: boolean;
-                        };
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Internal Server Error */
-                500: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
+        /** @description Bad request */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
         };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+        /** @description Server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
     };
-    "/flag/my": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Get flags for the authenticated user */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Successfully retrieved flags */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            flags: {
-                                meme_id: number;
-                                created_timestamp_ms: number;
-                            }[];
-                        };
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Internal Server Error */
-                500: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/get_nonce": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    /**
+     * Get nonce
+     * @description Get a nonce for authentication
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Nonce */
+        200: {
+          headers: {
+            /** @description The nonce cookie */
+            "Set-Cookie"?: unknown;
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              nonce: string;
+            };
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/login": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Login */
+    get: {
+      parameters: {
+        query: {
+          accountId: string;
+          signature: string;
+          publicKey: string;
+          callbackUrl?: string;
+          state?: string;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Login successful */
+        200: {
+          headers: {
+            /** @description The session cookie */
+            "Set-Cookie"?: unknown;
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/logout": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Logout
+     * @description Logs out the user by clearing the session cookie
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Logout successful */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/check": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Check login status
+     * @description Checks if user is logged in
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Login check response */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              isLoggedIn: boolean;
+            };
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/post-reply/replies": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Create a reply
+     * @description Create a reply to a meme
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": {
+            memeId: string;
+            content: string;
+            replyToId?: string;
+          };
+        };
+      };
+      responses: {
+        /** @description Reply created successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              id?: number;
+              meme_id: number;
+              content: string;
+              account_id: string;
+              created_at_ms: number | null;
+              reply_to_id?: number | null;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/get-replies/replies/{memeId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get replies
+     * @description Get replies
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          memeId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              id?: number;
+              meme_id: number;
+              content: string;
+              account_id: string;
+              created_at_ms: number | null;
+              reply_to_id?: number | null;
+              child_replies?: {
+                id?: number;
+                meme_id: number;
+                content: string;
+                account_id: string;
+                created_at_ms: number | null;
+                reply_to_id?: number | null;
+              }[];
+            }[];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              error?: string;
+            };
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/leaderboard/referral": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get referral fee leaderboard
+     * @description Get referral fee leaderboard
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description return data related to accountId */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              account_id: string;
+              referral_fees: string;
+            }[];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/leaderboard/withdraw": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get withdraw fee leaderboard
+     * @description Get withdraw fee leaderboard
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description return data related to accountId */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              account_id: string;
+              withdraw_fees: string;
+            }[];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/flag/{memeId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Flag a meme
+     * @description Flag a meme as inappropriate
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          memeId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Successfully flagged meme */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              success: boolean;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    /**
+     * Remove flag from meme
+     * @description Remove flag from a previously flagged meme
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          memeId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Successfully removed flag */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              success: boolean;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/flag/my": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Get flags for the authenticated user */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Successfully retrieved flags */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              flags: {
+                meme_id: number;
+                created_timestamp_ms: number;
+              }[];
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: never;
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+  schemas: never;
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export type operations = Record<string, never>;
