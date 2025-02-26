@@ -17,7 +17,7 @@
   import Stepper from "$lib/components/Stepper.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { nearBalance, refreshNearBalance, wallet } from "$lib/near";
+  import { nearBalance, refreshNearBalance, nearWallet } from "$lib/near";
   import { MemeCooking, updateMcAccount } from "$lib/near/memecooking";
   import { fetchBlockHeight } from "$lib/near/rpc";
   import {
@@ -201,7 +201,7 @@
     const amount = input.clone();
     onTransact();
     await MemeCooking.deposit(
-      wallet,
+      nearWallet,
       {
         amount: input.toU128(),
         extraNearDeposit: extraNearDeposit.toString(),

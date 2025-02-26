@@ -6,7 +6,7 @@
   import Button from "$lib/components/Button.svelte";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Meme } from "$lib/models/memecooking";
-  import { refreshNearBalance, wallet } from "$lib/near";
+  import { refreshNearBalance, nearWallet } from "$lib/near";
   import { MemeCooking, updateMcAccount } from "$lib/near/memecooking";
   import { fetchBlockHeight } from "$lib/near/rpc";
   import {
@@ -50,7 +50,7 @@
     onTransact();
     if (meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now()) {
       return MemeCooking.claim(
-        wallet,
+        nearWallet,
         {
           meme,
           unwrapNear,
@@ -62,7 +62,7 @@
       );
     } else {
       return MemeCooking.withdraw(
-        wallet,
+        nearWallet,
         {
           amount: input.toU128() ?? "",
           memeId: meme.meme_id,
