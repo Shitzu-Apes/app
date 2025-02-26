@@ -38,7 +38,6 @@ export const ref = createQueryKeys("ref", {
         .sort((a, b) => a.index - b.index)
         .map((p) => p.pool);
 
-      console.log("[ref.all]", pools);
       return pools;
     },
   }),
