@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { derived } from "svelte/store";
+  import { derived, writable } from "svelte/store";
 
   import MemeDetailPage from "./MemeDetailPage.svelte";
 
@@ -10,17 +10,29 @@
   import { addToast } from "$lib/components/Toast.svelte";
   import { EXTERNAL_MEMES } from "$lib/external_memes";
 
-  const memeDetailQuery = derived(page, (page) => {
+  // Create a store for the meme ID to ensure reactivity
+  const currentMemeId = writable<number | null>(null);
+
+  // Update the meme ID whenever page params change
+  $: {
     const meme = EXTERNAL_MEMES.find(
-      (meme) => meme.token_id === page.params.meme_id,
+      (meme) => meme.token_id === $page.params.meme_id,
     );
-    console.log("[meme::+page] meme", meme);
+
     if (!meme) {
-      console.log("[meme::+page] meme not found", page.params.meme_id);
-      return useMemeDetailQuery(Number(page.params.meme_id));
+      console.log("[meme::+page] meme not found", $page.params.meme_id);
+      currentMemeId.set(Number($page.params.meme_id));
+    } else {
+      currentMemeId.set(meme.meme_id);
     }
-    return useMemeDetailQuery(meme.meme_id);
+  }
+
+  // Create the query based on the currentMemeId
+  $: memeDetailQuery = derived(currentMemeId, (id) => {
+    console.log("[meme::+page] querying meme id", id);
+    return id !== null ? useMemeDetailQuery(id) : null;
   });
+
   // const loading = writable(true);
   // const memeStore = derived([page, memeMap$], ([page, memeMap]) => {
   //   console.log("[meme::+page] memeMap", memeMap);
@@ -95,4 +107,6 @@
   });
 </script>
 
-<MemeDetailPage memeDetailQuery={$memeDetailQuery} />
+{#if $memeDetailQuery}
+  <MemeDetailPage memeDetailQuery={$memeDetailQuery} />
+{/if}
