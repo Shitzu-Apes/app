@@ -75,7 +75,11 @@
     </div>
   </td>
   <td class="hidden sm:table-cell px-4 py-3 text-right font-medium">
-    $<FormatNumber number={value} totalDigits={6} />
+    {#if price}
+      $<FormatNumber number={price.mul(nearPrice).toNumber()} totalDigits={6} />
+    {:else}
+      <span class="text-gray-400">-</span>
+    {/if}
   </td>
   <td class="hidden sm:table-cell px-4 py-3 text-right font-medium">
     {#if mcap}
