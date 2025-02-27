@@ -3,7 +3,7 @@ import { createQuery } from "@tanstack/svelte-query";
 import { derived, type Readable } from "svelte/store";
 import { z } from "zod";
 
-import { memesQueryFactory } from "./memes";
+import { useMemesQuery } from "./memes";
 import { useRefPoolsQuery } from "./ref";
 
 import type { Meme } from "$lib/api/client";
@@ -85,7 +85,7 @@ export function usePortfolioQuery(accountId: string): Readable<{
   refetch: () => Promise<void>;
 }> {
   const fastNearQuery = useFastNearPortfolioQuery(accountId);
-  const memesQuery = createQuery(memesQueryFactory.memes.all());
+  const memesQuery = useMemesQuery();
   const refPoolQuery = useRefPoolsQuery();
 
   return derived(
@@ -98,23 +98,6 @@ export function usePortfolioQuery(accountId: string): Readable<{
           $refPool.refetch(),
         ]);
       };
-
-      if (
-        $fastNear.status === "pending" ||
-        $memes.status === "pending" ||
-        $refPool.status === "pending" ||
-        $fastNear.isFetching ||
-        $memes.isFetching ||
-        $refPool.isFetching
-      ) {
-        return {
-          isLoading: true,
-          isError: false,
-          data: undefined,
-          error: null,
-          refetch,
-        };
-      }
 
       if (
         $fastNear.status === "error" ||
@@ -130,7 +113,7 @@ export function usePortfolioQuery(accountId: string): Readable<{
         };
       }
 
-      if (!$fastNear.data || !$memes.data) {
+      if (!$fastNear.data || !$memes.data || !$refPool.data) {
         console.log("portfolio is loading", $fastNear.data, $memes.data);
         return {
           isLoading: true,

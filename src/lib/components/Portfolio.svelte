@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
   import type { Readable } from "svelte/store";
   import { get } from "svelte/store";
 
@@ -11,7 +10,6 @@
   import Near from "$lib/assets/Near.svelte";
   import { nearWallet } from "$lib/near";
   import { FixedNumber } from "$lib/util";
-  import { getNearPrice, nearPrice } from "$lib/util/projectedMCap";
 
   export let accountId: string;
   export let portfolio: Portfolio | null;
@@ -23,16 +21,15 @@
     error: Error | null;
     refetch: () => Promise<void>;
   }>;
+  export let nearPrice: FixedNumber;
 
   $: isOwnAccount = accountId === get(nearWallet.accountId$);
 
-  getNearPrice();
-
-  const refreshInterval = setInterval(() => {
-    getNearPrice();
-  }, 30e3);
-
-  onDestroy(() => clearInterval(refreshInterval));
+  $: console.log("[Portfolio]", {
+    nearPrice,
+    nearBalance,
+    portfolio,
+  });
 </script>
 
 {#if $portfolioQuery.isLoading}
@@ -71,7 +68,7 @@
                   <span class="font-medium">NEAR</span>
                   <span class="text-xs text-gray-400 sm:hidden"
                     >$<FormatNumber
-                      number={Number($nearPrice) / 1e24}
+                      number={nearPrice.toNumber()}
                       totalDigits={6}
                     /></span
                   >
@@ -82,19 +79,18 @@
               <div class="flex flex-col items-end">
                 <span class="font-medium">{nearBalance.format()}</span>
                 <span class="text-xs text-gray-400"
-                  >${(
-                    (nearBalance.toNumber() * Number($nearPrice)) /
-                    1e24
-                  ).toFixed(2)}</span
+                  >${(nearBalance.toNumber() * nearPrice.toNumber()).toFixed(
+                    2,
+                  )}</span
                 >
               </div>
             </td>
             <td class="hidden sm:table-cell px-4 py-3 text-right font-medium"
-              >${(Number($nearPrice) / 1e24).toFixed(10)}</td
+              >${nearPrice.toNumber().toFixed(6)}</td
             >
             <td class="hidden sm:table-cell px-4 py-3 text-right font-medium">
               <!-- $<FormatNumber
-                number={(Number($nearPrice) / 1e24) * 1e9}
+                number={(nearPrice.toNumber() / 1e24) * 1e9}
                 totalDigits={6}
               /> -->
             </td>
@@ -105,11 +101,11 @@
             const decimals = t.decimals ?? 24;
             const balance = new FixedNumber(t.balance, decimals);
             const price = t.price ? new FixedNumber(BigInt(Math.round(t.price * 1e24)), 24) : null;
-            const nearPriceFixed = new FixedNumber($nearPrice, 24);
+            const nearPriceValue = nearPrice;
 
             const value = price ? balance
                   .mul(price)
-                  .mul(nearPriceFixed)
+                  .mul(nearPriceValue)
                   .toNumber() : 0;
 
             return value >= 0.0001;
@@ -124,19 +120,14 @@
             const aPrice = a.price ? new FixedNumber(BigInt(Math.round(a.price * 1e24)), 24) : new FixedNumber("0", 24);
             const bPrice = b.price ? new FixedNumber(BigInt(Math.round(b.price * 1e24)), 24) : new FixedNumber("0", 24);
 
-            const nearPriceFixed = new FixedNumber($nearPrice, 24);
+            const nearPriceValue = nearPrice;
 
-            const aValue = aBalance.mul(aPrice).mul(nearPriceFixed).toNumber();
-            const bValue = bBalance.mul(bPrice).mul(nearPriceFixed).toNumber();
+            const aValue = aBalance.mul(aPrice).mul(nearPriceValue).toNumber();
+            const bValue = bBalance.mul(bPrice).mul(nearPriceValue).toNumber();
 
             return bValue - aValue;
           }) as t, i}
-          <PortfolioRow
-            token={t}
-            {isOwnAccount}
-            index={i}
-            nearPrice={new FixedNumber($nearPrice, 24)}
-          />
+          <PortfolioRow token={t} {isOwnAccount} index={i} {nearPrice} />
         {/each}
       </tbody>
     </table>

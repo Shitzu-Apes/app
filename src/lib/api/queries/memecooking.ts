@@ -4,7 +4,7 @@ import { derived, type Readable } from "svelte/store";
 
 import { client } from "../client";
 
-import { memesQueryFactory } from "./memes";
+import { useMemesQuery } from "./memes";
 
 import type { Meme } from "$lib/models/memecooking";
 import { MemeCooking } from "$lib/near/memecooking";
@@ -212,7 +212,7 @@ export function useMcAccountQuery(
   const baseAccountQuery = useMcBaseAccountQuery(accountId, blockHeight);
   const unclaimedQuery = useMcUnclaimedQuery(accountId, blockHeight);
   const profileQuery = useMcProfileQuery(accountId, blockHeight);
-  const memesQuery = createQuery(memesQueryFactory.memes.all());
+  const memesQuery = useMemesQuery();
 
   return derived(
     [baseAccountQuery, unclaimedQuery, profileQuery, memesQuery],
