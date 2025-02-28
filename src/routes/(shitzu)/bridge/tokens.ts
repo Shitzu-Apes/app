@@ -234,19 +234,19 @@ export const TOKENS = {
         },
       },
       solana: {
-        // buy: {
-        //   url: "https://raydium.io/swap/?outputMint=BAop4gZwr5JXGLLJXdt1jiLqzX7fxif7FTAEimntJMMS",
-        //   icon: "/icons/raydium.svg",
-        //   colors: {
-        //     bg: "#070a15",
-        //     hover: "#0c1020",
-        //     text: "white",
-        //   },
-        // },
-        // dexscreener: {
-        //   url: "https://dexscreener.com/TODO",
-        //   icon: "/icons/dexscreener.svg",
-        // },
+        buy: {
+          url: "https://raydium.io/swap/?outputMint=BAop4gZwr5JXGLLJXdt1jiLqzX7fxif7FTAEimntJMMS",
+          icon: "/icons/raydium.svg",
+          colors: {
+            bg: "#070a15",
+            hover: "#0c1020",
+            text: "white",
+          },
+        },
+        dexscreener: {
+          url: "https://dexscreener.com/solana/9upguecvwuml5x7346tvgizmubdjdjrzsk1msw28rd32",
+          icon: "/icons/dexscreener.svg",
+        },
         explorer: {
           url: "https://solscan.io/token/BAop4gZwr5JXGLLJXdt1jiLqzX7fxif7FTAEimntJMMS",
           icon: "/icons/solscan.webp",
