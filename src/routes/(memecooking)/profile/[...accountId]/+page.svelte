@@ -121,18 +121,22 @@
   $: totalValue =
     $portfolioQuery.data?.tokens.reduce(
       (acc, token) => {
-        const decimals =
-          token.contract_id === "wrap.near" ? 24 : token.decimals ?? 18;
-        const balance = Number(token.balance) / 10 ** decimals;
+        const decimals = token.decimals ?? 24;
+        const balance = new FixedNumber(token.balance, decimals);
         const price = token.price
-          ? (token.price * Number($nearPriceQuery.data?.toNumber() ?? 0)) / 1e24
+          ? new FixedNumber(BigInt(Math.round(token.price * 1e24)), 24)
+          : null;
+        const nearPriceValue = $nearPriceQuery.data ?? new FixedNumber("0", 24);
+        const value = price
+          ? balance.mul(price).mul(nearPriceValue).toNumber()
           : 0;
-        return acc + balance * price;
+
+        return acc + value;
       },
       $nearBalance
-        ? ($nearBalance.toNumber() *
-            Number($nearPriceQuery.data?.toNumber() ?? 0)) /
-            1e24
+        ? $nearBalance
+            .mul($nearPriceQuery.data ?? new FixedNumber("0", 24))
+            .toNumber()
         : 0,
     ) ?? 0;
 </script>
