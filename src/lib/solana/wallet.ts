@@ -11,6 +11,7 @@ import { derived, get, writable } from "svelte/store";
 import { browser } from "$app/environment"; // For SvelteKit
 import { addToast } from "$lib/components/Toast.svelte";
 
+const WALLET_CONNECTED_KEY = "solana-wallet-previously-connected";
 const network =
   import.meta.env.VITE_NETWORK_ID === "mainnet" ? "mainnet-beta" : "devnet";
 const isMultichain =
@@ -35,8 +36,10 @@ export class SolanaWallet {
       : [];
     this._wallets$.set(wallets);
 
-    // Try to auto-connect on initialization
-    this.autoConnect();
+    // Only try to auto-connect if we're in the browser and there was a previous connection
+    if (browser && localStorage.getItem(WALLET_CONNECTED_KEY)) {
+      this.autoConnect();
+    }
 
     // Subscribe to wallet adapter events
     wallets.forEach((wallet) => {
@@ -111,6 +114,11 @@ export class SolanaWallet {
       this._publicKey$.set(wallet.publicKey ?? undefined);
       this.updateProvider();
 
+      // Store successful connection in localStorage
+      if (browser) {
+        localStorage.setItem(WALLET_CONNECTED_KEY, "true");
+      }
+
       console.log("wallet", wallet);
 
       addToast({
@@ -159,6 +167,12 @@ export class SolanaWallet {
 
     try {
       await wallet.disconnect();
+
+      // Remove the connected flag from localStorage
+      if (browser) {
+        localStorage.removeItem(WALLET_CONNECTED_KEY);
+      }
+
       addToast({
         data: {
           type: "simple",
@@ -171,7 +185,7 @@ export class SolanaWallet {
 
       this._selectedWallet$.set(undefined);
       this._publicKey$.set(undefined);
-      this.updateProvider(); // <--- VERY IMPORTANT
+      this.updateProvider();
     } catch (error) {
       console.error("Failed to disconnect wallet:", error);
       addToast({
