@@ -108,10 +108,14 @@ export function filterAndSortMeme<T extends Meme>(
     case "bump order":
       return memes.sort((a, b) => {
         // Then sort by bump order
+        const a_timestamp =
+          Number(a.last_change_ms) || Number(a.end_timestamp_ms);
+        const b_timestamp =
+          Number(b.last_change_ms) || Number(b.end_timestamp_ms);
         if (sort.order === "asc") {
-          return Number(a.last_change_ms) - Number(b.last_change_ms);
+          return a_timestamp - b_timestamp;
         } else {
-          return Number(b.last_change_ms) - Number(a.last_change_ms);
+          return b_timestamp - a_timestamp;
         }
       });
     case "market cap":
