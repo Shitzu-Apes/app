@@ -42,7 +42,6 @@
       credentials: "include",
     })
     .then((res) => {
-      console.log("[replies]", res);
       return res.data ?? [];
     });
 

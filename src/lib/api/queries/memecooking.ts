@@ -46,14 +46,11 @@ export const memecookingKeys = createQueryKeyStore({
       queryKey: ["memecooking", "unclaimed", accountId, blockHeight],
       queryFn: async () => {
         const memesIds = await MemeCooking.getUnclaimed(accountId);
-        console.log("[unclaimed::memesIds]", memesIds);
         if (!memesIds || memesIds.length === 0) return [];
 
         const unclaimedAmounts = await Promise.all(
           memesIds.map((memeId) => MemeCooking.getClaimable(accountId, memeId)),
         );
-
-        console.log("[unclaimedAmounts]", unclaimedAmounts);
 
         return unclaimedAmounts
           .map((amount, index) => ({
@@ -227,24 +224,6 @@ export function useMcAccountQuery(
       };
 
       if (
-        $baseAccount.status === "pending" ||
-        $unclaimed.status === "pending" ||
-        $profile.status === "pending" ||
-        $memes.status === "pending" ||
-        $baseAccount.isFetching ||
-        $unclaimed.isFetching ||
-        $profile.isFetching ||
-        $memes.isFetching
-      ) {
-        return {
-          isLoading: true as const,
-          isError: false as const,
-          data: undefined,
-          refetch,
-        };
-      }
-
-      if (
         $baseAccount.status === "error" ||
         $unclaimed.status === "error" ||
         $profile.status === "error" ||
@@ -253,6 +232,20 @@ export function useMcAccountQuery(
         return {
           isLoading: false as const,
           isError: true as const,
+          data: undefined,
+          refetch,
+        };
+      }
+
+      if (
+        !$baseAccount.data ||
+        !$unclaimed.data ||
+        !$profile.data ||
+        !$memes.data
+      ) {
+        return {
+          isLoading: true as const,
+          isError: false as const,
           data: undefined,
           refetch,
         };

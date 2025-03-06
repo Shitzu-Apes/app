@@ -114,7 +114,6 @@ export function usePortfolioQuery(accountId: string): Readable<{
       }
 
       if (!$fastNear.data || !$memes.data || !$refPool.data) {
-        console.log("portfolio is loading", $fastNear.data, $memes.data);
         return {
           isLoading: true,
           isError: false,

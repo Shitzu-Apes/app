@@ -24,12 +24,6 @@
   export let nearPrice: FixedNumber;
 
   $: isOwnAccount = accountId === get(nearWallet.accountId$);
-
-  $: console.log("[Portfolio]", {
-    nearPrice,
-    nearBalance,
-    portfolio,
-  });
 </script>
 
 {#if $portfolioQuery.isLoading}

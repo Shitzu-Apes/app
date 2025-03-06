@@ -28,8 +28,6 @@
       attributes: ShitstarTrait[];
     }>,
   ]).then(([nftToken, staker, score, trait]) => {
-    console.log({ nftToken, trait, staker, score });
-
     const owner = staker ? staker : nftToken.owner_id;
 
     return {
