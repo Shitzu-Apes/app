@@ -127,9 +127,19 @@
           const publicKey = $publicKey$?.toBase58();
           return publicKey ? omniAddress(ChainKind.Sol, publicKey) : undefined;
         })
-        .with(P.union("base", "arbitrum", "ethereum"), () =>
+        .with("base", () =>
           $evmWallet$.status === "connected"
             ? omniAddress(ChainKind.Base, $evmWallet$.address)
+            : undefined,
+        )
+        .with("arbitrum", () =>
+          $evmWallet$.status === "connected"
+            ? omniAddress(ChainKind.Arb, $evmWallet$.address)
+            : undefined,
+        )
+        .with("ethereum", () =>
+          $evmWallet$.status === "connected"
+            ? omniAddress(ChainKind.Eth, $evmWallet$.address)
             : undefined,
         )
         .exhaustive();
@@ -369,7 +379,7 @@
         const publicKey = $publicKey$?.toBase58();
         if (!publicKey) return;
 
-        const provider = solanaWallet.getProvider();
+        const provider = get(solanaWallet.selectedWallet$);
         if (!provider) {
           console.error("Provider not connected.");
           return;
