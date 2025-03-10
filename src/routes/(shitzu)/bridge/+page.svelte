@@ -379,7 +379,7 @@
         const publicKey = $publicKey$?.toBase58();
         if (!publicKey) return;
 
-        const provider = get(solanaWallet.selectedWallet$);
+        const provider = solanaWallet.getProvider();
         if (!provider) {
           console.error("Provider not connected.");
           return;
