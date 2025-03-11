@@ -27,7 +27,8 @@
   import TokenInfo from "./TokenInfo.svelte";
   import TransferStatus from "./TransferStatus.svelte";
   import UserMenu from "./UserMenu.svelte";
-  import { bridgePortfolio$, type TokenPortfolio } from "./portfolio";
+  import { trackBridgeTransfer } from "./plausible";
+  import { bridgePortfolio$ } from "./portfolio";
   import {
     updateTokenBalance,
     balances$,
@@ -37,6 +38,7 @@
     isTokenAvailableOnNetwork,
   } from "./tokens";
   import { transfers } from "./transfers";
+  import { getTokenPrice } from "./utils";
 
   import { showWalletSelector } from "$lib/auth";
   import Button from "$lib/components/Button.svelte";
@@ -100,14 +102,6 @@
   let usdFee: number | undefined;
   let isFeeLoading = false;
   let feeTimeout: ReturnType<typeof setTimeout>;
-
-  // Add helper function to get token price
-  function getTokenPrice(tokenId: keyof typeof TOKENS, prices: TokenPortfolio) {
-    const token = prices.tokens.find(
-      (t) => t.contract_id === TOKENS[tokenId].addresses.near,
-    );
-    return token?.price ?? null;
-  }
 
   async function getFee() {
     if (!$amount$ || !walletConnected) return;
@@ -520,6 +514,7 @@
       console.log("[data]", data);
 
       transfers.addTransfers([data]);
+      await trackBridgeTransfer(data);
     } else {
       console.log("[rawTransferEvent]", rawTransferEvent);
       // For non-string transfer events, we need to wait for them to be indexed
@@ -548,6 +543,7 @@
       console.log("[data]", data);
 
       transfers.addTransfers([data]);
+      await trackBridgeTransfer(data);
     }
 
     // Reset input fields after successful bridge
