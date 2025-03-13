@@ -44,6 +44,9 @@ jobs:
       - name: Add contract connect ID to .env
         run: echo "VITE_CONNECT_ID=shit.0xshitzu.near" >> .env
 
+      - name: Add contract connect ID to .env
+        run: echo "VITE_PLAUSIBLE_DOMAIN=app.shitzuapes.xyz" >> .env
+
       - name: Add WalletConnect project ID to .env
         run: echo "VITE_WC_PROJECT_ID=dba65fff73650d32ae5157f3492c379e" >> .env
 
