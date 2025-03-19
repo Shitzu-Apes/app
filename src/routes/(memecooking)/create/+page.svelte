@@ -12,6 +12,7 @@
   import GrowthMateBanner from "./GrowthMateBanner.svelte";
   import NewMemePreview from "./NewMemePreview.svelte";
   import SoftcapDefault, { CAP_DEFAULT_OPTIONS } from "./SoftcapDefault.svelte";
+  import StartTimeSelector from "./StartTimeSelector.svelte";
   import TeamAllocationToggle from "./TeamAllocationToggle.svelte";
   import TextAreaField from "./TextAreaField.svelte";
   import TextInputField from "./TextInputField.svelte";
@@ -105,6 +106,9 @@
 
   // Bind teamAllocation from the new component
   let teamAllocation: TeamAllocation | null = null;
+
+  // Add a new variable for start time
+  let startTimestampMs: string | undefined = undefined;
 
   $: imageReady = imageCID || imageFile;
 
@@ -380,6 +384,7 @@
                 cliffDurationMs: teamAllocation.cliffDurationMs,
               }
             : undefined,
+        startTimestampMs: startTimestampMs,
       };
 
       return MemeCooking.createMeme(
@@ -637,6 +642,7 @@
 
         <!-- Token Parameters Card -->
         <div class="bg-gray-800 rounded-lg p-4 space-y-4">
+          <StartTimeSelector bind:value={startTimestampMs} />
           <DurationDefault bind:value={durationMs} />
           <SoftcapDefault bind:softCap bind:hardCap bind:hardCapEnabled />
           <TeamAllocationToggle bind:teamAllocation />

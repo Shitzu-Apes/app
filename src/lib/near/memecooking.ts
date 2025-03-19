@@ -137,6 +137,7 @@ export abstract class MemeCooking {
   public static async createMeme(
     wallet: Wallet,
     args: {
+      startTimestampMs?: string;
       durationMs: string;
       name: string;
       symbol: string;
@@ -178,6 +179,7 @@ export abstract class MemeCooking {
       params: {
         methodName: "create_meme",
         args: {
+          start_timestamp_ms: args.startTimestampMs,
           duration_ms: args.durationMs,
           name: args.name,
           symbol: args.symbol,
