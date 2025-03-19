@@ -200,6 +200,7 @@ export interface paths {
               twitter_username?: string | null;
               /** @default 0 */
               flag_count: number;
+              start_timestamp_ms?: string | null;
               replies_count: number | null;
               staker_count: number | null;
             }[];
@@ -277,6 +278,7 @@ export interface paths {
                 twitter_username?: string | null;
                 /** @default 0 */
                 flag_count: number;
+                start_timestamp_ms?: string | null;
                 replies_count: number | null;
                 staker_count: number | null;
               };

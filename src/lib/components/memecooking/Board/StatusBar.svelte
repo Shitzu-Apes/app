@@ -21,6 +21,9 @@
 
   export let expanded = false;
   $: isExternalMeme = EXTERNAL_MEMES.some((m) => m.meme_id === meme.meme_id);
+  $: hasStartTime =
+    meme.start_timestamp_ms &&
+    parseInt(String(meme.start_timestamp_ms)) > Date.now();
 </script>
 
 <div class="w-full flex flex-col gap-4">
@@ -63,6 +66,31 @@
         {/if}
         {#if !isExternalMeme}
           <div class="flex justify-center border-t border-gray-700">
+            <div
+              class="i-mdi:chevron-down size-6 text-gray-300 transition-transform duration-200 ease-in-out"
+              style="transform: rotate({expanded ? '180deg' : '0deg'})"
+            />
+          </div>
+        {/if}
+      </button>
+    {:else if hasStartTime}
+      <button
+        class="w-full flex flex-col items-stretch"
+        class:cursor-default={isExternalMeme}
+        on:click={() => !isExternalMeme && (expanded = !expanded)}
+      >
+        <div class="flex w-full justify-between items-center">
+          <div class="w-1/2 flex flex-col justify-start items-start">
+            <div class="text-gray-400">Scheduled Start</div>
+            <Countdown
+              to={parseInt(String(meme.start_timestamp_ms))}
+              class="text-blue-4 justify-evenly text-4xl"
+              format="compact"
+            />
+          </div>
+        </div>
+        {#if !isExternalMeme}
+          <div class="flex justify-center mt-2 border-t border-gray-700">
             <div
               class="i-mdi:chevron-down size-6 text-gray-300 transition-transform duration-200 ease-in-out"
               style="transform: rotate({expanded ? '180deg' : '0deg'})"

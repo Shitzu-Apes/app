@@ -3,6 +3,7 @@
 
   export let to: number;
   export let format: "compact" | "full" = "full";
+  export let label: string | undefined = undefined;
   let className: string = "";
 
   export { className as class };
@@ -43,6 +44,9 @@
 
 {#if format === "compact"}
   <div class="flex gap-2 justify-center items-start {className}">
+    {#if label}
+      <span class="text-xs self-center -mr-1">{label}</span>
+    {/if}
     {#if started}
       {#if days > 0}
         {days}d {padZero(hours)}h
@@ -54,52 +58,61 @@
     {/if}
   </div>
 {:else}
-  <div class="flex gap-2 text-6xl justify-center items-start {className}">
-    {#if days > 0}
-      <div class="flex flex-col justify-center items-center flex-grow basis-0">
-        <div>{days}</div>
-        <div class="text-xs w-full text-center">
-          {days > 1 ? "Days" : "Day"}
-        </div>
-      </div>
+  <div class="flex flex-col gap-2 {className}">
+    {#if label}
+      <span class="text-xs text-center">{label}</span>
     {/if}
-    <div class="flex flex-col justify-center items-center flex-grow basis-0">
-      <div>
-        {#if started}
-          {hours}
-        {:else}
-          -
-        {/if}
-      </div>
-      <div class="text-xs w-full text-center">
-        {hours > 1 ? "Hours" : "Hour"}
-      </div>
-    </div>
-    <div class="flex flex-col justify-center items-center flex-grow basis-0">
-      <div>
-        {#if started}
-          {minutes}
-        {:else}
-          -
-        {/if}
-      </div>
-      <div class="text-xs w-full text-center">
-        {minutes > 1 ? "Minutes" : "Minute"}
-      </div>
-    </div>
-    {#if days === 0}
+    <div class="flex gap-2 text-6xl justify-center items-start">
+      {#if days > 0}
+        <div
+          class="flex flex-col justify-center items-center flex-grow basis-0"
+        >
+          <div>{days}</div>
+          <div class="text-xs w-full text-center">
+            {days > 1 ? "Days" : "Day"}
+          </div>
+        </div>
+      {/if}
       <div class="flex flex-col justify-center items-center flex-grow basis-0">
         <div>
           {#if started}
-            {seconds}
+            {hours}
           {:else}
             -
           {/if}
         </div>
         <div class="text-xs w-full text-center">
-          {seconds > 1 ? "Seconds" : "Second"}
+          {hours > 1 ? "Hours" : "Hour"}
         </div>
       </div>
-    {/if}
+      <div class="flex flex-col justify-center items-center flex-grow basis-0">
+        <div>
+          {#if started}
+            {minutes}
+          {:else}
+            -
+          {/if}
+        </div>
+        <div class="text-xs w-full text-center">
+          {minutes > 1 ? "Minutes" : "Minute"}
+        </div>
+      </div>
+      {#if days === 0}
+        <div
+          class="flex flex-col justify-center items-center flex-grow basis-0"
+        >
+          <div>
+            {#if started}
+              {seconds}
+            {:else}
+              -
+            {/if}
+          </div>
+          <div class="text-xs w-full text-center">
+            {seconds > 1 ? "Seconds" : "Second"}
+          </div>
+        </div>
+      {/if}
+    </div>
   </div>
 {/if}

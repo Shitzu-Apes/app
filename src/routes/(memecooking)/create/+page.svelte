@@ -439,6 +439,7 @@
     meme_id: 0,
     owner: $accountId$ || "",
     end_timestamp_ms: Date.now() + durationMs,
+    start_timestamp_ms: startTimestampMs,
     name: name || "[NAME]",
     symbol: ticker || "[SYMBOL]",
     description: description || "[DESCRIPTION]",

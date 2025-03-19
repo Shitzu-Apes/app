@@ -32,6 +32,9 @@
   $: isEnded = Boolean(
     memebid.end_timestamp_ms && memebid.end_timestamp_ms < Date.now(),
   );
+  $: hasStarted =
+    !memebid.start_timestamp_ms ||
+    parseInt(String(memebid.start_timestamp_ms)) <= Date.now();
   $: status =
     memebid.meme_id < 0
       ? "imported"
@@ -41,12 +44,15 @@
           ? reachedMcap
             ? "ready"
             : "spoiled"
-          : "cooking";
+          : !hasStarted
+            ? "pending"
+            : "cooking";
   $: statusColor = {
     cooked: "bg-shitzu-4 text-black",
     ready: "bg-amber-4 text-black",
     spoiled: "bg-rose-4 text-black",
     imported: "bg-yellow-3 text-black",
+    pending: "bg-blue-4 text-black",
     cooking:
       "bg-memecooking-400 text-black animated animated-heart-beat animated-infinite animated-duration-1000 hover:animate-none",
   }[status];
@@ -86,6 +92,20 @@
                       format="compact"
                     />
                   </div>
+                {/if}
+              {:else if status === "pending"}
+                {#if memebid.start_timestamp_ms}
+                  <div class="flex items-center gap-1 text-black">
+                    <div class="i-mdi:timer-outline" />
+                    <Countdown
+                      class="text-base"
+                      to={parseInt(String(memebid.start_timestamp_ms))}
+                      format="compact"
+                      label="in"
+                    />
+                  </div>
+                {:else}
+                  pending
                 {/if}
               {:else}
                 {status}
