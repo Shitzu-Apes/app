@@ -178,7 +178,7 @@
           </div>
         </div>
 
-        {#if quickActionAmount != undefined || depositAmount != undefined || (isOwnAccount && claimAmount && claimAmount.valueOf() > 0n) || !isEnded || isLaunched}
+        {#if (quickActionAmount != undefined || depositAmount != undefined || (isOwnAccount && claimAmount && claimAmount.valueOf() > 0n) || !isEnded || isLaunched) && hasStarted}
           <div class="mt-2 w-full">
             <!-- Actions -->
             <ActionButton
