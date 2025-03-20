@@ -3,6 +3,14 @@
 
   export let value: string | undefined = undefined;
 
+  // Calculate min and max time constraints
+  const minTime = Date.now() + 5 * 60 * 1000; // 5 minutes from now
+  const maxTime = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days from now
+
+  // Format dates for input constraints
+  const minTimeFormatted = new Date(minTime).toISOString().slice(0, 16);
+  const maxTimeFormatted = new Date(maxTime).toISOString().slice(0, 16);
+
   // Options for start time
   const options = [
     { label: "immediately", value: undefined },
@@ -30,6 +38,16 @@
     .toISOString()
     .slice(0, 16);
 
+  // Ensure custom date is within bounds
+  $: {
+    const customTimestamp = new Date(customDate).getTime();
+    if (customTimestamp < minTime) {
+      customDate = minTimeFormatted;
+    } else if (customTimestamp > maxTime) {
+      customDate = maxTimeFormatted;
+    }
+  }
+
   $: {
     if (selectedOption.value === "custom") {
       value = new Date(customDate).getTime().toString();
@@ -50,7 +68,7 @@
   >
     Start Time
     <Tooltip
-      info="When your token sale will begin. If unset, it starts immediately."
+      info="When your token sale will begin. If unset, it starts immediately. Must be between 5 minutes and 7 days from now."
     >
       <div class="size-4 i-mdi:information-outline text-amber-5" />
     </Tooltip>
@@ -81,9 +99,15 @@
         type="datetime-local"
         id="custom-date"
         bind:value={customDate}
-        min={new Date().toISOString().slice(0, 16)}
+        min={minTimeFormatted}
+        max={maxTimeFormatted}
         class="w-full p-2 bg-gray-700 rounded text-white border border-gray-600 mt-1"
       />
+      <div class="text-xs text-gray-400 mt-1">
+        Must be between {new Date(minTime).toLocaleString()} and {new Date(
+          maxTime,
+        ).toLocaleString()}
+      </div>
     </div>
   {/if}
 
