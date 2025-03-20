@@ -36,32 +36,17 @@ async function fetchAccountDetail() {
 const near = {
   id: 397,
   name: "Near Protocol",
-  nativeCurrency: {
-    name: "NEAR",
-    symbol: "NEAR",
-    decimals: 18,
-  },
-  rpcUrls: {
-    default: { http: ["https://eth-rpc.mainnet.near.org"] },
-  },
+  nativeCurrency: { name: "NEAR", symbol: "NEAR", decimals: 18 },
+  rpcUrls: { default: { http: ["https://eth-rpc.mainnet.near.org"] } },
   blockExplorers: {
-    default: {
-      name: "NEAR Explorer",
-      url: "https://eth-explorer.near.org",
-    },
+    default: { name: "NEAR Explorer", url: "https://eth-explorer.near.org" },
   },
 };
 const nearTestnet = {
   id: 398,
   name: "Near Protocol Testnet",
-  nativeCurrency: {
-    name: "NEAR",
-    symbol: "NEAR",
-    decimals: 18,
-  },
-  rpcUrls: {
-    default: { http: ["https://eth-rpc.testnet.near.org"] },
-  },
+  nativeCurrency: { name: "NEAR", symbol: "NEAR", decimals: 18 },
+  rpcUrls: { default: { http: ["https://eth-rpc.testnet.near.org"] } },
   blockExplorers: {
     default: {
       name: "NEAR Explorer",
@@ -75,10 +60,7 @@ export const wagmiConfig = browser
   ? createConfig({
       chains:
         import.meta.env.VITE_NETWORK_ID === "mainnet" ? [near] : [nearTestnet],
-      transports: {
-        [397]: http(),
-        [398]: http(),
-      },
+      transports: { [397]: http(), [398]: http() },
       connectors: [
         walletConnect({
           projectId:
@@ -271,6 +253,7 @@ export class Wallet {
 
     this.loginViaWalletSelector = this.loginViaWalletSelector.bind(this);
     this.signOut = this.signOut.bind(this);
+    this.login = this.login.bind(this);
   }
 
   public async login() {
@@ -322,9 +305,7 @@ export class Wallet {
 
     return client
       .GET("/auth/login", {
-        params: {
-          query: signedMessage,
-        },
+        params: { query: signedMessage },
         credentials: "include",
       })
       .then(fetchAccountDetail);
@@ -345,9 +326,7 @@ export class Wallet {
               () => undefined as unknown as string,
             )
             .otherwise(() => import.meta.env.VITE_CONTRACT_ID);
-          const accounts = await wallet.signIn({
-            contractId,
-          });
+          const accounts = await wallet.signIn({ contractId });
           const account = accounts.pop();
           if (!account) return;
           this._account$.set(account);
@@ -481,11 +460,7 @@ export const NEAR_WALLETS: Record<string, WalletMetadata> = {
     twitter: "https://twitter.com/MyNearWallet",
     telegram: "https://t.me/mnw_chat",
   },
-  "wallet-connect": {
-    name: "WalletConnect (Near)",
-  },
-  "ethereum-wallets": {
-    infoSheet: EvmOnboardSheet,
-  },
+  "wallet-connect": { name: "WalletConnect (Near)" },
+  "ethereum-wallets": { infoSheet: EvmOnboardSheet },
   "sweat-wallet": {},
 };
