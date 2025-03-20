@@ -34,6 +34,7 @@
   export let finished: boolean;
   export let hasEnoughTokens: boolean;
   export let onTransact: () => void;
+  export let disabled: boolean = false;
 
   const referral = getReferral();
   const wrapNearRegistrationQuery = useTokenRegistrationQuery(
@@ -249,7 +250,8 @@
   disabled={input == null ||
     input.toNumber() == 0 ||
     finished ||
-    !hasEnoughTokens}
+    !hasEnoughTokens ||
+    disabled}
   class="
      bg-shitzu-4
      w-full py-2 rounded text-xl tracking-wider text-black 

@@ -36,9 +36,17 @@
 
   $: finished =
     meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now();
+  $: notStarted =
+    meme.start_timestamp_ms != null &&
+    Number(meme.start_timestamp_ms) > Date.now();
+  $: disabled = finished || notStarted;
+
   const timer = setInterval(() => {
     finished =
       meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now();
+    notStarted =
+      meme.start_timestamp_ms != null &&
+      Number(meme.start_timestamp_ms) > Date.now();
   }, 1_000);
 
   onDestroy(() => {
@@ -143,7 +151,7 @@
           ? 'text-shitzu-4'
           : 'text-rose-5'}"
         decimals={24}
-        readonly={finished}
+        readonly={disabled}
         bind:this={input}
         bind:value={$inputValue$}
       />
@@ -157,6 +165,7 @@
             ? 'bg-shitzu-7'
             : 'bg-rose-5'} text-white"
           on:click={setMax}
+          {disabled}
         >
           <div class="">Max</div>
         </button>
@@ -200,6 +209,7 @@
                 $inputValue$ = $depositAmount$.data.amount.mul(bps).toString();
               }
             }}
+            {disabled}
           >
             {#if defaultValue[activeTab].value !== "0" && activeTab === "deposit"}
               <Near className="size-4" />
@@ -231,8 +241,9 @@
       <McDepositButton
         {accountId}
         input={$input$ ?? new FixedNumber(0n, 24)}
+        {disabled}
         {finished}
-        {hasEnoughTokens}
+        hasEnoughTokens={hasEnoughTokens && !disabled}
         wrapNearBalance={wrapNearBalance$}
         {meme}
         onTransact={() => {
@@ -245,8 +256,9 @@
         {meme}
         input={$input$ ?? new FixedNumber(0n, 24)}
         unwrapNear={true}
+        {disabled}
         {finished}
-        {hasEnoughTokens}
+        hasEnoughTokens={hasEnoughTokens && !disabled}
         depositAmount={$depositAmount$.data?.amount ?? new FixedNumber(0n, 24)}
         onTransact={() => {
           $inputValue$ = "";
