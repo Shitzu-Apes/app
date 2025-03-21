@@ -29,9 +29,6 @@ jobs:
       - name: Install step
         run: "yarn install"
 
-      - name: Lint
-        run: "yarn lint"
-
       - name: Copy Charting Library files
         run: "./copy_charting_library_files.sh"
 
@@ -57,6 +54,9 @@ jobs:
 
       - name: Build step
         run: "yarn build"
+
+      - name: Lint
+        run: "yarn lint"
 
       - name: Upload to Cloudflare Pages
         run: yarn wrangler pages deploy --project-name shitzu-app .svelte-kit/cloudflare

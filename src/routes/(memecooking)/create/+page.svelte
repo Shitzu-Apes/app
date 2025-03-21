@@ -375,7 +375,7 @@
         reference: referenceCID,
         referenceHash,
         softCap,
-        hardCap: hardCapEnabled ? hardCap ?? undefined : undefined,
+        hardCap: hardCapEnabled ? (hardCap ?? undefined) : undefined,
         teamAllocation:
           teamAllocation && teamAllocation.allocationBps > 0
             ? {

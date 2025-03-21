@@ -68,7 +68,7 @@ export async function trackBridgeTransfer(transfer: Transfer) {
     ).toString();
 
     const network = getNetworkFromChain(transfer.id.origin_chain);
-    const decimals = tokenKey ? TOKENS[tokenKey].decimals[network] ?? 18 : 18;
+    const decimals = tokenKey ? (TOKENS[tokenKey].decimals[network] ?? 18) : 18;
 
     const eventData: PlausibleEvent = {
       name: "bridge_transfer",
