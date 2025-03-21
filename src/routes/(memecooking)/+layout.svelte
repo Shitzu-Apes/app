@@ -20,11 +20,12 @@
   import Tooltip from "$lib/components/Tooltip.svelte";
   import LaunchSheet from "$lib/components/memecooking/BottomSheet/LaunchSheet.svelte";
   import RegisterSheet from "$lib/components/memecooking/BottomSheet/RegisterSheet.svelte";
+  import { wagmiConfig } from "$lib/evm/wallet";
   import { BottomSheet } from "$lib/layout/BottomSheet";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import MCHeader from "$lib/layout/memecooking/MCHeader.svelte";
   import { ScreenSize } from "$lib/models";
-  import { wagmiConfig, nearWallet } from "$lib/near";
+  import { nearWallet } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
   import { screenSize$ } from "$lib/screen-size";
   import {
@@ -136,14 +137,24 @@
     watchAccount(wagmiConfig, {
       onChange: async (data) => {
         const selector = await get(nearWallet.selector$);
-        if (!data.address || selector.store.getState().selectedWalletId) {
-          return;
+        if (
+          data.address != null &&
+          selector.store.getState().selectedWalletId == null
+        ) {
+          selector.wallet("ethereum-wallets").then((wallet) => {
+            // FIXME optional access key not yet supported by wallet selector
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            wallet.signIn({} as any);
+          });
         }
-        selector.wallet("ethereum-wallets").then((wallet) => {
-          // FIXME optional access key not yet supported by wallet selector
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          wallet.signIn({} as any);
-        });
+        if (
+          data.address == null &&
+          selector.store.getState().selectedWalletId === "ethereum-wallets"
+        ) {
+          selector.wallet("ethereum-wallets").then((wallet) => {
+            wallet.signOut();
+          });
+        }
       },
     });
   });
@@ -159,10 +170,7 @@
       const transactions = await MemeCooking.checkRegister(accountId);
       if (transactions.length === 0) return;
 
-      openBottomSheet(RegisterSheet, {
-        accountId,
-        transactions,
-      });
+      openBottomSheet(RegisterSheet, { accountId, transactions });
     },
   );
 

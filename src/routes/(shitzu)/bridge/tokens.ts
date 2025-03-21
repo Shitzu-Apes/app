@@ -13,7 +13,7 @@ import { erc20Abi } from "viem";
 
 import {
   evmWallet$,
-  config,
+  wagmiConfig,
   baseConfig,
   arbitrumConfig,
   mainnetConfig,
@@ -27,20 +27,10 @@ export type TokenLinks = {
   buy?: {
     url: string;
     icon?: string;
-    colors?: {
-      bg: string;
-      hover: string;
-      text: string;
-    };
+    colors?: { bg: string; hover: string; text: string };
   };
-  dexscreener?: {
-    url: string;
-    icon?: string;
-  };
-  explorer?: {
-    url: string;
-    icon?: string;
-  };
+  dexscreener?: { url: string; icon?: string };
+  explorer?: { url: string; icon?: string };
 };
 
 export type Token = {
@@ -79,11 +69,7 @@ export const TOKENS = {
         buy: {
           url: "https://app.ref.finance/#|near",
           icon: "https://app.ref.finance/favicon.svg",
-          colors: {
-            bg: "black",
-            hover: "rgb(24 24 27)",
-            text: "white",
-          },
+          colors: { bg: "black", hover: "rgb(24 24 27)", text: "white" },
         },
         dexscreener: {
           url: "https://dexscreener.com/near/refv1-5471",
@@ -98,11 +84,7 @@ export const TOKENS = {
         buy: {
           url: "https://raydium.io/swap/?outputMint=3ZLekZYq2qkZiSpnSvabjit34tUkjSwD1JFuW9as9wBG",
           icon: "/icons/raydium.svg",
-          colors: {
-            bg: "#070a15",
-            hover: "#0c1020",
-            text: "white",
-          },
+          colors: { bg: "#070a15", hover: "#0c1020", text: "white" },
         },
         dexscreener: {
           url: "https://dexscreener.com/solana/gyyigqg8vdemkdnttvl6at2msbhdtdwyb6bccyr238u",
@@ -139,11 +121,7 @@ export const TOKENS = {
         buy: {
           url: "https://meme.cooking/meme/token.0xshitzu.near",
           icon: "https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/bc9e35fda8a41fe263afbcc802d60d5ee23ad2ad/logo/meme-cooking.webp",
-          colors: {
-            bg: "#72E3B6",
-            hover: "#5ED3A2",
-            text: "black",
-          },
+          colors: { bg: "#72E3B6", hover: "#5ED3A2", text: "black" },
         },
         dexscreener: {
           url: "https://dexscreener.com/near/refv1-4369",
@@ -218,11 +196,7 @@ export const TOKENS = {
         buy: {
           url: "https://meme.cooking/meme/1018",
           icon: "https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/bc9e35fda8a41fe263afbcc802d60d5ee23ad2ad/logo/meme-cooking.webp",
-          colors: {
-            bg: "#72E3B6",
-            hover: "#5ED3A2",
-            text: "black",
-          },
+          colors: { bg: "#72E3B6", hover: "#5ED3A2", text: "black" },
         },
         dexscreener: {
           url: "https://dexscreener.com/near/refv1-5728",
@@ -237,11 +211,7 @@ export const TOKENS = {
         buy: {
           url: "https://raydium.io/swap/?outputMint=BAop4gZwr5JXGLLJXdt1jiLqzX7fxif7FTAEimntJMMS",
           icon: "/icons/raydium.svg",
-          colors: {
-            bg: "#070a15",
-            hover: "#0c1020",
-            text: "white",
-          },
+          colors: { bg: "#070a15", hover: "#0c1020", text: "white" },
         },
         dexscreener: {
           url: "https://dexscreener.com/solana/9upguecvwuml5x7346tvgizmubdjdjrzsk1msw28rd32",
@@ -296,11 +266,7 @@ export const TOKENS = {
         buy: {
           url: "https://meme.cooking/meme/558",
           icon: "https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/bc9e35fda8a41fe263afbcc802d60d5ee23ad2ad/logo/meme-cooking.webp",
-          colors: {
-            bg: "#72E3B6",
-            hover: "#5ED3A2",
-            text: "black",
-          },
+          colors: { bg: "#72E3B6", hover: "#5ED3A2", text: "black" },
         },
         dexscreener: {
           url: "https://dexscreener.com/near/refv1-5650",
@@ -355,11 +321,7 @@ export const TOKENS = {
         buy: {
           url: "https://meme.cooking/meme/0",
           icon: "https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/bc9e35fda8a41fe263afbcc802d60d5ee23ad2ad/logo/meme-cooking.webp",
-          colors: {
-            bg: "#72E3B6",
-            hover: "#5ED3A2",
-            text: "black",
-          },
+          colors: { bg: "#72E3B6", hover: "#5ED3A2", text: "black" },
         },
         dexscreener: {
           url: "https://dexscreener.com/near/refv1-5404",
@@ -474,7 +436,7 @@ async function fetchEvmBalance(
       .with("base", () => baseConfig)
       .with("arbitrum", () => arbitrumConfig)
       .with("ethereum", () => mainnetConfig)
-      .otherwise(() => config);
+      .otherwise(() => wagmiConfig);
     const balance = await readContract(chainConfig, {
       address: tokenAddress,
       abi: erc20Abi,

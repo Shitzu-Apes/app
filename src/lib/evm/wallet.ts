@@ -1,3 +1,4 @@
+import { walletConnect, injected } from "@tarnadas/wagmi-connectors";
 import type { GetAccountReturnType, Transport } from "@wagmi/core";
 import {
   http,
@@ -9,7 +10,6 @@ import {
   switchChain as _switchChain,
   connect as _connect,
   type Connector,
-  injected,
 } from "@wagmi/core";
 import {
   arbitrum,
@@ -41,17 +41,60 @@ const transports: Record<number, Transport> = {
   [arbitrumSepolia.id]: http(),
   [mainnet.id]: http(),
   [sepolia.id]: http(),
+  [397]: http(),
+  [398]: http(),
 };
 
-// Create wagmi config
-export const config = createConfig({
-  chains:
-    import.meta.env.VITE_NETWORK_ID === "mainnet"
-      ? [arbitrum, base, mainnet]
-      : [arbitrumSepolia, baseSepolia, sepolia],
-  connectors: [injected()],
-  transports,
-});
+const near = {
+  id: 397,
+  name: "Near Protocol",
+  nativeCurrency: { name: "NEAR", symbol: "NEAR", decimals: 18 },
+  rpcUrls: { default: { http: ["https://eth-rpc.mainnet.near.org"] } },
+  blockExplorers: {
+    default: { name: "NEAR Explorer", url: "https://eth-explorer.near.org" },
+  },
+};
+const nearTestnet = {
+  id: 398,
+  name: "Near Protocol Testnet",
+  nativeCurrency: { name: "NEAR", symbol: "NEAR", decimals: 18 },
+  rpcUrls: { default: { http: ["https://eth-rpc.testnet.near.org"] } },
+  blockExplorers: {
+    default: {
+      name: "NEAR Explorer",
+      url: "https://eth-explorer-testnet.near.org",
+    },
+  },
+  testnet: true,
+};
+
+export const wagmiConfig = browser
+  ? createConfig({
+      chains:
+        import.meta.env.VITE_NETWORK_ID === "mainnet"
+          ? [arbitrum, base, mainnet, near]
+          : [arbitrumSepolia, baseSepolia, sepolia, nearTestnet],
+      transports,
+      connectors: [
+        walletConnect({
+          projectId:
+            import.meta.env.VITE_WC_PROJECT_ID ??
+            "dba65fff73650d32ae5157f3492c379e",
+          metadata: {
+            name: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
+            url: window.location.hostname,
+            icons: [
+              import.meta.env.VITE_APP_LOGO ??
+                "https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/main/logo/shitzu.webp",
+            ],
+            description: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
+          },
+          showQrModal: true,
+        }),
+        injected({ shimDisconnect: true }),
+      ],
+    })
+  : (undefined as unknown as ReturnType<typeof createConfig>);
 export const baseConfig = createConfig({
   chains:
     import.meta.env.VITE_NETWORK_ID === "mainnet" ? [base] : [baseSepolia],
@@ -76,39 +119,34 @@ export const mainnetConfig = createConfig({
 export type Wallet = GetAccountReturnType;
 export type ConnectedWallet = Wallet & { status: "connected" };
 
-export const evmWallet$ = writable(getAccount(config));
+export const evmWallet$ = writable(getAccount(wagmiConfig));
 
 // Watch for account changes
 if (browser) {
-  watchAccount(config, {
+  watchAccount(wagmiConfig, {
     onChange: (account) => {
       evmWallet$.set(account);
     },
   });
-  reconnect(config);
+  reconnect(wagmiConfig);
 }
 
 /**
  * Request wallet to switch to EVM chain
  */
 export function switchToChain(chainId: ConfiguredChainId) {
-  return _switchChain(config, {
-    chainId,
-  });
+  return _switchChain(wagmiConfig, { chainId });
 }
 
 /**
  * Disconnect the user's wallet
  */
 export function disconnect() {
-  _disconnect(config);
+  _disconnect(wagmiConfig);
   addToast({
     data: {
       type: "simple",
-      data: {
-        title: "Disconnect",
-        description: "Disconnected EVM wallet",
-      },
+      data: { title: "Disconnect", description: "Disconnected EVM wallet" },
     },
   });
 }
@@ -120,8 +158,8 @@ export async function connect(
   connector: Connector,
 ): Promise<GetAccountReturnType> {
   try {
-    await _connect(config, { connector });
-    const account = getAccount(config);
+    await _connect(wagmiConfig, { connector });
+    const account = getAccount(wagmiConfig);
     if (account.status === "connected") {
       addToast({
         data: {

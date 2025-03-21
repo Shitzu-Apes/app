@@ -3,13 +3,16 @@
   import "virtual:uno.css";
   import "../../app.scss";
 
+  import { reconnect, watchAccount } from "@wagmi/core";
   import dayjs from "dayjs";
   import localizedFormat from "dayjs/plugin/localizedFormat";
   import { onMount, onDestroy } from "svelte";
   import { cubicIn, cubicOut } from "svelte/easing";
+  import { get } from "svelte/store";
   import { blur } from "svelte/transition";
 
   import Toast from "$lib/components/Toast.svelte";
+  import { wagmiConfig } from "$lib/evm/wallet";
   import { Footer, Body } from "$lib/layout";
   import BottomNav from "$lib/layout/BottomNav.svelte";
   import { BottomSheet } from "$lib/layout/BottomSheet";
@@ -52,6 +55,34 @@
   nearWallet.accountId$.subscribe((accountId) => {
     if (accountId == null) return;
     refreshShitzuBalance(accountId);
+  });
+
+  onMount(() => {
+    reconnect(wagmiConfig);
+
+    watchAccount(wagmiConfig, {
+      onChange: async (data) => {
+        const selector = await get(nearWallet.selector$);
+        if (
+          data.address != null &&
+          selector.store.getState().selectedWalletId == null
+        ) {
+          selector.wallet("ethereum-wallets").then((wallet) => {
+            // FIXME optional access key not yet supported by wallet selector
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            wallet.signIn({} as any);
+          });
+        }
+        if (
+          data.address == null &&
+          selector.store.getState().selectedWalletId === "ethereum-wallets"
+        ) {
+          selector.wallet("ethereum-wallets").then((wallet) => {
+            wallet.signOut();
+          });
+        }
+      },
+    });
   });
 </script>
 

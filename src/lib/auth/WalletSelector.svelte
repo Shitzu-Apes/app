@@ -9,7 +9,7 @@
   } from "./showWalletSelector";
 
   import {
-    config,
+    wagmiConfig,
     evmWallet$,
     connect as connectEvm,
     disconnect as disconnectEvm,
@@ -39,7 +39,7 @@
     connected$: solanaConnected$,
   } = solanaWallet;
   const solanaWallets$ = solanaWallet.wallets$;
-  const connectors = getConnectors(config);
+  const connectors = getConnectors(wagmiConfig);
 
   // Add wallet state subscriptions
   $: nearConnected = $account$ != null;
@@ -365,11 +365,23 @@
                         on:click={() => handleEvmWalletClick(connector)}
                         class="hover:bg-purple-800/50 p-2 rounded-xl flex items-center flex-1 transition-colors"
                       >
-                        <img
-                          src={connector.icon}
-                          alt={connector.name}
-                          class="w-10 h-10 object-contain mr-5"
-                        />
+                        {#if connector.icon}
+                          <img
+                            src={connector.icon}
+                            alt={connector.name}
+                            class="w-10 h-10 object-contain mr-5"
+                          />
+                        {:else if connector.id === "walletConnect"}
+                          <img
+                            src="https://walletconnect.network/icon.png?14b0dfc4ce526451"
+                            alt={connector.name}
+                            class="w-10 h-10 object-contain mr-5"
+                          />
+                        {:else}
+                          <div
+                            class="i-mdi:wallet w-10 h-10 object-contain mr-5"
+                          />
+                        {/if}
                         <div class="flex flex-col text-left uppercase mr-auto">
                           <span class="text-white">{connector.name}</span>
                         </div>

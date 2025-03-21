@@ -8,8 +8,6 @@ import type {
   Wallet as NearWallet,
   SignedMessage,
 } from "@near-wallet-selector/core";
-import { injected, walletConnect } from "@tarnadas/wagmi-connectors";
-import { createConfig, http } from "@wagmi/core";
 import type { SvelteComponent } from "svelte";
 import { derived, get, readable, writable } from "svelte/store";
 import { P, match } from "ts-pattern";
@@ -20,6 +18,7 @@ import { fetchMyFlags } from "$lib/auth/flag";
 import { fetchIsLoggedIn, webWalletLogin } from "$lib/auth/login";
 import { addToast, addTxToast } from "$lib/components/Toast.svelte";
 import EvmOnboardSheet from "$lib/components/memecooking/BottomSheet/EvmOnboardSheet.svelte";
+import { wagmiConfig } from "$lib/evm/wallet";
 import type { UnionModuleState } from "$lib/models";
 
 export type TransactionCallbacks<T> = {
@@ -33,55 +32,6 @@ async function fetchAccountDetail() {
   return Promise.all([fetchIsLoggedIn(), fetchMyFlags()]);
 }
 
-const near = {
-  id: 397,
-  name: "Near Protocol",
-  nativeCurrency: { name: "NEAR", symbol: "NEAR", decimals: 18 },
-  rpcUrls: { default: { http: ["https://eth-rpc.mainnet.near.org"] } },
-  blockExplorers: {
-    default: { name: "NEAR Explorer", url: "https://eth-explorer.near.org" },
-  },
-};
-const nearTestnet = {
-  id: 398,
-  name: "Near Protocol Testnet",
-  nativeCurrency: { name: "NEAR", symbol: "NEAR", decimals: 18 },
-  rpcUrls: { default: { http: ["https://eth-rpc.testnet.near.org"] } },
-  blockExplorers: {
-    default: {
-      name: "NEAR Explorer",
-      url: "https://eth-explorer-testnet.near.org",
-    },
-  },
-  testnet: true,
-};
-
-export const wagmiConfig = browser
-  ? createConfig({
-      chains:
-        import.meta.env.VITE_NETWORK_ID === "mainnet" ? [near] : [nearTestnet],
-      transports: { [397]: http(), [398]: http() },
-      connectors: [
-        walletConnect({
-          projectId:
-            import.meta.env.VITE_WC_PROJECT_ID ??
-            "dba65fff73650d32ae5157f3492c379e",
-          metadata: {
-            name: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
-            url: window.location.hostname,
-            icons: [
-              import.meta.env.VITE_APP_LOGO ??
-                "https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/main/logo/shitzu.webp",
-            ],
-            description: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
-          },
-          showQrModal: false,
-        }),
-        injected({ shimDisconnect: true }),
-      ],
-    })
-  : (undefined as unknown as ReturnType<typeof createConfig>);
-
 export class Wallet {
   public selector$ = readable(
     browser
@@ -94,8 +44,8 @@ export class Wallet {
           import("@near-wallet-selector/okx-wallet"),
           import("@near-wallet-selector/my-near-wallet"),
           import("@near-wallet-selector/wallet-connect"),
-          import("@near-wallet-selector/ethereum-wallets"),
-          // import("@web3modal/wagmi"),
+          import("@tarnadas/ethereum-wallets"),
+          import("@web3modal/wagmi"),
           import("@keypom/one-click-connect"),
         ]).then(
           ([
@@ -108,7 +58,7 @@ export class Wallet {
             { setupMyNearWallet },
             { setupWalletConnect },
             { setupEthereumWallets },
-            // { createWeb3Modal },
+            { createWeb3Modal },
             { setupOneClickConnect },
           ]) => {
             this.isLoading$.set(false);
@@ -141,17 +91,22 @@ export class Wallet {
                     ],
                     description: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
                   },
+                  methods: [
+                    "near_getAccounts",
+                    "near_signIn",
+                    "near_signOut",
+                    "near_signTransaction",
+                    "near_signTransactions",
+                  ],
                 }),
                 setupEthereumWallets({
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  wagmiConfig: wagmiConfig as any,
-                  // web3Modal: createWeb3Modal({
-                  //   wagmiConfig,
-                  //   projectId:
-                  //     import.meta.env.VITE_WC_PROJECT_ID ??
-                  //     "dba65fff73650d32ae5157f3492c379e",
-                  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  // }) as any,
+                  wagmiConfig,
+                  web3Modal: createWeb3Modal({
+                    wagmiConfig,
+                    projectId:
+                      import.meta.env.VITE_WC_PROJECT_ID ??
+                      "dba65fff73650d32ae5157f3492c379e",
+                  }),
                 }),
                 setupOneClickConnect({
                   contractId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
@@ -243,6 +198,12 @@ export class Wallet {
         if (!account) return;
         this._account$.set(account);
       }
+
+      selector.subscribeOnAccountChange((account) => {
+        if (!account) {
+          this._account$.set(undefined);
+        }
+      });
     });
 
     if (import.meta.env.DEV) {
@@ -325,7 +286,7 @@ export class Wallet {
               P.union("meteor-wallet", "ethereum-wallets"),
               () => undefined as unknown as string,
             )
-            .otherwise(() => import.meta.env.VITE_CONTRACT_ID);
+            .otherwise(() => import.meta.env.VITE_CONNECT_ID);
           const accounts = await wallet.signIn({ contractId });
           const account = accounts.pop();
           if (!account) return;

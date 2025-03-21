@@ -44,7 +44,7 @@
   import Button from "$lib/components/Button.svelte";
   import { addToast } from "$lib/components/Toast.svelte";
   import TokenInput from "$lib/components/TokenInput.svelte";
-  import { evmWallet$, config, switchToChain } from "$lib/evm/wallet";
+  import { evmWallet$, wagmiConfig, switchToChain } from "$lib/evm/wallet";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import type { Network } from "$lib/models/tokens";
   import { nearBalance, nearWallet, refreshNearBalance } from "$lib/near";
@@ -59,31 +59,11 @@
   const { publicKey$ } = solanaWallet;
 
   const networks = [
-    {
-      id: "near",
-      name: "Near",
-      icon: "/near-logo.webp",
-    },
-    {
-      id: "solana",
-      name: "Solana",
-      icon: "/sol-logo.webp",
-    },
-    {
-      id: "base",
-      name: "Base",
-      icon: "/base-logo.webp",
-    },
-    {
-      id: "arbitrum",
-      name: "Arbitrum",
-      icon: "/arb-logo.webp",
-    },
-    {
-      id: "ethereum",
-      name: "Ethereum",
-      icon: "/evm-logo.svg",
-    },
+    { id: "near", name: "Near", icon: "/near-logo.webp" },
+    { id: "solana", name: "Solana", icon: "/sol-logo.webp" },
+    { id: "base", name: "Base", icon: "/base-logo.webp" },
+    { id: "arbitrum", name: "Arbitrum", icon: "/arb-logo.webp" },
+    { id: "ethereum", name: "Ethereum", icon: "/evm-logo.svg" },
   ] as const;
 
   const sourceNetwork$ = writable<Network>("near");
@@ -310,6 +290,8 @@
     const rawTransferEvent = await match($sourceNetwork$)
       .with("near", async () => {
         const selector = await $selector$;
+        console.log("selector", selector);
+        console.log("selector.wallets", await selector.wallet());
 
         const client = getClient(ChainKind.Near, selector);
 
@@ -362,9 +344,7 @@
             recipient,
             tokenAddress,
           },
-          {
-            additionalTransactions,
-          },
+          { additionalTransactions },
         );
       })
       .with("solana", async () => {
@@ -440,7 +420,7 @@
         }
 
         // Get ethers signer
-        const signer = await getEthersSigner(config);
+        const signer = await getEthersSigner(wagmiConfig);
         const client = getClient(ChainKind.Base, signer);
 
         const sender = omniAddress(ChainKind.Base, $evmWallet$.address);
@@ -750,10 +730,7 @@
         if (balance.arbitrum) total = total.add(balance.arbitrum);
         if (balance.ethereum) total = total.add(balance.ethereum);
 
-        return {
-          tokenId,
-          balance: total,
-        };
+        return { tokenId, balance: total };
       });
     },
   );
@@ -1149,9 +1126,7 @@
                 .with("solana", () => 9)
                 .with(P.union("base", "arbitrum", "ethereum"), () => 18)
                 .exhaustive(),
-            ).format({
-              maximumFractionDigits: 4,
-            })}
+            ).format({ maximumFractionDigits: 4 })}
             {$sourceNetwork$ === "near"
               ? "NEAR"
               : $sourceNetwork$ === "solana"
