@@ -55,7 +55,10 @@
         type: "FunctionCall",
         params: {
           methodName: "storage_deposit",
-          args: {},
+          args: {
+            account_id: recipientId,
+            registration_only: true,
+          },
           gas: 20_000_000_000_000n.toString(),
           deposit,
         },
