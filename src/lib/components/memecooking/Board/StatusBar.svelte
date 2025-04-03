@@ -7,7 +7,7 @@
   import RadialProgressBar from "./Desktop/RadialProgressBar.svelte";
   import ExtraDetailWithVisual from "./ExtraDetailWithVisual.svelte";
 
-  import REF_LOGO from "$lib/assets/logo/ref.png";
+  import TRADE_ON_RHEA_BANNER from "$lib/assets/banner/trade_on_rhea.jpg";
   import { EXTERNAL_MEMES } from "$lib/external_memes";
   import type { Meme } from "$lib/models/memecooking";
   import { createProgressBarData } from "$lib/util/progressBarLogic";
@@ -35,10 +35,13 @@
         on:click={() => !isExternalMeme && (expanded = !expanded)}
       >
         <div
-          class="text-white p-2 text-center font-medium mb-4 flex items-center justify-center gap-2"
+          class="text-white text-center font-medium mb-4 flex items-center justify-center gap-2"
         >
-          <img src={REF_LOGO} alt="Ref Logo" class="size-6" />
-          <span>Trade on Ref via Meme.Cooking</span>
+          <img
+            src={TRADE_ON_RHEA_BANNER}
+            alt="Trade on Rhea"
+            class="w-full h-fit object-contain rounded-md"
+          />
         </div>
         {#if !isExternalMeme}
           <div class="flex justify-center border-t border-gray-700">
