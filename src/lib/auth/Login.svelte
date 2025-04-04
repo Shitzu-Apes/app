@@ -4,21 +4,20 @@
   import { showWalletSelector } from ".";
 
   import { page } from "$app/stores";
+  import { usePrimaryNftQuery } from "$lib/api/queries/rewarder";
   import { Button, Squircle } from "$lib/components";
   import { nearWallet } from "$lib/near";
-  import { resolvedPrimaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
 
   const accountId$ = nearWallet.accountId$;
+
+  // Use the primary NFT query hook
+  $: primaryNftQuery = usePrimaryNftQuery($accountId$ || "");
 
   const {
     elements: { menu, item, trigger },
   } = createDropdownMenu();
 
   $: isActive = $page.url.pathname === "/account";
-
-  $: if ($accountId$) {
-    refreshPrimaryNftOf($accountId$);
-  }
 </script>
 
 <div class="login">
@@ -26,8 +25,8 @@
     <div class="flex items-center gap-1">
       <a href="/account" class="size-8 text-lime flex items-center gap-2">
         <Squircle
-          src={$resolvedPrimaryNftTokenId
-            ? `${import.meta.env.VITE_NFT_BASE_URL}/${$resolvedPrimaryNftTokenId.token_id}.png`
+          src={$primaryNftQuery.data
+            ? `${import.meta.env.VITE_NFT_BASE_URL}/${$primaryNftQuery.data[0]}.png`
             : undefined}
           class={isActive ? "text-emerald" : "text-lime"}
         />
