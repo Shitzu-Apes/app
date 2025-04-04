@@ -5,14 +5,17 @@
 
   import ChatBox from "./ChatBox.svelte";
 
+  import { useRankingQuery } from "$lib/api/queries/ranking";
   import type { ShitChatMessage } from "$lib/components/ShitChat/types";
   import Squircle from "$lib/components/Squircle.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
-  import { ranking } from "$lib/store/ranking";
 
   export let messages: ShitChatMessage[];
   export let currentUser: string;
   export let onlineUsers: { token_id: string; account_id: string }[] = [];
+
+  // Get ranking data with a reasonable limit
+  const ranking = useRankingQuery(100);
 
   let chatContainer: HTMLElement;
   onMount(() => {
@@ -65,11 +68,18 @@
   </div>
   <div class="flex flex-col justify-end">
     {#each messages as message}
-      {#await $ranking}
+      {#if $ranking.isLoading}
         <ChatBox {message} {currentUser} {openShitstarSheet} ranking={[]} />
-      {:then ranking}
-        <ChatBox {message} {currentUser} {openShitstarSheet} {ranking} />
-      {/await}
+      {:else if $ranking.data}
+        <ChatBox
+          {message}
+          {currentUser}
+          {openShitstarSheet}
+          ranking={$ranking.data}
+        />
+      {:else}
+        <ChatBox {message} {currentUser} {openShitstarSheet} ranking={[]} />
+      {/if}
     {/each}
   </div>
 </div>
