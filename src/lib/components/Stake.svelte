@@ -7,11 +7,12 @@
   import DogshitUndistributedReward from "./DogshitUndistributedReward.svelte";
   import MessageBox from "./MessageBox.svelte";
 
+  import { usePrimaryNftQuery } from "$lib/api/queries/rewarder";
   import Near from "$lib/assets/Near.svelte";
   import { TokenInput, BurnTheShit, Button } from "$lib/components";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import { nearWallet } from "$lib/near";
-  import { memes, primaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
+  import { memes } from "$lib/store";
   import { FixedNumber } from "$lib/util";
 
   export let walletConnected: boolean;
@@ -21,11 +22,8 @@
 
   const { accountId$ } = nearWallet;
 
-  $: {
-    if ($accountId$) {
-      refreshPrimaryNftOf($accountId$);
-    }
-  }
+  // Use the primary NFT query hook
+  $: primaryNftQuery = usePrimaryNftQuery($accountId$ || "");
 
   const [send, receive] = crossfade({
     duration: 300,
@@ -269,14 +267,19 @@
         </button>
       </div>
       <div class="text-amber text-xs mt-3">
-        {#await $primaryNftTokenId then token}
-          {#if !token}
-            <MessageBox type="warning">
-              You haven't staked an NFT and won't get 25% boost on your $DOGSHIT
-              rewards
-            </MessageBox>
-          {/if}
-        {/await}
+        {#if $primaryNftQuery.isLoading}
+          <!-- Loading primary NFT info -->
+        {:else if $primaryNftQuery.isError}
+          <!-- Error state -->
+          <MessageBox type="warning">
+            Unable to check if you have a staked NFT
+          </MessageBox>
+        {:else if !$primaryNftQuery.data}
+          <MessageBox type="warning">
+            You haven't staked an NFT and won't get 25% boost on your $DOGSHIT
+            rewards <a href="/account" class="text-lime">Stake an NFT</a>
+          </MessageBox>
+        {/if}
       </div>
     </div>
   </div>

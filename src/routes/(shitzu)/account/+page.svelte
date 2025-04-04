@@ -2,6 +2,7 @@
   import { writable } from "svelte/store";
 
   // import ShitzuFace from "$lib/assets/logo/shitzu.webp";
+  import { usePrimaryNftQuery } from "$lib/api/queries/rewarder";
   import Near from "$lib/assets/Near.svelte";
   import ConnectWallet from "$lib/auth/ConnectWallet.svelte";
   import { BuyNftBanner, PrimaryNft } from "$lib/components";
@@ -10,20 +11,12 @@
   import Squircle from "$lib/components/Squircle.svelte";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import { Pool, nearWallet } from "$lib/near";
-  import {
-    primaryNftTokenId,
-    refreshPrimaryNftOf,
-    resolvedPrimaryNftTokenId,
-  } from "$lib/store";
   import { FixedNumber } from "$lib/util";
 
   const { accountId$ } = nearWallet;
 
-  $: {
-    if ($accountId$) {
-      refreshPrimaryNftOf($accountId$);
-    }
-  }
+  // Use the primary NFT query hook
+  $: primaryNftQuery = usePrimaryNftQuery($accountId$ || "");
 
   let stake$ = writable<FixedNumber | undefined>();
 
@@ -40,9 +33,13 @@
   $: accountData = [
     {
       title: "Shitstars",
-      value: $primaryNftTokenId.then((token) =>
-        token ? token.score.format() : "None",
-      ),
+      value: $primaryNftQuery.isLoading
+        ? "Loading..."
+        : $primaryNftQuery.isError
+          ? "Error"
+          : $primaryNftQuery.data
+            ? new FixedNumber($primaryNftQuery.data[1] || "0", 18).format()
+            : "None",
       icon: {
         type: "icon",
         cls: "i-mdi:stars",
@@ -50,9 +47,13 @@
     },
     {
       title: "Primary NFT",
-      value: $primaryNftTokenId.then((token) =>
-        token ? `#${token.token_id}` : "None",
-      ),
+      value: $primaryNftQuery.isLoading
+        ? "Loading..."
+        : $primaryNftQuery.isError
+          ? "Error"
+          : $primaryNftQuery.data
+            ? `#${$primaryNftQuery.data[0]}`
+            : "None",
       icon: undefined,
     },
     {
@@ -85,10 +86,8 @@
       <button class="relative" on:click={() => openBottomSheet(PrimaryNft)}>
         <Squircle
           class="size-30 text-lime flex-1"
-          src={$resolvedPrimaryNftTokenId
-            ? `${
-                import.meta.env.VITE_NFT_BASE_URL
-              }/${$resolvedPrimaryNftTokenId.token_id}.png`
+          src={$primaryNftQuery.data
+            ? `${import.meta.env.VITE_NFT_BASE_URL}/${$primaryNftQuery.data[0]}.png`
             : ""}
         />
         <div class="absolute bottom-0 left-0 right-0 flex justify-center">
@@ -105,7 +104,7 @@
           {$accountId$}
         </div>
       </h2>
-      {#if $resolvedPrimaryNftTokenId === null}
+      {#if !$primaryNftQuery.data && !$primaryNftQuery.isLoading}
         <button class="relative" on:click={() => openBottomSheet(PrimaryNft)}>
           <div class="flex justify-center">
             <div class="bg-lime text-black text-sm px-2 py-1 rounded">
@@ -136,15 +135,7 @@
                 {/if}
               </div>
             {/if}
-            {#if typeof data.value === "string"}
-              {data.value}
-            {:else}
-              {#await data.value}
-                <div class="i-svg-spinners:pulse-3 size-4" />
-              {:then resolvedValue}
-                {resolvedValue}
-              {/await}
-            {/if}
+            {data.value}
           </div>
           <div class="text-sm flex items-center gap-2 f-text-10-16">
             <div>{data.title}</div>
