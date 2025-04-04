@@ -2,7 +2,7 @@
   import type { QueryObserverResult } from "@tanstack/svelte-query";
   import { onMount, createEventDispatcher } from "svelte";
 
-  import { useNftTokenQueries } from "$lib/api/queries/nft";
+  import { useNftTokensQuery } from "$lib/api/queries/nft";
   import type { NftToken } from "$lib/near/nft";
 
   // Define the expected props
@@ -17,7 +17,10 @@
   let isLoaded = false;
 
   // Query non-staked NFT tokens
-  $: nonStakedQueries = useNftTokenQueries(nonStakedTokenIds);
+  const nonStakedQueries = useNftTokensQuery({
+    fromIndex: "0",
+    limit: 1000,
+  });
 
   // Process the non-staked token queries into a map of token ID to owner ID
   $: nonStakedTokenMap = createNonStakedMap(
@@ -32,7 +35,7 @@
 
   // Function to create a map of token ID to owner ID from queries
   function createNonStakedMap(
-    queries: QueryObserverResult<NftToken, Error>[],
+    queries: QueryObserverResult<NftToken[], Error>,
     tokenIds: string[],
   ): Record<string, string> {
     // Handle empty case
@@ -44,10 +47,10 @@
     const tokenMap: Record<string, string> = {};
 
     // Safely extract data from each query
-    queries.forEach((query) => {
+    queries.data?.forEach((query) => {
       try {
-        if (query?.data && query?.data?.owner_id) {
-          tokenMap[query.data.token_id] = query.data.owner_id;
+        if (query?.owner_id) {
+          tokenMap[query.token_id] = query.owner_id;
         }
       } catch (e) {
         console.error("Error processing query:", e);

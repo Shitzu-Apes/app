@@ -1,5 +1,5 @@
 import { createQueryKeys } from "@lukemorales/query-key-factory";
-import { createQuery, createQueries } from "@tanstack/svelte-query";
+import { createQuery } from "@tanstack/svelte-query";
 
 import { Nft } from "$lib/near";
 
@@ -15,6 +15,11 @@ export const nft = createQueryKeys("nft", {
   token: (tokenId: string) => ({
     queryKey: [{ tokenId }],
     queryFn: () => Nft.nftToken(tokenId),
+  }),
+  tokens: (params?: { fromIndex?: string; limit?: number }) => ({
+    queryKey: [{ params }],
+    queryFn: () =>
+      Nft.nftTokens(params?.fromIndex || "0", params?.limit || null),
   }),
 });
 
@@ -42,10 +47,12 @@ export function useNftTokenQuery(tokenId: string) {
   });
 }
 
-export function useNftTokenQueries(tokenIds: string[]) {
-  return createQueries({
-    queries: tokenIds.map((tokenId) => ({
-      ...nft.token(tokenId),
-    })),
+export function useNftTokensQuery(params?: {
+  fromIndex?: string;
+  limit?: number;
+}) {
+  return createQuery({
+    ...nft.tokens(params),
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }

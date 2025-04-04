@@ -56,4 +56,20 @@ export abstract class Nft {
 
     return token;
   }
+
+  public static nftTokens(
+    fromIndex: string | null = "0",
+    limit: number | null = null,
+  ) {
+    const tokens = view<NftToken[]>(
+      import.meta.env.VITE_NFT_CONTRACT_ID,
+      "nft_tokens",
+      {
+        from_index: fromIndex,
+        limit: limit,
+      },
+    );
+
+    return tokens;
+  }
 }

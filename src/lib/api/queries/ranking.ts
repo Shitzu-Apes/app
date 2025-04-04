@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 
-import { useNftTokenQueries } from "./nft";
+import { useNftTokensQuery } from "./nft";
 import { useLeaderboardQuery } from "./rewarder";
 
 import { FixedNumber } from "$lib/util";
@@ -118,16 +118,19 @@ export function useRankingQuery(limit: number = 10) {
     }
 
     // Otherwise, query non-staked tokens
-    const nonStakedQueries = useNftTokenQueries(nonStakedTokenIds);
+    const nonStakedQueries = useNftTokensQuery({
+      fromIndex: "0",
+      limit: 1000,
+    });
 
     // Create a subscriber to handle the results
     const nonStakedUnsubscribe = nonStakedQueries.subscribe(
       ($nonStakedQueries) => {
         // Create a map of token ID to owner ID
         const ownerMap: Record<string, string> = {};
-        $nonStakedQueries.forEach((query) => {
-          if (query.data?.token_id && query.data?.owner_id) {
-            ownerMap[query.data.token_id] = query.data.owner_id;
+        $nonStakedQueries.data?.forEach((query) => {
+          if (query.token_id && query.owner_id) {
+            ownerMap[query.token_id] = query.owner_id;
           }
         });
 
