@@ -8,14 +8,16 @@
 
   import { BuyNftBanner, Button } from "$lib/components";
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
-  import { Nft, nearWallet, type Token } from "$lib/near";
+  import { Nft, nearWallet, type NftToken } from "$lib/near";
   import { primaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
 
   let selectedNftTokenId = "";
 
   const { accountId$ } = nearWallet;
 
-  let nfts: Promise<Token[] | null> = new Promise((resolve) => resolve(null));
+  let nfts: Promise<NftToken[] | null> = new Promise((resolve) =>
+    resolve(null),
+  );
 
   function refreshNfts() {
     if ($accountId$) {

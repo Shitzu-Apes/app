@@ -1,51 +1,43 @@
 <script lang="ts">
   import { slide } from "svelte/transition";
 
+  import { useLeaderboardQuery } from "$lib/api/queries/rewarder";
+  import { usePrimaryNftQuery } from "$lib/api/queries/rewarder";
   import { Faq, Donation, Leaderboard } from "$lib/components";
   import { nearWallet } from "$lib/near";
-  import { refreshPrimaryNftOf, resolvedPrimaryNftTokenId } from "$lib/store";
-  import { ranking, refreshRanking } from "$lib/store/ranking";
 
   const { accountId$ } = nearWallet;
 
   const limit = 500;
   const displayPerPage = 7;
 
-  $: {
-    if ($accountId$) {
-      refreshPrimaryNftOf($accountId$);
-    }
-  }
+  // Get primary NFT for the logged in user
+  $: primaryNftQuery = usePrimaryNftQuery($accountId$ || "");
 
-  if (typeof window !== "undefined") {
-    const url = new URL(window.location.href);
-    const primaryNftTokenId =
-      parseInt(url.searchParams.get("limit") || limit.toString()) || limit;
-    refreshRanking(primaryNftTokenId);
-  } else {
-    refreshRanking(limit);
-  }
+  // Get leaderboard data
+  const leaderboardQuery = useLeaderboardQuery(limit);
 </script>
 
 <div>
   <div class="w-full flex flex-col -mt-1">
     <div class="not-prose">
-      {#await $ranking}
+      {#if $leaderboardQuery.isLoading}
         <div
           transition:slide
           class="flex items-center justify-center w-full h-xs"
         >
           <div class="i-svg-spinners:blocks-wave text-size-20 text-lime" />
         </div>
-      {:then ranking}
+      {:else if $leaderboardQuery.isError}
+        <p>{$leaderboardQuery.error?.message || "Error loading leaderboard"}</p>
+      {:else if $leaderboardQuery.data}
         <Leaderboard
-          {ranking}
-          primaryNft={$resolvedPrimaryNftTokenId}
+          leaderboardData={$leaderboardQuery.data}
+          primaryNftData={$primaryNftQuery.data}
           {displayPerPage}
+          {limit}
         />
-      {:catch error}
-        <p>{error.message}</p>
-      {/await}
+      {/if}
     </div>
   </div>
 
