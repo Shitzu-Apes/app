@@ -16,7 +16,9 @@
   export let openShitstarSheet: (token_id: string) => void;
 
   function isTopTen(token_id: string): boolean {
-    return ranking.some((item) => item.token_id === token_id);
+    if (!ranking || !ranking.length) return false;
+    // Find if token_id is in the first 10 items of ranking
+    return ranking.slice(0, 10).some((item) => item.token_id === token_id);
   }
 
   function getMessageStyle(account_id: string): string {

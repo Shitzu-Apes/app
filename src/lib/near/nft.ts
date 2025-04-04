@@ -1,6 +1,6 @@
 import { view } from "./utils";
 
-export type Token = {
+export type NftToken = {
   token_id: string;
   owner_id: string;
   metadata: {
@@ -34,7 +34,7 @@ export abstract class Nft {
   }
 
   public static nftTokensForOwner(accountId: string) {
-    const tokens = view<Token[]>(
+    const tokens = view<NftToken[]>(
       import.meta.env.VITE_NFT_CONTRACT_ID,
       "nft_tokens_for_owner",
       {
@@ -46,7 +46,7 @@ export abstract class Nft {
   }
 
   public static nftToken(tokenId: string) {
-    const token = view<Token>(
+    const token = view<NftToken>(
       import.meta.env.VITE_NFT_CONTRACT_ID,
       "nft_token",
       {
@@ -55,5 +55,21 @@ export abstract class Nft {
     );
 
     return token;
+  }
+
+  public static nftTokens(
+    fromIndex: string | null = "0",
+    limit: number | null = null,
+  ) {
+    const tokens = view<NftToken[]>(
+      import.meta.env.VITE_NFT_CONTRACT_ID,
+      "nft_tokens",
+      {
+        from_index: fromIndex,
+        limit: limit,
+      },
+    );
+
+    return tokens;
   }
 }

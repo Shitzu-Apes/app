@@ -1,12 +1,15 @@
 <script lang="ts">
   import { page } from "$app/stores";
+  import { usePrimaryNftQuery } from "$lib/api/queries/rewarder";
   import { showWalletSelector } from "$lib/auth/showWalletSelector";
   import Squircle from "$lib/components/Squircle.svelte";
   import { nearWallet } from "$lib/near";
   import paths from "$lib/paths";
-  import { resolvedPrimaryNftTokenId, refreshPrimaryNftOf } from "$lib/store";
 
   const accountId$ = nearWallet.accountId$;
+
+  // Use the primary NFT query hook
+  $: primaryNftQuery = usePrimaryNftQuery($accountId$ || "");
 
   const icons: {
     [key in (typeof paths)[number]["slug"]]: string;
@@ -19,10 +22,6 @@
   };
 
   $: pathname = $page.url.pathname;
-
-  $: if ($accountId$) {
-    refreshPrimaryNftOf($accountId$);
-  }
 
   function handleAccountClick() {
     if (!$accountId$) {
@@ -57,8 +56,8 @@
           : 'text-white'} no-underline"
       >
         <Squircle
-          src={$resolvedPrimaryNftTokenId
-            ? `${import.meta.env.VITE_NFT_BASE_URL}/${$resolvedPrimaryNftTokenId.token_id}.png`
+          src={$primaryNftQuery.data
+            ? `${import.meta.env.VITE_NFT_BASE_URL}/${$primaryNftQuery.data[0]}.png`
             : undefined}
           class="size-6 text-current"
         />

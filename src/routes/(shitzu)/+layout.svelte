@@ -3,6 +3,7 @@
   import "virtual:uno.css";
   import "../../app.scss";
 
+  import { QueryClientProvider } from "@tanstack/svelte-query";
   import { reconnect, watchAccount } from "@wagmi/core";
   import dayjs from "dayjs";
   import localizedFormat from "dayjs/plugin/localizedFormat";
@@ -11,6 +12,7 @@
   import { get } from "svelte/store";
   import { blur } from "svelte/transition";
 
+  import { queryClient } from "$lib/api/queries";
   import Toast from "$lib/components/Toast.svelte";
   import { wagmiConfig } from "$lib/evm/wallet";
   import { Footer, Body } from "$lib/layout";
@@ -86,23 +88,25 @@
   });
 </script>
 
-<BottomSheet />
+<QueryClientProvider client={queryClient}>
+  <BottomSheet />
 
-{#key "shitzu"}
-  <div
-    out:blur={{ duration: 500, easing: cubicOut }}
-    in:blur={{ duration: 500, delay: 500, easing: cubicIn }}
-    class="bg-[#222] min-h-screen w-screen max-w-full"
-  >
+  {#key "shitzu"}
     <div
-      class="flex flex-col min-h-screen prose prose-invert prose-lime mx-auto max-w-none pb-15"
+      out:blur={{ duration: 500, easing: cubicOut }}
+      in:blur={{ duration: 500, delay: 500, easing: cubicIn }}
+      class="bg-[#222] min-h-screen w-screen max-w-full"
     >
-      <Body>
-        <slot />
-      </Body>
-      <Footer />
-      <BottomNav />
+      <div
+        class="flex flex-col min-h-screen prose prose-invert prose-lime mx-auto max-w-none pb-15"
+      >
+        <Body>
+          <slot />
+        </Body>
+        <Footer />
+        <BottomNav />
+      </div>
     </div>
-  </div>
-  <Toast />
-{/key}
+    <Toast />
+  {/key}
+</QueryClientProvider>

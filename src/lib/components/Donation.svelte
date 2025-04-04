@@ -7,15 +7,11 @@
   import { addToast } from "./Toast.svelte";
   import TokenInput from "./TokenInput.svelte";
 
+  import { usePrimaryNftQuery } from "$lib/api/queries/rewarder";
   import SHITZU from "$lib/assets/logo/shitzu.webp";
   import SHITZU_FACE from "$lib/assets/logo/shitzu_face.svg";
   import { nearWallet } from "$lib/near";
-  import {
-    primaryNftTokenId,
-    refreshPrimaryNftOf,
-    refreshShitzuBalance,
-    shitzuBalance,
-  } from "$lib/store";
+  import { refreshShitzuBalance, shitzuBalance } from "$lib/store";
   import { FixedNumber } from "$lib/util";
 
   const SUGGESTED_AMOUNT = [
@@ -35,11 +31,8 @@
 
   const { accountId$ } = nearWallet;
 
-  $: {
-    if ($accountId$) {
-      refreshPrimaryNftOf($accountId$);
-    }
-  }
+  // Use the primary NFT query hook
+  $: primaryNftQuery = usePrimaryNftQuery($accountId$ || "");
 
   $: if ($shitzuBalance) {
     updateDefaultInput($shitzuBalance);
@@ -153,25 +146,23 @@
   <span class="text-xs my-3">
     {#if error}
       <span class="text-red-500">{error}</span>
+    {:else if $primaryNftQuery.isLoading}
+      <div class="i-svg-spinners:pulse-3 size-4 mt-2" />
+    {:else if $primaryNftQuery.data}
+      <span class="leading-tight inline-block mt-2">
+        You are donating {$input$?.format() ?? "0"} SHITZU and SHITZU Revival #{$primaryNftQuery
+          .data[0]}
+        will earn
+        {$input$?.mul(new FixedNumber(4n)).format() ?? "0"} Shitstars! Become the
+        Shitstar - your contribution matters!
+      </span>
     {:else}
-      {#await $primaryNftTokenId then token}
-        {#if token}
-          <span class="leading-tight inline-block mt-2">
-            You are donating {$input$?.format() ?? "0"} SHITZU and SHITZU Revival
-            #{token.token_id}
-            will earn
-            {$input$?.mul(new FixedNumber(4n)).format() ?? "0"} Shitstars! Become
-            the Shitstar - your contribution matters!
-          </span>
-        {:else}
-          <div class="mt-2">
-            <MessageBox type="warning">
-              You haven't staked an NFT and won't earn any Shitstars - But your
-              contribution still matters!
-            </MessageBox>
-          </div>
-        {/if}
-      {/await}
+      <div class="mt-2">
+        <MessageBox type="warning">
+          You haven't staked an NFT and won't earn any Shitstars - But your
+          contribution still matters!
+        </MessageBox>
+      </div>
     {/if}
   </span>
   <Button
