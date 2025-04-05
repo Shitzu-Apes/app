@@ -2,21 +2,20 @@
   import { createEventDispatcher } from "svelte";
 
   import BuyNftBanner from "../Banner/BuyNFTBanner.svelte";
-  import Squircle from "../Squircle.svelte";
+
+  import RankingItem from "./RankingItem.svelte";
 
   import type { FixedNumber } from "$lib/util";
 
   export let rankingEntries: Array<{
     token_id: string;
-    account_id: string;
+    account_id: string | null;
     score: FixedNumber;
     rank: number;
   }> = [];
 
   export let currentPage = 0;
   export let totalPages = 1;
-
-  const BASE_URL = import.meta.env.VITE_NFT_BASE_URL;
 
   function onPageFirst() {
     dispatch("page", 0);
@@ -54,32 +53,13 @@
     </div>
 
     {#each rankingEntries as { token_id, account_id, score, rank } (token_id)}
-      <li
-        class="flex justify-center items-center text-white py-3 px-3 border-b first:border-t border-lime last:border-none {account_id ===
-        'You'
-          ? 'bg-lime/50'
-          : ''}"
-      >
-        <a href="/shitstars/{token_id}" class="mr-3">
-          <Squircle class="size-18 text-lime" src="{BASE_URL}/{token_id}.png" />
-        </a>
-
-        <div class="max-w-[200px]">
-          <div class="font-light text-lg text-ellipsis overflow-hidden">
-            {account_id}
-          </div>
-          <div class="font-bold text-base flex items-center">
-            <div class="i-mdi:stars size-5 mr-1" />
-            {score.format()}
-          </div>
-        </div>
-
-        <div
-          class="ml-auto text-2xl flex justify-center items-center bg-lime size-6 text-black rounded-full text-xs font-bold"
-        >
-          {rank}
-        </div>
-      </li>
+      <RankingItem
+        {token_id}
+        initial_account_id={account_id}
+        {score}
+        {rank}
+        isCurrentUser={account_id === "You"}
+      />
     {/each}
   </ol>
 

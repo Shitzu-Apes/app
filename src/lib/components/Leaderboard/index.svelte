@@ -3,7 +3,6 @@
 
   import Button from "../Button.svelte";
 
-  import NonStakedResolver from "./NonStakedResolver.svelte";
   import RankingList from "./RankingList.svelte";
   import TopThree from "./TopThree.svelte";
 
@@ -26,32 +25,13 @@
       }
     : null;
 
-  // Extract non-staked token IDs
-  $: nonStakedTokenIds = leaderboardData
-    .flatMap(([, accounts]) => {
-      return accounts
-        .filter(([, accountId]) => accountId === null)
-        .map(([tokenId]) => tokenId);
-    })
-    .filter(Boolean);
-
-  // Store for non-staked token owners
-  let nonStakedTokenOwners: Record<string, string> = {};
-
-  // Process ranking data with the resolved non-staked tokens
+  // Process ranking data
   $: ranking = leaderboardData
     .flatMap(([score, accounts]) =>
       accounts.map(([tokenId, accountId]) => {
-        let finalAccountId = accountId;
-
-        // Find owner for non-staked tokens
-        if (accountId === null) {
-          finalAccountId = nonStakedTokenOwners[tokenId] || "Anonymous";
-        }
-
         return {
           token_id: tokenId,
-          account_id: finalAccountId || "Anonymous",
+          account_id: accountId,
           score: new FixedNumber(score.toString(), 18),
         };
       }),
@@ -121,15 +101,7 @@
   function handlePageChange(event: CustomEvent<number>) {
     currentPage = event.detail;
   }
-
-  // Handle non-staked tokens being resolved
-  function handleNonStakedResolved(event: CustomEvent<Record<string, string>>) {
-    nonStakedTokenOwners = event.detail;
-  }
 </script>
-
-<!-- Invisible component to resolve non-staked tokens -->
-<NonStakedResolver {nonStakedTokenIds} on:resolved={handleNonStakedResolved} />
 
 <div transition:slide>
   <!-- Top three winners -->

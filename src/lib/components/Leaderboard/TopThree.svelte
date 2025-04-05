@@ -6,7 +6,7 @@
 
   export let topThree: Array<{
     token_id: string;
-    account_id: string;
+    account_id: string | null;
     score: FixedNumber;
     rank: number;
   }> = [];

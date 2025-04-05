@@ -39,10 +39,10 @@ export function useNftTokensForOwnerQuery(accountId: string) {
   });
 }
 
-export function useNftTokenQuery(tokenId: string) {
+export function useNftTokenQuery(tokenId: string, enabled: boolean = true) {
   return createQuery({
     ...nft.token(tokenId),
-    enabled: !!tokenId, // Only run if tokenId is provided
+    enabled, // Only run if tokenId is provided
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
