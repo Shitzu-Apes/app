@@ -2,6 +2,7 @@
   import type { Transaction } from "@near-wallet-selector/core";
   import { writable } from "svelte/store";
 
+  import { useShitzuBalanceQuery } from "$lib/api/queries/shitzuBalance";
   import { Near } from "$lib/assets";
   import SHITZU_LOGO from "$lib/assets/logo/shitzu.webp";
   import { ConnectWallet } from "$lib/auth";
@@ -15,7 +16,6 @@
     nearWallet,
   } from "$lib/near";
   import {
-    shitzuBalance,
     shitzuPriceHistory,
     type ShitzuPriceHistory,
     currentShitzuPrice,
@@ -61,6 +61,9 @@
   }
 
   const { accountId$ } = nearWallet;
+
+  // Use the shitzu balance query
+  $: shitzuBalanceQuery = useShitzuBalanceQuery($accountId$ || "");
 
   let shitzuOut:
     | {
@@ -174,6 +177,7 @@
       {
         onSuccess: () => {
           refreshNearBalance($accountId$);
+          $shitzuBalanceQuery.refetch();
         },
         onFinally: () => {},
       },
@@ -190,14 +194,14 @@
     >
       <div>Balance</div>
       <div class="flex items-center gap-2">
-        {#await $shitzuBalance}
+        {#if $shitzuBalanceQuery.isLoading}
           <div class="i-svg-spinners:6-dots-rotate w-3 h-3 bg-lime" />
-        {:then balance}
+        {:else if $shitzuBalanceQuery.isSuccess && $shitzuBalanceQuery.data}
           <div class="w-3 h-3 rounded-full bg-emerald" />
-          <span>{balance.format()} SHITZU</span>
-        {:catch}
+          <span>{$shitzuBalanceQuery.data.format()} SHITZU</span>
+        {:else}
           -
-        {/await}
+        {/if}
 
         <div class="i-mdi:arrow-right w-3 h-3" />
       </div>

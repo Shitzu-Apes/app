@@ -21,7 +21,6 @@
   import { ScreenSize } from "$lib/models";
   import { nearWallet } from "$lib/near";
   import { screenSize$ } from "$lib/screen-size";
-  import { refreshShitzuBalance } from "$lib/store";
 
   // eslint-disable-next-line import/no-named-as-default-member
   dayjs.extend(localizedFormat);
@@ -52,11 +51,6 @@
   onDestroy(() => {
     if (!resizeObserver) return;
     resizeObserver.unobserve(window.document.body);
-  });
-
-  nearWallet.accountId$.subscribe((accountId) => {
-    if (accountId == null) return;
-    refreshShitzuBalance(accountId);
   });
 
   onMount(() => {

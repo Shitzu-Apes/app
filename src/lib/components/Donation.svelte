@@ -8,10 +8,10 @@
   import TokenInput from "./TokenInput.svelte";
 
   import { usePrimaryNftQuery } from "$lib/api/queries/rewarder";
+  import { useShitzuBalanceQuery } from "$lib/api/queries/shitzuBalance";
   import SHITZU from "$lib/assets/logo/shitzu.webp";
   import SHITZU_FACE from "$lib/assets/logo/shitzu_face.svg";
   import { nearWallet } from "$lib/near";
-  import { refreshShitzuBalance, shitzuBalance } from "$lib/store";
   import { FixedNumber } from "$lib/util";
 
   const SUGGESTED_AMOUNT = [
@@ -31,15 +31,17 @@
 
   const { accountId$ } = nearWallet;
 
+  // Use the balance query
+  $: shitzuBalanceQuery = useShitzuBalanceQuery($accountId$ || "");
+
   // Use the primary NFT query hook
   $: primaryNftQuery = usePrimaryNftQuery($accountId$ || "");
 
-  $: if ($shitzuBalance) {
-    updateDefaultInput($shitzuBalance);
+  $: if ($shitzuBalanceQuery.data) {
+    updateDefaultInput($shitzuBalanceQuery.data);
   }
 
-  async function updateDefaultInput(bal: Promise<FixedNumber>) {
-    const shitzuBalance = await bal;
+  function updateDefaultInput(shitzuBalance: FixedNumber) {
     if (shitzuBalance.valueOf() < SUGGESTED_AMOUNT[1].valueOf()) {
       $inputValue$ = shitzuBalance.toString();
     } else {
@@ -50,9 +52,9 @@
   let error: string | null = null;
 
   async function donate() {
-    if ($input$ == null) return;
+    if ($input$ == null || !$shitzuBalanceQuery.data) return;
 
-    const balance = await $shitzuBalance;
+    const balance = $shitzuBalanceQuery.data;
 
     if ($input$.valueOf() > balance.valueOf()) {
       error = "Insufficient balance";
@@ -81,7 +83,7 @@
       {
         onSuccess: () => {
           dispatch("donation", { amount: $input$ });
-          refreshShitzuBalance($accountId$);
+          $shitzuBalanceQuery.refetch();
           addToast({
             data: {
               type: "simple",
@@ -100,14 +102,14 @@
 <div id="donation" class="mt-10 prose-lime prose prose-invert">
   <div class="flex justify-between items-center">
     <h2 class="mt-0">Donation</h2>
-    {#await $shitzuBalance}
+    {#if $shitzuBalanceQuery.isLoading}
       <div class="i-svg-spinners:pulse-3 size-4" />
-    {:then balance}
+    {:else if $shitzuBalanceQuery.isSuccess && $shitzuBalanceQuery.data}
       <div class="flex justify-center items-center">
         <img src={SHITZU} class="size-6 mr-1" alt="Shitzu face" />
-        {balance.format()}
+        {$shitzuBalanceQuery.data.format()}
       </div>
-    {/await}
+    {/if}
   </div>
   <ol class="not-prose w-full flex flex-wrap items-center justify-evenly gap-5">
     {#each SUGGESTED_AMOUNT as suggestedAmount}
@@ -118,13 +120,16 @@
           suggestedAmount.valueOf()
             ? 'bg-lime/50'
             : 'bg-lime'}"
-          on:click={async () => {
+          on:click={() => {
             error = null;
-            const balance = await $shitzuBalance;
-            if (suggestedAmount.valueOf() > balance.valueOf()) {
-              $inputValue$ = balance.toString();
-            } else {
-              $inputValue$ = suggestedAmount.toString();
+            if ($shitzuBalanceQuery.data) {
+              if (
+                suggestedAmount.valueOf() > $shitzuBalanceQuery.data.valueOf()
+              ) {
+                $inputValue$ = $shitzuBalanceQuery.data.toString();
+              } else {
+                $inputValue$ = suggestedAmount.toString();
+              }
             }
           }}
         >
