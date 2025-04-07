@@ -2,7 +2,12 @@
   import type { Transaction } from "@near-wallet-selector/core";
   import { writable } from "svelte/store";
 
+  import {
+    usePriceHistoryQuery,
+    type ShitzuPriceHistory,
+  } from "$lib/api/queries/priceHistory";
   import { useShitzuBalanceQuery } from "$lib/api/queries/shitzuBalance";
+  import { useCurrentShitzuPriceQuery } from "$lib/api/queries/tokenPrice";
   import { Near } from "$lib/assets";
   import SHITZU_LOGO from "$lib/assets/logo/shitzu.webp";
   import { ConnectWallet } from "$lib/auth";
@@ -15,16 +20,17 @@
     refreshNearBalance,
     nearWallet,
   } from "$lib/near";
-  import {
-    shitzuPriceHistory,
-    type ShitzuPriceHistory,
-    currentShitzuPrice,
-  } from "$lib/store";
   import { FixedNumber } from "$lib/util";
 
+  // Use price history query
+  $: priceHistoryQuery = usePriceHistoryQuery("token.0xshitzu.near");
+
+  // Use the current price query
+  $: currentPriceQuery = useCurrentShitzuPriceQuery();
+
   $: shitzuStat =
-    $shitzuPriceHistory && $currentShitzuPrice
-      ? preparePrice($shitzuPriceHistory, $currentShitzuPrice)
+    $priceHistoryQuery.data && $currentPriceQuery.data
+      ? preparePrice($priceHistoryQuery.data, $currentPriceQuery.data)
       : null;
 
   function preparePrice(
@@ -178,6 +184,8 @@
         onSuccess: () => {
           refreshNearBalance($accountId$);
           $shitzuBalanceQuery.refetch();
+          $priceHistoryQuery.refetch();
+          $currentPriceQuery.refetch();
         },
         onFinally: () => {},
       },
@@ -227,9 +235,9 @@
           {displayPrice.hoursAgo} hrs ago
         </div>
       {:else}
-        {#if $currentShitzuPrice}
+        {#if $currentPriceQuery.data}
           <div>
-            ${parseFloat($currentShitzuPrice).toFixed(6)}
+            ${parseFloat($currentPriceQuery.data).toFixed(6)}
           </div>
         {:else}
           <div class="i-svg-spinners:6-dots-rotate size-6 bg-lime mx-auto" />
@@ -252,7 +260,7 @@
   </div>
 
   <div class="relative w-full flex justify-center items-center">
-    {#if !($shitzuPriceHistory && $currentShitzuPrice)}
+    {#if $priceHistoryQuery.isLoading || !$currentPriceQuery.data}
       <div class="absolute i-svg-spinners:pulse w-10 h-10 bg-lime" />
     {/if}
 
@@ -264,15 +272,15 @@
           displayPrice = null;
         }
       }}
-      data={$shitzuPriceHistory && $currentShitzuPrice
+      data={$priceHistoryQuery.data && $currentPriceQuery.data
         ? [
-            ...$shitzuPriceHistory.price_list.map((price) => ({
+            ...$priceHistoryQuery.data.price_list.map((price) => ({
               x: price.date_time * 1000,
               y: parseFloat(price.price),
             })),
             {
               x: Date.now(),
-              y: parseFloat($currentShitzuPrice),
+              y: parseFloat($currentPriceQuery.data),
             },
           ]
         : []}
@@ -316,7 +324,7 @@
     {/if}
   </div>
 
-  {#if $currentShitzuPrice && shitzuOut.status === "success" && $input$}
+  {#if $currentPriceQuery.data && shitzuOut.status === "success" && $input$}
     <div class="mt-6">
       <div class="text-sm font-bold flex items-center gap-1 mb-1">
         Buy SHITZU <div class="i-mdi:rocket-launch w-4 h-4 inline-flex" />
@@ -334,7 +342,7 @@
           <div class="i-mdi:open-in-new w-3 h-3 inline-flex items-center" />
         </a>. You will receive approximately {shitzuOut.value.format()} SHITZU based
         on the current price of ${parseFloat(
-          $currentShitzuPrice.toString(),
+          $currentPriceQuery.data.toString(),
         ).toFixed(6)} with a maximum of 5% slippage.
       </div>
     </div>
