@@ -290,6 +290,54 @@ export const tokensKeys = createQueryKeys("tokens", {
       });
     },
   }),
+  tokenMetadata: (tokenId: keyof PoolIdsType) => ({
+    queryKey: [`${tokenId}_metadata`],
+    queryFn: async () => {
+      const metadata = await Ft.metadata(tokenId);
+
+      if (tokenId === "blackdragon.tkn.near") {
+        metadata.icon = BlackDragonLogo;
+      }
+
+      return {
+        decimal: metadata.decimals,
+        symbol: metadata.symbol,
+        icon: metadata.icon,
+      } as Omit<TokenInfo, "price">;
+    },
+  }),
+  tokenPrice: (tokenId: keyof PoolIdsType) => ({
+    queryKey: [`${tokenId}_price`],
+    queryFn: async () => {
+      const refPrices = queryClient.getQueryData<Record<TokenId, TokenInfo>>(
+        tokensKeys.all().queryKey,
+      );
+
+      if (
+        refPrices &&
+        refPrices[tokenId] != null &&
+        refPrices[tokenId]!.price
+      ) {
+        return refPrices[tokenId]!.price;
+      }
+
+      // Try to fetch price from dexscreener if not available in refPrices
+      return fetch(
+        `https://api.dexscreener.com/latest/dex/pairs/near/refv1-${poolIds[tokenId].poolId}`,
+      ).then(async (res) => {
+        if (!res.ok) {
+          return undefined;
+        }
+        const data = await res.json();
+        try {
+          return data.pairs[0].priceUsd;
+        } catch (err) {
+          console.error("Error fetching token price:", err);
+          return undefined;
+        }
+      });
+    },
+  }),
 });
 
 export function useTokenInfoQuery(tokenId: keyof PoolIdsType) {
@@ -312,3 +360,19 @@ export const memes = [
   { name: "Lonk", src: LonkLogo },
   { name: "Hijack", src: HijackLogo },
 ];
+
+// New hook for fetching only token metadata
+export function useTokenMetadataQuery(tokenId: keyof PoolIdsType) {
+  return createQuery({
+    ...tokensKeys.tokenMetadata(tokenId),
+    staleTime: 5 * 60 * 1000, // 5 minutes as metadata changes rarely
+  });
+}
+
+// New hook for fetching only token price
+export function useTokenPriceQuery(tokenId: keyof PoolIdsType) {
+  return createQuery({
+    ...tokensKeys.tokenPrice(tokenId),
+    staleTime: 30 * 1000, // 30 seconds
+  });
+}
