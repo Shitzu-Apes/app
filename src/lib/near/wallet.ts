@@ -92,11 +92,12 @@ export class Wallet {
                     description: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
                   },
                   methods: [
-                    "near_getAccounts",
                     "near_signIn",
                     "near_signOut",
+                    "near_getAccounts",
                     "near_signTransaction",
                     "near_signTransactions",
+                    "near_verifyOwner",
                   ],
                 }),
                 setupEthereumWallets({
