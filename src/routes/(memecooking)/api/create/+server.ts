@@ -27,6 +27,7 @@ export async function POST(e) {
       {
         headers: {
           "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
         },
         status: 400,
       },
