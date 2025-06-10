@@ -67,8 +67,8 @@ export const TOKENS = {
     links: {
       near: {
         buy: {
-          url: "https://app.ref.finance/#|near",
-          icon: "https://app.ref.finance/favicon.svg",
+          url: "https://dex.rhea.finance/#|near",
+          icon: "https://dex.rhea.finance/favicon.svg",
           colors: { bg: "black", hover: "rgb(24 24 27)", text: "white" },
         },
         dexscreener: {

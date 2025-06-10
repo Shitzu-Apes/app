@@ -16,3 +16,5 @@ src/lib/datafeeds
 static/charting_library
 
 .near-credentials
+# SpecStory explanation file
+.specstory/.what-is-this.md

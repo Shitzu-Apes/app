@@ -31,7 +31,7 @@
       steps: [
         {
           text: "Send USDC via",
-          href: "https://app.ref.finance/bridge",
+          href: "https://dex.rhea.finance/bridge",
           linkText: "Ref Finance bridge aggregator",
         },
         {
