@@ -144,25 +144,20 @@
       {/each}
     </ul>
     <section>
-      <h2>Ref Finance</h2>
+      <h2>Rhea Finance</h2>
       <RefMemeSeason />
 
       <Faq
         qnas={[
           {
-            question: "How are Shitstars calculated for XREF staking?",
+            question: "What happened to Ref/Rhea Finance Meme Season?",
             answer:
-              "For XREF staking, everyone starts with a base of 100 Shitstars. You can earn up to 100 additional Shitstars, calculated as the minimum between 100 and the square root of your XREF stake.",
-          },
-          {
-            question: "How are Shitstars calculated for Shitzu staking?",
-            answer:
-              "For Shitzu staking, everyone starts with a base of 50 Shitstars. You can earn up to 50 additional Shitstars, calculated as the minimum between 50 and the square root of your Shitzu stake divided by 5.",
+              "Rhea Finance Meme Season officially ended, so we will no longer emit Shitstar rewards for participation. You can unstake your Meme Season tokens.",
           },
           {
             question: "How are Shitstars calculated for LP staking?",
             answer:
-              "For LP staking, everyone starts with a base of 50 Shitstars. You can earn up to 50 additional Shitstars, calculated as the minimum between 50 and the square root of your LP stake divided by 0.01.",
+              "For LP staking, everyone starts with a base of 100 Shitstars. You can earn up to 100 additional Shitstars, calculated as the minimum between 100 and the square root of your LP stake divided by 0.005.",
           },
         ]}
       />
