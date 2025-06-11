@@ -47,6 +47,11 @@ jobs:
       - name: Add WalletConnect project ID to .env
         run: echo "VITE_WC_PROJECT_ID=dba65fff73650d32ae5157f3492c379e" >> .env
 
+      - name: Add Near RPC URL to .env
+        run: echo "VITE_NODE_URL=$VITE_NODE_URL" >> .env.local
+        env:
+          VITE_NODE_URL: ${{ secrets.VITE_NODE_URL }}
+
       - name: Add Solana RPC URL to .env
         run: echo "VITE_SOLANA_RPC_URL=$VITE_SOLANA_RPC_URL" >> .env
         env:
