@@ -73,10 +73,10 @@ jobs:
       - name: Add WalletConnect project ID to .env
         run: echo "VITE_WC_PROJECT_ID=44dd0ed9ce175eeb72a67532fbfb6f96" >> .env.production
 
-      - name: Add Near RPC URL to .env
-        run: echo "VITE_NODE_URL=$VITE_NODE_URL" >> .env.production.local
-        env:
-          VITE_NODE_URL: ${{ secrets.VITE_NODE_URL }}
+      # - name: Add Near RPC URL to .env
+      #   run: echo "VITE_NODE_URL=$VITE_NODE_URL" >> .env.production.local
+      #   env:
+      #     VITE_NODE_URL: ${{ secrets.VITE_NODE_URL }}
 
       - name: Build step
         run: "yarn vite build --mode production"
