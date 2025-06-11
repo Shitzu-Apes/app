@@ -1,3 +1,4 @@
+import { MetaPool } from "./metapool";
 import { view } from "./utils";
 
 import type { AccountId } from "$lib/abi";
@@ -69,6 +70,40 @@ export abstract class Pool {
         account_id,
         farm_id,
       },
+    );
+  }
+}
+
+export abstract class RegularPool {
+  public static getAccount(accountId: string) {
+    return view<PoolAccount>(
+      import.meta.env.VITE_REGULAR_VALIDATOR_CONTRACT_ID,
+      "get_account",
+      {
+        account_id: accountId,
+      },
+    );
+  }
+
+  public static getNumberOfAccounts() {
+    return view<number>(
+      import.meta.env.VITE_REGULAR_VALIDATOR_CONTRACT_ID,
+      "get_number_of_accounts",
+      {},
+    );
+  }
+
+  public static getPoolSummary() {
+    return view<PoolSummary>(
+      import.meta.env.VITE_REGULAR_VALIDATOR_CONTRACT_ID,
+      "get_pool_summary",
+      {},
+    );
+  }
+
+  public static async getAPY() {
+    return await MetaPool.getValidatorAPY(
+      import.meta.env.VITE_REGULAR_VALIDATOR_CONTRACT_ID,
     );
   }
 }

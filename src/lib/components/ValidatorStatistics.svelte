@@ -21,6 +21,8 @@
   export let totalStakers: number | null;
   export let totalStaked: FixedNumber | null;
   export let hasStakedNft: boolean;
+  export let validatorType: "meme" | "regular" = "meme";
+  export let apy: number | null = null;
 
   let showNftApr = false;
   const tokenAPRs$ = writable<[number | null, TokenInfo][]>([]);
@@ -28,10 +30,16 @@
   let totalAPRDiff: FixedNumber | null = null;
 
   const near$ = getToken$("wrap.near");
-  // hardcoding this to 9% * 0.75 for now
-  const nearAPR = new FixedNumber(675n, 2);
+  // hardcoding this to 9% * 0.75 for meme validator (25% fee) and using API APY for regular validator (5% fee)
+  $: nearAPR =
+    validatorType === "meme"
+      ? new FixedNumber(675n, 2) // 6.75% (9% * 0.75)
+      : apy != null
+        ? new FixedNumber(BigInt(Math.round(apy * 100)), 2) // Use API APY
+        : new FixedNumber(855n, 2); // 8.55% fallback (9% * 0.95)
 
   $: if (
+    validatorType === "meme" &&
     farm != null &&
     undistributedRewards != null &&
     totalStaked != null &&
@@ -40,13 +48,20 @@
     fetchAPRs(farm, totalStaked, $near$);
   }
 
-  $: calculateTotalApr($tokenAPRs$, hasStakedNft, showNftApr);
+  $: calculateTotalApr($tokenAPRs$, hasStakedNft, showNftApr, validatorType);
 
   async function calculateTotalApr(
     tokenAPRs: [number | null, TokenInfo][],
     hasNft: boolean,
     showNftApr: boolean,
+    validatorType: "meme" | "regular",
   ) {
+    if (validatorType === "regular") {
+      totalAPR = nearAPR;
+      totalAPRDiff = null;
+      return;
+    }
+
     const apr = tokenAPRs.reduce((acc, cur) => acc + (cur[0] ?? 0), 0);
     totalAPR = new FixedNumber(String(Math.round(apr * 10_000)), 2)
       .mul(
@@ -120,7 +135,9 @@
   <h3 class="flex justify-between items-baseline">
     <span>Statistics</span>
     <a
-      href="https://nearscope.net/validator/shitzu.pool.near/tab/delegators"
+      href={validatorType === "meme"
+        ? "https://nearscope.net/validator/shitzu.pool.near/tab/delegators"
+        : "https://nearscope.net/validator/shitzuapes.pool.near/tab/delegators"}
       target="_blank"
       rel="noopener"
       class="text-sm text-right text-lime"
@@ -147,7 +164,7 @@
                     maximumFractionDigits: 2,
                   })}%
                 {/if}
-                {#if totalAPRDiff && showNftApr && !hasStakedNft}
+                {#if totalAPRDiff && showNftApr && !hasStakedNft && validatorType === "meme"}
                   <span class="text-green-3 ml-1" in:fade>
                     (+{totalAPRDiff.format({
                       maximumFractionDigits: 2,
@@ -172,33 +189,49 @@
               hasNft={true}
             />
           {/await}
-          {#each $tokenAPRs$ as [apr, token]}
-            <TokenStatistics
-              {token}
-              apr={apr != null
-                ? new FixedNumber(String(Math.round(apr * 10_000)), 2)
-                : null}
-              hasNft={hasStakedNft}
-              {showNftApr}
-            />
-          {/each}
+          {#if validatorType === "meme"}
+            {#each $tokenAPRs$ as [apr, token]}
+              <TokenStatistics
+                {token}
+                apr={apr != null
+                  ? new FixedNumber(String(Math.round(apr * 10_000)), 2)
+                  : null}
+                hasNft={hasStakedNft}
+                {showNftApr}
+              />
+            {/each}
+          {/if}
         </p>
       </details>
     </div>
 
-    <div
-      class="mt-2 bg-gradient-to-r bg-gradient-from-lime bg-gradient-to-emerald py-4 px-4 rounded-xl text-black flex flex-col not-prose"
-      on:mouseenter={() => {
-        showNftApr = true;
-      }}
-      on:mouseleave={() => {
-        showNftApr = false;
-      }}
-      aria-label="APR Toggle"
-      role="contentinfo"
-    >
-      <StakeNftBanner />
-    </div>
+    {#if validatorType === "meme"}
+      <div
+        class="mt-2 bg-gradient-to-r bg-gradient-from-lime bg-gradient-to-emerald py-4 px-4 rounded-xl text-black flex flex-col not-prose"
+        on:mouseenter={() => {
+          showNftApr = true;
+        }}
+        on:mouseleave={() => {
+          showNftApr = false;
+        }}
+        aria-label="APR Toggle"
+        role="contentinfo"
+      >
+        <StakeNftBanner />
+      </div>
+    {:else}
+      <div
+        class="mt-2 bg-gradient-to-r bg-gradient-from-gray-600 bg-gradient-to-gray-500 py-4 px-4 rounded-xl text-white flex flex-col not-prose"
+      >
+        <div class="text-center">
+          <h4 class="text-lg font-bold mb-2">Regular Validator</h4>
+          <p class="text-sm">Standard NEAR staking with 5% validator fee</p>
+          <p class="text-xs mt-1 opacity-75">
+            No meme tokens • No NFT boosts • Reliable rewards
+          </p>
+        </div>
+      </div>
+    {/if}
 
     <div class="flex justify-between">
       <span>Total staked</span>

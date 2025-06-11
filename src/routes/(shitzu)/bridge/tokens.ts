@@ -480,7 +480,11 @@ publicKey$.subscribe(async (publicKey) => {
   }
 });
 
-// Update Base balance whenever wallet changes
+const updateTimeoutIds = new Map<
+  keyof typeof TOKENS,
+  ReturnType<typeof setTimeout>
+>();
+
 evmWallet$.subscribe(async (wallet) => {
   if (wallet.status !== "connected") {
     for (const token of Object.keys(TOKENS) as (keyof typeof TOKENS)[]) {
@@ -494,19 +498,12 @@ evmWallet$.subscribe(async (wallet) => {
   }
 });
 
-// Function to manually update balance
-const updateTimeoutIds = new Map<
-  keyof typeof TOKENS,
-  ReturnType<typeof setTimeout>
->();
 export function updateTokenBalance(token: keyof typeof TOKENS): void {
-  // Clear existing timeout for this specific token if it exists
   const existingTimeout = updateTimeoutIds.get(token);
   if (existingTimeout) {
     clearTimeout(existingTimeout);
   }
 
-  // Set new timeout for this token
   const timeoutId = setTimeout(async () => {
     const account = get(account$);
     const publicKey = get(publicKey$);

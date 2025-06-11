@@ -7,3 +7,4 @@ export * from "./ref";
 export * from "./wallet";
 export * from "./rewarder";
 export * from "./memeseason";
+export * from "./metapool";

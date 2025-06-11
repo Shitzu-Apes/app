@@ -18,6 +18,7 @@
   export let walletConnected: boolean;
   export let nearBalance: FixedNumber;
   export let stake: FixedNumber;
+  export let validatorType: "meme" | "regular" = "meme";
   export let afterUpdateBalances: () => void;
 
   const { accountId$ } = nearWallet;
@@ -96,9 +97,15 @@
 
   async function handleStakeButton() {
     if (!$input$ || $input$.valueOf() === 0n) return;
+
+    const contractId =
+      validatorType === "meme"
+        ? import.meta.env.VITE_VALIDATOR_CONTRACT_ID
+        : import.meta.env.VITE_REGULAR_VALIDATOR_CONTRACT_ID;
+
     await nearWallet.signAndSendTransaction(
       {
-        receiverId: import.meta.env.VITE_VALIDATOR_CONTRACT_ID,
+        receiverId: contractId,
         actions: [
           {
             type: "FunctionCall",
@@ -245,42 +252,56 @@
       </div>
     </div>
 
-    <div
-      class="w-full py-3 text-black font-bold text-xl mt-3 border-t-2 border-lime"
-    >
-      <ul class="flex not-prose justify-center my-3">
-        {#each memes as { name, src }}
-          <li class="first:pl-2 -ml-2">
-            <img {src} alt={name} class="w-9 h-9 rounded-full" />
-          </li>
-        {/each}
-      </ul>
-      <div class="text-sm flex justify-evenly mt-6 gap-2">
-        <BurnTheShit class="text-sm rounded-lg" on:claimSuccess>
-          Claim & burn the 💩
-        </BurnTheShit>
-        <button
-          on:click={handleTrackDogShit}
-          class="border-2 border-lime text-lime font-bold text-sm rounded-lg px-5 py-2 flex items-center decoration-none hover:bg-lime/15"
-        >
-          Track $DOGSHIT <div class="i-mdi:arrow-right size-5 ml-1" />
-        </button>
+    {#if validatorType === "meme"}
+      <div
+        class="w-full py-3 text-black font-bold text-xl mt-3 border-t-2 border-lime"
+      >
+        <ul class="flex not-prose justify-center my-3">
+          {#each memes as { name, src }}
+            <li class="first:pl-2 -ml-2">
+              <img {src} alt={name} class="w-9 h-9 rounded-full" />
+            </li>
+          {/each}
+        </ul>
+        <div class="text-sm flex justify-evenly mt-6 gap-2">
+          <BurnTheShit class="text-sm rounded-lg" on:claimSuccess>
+            Claim & burn the 💩
+          </BurnTheShit>
+          <button
+            on:click={handleTrackDogShit}
+            class="border-2 border-lime text-lime font-bold text-sm rounded-lg px-5 py-2 flex items-center decoration-none hover:bg-lime/15"
+          >
+            Track $DOGSHIT <div class="i-mdi:arrow-right size-5 ml-1" />
+          </button>
+        </div>
+        <div class="text-amber text-xs mt-3">
+          {#if $primaryNftQuery.isLoading}
+            <!-- Loading primary NFT info -->
+          {:else if $primaryNftQuery.isError}
+            <MessageBox type="warning">
+              Unable to check if you have a staked NFT
+            </MessageBox>
+          {:else if !$primaryNftQuery.data}
+            <MessageBox type="warning">
+              You haven't staked an NFT and won't get 25% boost on your $DOGSHIT
+              rewards <a href="/account" class="text-lime">Stake an NFT</a>
+            </MessageBox>
+          {/if}
+        </div>
       </div>
-      <div class="text-amber text-xs mt-3">
-        {#if $primaryNftQuery.isLoading}
-          <!-- Loading primary NFT info -->
-        {:else if $primaryNftQuery.isError}
-          <!-- Error state -->
-          <MessageBox type="warning">
-            Unable to check if you have a staked NFT
-          </MessageBox>
-        {:else if !$primaryNftQuery.data}
-          <MessageBox type="warning">
-            You haven't staked an NFT and won't get 25% boost on your $DOGSHIT
-            rewards <a href="/account" class="text-lime">Stake an NFT</a>
-          </MessageBox>
-        {/if}
+    {:else}
+      <div
+        class="w-full py-3 text-white font-bold text-xl mt-3 border-t-2 border-lime"
+      >
+        <div class="text-center text-sm text-gray-300">
+          <p class="mb-2">
+            Regular validator provides standard NEAR staking rewards
+          </p>
+          <p class="text-xs">
+            5% validator fee • No meme token rewards • No NFT boosts
+          </p>
+        </div>
       </div>
-    </div>
+    {/if}
   </div>
 </div>
