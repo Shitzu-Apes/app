@@ -37,6 +37,7 @@ export class Wallet {
     browser
       ? Promise.all([
           import("@near-wallet-selector/core"),
+          import("@near-wallet-selector/intear-wallet"),
           import("@near-wallet-selector/meteor-wallet"),
           import("@near-wallet-selector/here-wallet"),
           import("@near-wallet-selector/bitte-wallet"),
@@ -44,12 +45,13 @@ export class Wallet {
           import("@near-wallet-selector/okx-wallet"),
           import("@near-wallet-selector/my-near-wallet"),
           import("@near-wallet-selector/wallet-connect"),
-          import("@tarnadas/ethereum-wallets"),
+          import("@near-wallet-selector/ethereum-wallets"),
           import("@web3modal/wagmi"),
           import("@keypom/one-click-connect"),
         ]).then(
           ([
             { setupWalletSelector },
+            { setupIntearWallet },
             { setupMeteorWallet },
             { setupHereWallet },
             { setupBitteWallet },
@@ -65,6 +67,7 @@ export class Wallet {
             return setupWalletSelector({
               network: import.meta.env.VITE_NETWORK_ID,
               modules: [
+                setupIntearWallet(),
                 setupMeteorWallet(),
                 setupHereWallet(),
                 setupBitteWallet(),
@@ -284,7 +287,7 @@ export class Wallet {
           // FIXME optional access key not yet supported by wallet selector
           const contractId = match(wallet.id)
             .with(
-              P.union("meteor-wallet", "ethereum-wallets"),
+              P.union("meteor-wallet", "ethereum-wallets", "intear-wallet"),
               () => undefined as unknown as string,
             )
             .otherwise(() => import.meta.env.VITE_CONNECT_ID);
@@ -395,6 +398,11 @@ export interface WalletMetadata<T extends SvelteComponent = any> {
 }
 
 export const NEAR_WALLETS: Record<string, WalletMetadata> = {
+  "intear-wallet": {
+    url: "https://wallet.intear.tech/",
+    twitter: "https://x.com/intea_rs",
+    telegram: "https://t.me/intearchat",
+  },
   "meteor-wallet": {
     url: "https://meteorwallet.app/",
     twitter: "https://x.com/MeteorWallet",

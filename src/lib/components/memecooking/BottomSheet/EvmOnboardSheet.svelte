@@ -73,7 +73,7 @@
     </div>
   </section>
   <button
-    class="w-full text-white hover:font-bold"
+    class="w-full text-white hover:font-bold mb-10"
     on:click={() => {
       showWalletSelector("shitzu");
     }}

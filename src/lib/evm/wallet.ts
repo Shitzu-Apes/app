@@ -1,4 +1,4 @@
-import { walletConnect, injected } from "@tarnadas/wagmi-connectors";
+import { walletConnect, injected } from "@wagmi/connectors";
 import type { GetAccountReturnType, Transport } from "@wagmi/core";
 import {
   http,

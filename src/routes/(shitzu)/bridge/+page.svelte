@@ -290,8 +290,6 @@
     const rawTransferEvent = await match($sourceNetwork$)
       .with("near", async () => {
         const selector = await $selector$;
-        console.log("selector", selector);
-        console.log("selector.wallets", await selector.wallet());
 
         const client = getClient(ChainKind.Near, selector);
 
