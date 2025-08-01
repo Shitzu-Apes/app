@@ -133,15 +133,15 @@ export const TOKENS = {
         },
       },
       solana: {
-        // buy: {
-        //   url: "https://raydium.io/swap/?outputMint=AFbJW5rdaGidnF6o8ZqTtkDBpq3fotSBdJN8fGRN3VRS",
-        //   icon: "/icons/raydium.svg",
-        //   colors: {
-        //     bg: "#070a15",
-        //     hover: "#0c1020",
-        //     text: "white",
-        //   },
-        // },
+        buy: {
+          url: "https://www.orca.so/?tokenIn=So11111111111111111111111111111111111111112&tokenOut=AFbJW5rdaGidnF6o8ZqTtkDBpq3fotSBdJN8fGRN3VRS",
+          icon: "/icons/orca.svg",
+          colors: {
+            bg: "#FFD15C",
+            hover: "#fad985",
+            text: "black",
+          },
+        },
         // dexscreener: {
         //   url: "https://dexscreener.com/TODO",
         //   icon: "/icons/dexscreener.svg",
