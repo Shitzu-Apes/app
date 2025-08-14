@@ -52,7 +52,7 @@
     },
     {
       slug: "https://x.com/shitzuonnear",
-      title: "Twitter",
+      title: "X",
       icon: "i-simple-icons:x",
       color: "#000000",
       external: true,
