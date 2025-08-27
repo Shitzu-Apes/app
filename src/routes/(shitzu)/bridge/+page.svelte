@@ -538,7 +538,7 @@
 
     return match(network)
       .with("near", () => Boolean(address.match(/^[0-9a-zA-Z.-_]+$/)))
-      .with("solana", () => Boolean(address.match(/^[0-9a-zA-Z]{44}$/)))
+      .with("solana", () => Boolean(address.match(/^[0-9a-zA-Z]{43,44}$/)))
       .with(P.union("base", "arbitrum", "ethereum"), () =>
         Boolean(address.match(/^0x[0-9a-fA-F]{40}$/)),
       )
