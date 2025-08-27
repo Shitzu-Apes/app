@@ -172,6 +172,81 @@ export const TOKENS = {
       // },
     },
   },
+  JAMBO: {
+    symbol: "JAMBO",
+    icon: "https://raw.githubusercontent.com/Shitzu-Apes/jambo/refs/heads/master/assets/jambo_self.webp",
+    pool_id: 6518,
+    decimals: {
+      near: 18,
+      solana: 9,
+      base: undefined,
+      arbitrum: undefined,
+      ethereum: undefined,
+    },
+    addresses: {
+      near: "jambo-1679.meme-cooking.near",
+      solana: "2cMYUjUQJzrTcnxrD8JgL1BQL1AQKCtRkYLdmaTpCWYB",
+      base: undefined,
+      // base: "0x2427A35c66078996D8d8d9acf0d693D5fFec01e9",
+      arbitrum: undefined,
+      ethereum: undefined,
+    },
+    links: {
+      near: {
+        buy: {
+          url: "https://meme.cooking/meme/1679",
+          icon: "https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/bc9e35fda8a41fe263afbcc802d60d5ee23ad2ad/logo/meme-cooking.webp",
+          colors: { bg: "#72E3B6", hover: "#5ED3A2", text: "black" },
+        },
+        dexscreener: {
+          url: "https://dexscreener.com/near/refv1-6518",
+          icon: "/icons/dexscreener.svg",
+        },
+        explorer: {
+          url: "https://nearblocks.io/token/jambo-1679.meme-cooking.near",
+          icon: "/icons/nearblocks.webp",
+        },
+      },
+      solana: {
+        buy: {
+          url: "https://www.orca.so/?tokenIn=So11111111111111111111111111111111111111112&tokenOut=2cMYUjUQJzrTcnxrD8JgL1BQL1AQKCtRkYLdmaTpCWYB",
+          icon: "/icons/orca.svg",
+          colors: {
+            bg: "#FFD15C",
+            hover: "#fad985",
+            text: "black",
+          },
+        },
+        // dexscreener: {
+        //   url: "https://dexscreener.com/TODO",
+        //   icon: "/icons/dexscreener.svg",
+        // },
+        explorer: {
+          url: "https://solscan.io/token/2cMYUjUQJzrTcnxrD8JgL1BQL1AQKCtRkYLdmaTpCWYB",
+          icon: "/icons/solscan.webp",
+        },
+      },
+      // base: {
+      //   buy: {
+      //     url: "https://app.uniswap.org/#/swap?outputCurrency=0x2427A35c66078996D8d8d9acf0d693D5fFec01e9",
+      //     icon: "/uniswap.webp",
+      //     colors: {
+      //       bg: "#0052FF",
+      //       hover: "#0047DB",
+      //       text: "white",
+      //     },
+      //   },
+      //   dexscreener: {
+      //     url: "https://dexscreener.com/base/0x2427a35c66078996d8d8d9acf0d693d5ffec01e9",
+      //     icon: "/icons/dexscreener.svg",
+      //   },
+      //   explorer: {
+      //     url: "https://basescan.org/token/0x2427a35c66078996d8d8d9acf0d693d5ffec01e9",
+      //     icon: "/icons/etherscan.webp",
+      //   },
+      // },
+    },
+  },
   JLU: {
     symbol: "JLU",
     icon: "https://raw.githubusercontent.com/Shitzu-Apes/jlu/c9b2bdbd004aef8a02eea1894aa8ab77e9fb83ad/app/static/logo.webp",
@@ -363,6 +438,7 @@ export const TOKEN_ENTRIES = Object.entries(TOKENS) as [
 export const balances$: Record<keyof typeof TOKENS, Writable<Balance>> = {
   NEAR: writable<Balance>({}),
   SHITZU: writable<Balance>({}),
+  JAMBO: writable<Balance>({}),
   JLU: writable<Balance>({}),
   PURGE: writable<Balance>({}),
   POPPY: writable<Balance>({}),
