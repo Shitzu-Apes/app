@@ -28,6 +28,7 @@ type PoolConfig = {
 type PoolIdsType = {
   "wrap.near": PoolConfig;
   "token.0xshitzu.near": PoolConfig;
+  "jambo-1679.meme-cooking.near": PoolConfig;
   "blackdragon.tkn.near": PoolConfig;
   "token.lonkingnearbackto2024.near": PoolConfig;
   "hijack-252.meme-cooking.near": PoolConfig;
@@ -46,6 +47,7 @@ const poolIds: PoolIdsType = {
     denom: "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
   },
   "token.0xshitzu.near": { poolId: 4369, denom: "wrap.near" },
+  "jambo-1679.meme-cooking.near": { poolId: 6518, denom: "wrap.near" },
   "blackdragon.tkn.near": { poolId: 4276, denom: "wrap.near" },
   "token.lonkingnearbackto2024.near": { poolId: 4314, denom: "wrap.near" },
   "hijack-252.meme-cooking.near": { poolId: 5519, denom: "wrap.near" },
@@ -64,6 +66,7 @@ export function getTokenSortIndex(tokenId: string): number {
 const tokenSortIndex: Record<keyof PoolIdsType, number> = {
   "wrap.near": -1,
   "token.0xshitzu.near": 1_000,
+  "jambo-1679.meme-cooking.near": 801,
   "blackdragon.tkn.near": 800,
   "token.lonkingnearbackto2024.near": 799,
   "hijack-252.meme-cooking.near": 700,
