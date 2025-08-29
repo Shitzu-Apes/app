@@ -18,6 +18,7 @@ export async function showWalletSelector(
       .with("ethereum", () => "evm")
       .with("base", () => "evm")
       .with("arbitrum", () => "evm")
+      .with("bnb", () => "evm")
       .with(undefined, () => undefined)
       .exhaustive(),
   });

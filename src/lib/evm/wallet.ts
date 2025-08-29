@@ -16,6 +16,8 @@ import {
   arbitrumSepolia,
   base,
   baseSepolia,
+  bsc,
+  bscTestnet,
   mainnet,
   sepolia,
 } from "@wagmi/core/chains";
@@ -30,7 +32,9 @@ export type ConfiguredChain =
   | typeof arbitrum
   | typeof arbitrumSepolia
   | typeof mainnet
-  | typeof sepolia;
+  | typeof sepolia
+  | typeof bsc
+  | typeof bscTestnet;
 export type ConfiguredChainId = ConfiguredChain["id"];
 
 // Initialize chain-specific transports
@@ -41,6 +45,8 @@ const transports: Record<number, Transport> = {
   [arbitrumSepolia.id]: http(),
   [mainnet.id]: http(),
   [sepolia.id]: http(),
+  [bsc.id]: http(),
+  [bscTestnet.id]: http(),
   [397]: http(),
   [398]: http(),
 };

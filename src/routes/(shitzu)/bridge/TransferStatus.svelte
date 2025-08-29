@@ -10,20 +10,18 @@
   import { FixedNumber } from "$lib/util";
 
   export let transfer: Transfer;
-  const {
-    transfer_message: { amount },
-  } = transfer;
+
+  $: amount = transfer.transfer_message?.amount;
 
   $: tokenKey = findTokenByAddress(
-    transfer.id.origin_chain,
-    transfer.transfer_message.token,
+    transfer.id?.origin_chain ?? "",
+    transfer.transfer_message?.token ?? "",
   );
   $: token = tokenKey ? TOKENS[tokenKey] : undefined;
 
   let pollInterval: ReturnType<typeof setInterval>;
 
   function getTransferDuration(sourceChain: string): number {
-    // Duration in milliseconds
     return match(sourceChain)
       .with("Base", () => 20 * 60 * 1000) // 20 minutes
       .otherwise(() => 30 * 1000); // 30 seconds
@@ -36,13 +34,13 @@
         transfer.initialized?.Solana?.block_timestamp_seconds ??
         Date.now() / 1000) * 1000,
     );
-    const duration = getTransferDuration(transfer.id.origin_chain);
+    const duration = getTransferDuration(transfer.id?.origin_chain ?? "");
     return startTime.add(duration, "millisecond").format("h:mm A");
   }
 
   $: estimatedCompletion = getTransferEta(transfer);
 
-  $: formattedAmount = match([transfer.id.origin_chain, token])
+  $: formattedAmount = match([transfer.id?.origin_chain ?? "", token])
     .with([P.any, P.nullish], () => undefined)
     .with(
       ["Near", P.select()],
@@ -64,6 +62,11 @@
       ["Eth", P.select()],
       (token) => new FixedNumber(String(amount), token!.decimals.ethereum),
     )
+    .with(
+      ["Bnb", P.select()],
+      (token) => new FixedNumber(String(amount), token!.decimals.bnb),
+    )
+    .with(["", P.any], () => undefined)
     .exhaustive();
 
   function getChainIcon(chainId: string): string {
@@ -118,6 +121,10 @@
   }
 
   async function pollStatus() {
+    if (transfer.id == null) {
+      return;
+    }
+
     const api = new OmniBridgeAPI({
       baseUrl:
         import.meta.env.VITE_NETWORK_ID === "mainnet"
@@ -125,17 +132,22 @@
           : "https://testnet.api.bridge.nearone.org",
     });
     try {
-      const updatedTransfer = await api.getTransfer(
-        transfer.id.origin_chain,
-        transfer.id.origin_nonce,
-      );
+      const updatedTransfer = (
+        await api.getTransfer({
+          originChain: transfer.id.origin_chain,
+          originNonce: transfer.id.origin_nonce,
+        })
+      )[0];
 
       transfers.updateTransfer({
         event: updatedTransfer,
         chain: transfer.id.origin_chain,
       });
 
-      if (updatedTransfer.finalised != null) {
+      if (
+        updatedTransfer.finalised != null &&
+        updatedTransfer.transfer_message != null
+      ) {
         clearInterval(pollInterval);
         const [chain, address] =
           updatedTransfer.transfer_message.token.split(":");
@@ -212,7 +224,7 @@
 
   <!-- Sender and Recipient -->
   <div class="flex flex-col gap-1.5 text-sm">
-    {#if transfer.transfer_message.sender}
+    {#if transfer.transfer_message?.sender}
       {@const [senderChain, senderAddress] =
         transfer.transfer_message.sender.split(":")}
       <div class="flex items-center gap-2">
@@ -281,7 +293,7 @@
         </div>
       </div>
     {/if}
-    {#if transfer.transfer_message.recipient}
+    {#if transfer.transfer_message?.recipient}
       {@const [recipientChain, recipientAddress] =
         transfer.transfer_message.recipient.split(":")}
       <div class="flex items-center gap-2">

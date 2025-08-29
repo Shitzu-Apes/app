@@ -8,6 +8,8 @@
     baseSepolia,
     mainnet,
     sepolia,
+    bsc,
+    bscTestnet,
   } from "@wagmi/core/chains";
   import { BrowserProvider, JsonRpcSigner } from "ethers";
   import {
@@ -27,7 +29,6 @@
   import TokenInfo from "./TokenInfo.svelte";
   import TransferStatus from "./TransferStatus.svelte";
   import UserMenu from "./UserMenu.svelte";
-  import { trackBridgeTransfer } from "./plausible";
   import { bridgePortfolio$ } from "./portfolio";
   import {
     updateTokenBalance,
@@ -116,6 +117,12 @@
             ? omniAddress(ChainKind.Eth, $evmWallet$.address)
             : undefined,
         )
+        .with("bnb", () =>
+          $evmWallet$.status === "connected"
+            ? // FIXME ChainKind.Bnb
+              omniAddress(ChainKind.Eth, $evmWallet$.address)
+            : undefined,
+        )
         .exhaustive();
 
       if (!sender) return;
@@ -127,6 +134,8 @@
           .with("base", () => ChainKind.Base)
           .with("arbitrum", () => ChainKind.Arb)
           .with("ethereum", () => ChainKind.Eth)
+          // FIXME ChainKind.Bnb
+          .with("bnb", () => ChainKind.Eth)
           .exhaustive(),
         $recipientAddress$,
       );
@@ -138,6 +147,8 @@
           .with("base", () => ChainKind.Base)
           .with("arbitrum", () => ChainKind.Arb)
           .with("ethereum", () => ChainKind.Eth)
+          // FIXME ChainKind.Bnb
+          .with("bnb", () => ChainKind.Eth)
           .exhaustive(),
         TOKENS[$selectedToken$].addresses[$sourceNetwork$] ?? "",
       );
@@ -181,6 +192,7 @@
       .with("base", () => get(balances$[token]).base)
       .with("arbitrum", () => get(balances$[token]).arbitrum)
       .with("ethereum", () => get(balances$[token]).ethereum)
+      .with("bnb", () => get(balances$[token]).bnb)
       .exhaustive();
 
     if (currentBalance) {
@@ -224,7 +236,7 @@
           showWalletSelector(undefined, "solana");
         }
       })
-      .with(P.union("base", "arbitrum", "ethereum"), () => {
+      .with(P.union("base", "arbitrum", "ethereum", "bnb"), () => {
         if ($evmWallet$.status === "connected") {
           $recipientAddress$ = $evmWallet$.address;
         } else {
@@ -244,7 +256,7 @@
   function getWalletButtonText(network: Network): string {
     return match(network)
       .with("solana", () => ($publicKey$ ? "Use Wallet" : "Connect Wallet"))
-      .with(P.union("base", "arbitrum", "ethereum"), () =>
+      .with(P.union("base", "arbitrum", "ethereum", "bnb"), () =>
         $evmWallet$.status === "connected" ? "Use Wallet" : "Connect Wallet",
       )
       .with("near", () => ($accountId$ ? "Use Wallet" : "Connect Wallet"))
@@ -301,6 +313,8 @@
             .with("base", () => ChainKind.Base)
             .with("arbitrum", () => ChainKind.Arb)
             .with("ethereum", () => ChainKind.Eth)
+            // FIXME ChainKind.Bnb
+            .with("bnb", () => ChainKind.Eth)
             .exhaustive(),
           $recipientAddress$,
         );
@@ -366,6 +380,8 @@
             .with("base", () => ChainKind.Base)
             .with("arbitrum", () => ChainKind.Arb)
             .with("ethereum", () => ChainKind.Eth)
+            // FIXME ChainKind.Bnb
+            .with("bnb", () => ChainKind.Eth)
             .exhaustive(),
           $recipientAddress$,
         );
@@ -397,6 +413,8 @@
           .with(["arbitrum", false], () => arbitrumSepolia.id)
           .with(["ethereum", true], () => mainnet.id)
           .with(["ethereum", false], () => sepolia.id)
+          .with(["bnb", true], () => bsc.id)
+          .with(["bnb", false], () => bscTestnet.id)
           .exhaustive();
         if ($evmWallet$.chainId !== targetChainId) {
           try {
@@ -417,7 +435,6 @@
           }
         }
 
-        // Get ethers signer
         const signer = await getEthersSigner(wagmiConfig);
         const client = getClient(ChainKind.Base, signer);
 
@@ -429,6 +446,8 @@
             .with("base", () => ChainKind.Base)
             .with("arbitrum", () => ChainKind.Arb)
             .with("ethereum", () => ChainKind.Eth)
+            // FIXME ChainKind.Bnb
+            .with("bnb", () => ChainKind.Eth)
             .exhaustive(),
           $recipientAddress$,
         );
@@ -459,25 +478,24 @@
       .with("base", () => "Base" as const)
       .with("arbitrum", () => "Arb" as const)
       .with("ethereum", () => "Eth" as const)
+      .with("bnb", () => "Bnb" as const)
       .exhaustive();
 
     if (typeof rawTransferEvent === "string") {
-      // Wait for transaction to be indexed
       let data: Transfer | undefined;
       for (let i = 0; i < 20; i++) {
-        // Try up to 10 times
-        await new Promise((resolve) => setTimeout(resolve, 3_000)); // Wait 2s between attempts
+        await new Promise((resolve) => setTimeout(resolve, 3_000));
         try {
-          // First find the transfer to get the nonce
           const transfers = await api.findOmniTransfers({
             transaction_id: rawTransferEvent,
           });
-          if (transfers.length > 0) {
-            // Then get the full transfer data
-            data = await api.getTransfer(
-              transfers[0].id.origin_chain,
-              transfers[0].id.origin_nonce,
-            );
+          if (transfers.length > 0 && transfers[0].id != null) {
+            data = (
+              await api.getTransfer({
+                originChain: transfers[0].id.origin_chain,
+                originNonce: transfers[0].id.origin_nonce,
+              })
+            )[0];
             break;
           }
         } catch (err) {
@@ -492,20 +510,18 @@
       console.log("[data]", data);
 
       transfers.addTransfers([data]);
-      await trackBridgeTransfer(data);
     } else {
       console.log("[rawTransferEvent]", rawTransferEvent);
-      // For non-string transfer events, we need to wait for them to be indexed
-      // This ensures we have the full transfer data structure
       let data: Transfer | undefined;
       for (let i = 0; i < 20; i++) {
-        // Try up to 10 times
-        await new Promise((resolve) => setTimeout(resolve, 3_000)); // Wait 2s between attempts
+        await new Promise((resolve) => setTimeout(resolve, 3_000));
         try {
-          data = await api.getTransfer(
-            chain,
-            rawTransferEvent.transfer_message.origin_nonce,
-          );
+          data = (
+            await api.getTransfer({
+              originChain: chain,
+              originNonce: rawTransferEvent.transfer_message.origin_nonce,
+            })
+          )[0];
           if (data) {
             break;
           }
@@ -521,7 +537,6 @@
       console.log("[data]", data);
 
       transfers.addTransfers([data]);
-      await trackBridgeTransfer(data);
     }
 
     // Reset input fields after successful bridge
@@ -541,7 +556,7 @@
       .with("solana", () =>
         Boolean(address.match(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/)),
       )
-      .with(P.union("base", "arbitrum", "ethereum"), () =>
+      .with(P.union("base", "arbitrum", "ethereum", "bnb"), () =>
         Boolean(address.match(/^0x[0-9a-fA-F]{40}$/)),
       )
       .exhaustive();
@@ -551,7 +566,7 @@
     .with("near", () => Boolean($accountId$))
     .with("solana", () => Boolean($publicKey$))
     .with(
-      P.union("base", "arbitrum", "ethereum"),
+      P.union("base", "arbitrum", "ethereum", "bnb"),
       () => $evmWallet$.status === "connected",
     )
     .exhaustive();
@@ -581,7 +596,7 @@
     .with("near", () => !$accountId$)
     .with("solana", () => !$publicKey$)
     .with(
-      P.union("base", "arbitrum", "ethereum"),
+      P.union("base", "arbitrum", "ethereum", "bnb"),
       () => $evmWallet$.status !== "connected",
     )
     .exhaustive();
@@ -1124,14 +1139,15 @@
               match($sourceNetwork$)
                 .with("near", () => 24)
                 .with("solana", () => 9)
-                .with(P.union("base", "arbitrum", "ethereum"), () => 18)
+                .with(P.union("base", "arbitrum", "ethereum", "bnb"), () => 18)
                 .exhaustive(),
             ).format({ maximumFractionDigits: 4 })}
-            {$sourceNetwork$ === "near"
-              ? "NEAR"
-              : $sourceNetwork$ === "solana"
-                ? "SOL"
-                : "ETH"}
+            {match($sourceNetwork$)
+              .with("near", () => "NEAR")
+              .with("solana", () => "SOL")
+              .with(P.union("base", "arbitrum", "ethereum"), () => "ETH")
+              .with("bnb", () => "BNB")
+              .exhaustive()}
             {#if usdFee !== undefined}
               <span class="opacity-75">
                 (${usdFee.toFixed(2)})
@@ -1143,11 +1159,11 @@
     </div>
 
     <!-- Recent Transfers -->
-    {#if $transfers.length > 0}
+    {#if $transfers.length > 0 && $transfers[0].id != null}
       <div class="flex flex-col gap-1.5 mt-4 pt-4 border-t border-lime">
         <div class="text-sm text-lime">Recent Transfers</div>
         <div class="flex flex-col gap-1.5">
-          {#each visibleTransfers as transfer (transfer.id.origin_chain + ":" + transfer.id.origin_nonce)}
+          {#each visibleTransfers as transfer (transfer.id?.origin_chain + ":" + transfer.id?.origin_nonce)}
             <div in:slide|global class="flex flex-col">
               <TransferStatus {transfer} />
             </div>

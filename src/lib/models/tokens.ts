@@ -14,7 +14,8 @@ export type Balance = {
   ethereum?: FixedNumber;
   base?: FixedNumber;
   arbitrum?: FixedNumber;
+  bnb?: FixedNumber;
 };
 
 export type Network = "near" | "solana" | EvmChain;
-export type EvmChain = "ethereum" | "base" | "arbitrum";
+export type EvmChain = "ethereum" | "base" | "arbitrum" | "bnb";

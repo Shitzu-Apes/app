@@ -56,6 +56,7 @@ export const TOKENS = {
       base: 18,
       arbitrum: undefined,
       ethereum: undefined,
+      bnb: undefined,
     },
     addresses: {
       near: "wrap.near",
@@ -63,6 +64,7 @@ export const TOKENS = {
       base: undefined,
       arbitrum: undefined,
       ethereum: undefined,
+      bnb: undefined,
     },
     links: {
       near: {
@@ -107,6 +109,7 @@ export const TOKENS = {
       base: 18,
       arbitrum: undefined,
       ethereum: undefined,
+      bnb: undefined,
     },
     addresses: {
       near: "token.0xshitzu.near",
@@ -115,6 +118,7 @@ export const TOKENS = {
       // base: "0x473c1656373B3715805F647911e75AaA49C39813",
       arbitrum: undefined,
       ethereum: undefined,
+      bnb: undefined,
     },
     links: {
       near: {
@@ -182,6 +186,7 @@ export const TOKENS = {
       base: undefined,
       arbitrum: undefined,
       ethereum: undefined,
+      bnb: undefined,
     },
     addresses: {
       near: "jambo-1679.meme-cooking.near",
@@ -190,6 +195,7 @@ export const TOKENS = {
       // base: "0x2427A35c66078996D8d8d9acf0d693D5fFec01e9",
       arbitrum: undefined,
       ethereum: undefined,
+      bnb: undefined,
     },
     links: {
       near: {
@@ -257,6 +263,7 @@ export const TOKENS = {
       base: 18,
       arbitrum: undefined,
       ethereum: undefined,
+      bnb: undefined,
     },
     addresses: {
       near: "jlu-1018.meme-cooking.near",
@@ -265,6 +272,7 @@ export const TOKENS = {
       // base: "0x2427A35c66078996D8d8d9acf0d693D5fFec01e9",
       arbitrum: undefined,
       ethereum: undefined,
+      bnb: undefined,
     },
     links: {
       near: {
@@ -328,6 +336,7 @@ export const TOKENS = {
       base: 18,
       arbitrum: undefined,
       ethereum: undefined,
+      bnb: undefined,
     },
     addresses: {
       near: "purge-558.meme-cooking.near",
@@ -335,6 +344,7 @@ export const TOKENS = {
       base: undefined,
       arbitrum: undefined,
       ethereum: undefined,
+      bnb: undefined,
     },
     links: {
       near: {
@@ -383,6 +393,7 @@ export const TOKENS = {
       base: 18,
       arbitrum: undefined,
       ethereum: undefined,
+      bnb: undefined,
     },
     addresses: {
       near: "poppy-0.meme-cooking-test.near",
@@ -390,6 +401,7 @@ export const TOKENS = {
       base: undefined,
       arbitrum: undefined,
       ethereum: undefined,
+      bnb: undefined,
     },
     links: {
       near: {
@@ -625,7 +637,6 @@ async function updateEvmBalance(
   }));
 }
 
-// Add this helper function to find token by address
 export function findTokenByAddress(
   chainId: string,
   address: string,
@@ -655,7 +666,6 @@ export function findTokenByAddress(
   )?.[0] as keyof typeof TOKENS | undefined;
 }
 
-// Add this helper function to get balance for a specific network and token
 export function getTokenBalance(
   network: Network,
   token: keyof typeof TOKENS,
@@ -667,6 +677,7 @@ export function getTokenBalance(
       .with("base", () => $balance.base?.valueOf() ?? 0n)
       .with("arbitrum", () => $balance.arbitrum?.valueOf() ?? 0n)
       .with("ethereum", () => $balance.ethereum?.valueOf() ?? 0n)
+      .with("bnb", () => $balance.bnb?.valueOf() ?? 0n)
       .exhaustive();
 
     return new FixedNumber(
@@ -676,7 +687,6 @@ export function getTokenBalance(
   });
 }
 
-// Add this helper function to check if a token is available on a network
 export function isTokenAvailableOnNetwork(
   token: keyof typeof TOKENS,
   network: Network,

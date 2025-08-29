@@ -59,6 +59,7 @@
               .with("base", () => "/base-logo.webp")
               .with("arbitrum", () => "/arb-logo.webp")
               .with("ethereum", () => "/evm-logo.svg")
+              .with("bnb", () => "/bnb-logo.svg")
               .exhaustive()}
             alt={network}
             class="w-5 h-5 rounded-full"
@@ -69,6 +70,7 @@
             .with("base", () => "Base")
             .with("arbitrum", () => "Arbitrum")
             .with("ethereum", () => "Ethereum")
+            .with("bnb", () => "BNB")
             .exhaustive()}
         </button>
       {/each}
