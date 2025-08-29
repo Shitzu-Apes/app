@@ -367,7 +367,18 @@
 
         const provider = solanaWallet.getProvider();
         if (!provider) {
+          solanaWallet.disconnect();
           console.error("Provider not connected.");
+          addToast({
+            data: {
+              type: "simple",
+              data: {
+                title: "Wallet Connection Error",
+                description: "Please reconnect your Solana wallet!",
+                type: "error",
+              },
+            },
+          });
           return;
         }
         const client = getClient(ChainKind.Sol, provider);
