@@ -186,7 +186,7 @@ export const TOKENS = {
       base: undefined,
       arbitrum: undefined,
       ethereum: undefined,
-      bnb: undefined,
+      bnb: 18,
     },
     addresses: {
       near: "jambo-1679.meme-cooking.near",
@@ -195,6 +195,7 @@ export const TOKENS = {
       // base: "0x2427A35c66078996D8d8d9acf0d693D5fFec01e9",
       arbitrum: undefined,
       ethereum: undefined,
+      // bnb: "0x123219ea174eF80B37BD3459048aBEC86ADa618E",
       bnb: undefined,
     },
     links: {
@@ -230,6 +231,16 @@ export const TOKENS = {
         explorer: {
           url: "https://solscan.io/token/2cMYUjUQJzrTcnxrD8JgL1BQL1AQKCtRkYLdmaTpCWYB",
           icon: "/icons/solscan.webp",
+        },
+      },
+      bnb: {
+        buy: {
+          url: "https://app.uniswap.org/#/swap?outputCurrency=0x123219ea174eF80B37BD3459048aBEC86ADa618E",
+          icon: "/uniswap.webp",
+        },
+        explorer: {
+          url: "https://bscscan.com/address/0x123219ea174eF80B37BD3459048aBEC86ADa618E",
+          icon: "/icons/bscscan.webp",
         },
       },
       // base: {

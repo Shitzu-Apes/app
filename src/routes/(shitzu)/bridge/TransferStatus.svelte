@@ -70,12 +70,13 @@
     .exhaustive();
 
   function getChainIcon(chainId: string): string {
-    return match(chainId as "near" | "sol" | "base" | "arb" | "eth")
+    return match(chainId as "near" | "sol" | "base" | "arb" | "eth" | "bnb")
       .with("near", () => "/near-logo.webp")
       .with("sol", () => "/sol-logo.webp")
       .with("base", () => "/base-logo.webp")
       .with("arb", () => "/arb-logo.webp")
       .with("eth", () => "/evm-logo.svg")
+      .with("bnb", () => "/bnb-logo.svg")
       .exhaustive();
   }
 

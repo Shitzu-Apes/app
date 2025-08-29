@@ -65,6 +65,7 @@
     { id: "base", name: "Base", icon: "/base-logo.webp" },
     { id: "arbitrum", name: "Arbitrum", icon: "/arb-logo.webp" },
     { id: "ethereum", name: "Ethereum", icon: "/evm-logo.svg" },
+    { id: "bnb", name: "Bnb", icon: "/bnb-logo.svg" },
   ] as const;
 
   const sourceNetwork$ = writable<Network>("near");
