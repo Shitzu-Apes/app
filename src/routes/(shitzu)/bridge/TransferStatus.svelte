@@ -85,7 +85,7 @@
     address: string,
     type: "address" | "tx" = "address",
   ): string {
-    return match(chain as "near" | "sol" | "base" | "arb" | "eth")
+    return match(chain as "near" | "sol" | "base" | "arb" | "eth" | "bnb")
       .with(
         "near",
         () =>
@@ -110,6 +110,11 @@
         "eth",
         () =>
           `https://${import.meta.env.VITE_NETWORK_ID === "mainnet" ? "" : "sepolia."}etherscan.io/${type === "address" ? "address" : "tx"}/${address}`,
+      )
+      .with(
+        "bnb",
+        () =>
+          `https://${import.meta.env.VITE_NETWORK_ID === "mainnet" ? "" : "testnet."}bscscan.com/${type === "address" ? "address" : "tx"}/${address}`,
       )
       .exhaustive();
   }

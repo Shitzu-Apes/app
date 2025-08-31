@@ -120,8 +120,7 @@
         )
         .with("bnb", () =>
           $evmWallet$.status === "connected"
-            ? // FIXME ChainKind.Bnb
-              omniAddress(ChainKind.Eth, $evmWallet$.address)
+            ? omniAddress(ChainKind.Bnb, $evmWallet$.address)
             : undefined,
         )
         .exhaustive();
@@ -135,8 +134,7 @@
           .with("base", () => ChainKind.Base)
           .with("arbitrum", () => ChainKind.Arb)
           .with("ethereum", () => ChainKind.Eth)
-          // FIXME ChainKind.Bnb
-          .with("bnb", () => ChainKind.Eth)
+          .with("bnb", () => ChainKind.Bnb)
           .exhaustive(),
         $recipientAddress$,
       );
@@ -148,8 +146,7 @@
           .with("base", () => ChainKind.Base)
           .with("arbitrum", () => ChainKind.Arb)
           .with("ethereum", () => ChainKind.Eth)
-          // FIXME ChainKind.Bnb
-          .with("bnb", () => ChainKind.Eth)
+          .with("bnb", () => ChainKind.Bnb)
           .exhaustive(),
         TOKENS[$selectedToken$].addresses[$sourceNetwork$] ?? "",
       );
@@ -314,8 +311,7 @@
             .with("base", () => ChainKind.Base)
             .with("arbitrum", () => ChainKind.Arb)
             .with("ethereum", () => ChainKind.Eth)
-            // FIXME ChainKind.Bnb
-            .with("bnb", () => ChainKind.Eth)
+            .with("bnb", () => ChainKind.Bnb)
             .exhaustive(),
           $recipientAddress$,
         );
@@ -392,8 +388,7 @@
             .with("base", () => ChainKind.Base)
             .with("arbitrum", () => ChainKind.Arb)
             .with("ethereum", () => ChainKind.Eth)
-            // FIXME ChainKind.Bnb
-            .with("bnb", () => ChainKind.Eth)
+            .with("bnb", () => ChainKind.Bnb)
             .exhaustive(),
           $recipientAddress$,
         );
@@ -458,8 +453,7 @@
             .with("base", () => ChainKind.Base)
             .with("arbitrum", () => ChainKind.Arb)
             .with("ethereum", () => ChainKind.Eth)
-            // FIXME ChainKind.Bnb
-            .with("bnb", () => ChainKind.Eth)
+            .with("bnb", () => ChainKind.Bnb)
             .exhaustive(),
           $recipientAddress$,
         );
