@@ -584,6 +584,9 @@ const updateTimeoutIds = new Map<
   ReturnType<typeof setTimeout>
 >();
 
+const updateTokenBalanceCache = new Map<keyof typeof TOKENS, number>();
+const CACHE_DURATION_MS = 10_000;
+
 evmWallet$.subscribe(async (wallet) => {
   if (wallet.status !== "connected") {
     for (const token of Object.keys(TOKENS) as (keyof typeof TOKENS)[]) {
@@ -598,6 +601,15 @@ evmWallet$.subscribe(async (wallet) => {
 });
 
 export function updateTokenBalance(token: keyof typeof TOKENS): void {
+  const now = Date.now();
+  const lastUpdate = updateTokenBalanceCache.get(token);
+
+  if (lastUpdate && now - lastUpdate < CACHE_DURATION_MS) {
+    return;
+  }
+
+  updateTokenBalanceCache.set(token, now);
+
   const existingTimeout = updateTimeoutIds.get(token);
   if (existingTimeout) {
     clearTimeout(existingTimeout);
@@ -608,28 +620,23 @@ export function updateTokenBalance(token: keyof typeof TOKENS): void {
     const publicKey = get(publicKey$);
     const wallet = get(evmWallet$);
 
-    // Update NEAR balance if connected
     if (account?.accountId) {
       const nearBalance = await fetchNearBalance(token, account.accountId);
       balances$[token].update((b) => ({ ...b, near: nearBalance }));
     }
 
-    // Update Solana balance if connected
     if (publicKey) {
       const solanaBalance = await fetchSolanaBalance(token, publicKey);
       balances$[token].update((b) => ({ ...b, solana: solanaBalance }));
     }
 
-    // Update EVM balances if connected
     if (wallet.status === "connected") {
       updateEvmBalance(token, wallet.address);
     }
 
-    // Clean up the timeout from the map once completed
     updateTimeoutIds.delete(token);
   }, 1000);
 
-  // Store the new timeout
   updateTimeoutIds.set(token, timeoutId);
 }
 

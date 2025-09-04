@@ -1,13 +1,16 @@
+import { createQueryKeys } from "@lukemorales/query-key-factory";
+import { createQuery } from "@tanstack/svelte-query";
 import { derived, type Readable } from "svelte/store";
 import { z } from "zod";
 
 import { balances$, TOKENS } from "./tokens";
 
-import { Ref } from "$lib/near";
+import { queryClient } from "$lib/api/queries";
+import { priceQueryFactory } from "$lib/api/queries/prices";
+import { ref } from "$lib/api/queries/ref";
+import type { PoolInfo } from "$lib/near/ref";
 import { FixedNumber } from "$lib/util";
-import { getNearPrice } from "$lib/util/projectedMCap";
 
-// Define the Balance type structure
 interface Balance {
   near?: FixedNumber;
   solana?: FixedNumber;
@@ -16,10 +19,8 @@ interface Balance {
   ethereum?: FixedNumber;
 }
 
-// Define TokenBalances type
 type TokenBalances = Record<keyof typeof TOKENS, Balance>;
 
-// Zod schema for token price data
 const TokenPriceSchema = z.object({
   price: z.number().nullable(),
   total_supply: z.string().nullable(),
@@ -43,74 +44,121 @@ const PortfolioSchema = z.object({
 
 export type TokenPortfolio = z.infer<typeof PortfolioSchema>;
 
-// Fetch price data for a specific token
-async function fetchTokenPrice(
-  contractId: string,
-  token: keyof typeof TOKENS,
-): Promise<z.infer<typeof TokenPriceSchema> | null> {
-  try {
-    // Special case for NEAR token
-    if (token === "NEAR") {
-      const nearPriceValue = await getNearPrice();
-      const nearPriceFixed = new FixedNumber(nearPriceValue, 24);
-      const priceInUsd = nearPriceFixed.toNumber();
+export const bridgeTokenPriceKeys = createQueryKeys("bridgeTokenPrice", {
+  tokenPrice: (token: keyof typeof TOKENS) => ({
+    queryKey: [{ token }],
+    queryFn: async (): Promise<z.infer<typeof TokenPriceSchema> | null> => {
+      console.log(`[bridgeTokenPriceQuery] ${token}`);
+      try {
+        if (token === "NEAR") {
+          const nearPriceQuery = priceQueryFactory.nearPrice.detail();
+          let nearPriceFixed: FixedNumber;
+          const cachedNearPrice = queryClient.getQueryData(
+            nearPriceQuery.queryKey,
+          );
+          if (cachedNearPrice) {
+            nearPriceFixed = cachedNearPrice as FixedNumber;
+          } else {
+            nearPriceFixed = await queryClient.fetchQuery(nearPriceQuery);
+          }
 
-      return {
-        price: priceInUsd,
-        total_supply: "1000000000000000000000000000000", // 1B NEAR
-        decimals: 24,
-        symbol: "NEAR",
-        name: "NEAR",
-      };
-    }
+          const priceInUsd = nearPriceFixed.toNumber();
 
-    // If token has no pool_id, it has no price
-    if (!TOKENS[token].pool_id) {
-      return null;
-    }
+          return {
+            price: priceInUsd,
+            total_supply: "1000000000000000000000000000000",
+            decimals: 24,
+            symbol: "NEAR",
+            name: "NEAR",
+          };
+        }
 
-    const pool = await Ref.getPool(TOKENS[token].pool_id!);
-    const denomIdx = pool.token_account_ids.indexOf(
-      import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
-    );
-    const tokenIdx = denomIdx === 0 ? 1 : 0;
+        if (!TOKENS[token].pool_id) {
+          return null;
+        }
 
-    const denomAmount = pool.amounts[denomIdx];
-    const tokenAmount = pool.amounts[tokenIdx];
+        const poolId = TOKENS[token].pool_id!;
+        const poolQuery = ref.detail(poolId);
 
-    const price = new FixedNumber(BigInt(denomAmount), 24).div(
-      new FixedNumber(BigInt(tokenAmount), TOKENS[token].decimals.near ?? 24),
-    );
+        let pool: PoolInfo;
+        const cachedPool = queryClient.getQueryData(poolQuery.queryKey);
+        if (cachedPool) {
+          pool = cachedPool as PoolInfo;
+        } else {
+          pool = await queryClient.fetchQuery(poolQuery);
+        }
 
-    // Get NEAR price in USD
-    const nearPriceValue = await getNearPrice();
-    const nearPriceFixed = new FixedNumber(nearPriceValue, 24);
-    const priceInUsd = price.mul(nearPriceFixed).toNumber();
+        const denomIdx = pool.token_account_ids.indexOf(
+          import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
+        );
+        const tokenIdx = denomIdx === 0 ? 1 : 0;
 
-    return {
-      price: priceInUsd,
-      total_supply: tokenAmount,
-      decimals: TOKENS[token].decimals.near,
-      symbol: TOKENS[token].symbol,
-      name: TOKENS[token].symbol,
-    };
-  } catch (err) {
-    console.error(`Failed to fetch price for ${token}:`, err);
-    return null;
-  }
+        const denomAmount = pool.amounts[denomIdx];
+        const tokenAmount = pool.amounts[tokenIdx];
+
+        const price = new FixedNumber(BigInt(denomAmount), 24).div(
+          new FixedNumber(
+            BigInt(tokenAmount),
+            TOKENS[token].decimals.near ?? 24,
+          ),
+        );
+
+        const nearPriceQuery = priceQueryFactory.nearPrice.detail();
+        let nearPriceFixed: FixedNumber;
+
+        const cachedNearPrice = queryClient.getQueryData(
+          nearPriceQuery.queryKey,
+        );
+        if (cachedNearPrice) {
+          nearPriceFixed = cachedNearPrice as FixedNumber;
+        } else {
+          nearPriceFixed = await queryClient.fetchQuery(nearPriceQuery);
+        }
+
+        const priceInUsd = price.mul(nearPriceFixed).toNumber();
+
+        return {
+          price: priceInUsd,
+          total_supply: tokenAmount,
+          decimals: TOKENS[token].decimals.near,
+          symbol: TOKENS[token].symbol,
+          name: TOKENS[token].symbol,
+        };
+      } catch (err) {
+        console.error(`Failed to fetch price for ${token}:`, err);
+        return null;
+      }
+    },
+  }),
+});
+
+export function createBridgeTokenPriceQuery(token: keyof typeof TOKENS) {
+  return createQuery({
+    ...bridgeTokenPriceKeys.tokenPrice(token),
+    staleTime: 1000 * 30,
+    gcTime: 1000 * 60 * 5,
+  });
 }
 
-// Fetch portfolio data for all bridge tokens
 export async function fetchBridgePortfolio(): Promise<TokenPortfolio> {
+  console.log(`[fetchBridgePortfolio]`);
   const tokens = await Promise.all(
     Object.entries(TOKENS).map(async ([tokenId, token]) => {
       const nearContractId = token.addresses.near;
       if (!nearContractId) return null;
 
-      const priceData = await fetchTokenPrice(
-        nearContractId,
+      const priceQuery = bridgeTokenPriceKeys.tokenPrice(
         tokenId as keyof typeof TOKENS,
       );
+      let priceData: z.infer<typeof TokenPriceSchema> | null;
+
+      const cachedPrice = queryClient.getQueryData(priceQuery.queryKey);
+      if (cachedPrice) {
+        priceData = cachedPrice as z.infer<typeof TokenPriceSchema> | null;
+      } else {
+        priceData = await queryClient.fetchQuery(priceQuery);
+      }
+
       if (!priceData) return null;
 
       return TokenSchema.parse({
@@ -129,11 +177,9 @@ export async function fetchBridgePortfolio(): Promise<TokenPortfolio> {
   };
 }
 
-// Create a derived store that combines balances with price data
 export const bridgePortfolio$ = derived(
   Object.values(balances$),
   ($balances, set) => {
-    // Convert array of balances back to record
     const balancesRecord = Object.fromEntries(
       Object.keys(TOKENS).map((key, i) => [key, $balances[i]]),
     ) as TokenBalances;
@@ -145,9 +191,7 @@ export const bridgePortfolio$ = derived(
       });
     });
 
-    return () => {
-      // Cleanup function if needed
-    };
+    return () => {};
   },
   {
     balances: {} as TokenBalances,
