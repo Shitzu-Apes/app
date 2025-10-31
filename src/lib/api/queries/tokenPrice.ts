@@ -2,24 +2,22 @@ import { createQueryKeys } from "@lukemorales/query-key-factory";
 import { createQuery } from "@tanstack/svelte-query";
 
 import { queryClient } from ".";
-import { tokensKeys, type TokenId } from "./tokens";
+import { tokensKeys } from "./tokens";
 
-// Query keys for token prices
+import type { TokenId } from "$lib/models/tokens";
+
 export const tokenPriceKeys = createQueryKeys("tokenPrice", {
   currentPrice: (tokenId: string) => ({
     queryKey: [tokenId],
     queryFn: async () => {
-      // First, try to get token price from existing tokens query data
       const allTokensData = queryClient.getQueryData<{
         [key in TokenId]?: { price?: string };
       }>(tokensKeys.all().queryKey);
 
       if (allTokensData && allTokensData[tokenId as TokenId]?.price) {
-        // If the data exists in the tokens query, return that price
         return allTokensData[tokenId as TokenId]!.price!;
       }
 
-      // If the data doesn't exist in the query cache, use the tokens query to fetch it
       try {
         const result = await queryClient.fetchQuery(tokensKeys.all());
         if (result && result[tokenId as TokenId]?.price) {
@@ -29,7 +27,6 @@ export const tokenPriceKeys = createQueryKeys("tokenPrice", {
         console.error("Error fetching token price:", error);
       }
 
-      // If we still don't have a price, return 0
       return "0";
     },
   }),

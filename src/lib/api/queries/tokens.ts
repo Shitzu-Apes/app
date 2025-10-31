@@ -9,54 +9,13 @@ import BlackDragonLogo from "$lib/assets/logo/blackdragon.webp";
 import HijackLogo from "$lib/assets/logo/hijack.webp";
 import LonkLogo from "$lib/assets/logo/lonk.png";
 import ShitzuLogo from "$lib/assets/logo/shitzu.webp";
+import {
+  poolIds,
+  type PoolIdsType,
+  type TokenId,
+  type TokenInfo,
+} from "$lib/models/tokens";
 import { Ft, Ref, type PoolInfo } from "$lib/near";
-
-export type TokenInfo = {
-  price?: string;
-  decimal: number;
-  symbol: string;
-  icon: string | null | undefined;
-};
-
-type PoolConfig = {
-  poolId: number;
-  denom:
-    | "wrap.near"
-    | "blackdragon.tkn.near"
-    | "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1"
-    | "a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near";
-};
-
-// Define the poolIds type
-type PoolIdsType = {
-  "wrap.near": PoolConfig;
-  "token.0xshitzu.near": PoolConfig;
-  "blackdragon.tkn.near": PoolConfig;
-  "token.lonkingnearbackto2024.near": PoolConfig;
-  "hijack-252.meme-cooking.near": PoolConfig;
-  "4illia-222.meme-cooking.near": PoolConfig;
-  "gnear-229.meme-cooking.near": PoolConfig;
-  "avb.tknx.near": PoolConfig;
-  "crans.tkn.near": PoolConfig;
-};
-
-export type TokenId = keyof PoolIdsType;
-
-// Define the poolIds object with type annotation
-const poolIds: PoolIdsType = {
-  "wrap.near": {
-    poolId: 4512,
-    denom: "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
-  },
-  "token.0xshitzu.near": { poolId: 4369, denom: "wrap.near" },
-  "blackdragon.tkn.near": { poolId: 4276, denom: "wrap.near" },
-  "token.lonkingnearbackto2024.near": { poolId: 4314, denom: "wrap.near" },
-  "hijack-252.meme-cooking.near": { poolId: 5519, denom: "wrap.near" },
-  "4illia-222.meme-cooking.near": { poolId: 5494, denom: "wrap.near" },
-  "gnear-229.meme-cooking.near": { poolId: 5502, denom: "wrap.near" },
-  "avb.tknx.near": { poolId: 5315, denom: "wrap.near" },
-  "crans.tkn.near": { poolId: 5423, denom: "wrap.near" },
-};
 
 /**
  * Calculate token price based on pool information
@@ -84,25 +43,6 @@ export function formatTokenPrice(price: number): string {
   return price.toFixed(15);
 }
 
-export function getTokenSortIndex(tokenId: string): number {
-  if (!isKeyOf(tokenSortIndex, tokenId)) {
-    return -1;
-  }
-  return tokenSortIndex[tokenId];
-}
-
-const tokenSortIndex: Record<TokenId, number> = {
-  "wrap.near": -1,
-  "token.0xshitzu.near": 1_000,
-  "blackdragon.tkn.near": 800,
-  "token.lonkingnearbackto2024.near": 799,
-  "hijack-252.meme-cooking.near": 700,
-  "4illia-222.meme-cooking.near": 699,
-  "gnear-229.meme-cooking.near": 698,
-  "avb.tknx.near": 300,
-  "crans.tkn.near": 299,
-};
-
 const isKeyOf = <ObjectType extends Record<PropertyKey, unknown>>(
   object: ObjectType,
   property: PropertyKey,
@@ -117,7 +57,6 @@ export const isTokenId = (tokenId: string) => {
   return tokenId as keyof PoolIdsType;
 };
 
-// Define query keys
 export const tokensKeys = createQueryKeys("tokens", {
   all: () => ({
     queryKey: ["allTokens"],
@@ -313,6 +252,7 @@ export const tokensKeys = createQueryKeys("tokens", {
         tokensKeys.all().queryKey,
       );
 
+      console.log("refPrices", tokenId, refPrices);
       if (
         refPrices &&
         refPrices[tokenId] != null &&
@@ -321,7 +261,6 @@ export const tokensKeys = createQueryKeys("tokens", {
         return refPrices[tokenId]!.price;
       }
 
-      // Try to fetch price from dexscreener if not available in refPrices
       return fetch(
         `https://api.dexscreener.com/latest/dex/pairs/near/refv1-${poolIds[tokenId].poolId}`,
       ).then(async (res) => {
@@ -329,6 +268,7 @@ export const tokensKeys = createQueryKeys("tokens", {
           return undefined;
         }
         const data = await res.json();
+        console.log("data", tokenId, data);
         try {
           return data.pairs[0].priceUsd;
         } catch (err) {

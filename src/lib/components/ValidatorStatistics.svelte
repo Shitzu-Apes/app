@@ -7,13 +7,9 @@
 
   import type { AccountId } from "$lib/abi";
   import { Near } from "$lib/assets";
+  import type { TokenInfo } from "$lib/models/tokens";
   import { Dogshit, type PoolFarm } from "$lib/near";
-  import {
-    getToken,
-    getToken$,
-    getTokenSortIndex,
-    type TokenInfo,
-  } from "$lib/store";
+  import { getToken, getToken$, getTokenSortIndex } from "$lib/store";
   import { FixedNumber } from "$lib/util";
 
   export let farm: PoolFarm | null;
@@ -30,13 +26,13 @@
   let totalAPRDiff: FixedNumber | null = null;
 
   const near$ = getToken$("wrap.near");
-  // hardcoding this to 9% * 0.75 for meme validator (25% fee) and using API APY for regular validator (5% fee)
+  // hardcoding this to 4.4% * 0.75 for meme validator (25% fee) and using API APY for regular validator (5% fee)
   $: nearAPR =
     validatorType === "meme"
-      ? new FixedNumber(675n, 2) // 6.75% (9% * 0.75)
+      ? new FixedNumber(675n, 2) // 3.3% (4.4% * 0.75)
       : apy != null
         ? new FixedNumber(BigInt(Math.round(apy * 100)), 2) // Use API APY
-        : new FixedNumber(855n, 2); // 8.55% fallback (9% * 0.95)
+        : new FixedNumber(855n, 2); // 4.18% fallback (4.4% * 0.95)
 
   $: if (
     validatorType === "meme" &&

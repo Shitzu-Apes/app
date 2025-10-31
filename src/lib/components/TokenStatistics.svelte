@@ -1,7 +1,7 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
 
-  import type { TokenInfo } from "$lib/store";
+  import type { TokenInfo } from "$lib/models/tokens";
   import { FixedNumber } from "$lib/util";
 
   export let icon: string | undefined = undefined;

@@ -232,9 +232,7 @@
       </div>
     </div>
   {/if}
-  <div
-    class="-mt-6 z-10 pb-6 border-2 border-lime rounded-xl px-3 pt-3 bg-black"
-  >
+  <div class="z-10 pb-6 border-2 border-lime rounded-xl px-3 pt-3 bg-black">
     {#if $accountId$ == null}
       <div class="flex flex-col gap-4">
         <ConnectWallet />
