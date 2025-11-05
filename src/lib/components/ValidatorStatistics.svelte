@@ -29,10 +29,10 @@
   // hardcoding this to 4.4% * 0.75 for meme validator (25% fee) and using API APY for regular validator (5% fee)
   $: nearAPR =
     validatorType === "meme"
-      ? new FixedNumber(675n, 2) // 3.3% (4.4% * 0.75)
+      ? new FixedNumber(330n, 2) // 3.3% (4.4% * 0.75)
       : apy != null
         ? new FixedNumber(BigInt(Math.round(apy * 100)), 2) // Use API APY
-        : new FixedNumber(855n, 2); // 4.18% fallback (4.4% * 0.95)
+        : new FixedNumber(418n, 2); // 4.18% fallback (4.4% * 0.95)
 
   $: if (
     validatorType === "meme" &&

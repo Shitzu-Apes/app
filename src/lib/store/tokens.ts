@@ -177,30 +177,38 @@ export function getToken$(
           ...refPrices[tokenId]!,
         } as TokenInfo;
       }
+      if (!poolIds[tokenId]) {
+        return {
+          price: "0",
+          decimal: metadata?.decimals ?? 0,
+          symbol: metadata?.symbol ?? "",
+          icon: metadata?.icon ?? null,
+        } satisfies TokenInfo;
+      }
       return fetch(
-        `https://api.dexscreener.com/latest/dex/pairs/near/refv1-${poolIds[tokenId]}`,
+        `https://api.dexscreener.com/latest/dex/pairs/near/refv1-${poolIds[tokenId].poolId}`,
       ).then(async (res) => {
         if (!res.ok) {
           return {
             price: "0",
-            decimal: metadata.decimals,
-            symbol: metadata.symbol,
-            icon: metadata.icon,
+            decimal: metadata?.decimals ?? 0,
+            symbol: metadata?.symbol ?? "",
+            icon: metadata?.icon ?? null,
           } satisfies TokenInfo;
         }
         const data = await res.json();
         try {
           return {
             price: data.pairs[0].priceUsd,
-            decimal: metadata.decimals,
-            symbol: metadata.symbol,
-            icon: metadata.icon,
+            decimal: metadata?.decimals ?? 0,
+            symbol: metadata?.symbol ?? "",
+            icon: metadata?.icon ?? null,
           } satisfies TokenInfo;
         } catch (err) {
           return {
-            decimal: metadata.decimals,
-            symbol: metadata.symbol,
-            icon: metadata.icon,
+            decimal: metadata?.decimals ?? 0,
+            symbol: metadata?.symbol ?? "",
+            icon: metadata?.icon ?? null,
           } satisfies TokenInfo;
         }
       }) as Promise<TokenInfo>;
