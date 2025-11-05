@@ -17,9 +17,7 @@ const network =
 const isMultichain =
   import.meta.env.VITE_WALLET_SELECTOR_MULTICHAIN === undefined ||
   import.meta.env.VITE_WALLET_SELECTOR_MULTICHAIN !== "false";
-const connection = new Connection(
-  import.meta.env.VITE_SOLANA_RPC_URL ?? clusterApiUrl(network),
-);
+const connection = new Connection(clusterApiUrl(network));
 
 export class SolanaWallet {
   private _wallets$ = writable<SignerWalletAdapter[]>([]);
