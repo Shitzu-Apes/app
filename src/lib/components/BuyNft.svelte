@@ -1,19 +1,13 @@
 <!-- module -->
 <script lang="ts" context="module">
-  import ParasLogo from "$lib/assets/logo/Paras.png";
-  import TradeportLogo from "$lib/assets/logo/Tradeport.png";
+  import HotcraftLogo from "$lib/assets/logo/hotcraft.webp";
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
 
   export const NFT_LINKS = [
     {
-      platform: "Tradeport",
-      logo: TradeportLogo,
-      link: "https://tradeport.xyz/near/collection/shitzu.bodega-lab.near",
-    },
-    {
-      platform: "Paras",
-      logo: ParasLogo,
-      link: "https://paras.id/collection/shitzu.bodega-lab.near",
+      platform: "Hotcraft",
+      logo: HotcraftLogo,
+      link: "https://hotcraft.art/collection/shitzu.bodega-lab.near",
     },
   ];
 </script>
