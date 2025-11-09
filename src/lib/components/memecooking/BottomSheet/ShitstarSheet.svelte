@@ -1,31 +1,15 @@
 <script lang="ts">
   import MintBaseLogo from "$lib/assets/logo/MintBase.png";
   import MitteLogo from "$lib/assets/logo/Mitte.jpg";
-  import ParasLogo from "$lib/assets/logo/Paras.png";
-  import TradeportLogo from "$lib/assets/logo/Tradeport.png";
+  import HotcraftLogo from "$lib/assets/logo/hotcraft.webp";
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
 
   export const NFT_LINKS = [
     {
-      platform: "Paras",
-      logo: ParasLogo,
-      link: "https://paras.id/collection/shitzu.bodega-lab.near",
-    },
-    {
-      platform: "MintBase",
-      logo: MintBaseLogo,
-      link: "https://www.mintbase.xyz/contract/shitzu.bodega-lab.near/nfts/all/0",
-    },
-    {
-      platform: "Mitte",
-      logo: MitteLogo,
-      link: "https://beta.mitte.gg/?contractAddress=shitzu.bodega-lab.near",
-    },
-    {
-      platform: "Tradeport",
-      logo: TradeportLogo,
-      link: "https://tradeport.xyz/near/collection/shitzu.bodega-lab.near",
+      platform: "Hotcraft",
+      logo: HotcraftLogo,
+      link: "https://hotcraft.art/collection/shitzu.bodega-lab.near",
     },
   ];
 </script>
