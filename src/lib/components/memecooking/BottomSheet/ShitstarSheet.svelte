@@ -1,6 +1,4 @@
 <script lang="ts">
-  import MintBaseLogo from "$lib/assets/logo/MintBase.png";
-  import MitteLogo from "$lib/assets/logo/Mitte.jpg";
   import HotcraftLogo from "$lib/assets/logo/hotcraft.webp";
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
