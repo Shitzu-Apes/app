@@ -24,6 +24,7 @@
   export let depositAmount: FixedNumber;
   export let onTransact: () => void;
   export let disabled: boolean = false;
+  export let isFailed: boolean = false;
 
   async function withdraw() {
     const onSuccess = async (outcome: FinalExecutionOutcome[] | undefined) => {
@@ -84,7 +85,7 @@
   type="custom"
   disabled={input == null ||
     input.toNumber() == 0 ||
-    finished ||
+    (finished && !isFailed) ||
     !hasEnoughTokens ||
     disabled}
   class="bg-rose-4 w-full py-2 rounded text-xl tracking-wider text-black border-rose-5 active:translate-y-1 my-4 capitalize"

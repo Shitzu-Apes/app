@@ -34,12 +34,17 @@
 
   const depositAmount$ = useMcMemeDepositQuery(accountId, meme.meme_id);
 
+  $: isFailed =
+    !!(meme.total_deposit &&
+    meme.soft_cap &&
+    BigInt(meme.total_deposit) < BigInt(meme.soft_cap));
   $: finished =
     meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now();
   $: notStarted =
     meme.start_timestamp_ms != null &&
     Number(meme.start_timestamp_ms) > Date.now();
-  $: disabled = finished || notStarted;
+  $: console.log({ finished, notStarted, isFailed });
+  $: disabled = (finished && !isFailed) || notStarted;
 
   const timer = setInterval(() => {
     finished =
@@ -258,6 +263,7 @@
         unwrapNear={true}
         {disabled}
         {finished}
+        {isFailed}
         hasEnoughTokens={hasEnoughTokens && !disabled}
         depositAmount={$depositAmount$.data?.amount ?? new FixedNumber(0n, 24)}
         onTransact={() => {
