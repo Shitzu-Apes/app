@@ -34,10 +34,11 @@
 
   const depositAmount$ = useMcMemeDepositQuery(accountId, meme.meme_id);
 
-  $: isFailed =
-    !!(meme.total_deposit &&
+  $: isFailed = !!(
+    meme.total_deposit &&
     meme.soft_cap &&
-    BigInt(meme.total_deposit) < BigInt(meme.soft_cap));
+    BigInt(meme.total_deposit) < BigInt(meme.soft_cap)
+  );
   $: finished =
     meme.end_timestamp_ms != null && meme.end_timestamp_ms < Date.now();
   $: notStarted =
