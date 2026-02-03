@@ -25,7 +25,10 @@ export const balanceKeys = createQueryKeys("balance", {
 });
 
 export function useAccountBalanceQuery(accountId: string) {
-  return createQuery(balanceKeys.account(accountId));
+  return createQuery({
+    ...balanceKeys.account(accountId),
+    enabled: !!accountId,
+  });
 }
 
 export function useFtBalanceQuery(

@@ -20,9 +20,10 @@ export const memesQueryFactory = createQueryKeyStore({
           throw new Error("No memes found");
         }
 
-        const loadedNotifications = JSON.parse(
-          localStorage.getItem("notifications") || "[]",
-        );
+        const loadedNotifications =
+          typeof window !== "undefined"
+            ? JSON.parse(localStorage.getItem("notifications") || "[]")
+            : [];
 
         const uniqueMemeIds = new Set(
           loadedNotifications.map((n: Notification) => n.meme_id),

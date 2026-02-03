@@ -1,11 +1,13 @@
 <script lang="ts">
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
+  import { onMount } from "svelte";
   import { writable } from "svelte/store";
   import { match } from "ts-pattern";
 
   import { page } from "$app/stores";
   import { useAccountBalanceQuery, useMcAccountQuery } from "$lib/api/queries";
   import { type McAccount } from "$lib/api/queries/memecooking";
+  import { useMemesQuery } from "$lib/api/queries/memes";
   import { usePortfolioQuery } from "$lib/api/queries/portfolio";
   import { createNearPriceQuery } from "$lib/api/queries/prices";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
@@ -20,33 +22,44 @@
   import { fetchBlockHeight } from "$lib/near/rpc";
   import { FixedNumber } from "$lib/util";
 
-  $: accountId = $page.params.accountId;
+  $: accountId = $page.params.accountId || "";
   const { accountId$ } = nearWallet;
 
-  $: isOwnAccount = accountId === $accountId$;
-  $: displayAccountId =
-    accountId.length > 24
+  $: isOwnAccount = accountId ? accountId === $accountId$ : false;
+  $: displayAccountId = accountId
+    ? accountId.length > 24
       ? `${accountId.substring(0, 6)}...${accountId.slice(-4)}`
-      : accountId;
+      : accountId
+    : "";
 
   $: mcAccountQuery = useMcAccountQuery(accountId);
   $: portfolioQuery = usePortfolioQuery(accountId);
   $: balanceQuery = useAccountBalanceQuery(accountId);
   $: nearPriceQuery = createNearPriceQuery();
 
-  // Track overall loading state for the page
-  $: isLoading =
-    $mcAccountQuery.isLoading ||
-    $portfolioQuery.isLoading ||
-    $balanceQuery.isLoading ||
-    $nearPriceQuery.isLoading;
+  $: $mcAccountQuery?.isLoading;
+  $: $portfolioQuery?.isLoading;
+  $: $balanceQuery?.isLoading;
+  $: $nearPriceQuery?.isLoading;
 
-  // Track overall error state
+  onMount(() => {
+    const memesQuery = useMemesQuery();
+    const unsubscribe = memesQuery.subscribe(() => {});
+    return () => unsubscribe();
+  });
+
+  $: isLoading =
+    (accountId && $mcAccountQuery?.isLoading) ||
+    (accountId && $portfolioQuery?.isLoading) ||
+    (accountId && $balanceQuery?.isLoading) ||
+    $nearPriceQuery?.isLoading ||
+    !accountId;
+
   $: hasError =
-    $mcAccountQuery.isError ||
-    $portfolioQuery.isError ||
-    $balanceQuery.isError ||
-    $nearPriceQuery.isError;
+    (accountId && $mcAccountQuery?.isError) ||
+    (accountId && $portfolioQuery?.isError) ||
+    (accountId && $balanceQuery?.isError) ||
+    $nearPriceQuery?.isError;
 
   const nearBalance = writable<FixedNumber | null>(null);
   $: if ($balanceQuery.data) {
