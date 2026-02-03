@@ -295,7 +295,6 @@
       showWalletSelector("shitzu");
       return;
     }
-    // Add your logic to handle form submission here
 
     if (!name || !ticker || !description || !imageReady || !icon) {
       console.error("Please fill in all fields");
@@ -480,8 +479,6 @@
     twitter_verified: false,
     flag_count: 0,
   } as Meme;
-
-  $: console.log("[create::+page] memebid", memebid);
 </script>
 
 <!-- listen for ctrl + v the image -->

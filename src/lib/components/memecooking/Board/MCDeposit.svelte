@@ -45,7 +45,7 @@
     meme.start_timestamp_ms != null &&
     Number(meme.start_timestamp_ms) > Date.now();
   $: console.log({ finished, notStarted, isFailed });
-  $: disabled = (finished && !isFailed) || notStarted;
+  $: disabled = finished || notStarted;
 
   const timer = setInterval(() => {
     finished =
