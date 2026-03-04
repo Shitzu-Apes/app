@@ -451,6 +451,57 @@ export const TOKENS = {
       },
     },
   },
+  XAUT: {
+    symbol: "XAUt",
+    icon: 'data:image/svg+xml,<svg width="165" height="165" viewBox="0 0 165 165" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M54.6366 84.7375C57.3593 87.7551 68.4638 90.0184 81.7556 90.0187C95.0473 90.0184 106.152 87.7551 108.868 84.7375C106.568 82.1761 98.2286 80.16 87.6395 79.6084V85.9928C85.7422 86.0879 83.7694 86.1387 81.7524 86.1387C79.7354 86.1387 77.7626 86.0943 75.8653 85.9928V79.6084C65.2825 80.16 56.9435 82.1761 54.6366 84.7375Z" fill="%23DFBF6A"/><path fill-rule="evenodd" clip-rule="evenodd" d="M117.391 48.0668L135.525 79.3865V79.3929C136.464 81.0159 136.187 83.0637 134.844 84.3825L84.924 133.397C83.3041 134.989 80.701 134.989 79.0874 133.397L29.2301 84.4459C27.8623 83.0954 27.6039 80.9906 28.6124 79.3548L47.9943 47.9654C48.7507 46.7481 50.0933 46 51.5367 46H113.792C115.28 46 116.647 46.7862 117.391 48.0668ZM87.6458 68.7733V74.8661H87.6395C100.094 75.5191 109.442 78.1946 109.511 81.4027V88.085C109.442 91.2931 100.094 93.9622 87.6395 94.6153V109.571H75.8653V94.6153C63.4105 93.9622 54.0693 91.2931 54 88.085V81.4027C54.0693 78.1946 63.4105 75.5191 75.8653 74.8661V68.7733H58.1348V59.9861H105.376V68.7733H87.6458Z" fill="%23DFBF6A"/></svg>',
+    // pool_id: TODO,
+    decimals: {
+      near: 6,
+      solana: undefined,
+      base: undefined,
+      arbitrum: undefined,
+      ethereum: 6,
+      bnb: undefined,
+    },
+    addresses: {
+      near: "68749665ff8d2d112fa859aa293f07a622782f38.factory.bridge.near",
+      solana: undefined,
+      base: undefined,
+      arbitrum: undefined,
+      ethereum: "0x68749665FF8D2d112Fa859AA293F07A622782F38",
+      bnb: undefined,
+    },
+    links: {
+      near: {
+        // buy: {
+        //   url: "https://dex.intea.rs/?from=near&to=nep141:68749665ff8d2d112fa859aa293f07a622782f38.factory.bridge.near",
+        //   icon: TODO,
+        // },
+        // dexscreener: {
+        //   url: "https://dexscreener.com/TODO",
+        //   icon: "/icons/dexscreener.svg",
+        // },
+        explorer: {
+          url: "https://nearblocks.io/token/68749665ff8d2d112fa859aa293f07a622782f38.factory.bridge.near",
+          icon: "/nearblocks.webp",
+        },
+      },
+      ethereum: {
+        // buy: {
+        //   url: "https://app.uniswap.org/swap?outputCurrency=0x68749665FF8D2d112Fa859AA293F07A622782F38&chain=ethereum",
+        //   icon: TODO,
+        // },
+        dexscreener: {
+          url: "https://dexscreener.com/ethereum/0x6546055f46e866a4b9a4a13e81273e3152bae5da",
+          icon: "/icons/dexscreener.svg",
+        },
+        // explorer: {
+        //   url: "https://etherscan.io/token/0x68749665FF8D2d112Fa859AA293F07A622782F38",
+        //   icon: todo,
+        // },
+      },
+    },
+  },
 } as const satisfies Record<string, Token>;
 
 export const TOKEN_ENTRIES = Object.entries(TOKENS) as [
@@ -465,6 +516,7 @@ export const balances$: Record<keyof typeof TOKENS, Writable<Balance>> = {
   JLU: writable<Balance>({}),
   PURGE: writable<Balance>({}),
   POPPY: writable<Balance>({}),
+  XAUT: writable<Balance>({}),
 };
 
 async function fetchNearBalance(
