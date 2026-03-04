@@ -23,7 +23,7 @@
 
   function getTransferDuration(sourceChain: string): number {
     return match(sourceChain)
-      .with("Base", () => 20 * 60 * 1000) // 20 minutes
+      .with("Base", "Arb", "Eth", "Bnb", () => 20 * 60 * 1000) // 20 minutes
       .otherwise(() => 30 * 1000); // 30 seconds
   }
 

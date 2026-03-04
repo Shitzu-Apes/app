@@ -36,7 +36,7 @@ export type TokenLinks = {
 export type Token = {
   symbol: string;
   icon: string;
-  pool_id: number;
+  pool_id?: number;
   decimals: Record<Network, number | undefined>;
   addresses: Record<Network, string | undefined>;
   links: Partial<Record<Network, TokenLinks>>;

@@ -261,15 +261,14 @@
       .exhaustive();
   }
 
-  async function getEthersSigner(config: Config) {
+  async function getEthersSigner(config: Config, chainId: number) {
     const evmWallet = $evmWallet$;
     const client = await getConnectorClient(config, {
       chainId: evmWallet.chainId,
       connector: evmWallet.connector,
       account: evmWallet.address,
     });
-    const chain =
-      import.meta.env.VITE_NETWORK_ID === "mainnet" ? base : baseSepolia;
+    const chain = { id: chainId, name: "" };
     const network = {
       chainId: chain.id,
       name: chain.name,
@@ -278,6 +277,84 @@
     const provider = new BrowserProvider(client.transport, network);
     const signer = new JsonRpcSigner(provider, client.account.address);
     return signer;
+  }
+
+  async function handleEvmBridge(
+    chainKind: ChainKind,
+    targetChainId: number,
+    networkName: string,
+    tokenAddress: string | undefined,
+  ) {
+    if ($evmWallet$.status !== "connected") return;
+    if (!tokenAddress) return;
+
+    if ($evmWallet$.chainId !== targetChainId) {
+      try {
+        await switchToChain(
+          targetChainId as
+            | 1
+            | 56
+            | 42161
+            | 8453
+            | 421614
+            | 11155111
+            | 84532
+            | 97,
+        );
+      } catch (error) {
+        console.error("Failed to switch network:", error);
+        addToast({
+          data: {
+            type: "simple",
+            data: {
+              title: "Network Switch Failed",
+              description: `Please switch to ${networkName} network to continue.`,
+              type: "error",
+            },
+          },
+        });
+        return;
+      }
+    }
+
+    const signer = await getEthersSigner(wagmiConfig, targetChainId);
+    const client =
+      chainKind === ChainKind.Base
+        ? getClient(ChainKind.Base, signer)
+        : chainKind === ChainKind.Arb
+          ? getClient(ChainKind.Arb, signer)
+          : chainKind === ChainKind.Eth
+            ? getClient(ChainKind.Eth, signer)
+            : getClient(ChainKind.Bnb, signer);
+
+    const sender = omniAddress(chainKind, $evmWallet$.address);
+    const recipient = omniAddress(
+      match($destinationNetwork$)
+        .with("near", () => ChainKind.Near)
+        .with("solana", () => ChainKind.Sol)
+        .with("base", () => ChainKind.Base)
+        .with("arbitrum", () => ChainKind.Arb)
+        .with("ethereum", () => ChainKind.Eth)
+        .with("bnb", () => ChainKind.Bnb)
+        .exhaustive(),
+      $recipientAddress$,
+    );
+    const tokenAddr = omniAddress(chainKind, tokenAddress);
+
+    const api = new OmniBridgeAPI({
+      baseUrl:
+        import.meta.env.VITE_NETWORK_ID === "mainnet"
+          ? "https://mainnet.api.bridge.nearone.org"
+          : "https://testnet.api.bridge.nearone.org",
+    });
+    const fee = await api.getFee(sender, recipient, tokenAddr);
+    return client.initTransfer({
+      amount: $amount$!.toBigInt(),
+      fee: fee.transferred_token_fee ?? 0n,
+      nativeFee: fee.native_token_fee ?? 0n,
+      recipient,
+      tokenAddress: tokenAddr,
+    });
   }
 
   async function handleBridge() {
@@ -380,6 +457,9 @@
         }
         const client = getClient(ChainKind.Sol, provider);
 
+        const solanaTokenAddress = TOKENS[$selectedToken$].addresses.solana;
+        if (!solanaTokenAddress) return;
+
         const sender = omniAddress(ChainKind.Sol, publicKey);
         const recipient = omniAddress(
           match($destinationNetwork$)
@@ -392,10 +472,7 @@
             .exhaustive(),
           $recipientAddress$,
         );
-        const tokenAddress = omniAddress(
-          ChainKind.Sol,
-          TOKENS[$selectedToken$].addresses.solana,
-        );
+        const tokenAddress = omniAddress(ChainKind.Sol, solanaTokenAddress);
 
         const fee = await api.getFee(sender, recipient, tokenAddress);
         return client.initTransfer({
@@ -406,71 +483,46 @@
           tokenAddress,
         });
       })
-      .with(P.select(), async (network) => {
-        if ($evmWallet$.status !== "connected") return;
-
-        // Check if we're on the correct network
-        const targetChainId = match([
-          network,
-          import.meta.env.VITE_NETWORK_ID === "mainnet",
-        ])
-          .with(["base", true], () => base.id)
-          .with(["base", false], () => baseSepolia.id)
-          .with(["arbitrum", true], () => arbitrum.id)
-          .with(["arbitrum", false], () => arbitrumSepolia.id)
-          .with(["ethereum", true], () => mainnet.id)
-          .with(["ethereum", false], () => sepolia.id)
-          .with(["bnb", true], () => bsc.id)
-          .with(["bnb", false], () => bscTestnet.id)
-          .exhaustive();
-        if ($evmWallet$.chainId !== targetChainId) {
-          try {
-            await switchToChain(targetChainId);
-          } catch (error) {
-            console.error("Failed to switch network:", error);
-            addToast({
-              data: {
-                type: "simple",
-                data: {
-                  title: "Network Switch Failed",
-                  description: "Please switch to Base network to continue.",
-                  type: "error",
-                },
-              },
-            });
-            return;
-          }
-        }
-
-        const signer = await getEthersSigner(wagmiConfig);
-        const client = getClient(ChainKind.Base, signer);
-
-        const sender = omniAddress(ChainKind.Base, $evmWallet$.address);
-        const recipient = omniAddress(
-          match($destinationNetwork$)
-            .with("near", () => ChainKind.Near)
-            .with("solana", () => ChainKind.Sol)
-            .with("base", () => ChainKind.Base)
-            .with("arbitrum", () => ChainKind.Arb)
-            .with("ethereum", () => ChainKind.Eth)
-            .with("bnb", () => ChainKind.Bnb)
-            .exhaustive(),
-          $recipientAddress$,
-        );
-        const tokenAddress = omniAddress(
+      .with("base", () =>
+        handleEvmBridge(
           ChainKind.Base,
-          TOKENS[$selectedToken$].addresses[network] ?? "",
-        );
-
-        const fee = await api.getFee(sender, recipient, tokenAddress);
-        return client.initTransfer({
-          amount: $amount$.toBigInt(),
-          fee: fee.transferred_token_fee ?? 0n,
-          nativeFee: fee.native_token_fee ?? 0n,
-          recipient,
-          tokenAddress,
-        });
-      })
+          import.meta.env.VITE_NETWORK_ID === "mainnet"
+            ? base.id
+            : baseSepolia.id,
+          "Base",
+          TOKENS[$selectedToken$].addresses.base,
+        ),
+      )
+      .with("arbitrum", () =>
+        handleEvmBridge(
+          ChainKind.Arb,
+          import.meta.env.VITE_NETWORK_ID === "mainnet"
+            ? arbitrum.id
+            : arbitrumSepolia.id,
+          "Arbitrum",
+          TOKENS[$selectedToken$].addresses.arbitrum,
+        ),
+      )
+      .with("ethereum", () =>
+        handleEvmBridge(
+          ChainKind.Eth,
+          import.meta.env.VITE_NETWORK_ID === "mainnet"
+            ? mainnet.id
+            : sepolia.id,
+          "Ethereum",
+          TOKENS[$selectedToken$].addresses.ethereum,
+        ),
+      )
+      .with("bnb", () =>
+        handleEvmBridge(
+          ChainKind.Bnb,
+          import.meta.env.VITE_NETWORK_ID === "mainnet"
+            ? bsc.id
+            : bscTestnet.id,
+          "BNB",
+          TOKENS[$selectedToken$].addresses.bnb,
+        ),
+      )
       .exhaustive();
 
     console.log("[transferEvent]", rawTransferEvent);
@@ -713,26 +765,37 @@
 
   // Add this near your other reactive statements
   $: {
-    // When token changes, validate current network selections
-    if (!isTokenAvailableOnNetwork($selectedToken$, $sourceNetwork$)) {
-      // Find first available network for this token
+    let newSourceNetwork = $sourceNetwork$;
+    let newDestinationNetwork = $destinationNetwork$;
+
+    if (!isTokenAvailableOnNetwork($selectedToken$, newSourceNetwork)) {
       const firstAvailable = networks.find((n) =>
         isTokenAvailableOnNetwork($selectedToken$, n.id),
       );
       if (firstAvailable) {
-        sourceNetwork$.set(firstAvailable.id);
+        newSourceNetwork = firstAvailable.id;
       }
     }
-    if (!isTokenAvailableOnNetwork($selectedToken$, $destinationNetwork$)) {
-      // Find first available network that's not the source
+
+    if (
+      !isTokenAvailableOnNetwork($selectedToken$, newDestinationNetwork) ||
+      newDestinationNetwork === newSourceNetwork
+    ) {
       const firstAvailable = networks.find(
         (n) =>
           isTokenAvailableOnNetwork($selectedToken$, n.id) &&
-          n.id !== $sourceNetwork$,
+          n.id !== newSourceNetwork,
       );
       if (firstAvailable) {
-        destinationNetwork$.set(firstAvailable.id);
+        newDestinationNetwork = firstAvailable.id;
       }
+    }
+
+    if (newSourceNetwork !== $sourceNetwork$) {
+      sourceNetwork$.set(newSourceNetwork);
+    }
+    if (newDestinationNetwork !== $destinationNetwork$) {
+      destinationNetwork$.set(newDestinationNetwork);
     }
   }
 

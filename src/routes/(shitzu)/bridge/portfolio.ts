@@ -3,7 +3,7 @@ import { createQuery } from "@tanstack/svelte-query";
 import { derived, type Readable } from "svelte/store";
 import { z } from "zod";
 
-import { balances$, TOKENS } from "./tokens";
+import { balances$, TOKENS, type Token } from "./tokens";
 
 import { queryClient } from "$lib/api/queries";
 import { priceQueryFactory } from "$lib/api/queries/prices";
@@ -73,11 +73,12 @@ export const bridgeTokenPriceKeys = createQueryKeys("bridgeTokenPrice", {
           };
         }
 
-        if (!TOKENS[token].pool_id) {
+        const tokenData = TOKENS[token] as Token;
+        if (!tokenData.pool_id) {
           return null;
         }
 
-        const poolId = TOKENS[token].pool_id!;
+        const poolId = tokenData.pool_id;
         const poolQuery = ref.detail(poolId);
 
         let pool: PoolInfo;
