@@ -370,7 +370,7 @@ export const TOKENS = {
         },
         explorer: {
           url: "https://nearblocks.io/token/purge-558.meme-cooking.near",
-          icon: "/nearblocks.webp",
+          icon: "/icons/nearblocks.webp",
         },
       },
       solana: {
@@ -473,32 +473,32 @@ export const TOKENS = {
     },
     links: {
       near: {
-        // buy: {
-        //   url: "https://dex.intea.rs/?from=near&to=nep141:68749665ff8d2d112fa859aa293f07a622782f38.factory.bridge.near",
-        //   icon: TODO,
-        // },
+        buy: {
+          url: "https://dex.intea.rs/?from=near&to=nep141:68749665ff8d2d112fa859aa293f07a622782f38.factory.bridge.near",
+          icon: "/icons/intear.svg",
+        },
         // dexscreener: {
         //   url: "https://dexscreener.com/TODO",
         //   icon: "/icons/dexscreener.svg",
         // },
         explorer: {
           url: "https://nearblocks.io/token/68749665ff8d2d112fa859aa293f07a622782f38.factory.bridge.near",
-          icon: "/nearblocks.webp",
+          icon: "/icons/nearblocks.webp",
         },
       },
       ethereum: {
-        // buy: {
-        //   url: "https://app.uniswap.org/swap?outputCurrency=0x68749665FF8D2d112Fa859AA293F07A622782F38&chain=ethereum",
-        //   icon: TODO,
-        // },
+        buy: {
+          url: "https://app.uniswap.org/swap?outputCurrency=0x68749665FF8D2d112Fa859AA293F07A622782F38&chain=ethereum",
+          icon: "/icons/uniswap.svg",
+        },
         dexscreener: {
           url: "https://dexscreener.com/ethereum/0x6546055f46e866a4b9a4a13e81273e3152bae5da",
           icon: "/icons/dexscreener.svg",
         },
-        // explorer: {
-        //   url: "https://etherscan.io/token/0x68749665FF8D2d112Fa859AA293F07A622782F38",
-        //   icon: todo,
-        // },
+        explorer: {
+          url: "https://etherscan.io/token/0x68749665FF8D2d112Fa859AA293F07A622782F38",
+          icon: "icons/etherscan.svg",
+        },
       },
     },
   },
