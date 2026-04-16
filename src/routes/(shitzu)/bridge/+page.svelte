@@ -56,6 +56,8 @@
     getNumberAsUInt128,
   } from "$lib/util";
 
+  const BRIDGE_PAUSED = true;
+
   const { accountId$, selector$ } = nearWallet;
   const { publicKey$ } = solanaWallet;
 
@@ -358,6 +360,8 @@
   }
 
   async function handleBridge() {
+    if (BRIDGE_PAUSED) return;
+
     if (needsWalletConnection) {
       showWalletSelector(undefined, $sourceNetwork$);
       return;
@@ -862,6 +866,21 @@
     </button>
   </div>
 
+  {#if BRIDGE_PAUSED}
+    <div class="mb-6 p-4 bg-amber-900/40 border border-amber-500/50 rounded-xl">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="i-mdi:wrench-clock text-amber-400 text-xl" />
+        <h2 class="text-lg font-bold text-amber-300">
+          Bridge Temporarily Unavailable
+        </h2>
+      </div>
+      <p class="text-sm text-amber-200/80">
+        The bridge is currently paused for maintenance. Transfers will resume
+        once maintenance is complete. Thank you for your patience.
+      </p>
+    </div>
+  {/if}
+
   <div
     class="pb-8 border-2 border-lime rounded-t-xl px-3 pt-3 bg-gradient-to-r from-lime to-emerald text-black"
   >
@@ -1182,10 +1201,12 @@
       <div class="flex flex-col gap-2">
         <Button
           onClick={handleBridge}
-          disabled={!needsWalletConnection && !canBridge}
+          disabled={BRIDGE_PAUSED || (!needsWalletConnection && !canBridge)}
           class="w-full"
         >
-          {#if needsWalletConnection}
+          {#if BRIDGE_PAUSED}
+            Bridge Paused
+          {:else if needsWalletConnection}
             Connect Wallet
           {:else if !$amount$}
             Enter Amount
