@@ -56,7 +56,7 @@
     getNumberAsUInt128,
   } from "$lib/util";
 
-  const BRIDGE_PAUSED = true;
+  const BRIDGE_PAUSED = false;
 
   const { accountId$, selector$ } = nearWallet;
   const { publicKey$ } = solanaWallet;
