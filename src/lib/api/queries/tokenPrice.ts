@@ -4,12 +4,33 @@ import { createQuery } from "@tanstack/svelte-query";
 import { queryClient } from ".";
 import { tokensKeys } from "./tokens";
 
-import type { TokenId } from "$lib/models/tokens";
+import { poolIds, type TokenId } from "$lib/models/tokens";
+
+async function fetchDexscreenerPrice(tokenId: TokenId): Promise<string | null> {
+  try {
+    const response = await fetch(
+      `https://api.dexscreener.com/latest/dex/pairs/near/refv1-${poolIds[tokenId].poolId}`,
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = (await response.json()) as {
+      pairs?: { priceUsd?: string }[];
+    };
+
+    return data.pairs?.[0]?.priceUsd ?? null;
+  } catch (error) {
+    console.error("Error fetching Dexscreener token price:", error);
+    return null;
+  }
+}
 
 export const tokenPriceKeys = createQueryKeys("tokenPrice", {
   currentPrice: (tokenId: string) => ({
     queryKey: [tokenId],
-    queryFn: async () => {
+    queryFn: async (): Promise<string | null> => {
       const allTokensData = queryClient.getQueryData<{
         [key in TokenId]?: { price?: string };
       }>(tokensKeys.all().queryKey);
@@ -27,7 +48,11 @@ export const tokenPriceKeys = createQueryKeys("tokenPrice", {
         console.error("Error fetching token price:", error);
       }
 
-      return "0";
+      if (tokenId in poolIds) {
+        return fetchDexscreenerPrice(tokenId as TokenId);
+      }
+
+      return null;
     },
   }),
 });
