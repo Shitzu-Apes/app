@@ -21,6 +21,11 @@
     nearWallet,
   } from "$lib/near";
   import { FixedNumber } from "$lib/util";
+  import {
+    buildDayPriceChartData,
+    calculatePositivePriceDiff,
+    parsePositiveFinitePrice,
+  } from "$lib/util/pricePoints";
 
   // Use price history query
   $: priceHistoryQuery = usePriceHistoryQuery("token.0xshitzu.near");
@@ -28,20 +33,40 @@
   // Use the current price query
   $: currentPriceQuery = useCurrentShitzuPriceQuery();
 
-  $: shitzuStat =
-    $priceHistoryQuery.data && $currentPriceQuery.data
-      ? preparePrice($priceHistoryQuery.data, $currentPriceQuery.data)
-      : null;
+  $: validCurrentShitzuPrice = parsePositiveFinitePrice(
+    $currentPriceQuery.data,
+  );
+
+  $: chartData = $priceHistoryQuery.data
+    ? buildDayPriceChartData(
+        $priceHistoryQuery.data.price_list,
+        $currentPriceQuery.data,
+      )
+    : [];
+
+  $: isChartLoading =
+    $priceHistoryQuery.isLoading ||
+    (chartData.length === 0 && $currentPriceQuery.isLoading);
+
+  $: shitzuStat = $priceHistoryQuery.data
+    ? preparePrice($priceHistoryQuery.data, $currentPriceQuery.data)
+    : null;
 
   function preparePrice(
     priceHistory: ShitzuPriceHistory,
-    currentShitzuPrice: string,
+    currentShitzuPrice: string | null | undefined,
   ): {
     diff: number;
-  } {
-    const price = +currentShitzuPrice;
-    const yesterday = +priceHistory.price_list[0].price;
-    const diff = (price - yesterday) / yesterday;
+  } | null {
+    const baselinePrice = priceHistory.price_list.find(
+      (price) => parsePositiveFinitePrice(price.price) !== null,
+    )?.price;
+    const diff = calculatePositivePriceDiff(currentShitzuPrice, baselinePrice);
+
+    if (diff === null) {
+      return null;
+    }
+
     return {
       diff,
     };
@@ -235,12 +260,14 @@
           {displayPrice.hoursAgo} hrs ago
         </div>
       {:else}
-        {#if $currentPriceQuery.data}
+        {#if validCurrentShitzuPrice !== null}
           <div>
-            ${parseFloat($currentPriceQuery.data).toFixed(6)}
+            ${validCurrentShitzuPrice.toFixed(6)}
           </div>
-        {:else}
+        {:else if $currentPriceQuery.isLoading}
           <div class="i-svg-spinners:6-dots-rotate size-6 bg-lime mx-auto" />
+        {:else}
+          <div>-</div>
         {/if}
         {#if shitzuStat}
           <div
@@ -260,7 +287,7 @@
   </div>
 
   <div class="relative w-full flex justify-center items-center">
-    {#if $priceHistoryQuery.isLoading || !$currentPriceQuery.data}
+    {#if isChartLoading}
       <div class="absolute i-svg-spinners:pulse w-10 h-10 bg-lime" />
     {/if}
 
@@ -272,18 +299,7 @@
           displayPrice = null;
         }
       }}
-      data={$priceHistoryQuery.data && $currentPriceQuery.data
-        ? [
-            ...$priceHistoryQuery.data.price_list.map((price) => ({
-              x: price.date_time * 1000,
-              y: parseFloat(price.price),
-            })),
-            {
-              x: Date.now(),
-              y: parseFloat($currentPriceQuery.data),
-            },
-          ]
-        : []}
+      data={chartData}
     />
   </div>
 

@@ -2,6 +2,11 @@
   import { curveCatmullRom, line, max, min, scaleLinear } from "d3";
   import { createEventDispatcher } from "svelte";
 
+  import {
+    filterValidPricePoints,
+    type PricePoint,
+  } from "$lib/util/pricePoints";
+
   import Line from "./Line.svelte";
 
   const HOURS = 1000 * 60 * 60;
@@ -9,7 +14,7 @@
   export let width: number;
   export let height: number;
 
-  export let data: { x: number; y: number }[] = [];
+  export let data: PricePoint[] = [];
 
   const margin = {
     top: 20,
@@ -21,23 +26,28 @@
   const initialXDomain = [0, 26 * HOURS];
   const initialYDomain = [0, 1];
 
+  $: validData = filterValidPricePoints(data);
+
   $: X = scaleLinear()
     .domain(
-      data.length
-        ? [min(data, (d) => d.x)!, min(data, (d) => d.x)! + 26 * HOURS]
+      validData.length
+        ? [
+            min(validData, (d) => d.x)!,
+            min(validData, (d) => d.x)! + 26 * HOURS,
+          ]
         : initialXDomain,
     )
     .range([margin.left, width - margin.right]);
 
   $: Y = scaleLinear()
     .domain(
-      data.length
-        ? [min(data, (d) => d.y)! * 0.99, max(data, (d) => d.y)!]
+      validData.length
+        ? [min(validData, (d) => d.y)! * 0.99, max(validData, (d) => d.y)!]
         : initialYDomain,
     )
     .range([height - margin.bottom, margin.top]);
 
-  $: lineFn = line<{ x: number; y: number }>()
+  $: lineFn = line<PricePoint>()
     .x((d) => X(d.x))
     .y((d) => Y(d.y))
     .curve(curveCatmullRom);
@@ -49,11 +59,11 @@
 
   const dispatch = createEventDispatcher();
 
-  let selected: (typeof data)[number] | null;
+  let selected: PricePoint | null;
 
   function handleMove(xPosition: number) {
-    if (!data.length) return;
-    const closestData = data.reduce((prev, curr) => {
+    if (!validData.length) return;
+    const closestData = validData.reduce((prev, curr) => {
       return Math.abs(X(curr.x) - xPosition) < Math.abs(X(prev.x) - xPosition)
         ? curr
         : prev;
@@ -122,11 +132,11 @@
   }}
   role="img"
 >
-  {#if data.length}
+  {#if validData.length}
     <Line
-      d={lineFn(data)}
-      cx={X(data[data.length - 1].x)}
-      cy={Y(data[data.length - 1].y)}
+      d={lineFn(validData)}
+      cx={X(validData[validData.length - 1].x)}
+      cy={Y(validData[validData.length - 1].y)}
     />
   {/if}
 
@@ -143,7 +153,7 @@
     </text>
   {/each}
   <text
-    x={data.length ? X(data[data.length - 1].x) : X(24 * HOURS)}
+    x={validData.length ? X(validData[validData.length - 1].x) : X(24 * HOURS)}
     y={height - margin.bottom}
     font-size="3"
     fill="currentColor"
