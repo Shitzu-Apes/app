@@ -2,12 +2,12 @@
   import { curveCatmullRom, line, max, min, scaleLinear } from "d3";
   import { createEventDispatcher } from "svelte";
 
+  import Line from "./Line.svelte";
+
   import {
     filterValidPricePoints,
     type PricePoint,
   } from "$lib/util/pricePoints";
-
-  import Line from "./Line.svelte";
 
   const HOURS = 1000 * 60 * 60;
 

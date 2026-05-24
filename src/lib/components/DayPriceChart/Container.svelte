@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { PricePoint } from "$lib/util/pricePoints";
-
   import Chart from "./Chart.svelte";
+
+  import type { PricePoint } from "$lib/util/pricePoints";
 
   let ref: HTMLDivElement | undefined = undefined;
   export let data: PricePoint[] = [];
