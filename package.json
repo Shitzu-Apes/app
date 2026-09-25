@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "vite dev --mode testnet",
-    "dev:prod": "vite dev",
+    "dev:prod": "vite dev --mode production",
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
