@@ -27,6 +27,7 @@
   import { ScreenSize } from "$lib/models";
   import { nearWallet } from "$lib/near";
   import { MemeCooking } from "$lib/near/memecooking";
+  import { rpcFetch } from "$lib/near/rpc-retry";
   import { screenSize$ } from "$lib/screen-size";
   import {
     initializeWebsocket,
@@ -59,23 +60,21 @@
     const fetchLastBlockHeight = async () => {
       const res = await client.GET("/info");
 
-      const nodeUrl = import.meta.env.VITE_NODE_URL;
-      const response = await fetch(nodeUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: "dontcare",
-          method: "status",
-          params: [],
-        }),
-      });
-      const data = await response.json();
+      try {
+        const status = await rpcFetch<{
+          sync_info: { latest_block_height: number };
+        }>(import.meta.env.VITE_NODE_URL, { method: "status", params: [] });
 
-      $indexer_last_block_height$ = res.data?.last_block_height ?? null;
-      $indexer_last_seen_block_height$ =
-        res.data?.last_seen_block_height ?? res.data?.last_block_height ?? null;
-      $node_last_block_height$ = data.result.sync_info.latest_block_height;
+        $indexer_last_block_height$ = res.data?.last_block_height ?? null;
+        $indexer_last_seen_block_height$ =
+          res.data?.last_seen_block_height ??
+          res.data?.last_block_height ??
+          null;
+        $node_last_block_height$ = status.sync_info.latest_block_height;
+      } catch (error) {
+        // Keep the last known heights rather than throwing inside setInterval.
+        console.warn("[layout]: failed to refresh block heights", error);
+      }
     };
 
     fetchLastBlockHeight(); // Fetch once immediately

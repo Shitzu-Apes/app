@@ -1,6 +1,7 @@
 import { writable } from "svelte/store";
 
 import { client } from "$lib/api/client";
+import { rpcFetch } from "$lib/near/rpc-retry";
 
 export const indexer_last_block_height$ = writable<number | null>(null);
 /**
@@ -30,19 +31,10 @@ export function awaitIndexerBlockHeight(blockHeight: number) {
 
 export function awaitRpcBlockHeight(blockHeight: number) {
   const updateBlockHeight = async (resolve: (value: unknown) => void) => {
-    const nodeUrl = import.meta.env.VITE_NODE_URL;
-    const response = await fetch(nodeUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: "dontcare",
-        method: "status",
-        params: [],
-      }),
-    });
-    const data = await response.json();
-    const currentBlockHeight = data.result.sync_info.latest_block_height;
+    const status = await rpcFetch<{
+      sync_info: { latest_block_height: number };
+    }>(import.meta.env.VITE_NODE_URL, { method: "status", params: [] });
+    const currentBlockHeight = status.sync_info.latest_block_height;
     node_last_block_height$.set(currentBlockHeight);
     if (currentBlockHeight >= blockHeight) {
       setTimeout(resolve, FINAL_DELAY);

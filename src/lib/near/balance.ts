@@ -1,5 +1,6 @@
 import { writable } from "svelte/store";
 
+import { rpcFetch, RpcResponseError } from "./rpc-retry";
 import { nearWallet } from "./wallet";
 
 import { FixedNumber } from "$lib/util";
@@ -9,26 +10,24 @@ export const nearBalance = writable<FixedNumber | null>(null);
 export async function fetchAccountBalance(
   accountId: string,
 ): Promise<{ amount: string; locked: string } | null> {
-  const res = await fetch(import.meta.env.VITE_NODE_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: "dontcare",
-      method: "query",
-      params: {
-        request_type: "view_account",
-        finality: "final",
-        account_id: accountId,
+  try {
+    return await rpcFetch<{ amount: string; locked: string }>(
+      import.meta.env.VITE_NODE_URL,
+      {
+        method: "query",
+        params: {
+          request_type: "view_account",
+          finality: "final",
+          account_id: accountId,
+        },
       },
-    }),
-  });
-  const json = (await res.json()) as {
-    result: { amount: string; locked: string };
-  };
-  return json.result || null;
+    );
+  } catch (error: unknown) {
+    if (error instanceof RpcResponseError) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function refreshNearBalance(accountId?: string): Promise<void> {
