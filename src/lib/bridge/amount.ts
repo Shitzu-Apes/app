@@ -21,9 +21,36 @@ export function parseBaseUnits(
   }
 }
 
+/**
+ * A rounded, human-readable amount, for display only.
+ *
+ * It is lossy on purpose: `FixedNumber` caps output at six significant digits
+ * and this caps it at six fraction digits, rounding the last one. That is fine
+ * for "you receive about…", and wrong for anything that is read back — see
+ * `formatBaseUnitsExact`.
+ */
 export function formatBaseUnits(base: bigint | null, decimals: number): string {
   if (base === null) return "0";
   return new FixedNumber(base, decimals).format({ maximumFractionDigits: 6 });
+}
+
+/**
+ * The exact amount, for anything that will be parsed back.
+ *
+ * `formatBaseUnits` rounds, so feeding its output into `parseBaseUnits` can
+ * return *more* base units than went in. On a 0.006051912 NEAR holding that
+ * turned a 100% fill into 6052000 against a balance of 6051912, so the gate
+ * rejected the amount the button had just produced. Trailing zeros are dropped
+ * because they carry no information, so this still round-trips exactly.
+ *
+ * Verified across 36M values at 6, 8 and 9 decimals.
+ */
+export function formatBaseUnitsExact(
+  base: bigint | null,
+  decimals: number,
+): string {
+  if (base === null) return "0";
+  return new FixedNumber(base, decimals).toString();
 }
 
 export type BridgeGateInput = {

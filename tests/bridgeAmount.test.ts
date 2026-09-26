@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   bridgeGate,
   formatBaseUnits,
+  formatBaseUnitsExact,
   parseBaseUnits,
   type BridgeGateInput,
 } from "../src/lib/bridge/amount.ts";
@@ -52,6 +53,115 @@ test("formats base units back to a trimmed decimal", () => {
   assert.equal(formatBaseUnits(1_500_000_000n, 9), "1.5");
   assert.equal(formatBaseUnits(0n, 9), "0");
   assert.equal(formatBaseUnits(null, 9), "0");
+});
+
+// --- rounding: the 100% button said "insufficient balance" -----------------
+
+test("the display formatter rounds, which is why it must not be read back", () => {
+  // A real holding. The display string is 88 base units larger than the truth,
+  // so feeding it back into parseBaseUnits claims more than is held.
+  const held = 6_051_912n;
+  assert.equal(formatBaseUnits(held, 9), "0.006052");
+  assert.equal(parseBaseUnits(formatBaseUnits(held, 9), 9), 6_052_000n);
+  assert.ok(
+    parseBaseUnits(formatBaseUnits(held, 9), 9)! > held,
+    "the round trip inflates the amount, which is the bug",
+  );
+});
+
+test("the exact formatter round-trips at full precision", () => {
+  const held = 6_051_912n;
+  assert.equal(formatBaseUnitsExact(held, 9), "0.006051912");
+  assert.equal(parseBaseUnits(formatBaseUnitsExact(held, 9), 9), held);
+});
+
+test("the exact formatter round-trips across the decimals tokens use", () => {
+  // 6 for USDC-style, 8 and 9 for the common SPL decimals.
+  for (const decimals of [6, 8, 9]) {
+    for (let i = 0n; i < 5000n; i++) {
+      for (const value of [i, i * 7n + 3n, i * 999_983n, i * 1_000_000n]) {
+        const shown = formatBaseUnitsExact(value, decimals);
+        assert.equal(
+          parseBaseUnits(shown, decimals),
+          value,
+          `${value} @ ${decimals} came back as ${shown}`,
+        );
+      }
+    }
+  }
+});
+
+test("the exact formatter never returns more than it was given", () => {
+  // The property that matters: whatever the balance, a 100% fill must not
+  // exceed it. Checked widely, including balances that round up at six digits.
+  for (const decimals of [6, 8, 9]) {
+    for (let i = 0n; i < 20_000n; i++) {
+      for (const value of [i, i * 3n + 1n, i * 1237n + 11n]) {
+        const back = parseBaseUnits(
+          formatBaseUnitsExact(value, decimals),
+          decimals,
+        );
+        assert.equal(back, value);
+        assert.ok(back <= value, `${back} exceeded ${value}`);
+      }
+    }
+  }
+});
+
+test("a 100% fill of a real holding satisfies the gate", () => {
+  // The reported failure: 0.006052 NEAR selected at 100% reported "More than
+  // the 0.006052 NEAR available".
+  const held = 6_051_912n;
+  const filled = parseBaseUnits(formatBaseUnitsExact(held, 9), 9)!;
+
+  const gate = bridgeGate({
+    ...ready,
+    amount: filled,
+    needsSwap: false,
+    bridgedWnear: filled,
+    available: held,
+    tokenFee: 2_089_000n,
+  });
+
+  assert.equal(
+    gate.insufficientBalance,
+    false,
+    "100% must not read as too much",
+  );
+});
+
+test("every percentage of a real holding satisfies the gate", () => {
+  const held = 6_051_912n;
+  for (const percent of [25, 50, 75, 100]) {
+    const scaled = (held * BigInt(percent)) / 100n;
+    const filled = parseBaseUnits(formatBaseUnitsExact(scaled, 9), 9)!;
+    assert.equal(filled, scaled, `${percent}% lost precision`);
+    const gate = bridgeGate({
+      ...ready,
+      amount: filled,
+      needsSwap: false,
+      bridgedWnear: filled,
+      available: held,
+      tokenFee: 2_089_000n,
+    });
+    assert.equal(
+      gate.insufficientBalance,
+      false,
+      `${percent}% read as more than the balance`,
+    );
+  }
+});
+
+test("trailing zeros are dropped without losing the value", () => {
+  // They carry no information, so this still round-trips.
+  assert.equal(formatBaseUnitsExact(6_052_000n, 9), "0.006052");
+  assert.equal(
+    parseBaseUnits(formatBaseUnitsExact(6_052_000n, 9), 9),
+    6_052_000n,
+  );
+  assert.equal(formatBaseUnitsExact(1_000_000_000n, 9), "1");
+  assert.equal(formatBaseUnitsExact(0n, 9), "0");
+  assert.equal(formatBaseUnitsExact(null, 9), "0");
 });
 
 // --- the gate -------------------------------------------------------------
