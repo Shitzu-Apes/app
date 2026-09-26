@@ -46,20 +46,30 @@ export class SolanaWallet {
     // Subscribe to wallet adapter events
     wallets.forEach((wallet) => {
       wallet.on("connect", () => {
-        this._selectedWallet$.set(wallet);
-        this._publicKey$.set(wallet.publicKey ?? undefined);
-        this.updateProvider(); // Update provider on connect
+        this.applyWallet(wallet);
       });
 
       wallet.on("disconnect", () => {
         const current = get(this._selectedWallet$);
         if (current?.name === wallet.name) {
-          this._selectedWallet$.set(undefined);
-          this._publicKey$.set(undefined);
-          this.updateProvider(); // Update provider on disconnect
+          this.applyWallet(undefined);
         }
       });
     });
+  }
+
+  /**
+   * The only place that records the connected wallet.
+   *
+   * `publicKey$` and the provider have to move together: a connected wallet
+   * with a null provider looks fine in the UI (address, balances) but fails at
+   * signing time, which is what the bridge hit after an auto-connect. Routing
+   * every mutation through here makes that split impossible.
+   */
+  private applyWallet(wallet: SignerWalletAdapter | undefined) {
+    this._selectedWallet$.set(wallet);
+    this._publicKey$.set(wallet?.publicKey ?? undefined);
+    this.updateProvider();
   }
 
   public wallets$ = derived(this._wallets$, (w) => w);
@@ -82,8 +92,7 @@ export class SolanaWallet {
         try {
           await wallet.autoConnect();
           // Don't show toast for auto-connect
-          this._selectedWallet$.set(wallet);
-          this._publicKey$.set(wallet.publicKey ?? undefined);
+          this.applyWallet(wallet);
           break;
         } catch {
           // Continue to next wallet if this one fails
@@ -115,9 +124,7 @@ export class SolanaWallet {
         return;
       }
 
-      this._selectedWallet$.set(wallet);
-      this._publicKey$.set(wallet.publicKey ?? undefined);
-      this.updateProvider();
+      this.applyWallet(wallet);
 
       // Store successful connection in localStorage
       if (browser) {
@@ -188,9 +195,7 @@ export class SolanaWallet {
         },
       });
 
-      this._selectedWallet$.set(undefined);
-      this._publicKey$.set(undefined);
-      this.updateProvider();
+      this.applyWallet(undefined);
     } catch (error) {
       console.error("Failed to disconnect wallet:", error);
       addToast({

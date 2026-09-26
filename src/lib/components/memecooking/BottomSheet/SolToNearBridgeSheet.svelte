@@ -179,7 +179,9 @@
 
     const provider = solanaWallet.getProvider();
     if (!provider) {
-      error = "Your Solana wallet is not ready. Reconnect and try again.";
+      // Should be unreachable: publicKey$ and the provider are now set together.
+      error =
+        "Your Solana wallet is not ready to sign. Disconnect and reconnect it, then try again.";
       return;
     }
 
