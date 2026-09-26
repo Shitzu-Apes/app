@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
   import { PublicKey } from "@solana/web3.js";
   import { onDestroy } from "svelte";
   import { slide } from "svelte/transition";
@@ -12,6 +11,7 @@
   import {
     bridgeGate,
     formatBaseUnits,
+    formatBaseUnitsExact,
     parseBaseUnits,
   } from "$lib/bridge/amount";
   import { CHAINS } from "$lib/bridge/chains";
@@ -31,19 +31,20 @@
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import { nearWallet } from "$lib/near";
-  import { getSolBalance } from "$lib/solana/balance";
-  import { describeRoute, SWAP_TOKENS } from "$lib/solana/jupiter";
+  import { describeRoute, SWAP_TOKENS, WNEAR_MINT } from "$lib/solana/jupiter";
+  import {
+    fetchWalletTokens,
+    formatTokenBalance,
+    WSOL_MINT,
+    type WalletToken,
+  } from "$lib/solana/tokenBalances";
   import { solanaWallet } from "$lib/solana/wallet";
 
   const { accountId$ } = nearWallet;
   const { publicKey$ } = solanaWallet;
 
-  const SOURCE_KEYS = ["SOL", "WNEAR", "USDC"] as const;
-  type SourceKey = (typeof SOURCE_KEYS)[number];
-
   const NEAR_ICON = CHAINS.near.icon;
   const SOL_ICON = CHAINS.solana.icon;
-  const WNEAR_DECIMALS = SWAP_TOKENS.WNEAR.decimals;
 
   /**
    * The wNEAR Omni Bridge route only settles on mainnet. Jupiter quotes mainnet
@@ -79,7 +80,7 @@
 
   const phaseIndex = (p: BridgePhase) => PHASES.indexOf(p);
 
-  let sourceKey: SourceKey = "SOL";
+  let sourceMint: string = WSOL_MINT;
   let amountInput: string | undefined = undefined;
 
   let quote: Awaited<ReturnType<typeof quoteToWnear>> = null;
@@ -98,7 +99,38 @@
   let done = false;
   let result: { bridged: bigint; tokenFee: bigint } | null = null;
 
-  let balances: Record<string, bigint> = {};
+  /**
+   * Every token the connected wallet holds, discovered from the chain rather
+   * than hardcoded, so the user can bridge from whatever they actually have.
+   */
+  let walletTokens: WalletToken[] = [];
+  let tokensOwner: string | null = null;
+  let isLoadingTokens = false;
+
+  const NEAR_SYMBOL = SWAP_TOKENS.WNEAR.symbol;
+  const WNEAR_DECIMALS = SWAP_TOKENS.WNEAR.decimals;
+
+  /** Used before balances load, and if the wallet holds nothing. */
+  const FALLBACK_SOURCE: WalletToken = {
+    mint: WSOL_MINT,
+    balance: 0n,
+    decimals: 9,
+    symbol: "SOL",
+    routable: true,
+    native: true,
+  };
+
+  /** Quick-fill options. 100% is the same as Max. */
+  const PERCENTS = [25, 50, 75, 100];
+
+  function formatUsd(value: number): string {
+    if (value >= 1000) {
+      return `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+    }
+    if (value >= 1) return `$${value.toFixed(2)}`;
+    if (value >= 0.01) return `$${value.toFixed(3)}`;
+    return `$${value.toPrecision(2)}`;
+  }
 
   /** Clear everything back to a pristine form. */
   function reset() {
@@ -115,45 +147,49 @@
     error = null;
     done = false;
     result = null;
+    // The token list is a property of the wallet, not of one transfer, so it
+    // deliberately survives a reset.
   }
 
   onDestroy(reset);
 
-  $: source = SWAP_TOKENS[sourceKey];
-  $: needsSwap = source.mint !== SWAP_TOKENS.WNEAR.mint;
-  $: currentBalance = balances[sourceKey] ?? null;
-  $: solBalanceNow = balances.SOL ?? null;
+  $: source =
+    walletTokens.find((t) => t.mint === sourceMint) ?? FALLBACK_SOURCE;
+  $: needsSwap = source.mint !== WNEAR_MINT;
+  $: currentBalance = source.balance;
+  $: solBalanceNow =
+    walletTokens.find((t) => t.mint === WSOL_MINT)?.balance ?? null;
 
   $: amount = parseBaseUnits(amountInput, source.decimals);
 
-  $: if ($publicKey$) void refreshBalances($publicKey$);
+  $: if ($publicKey$) void loadWalletTokens($publicKey$);
 
-  async function readTokenBalance(
-    mint: string,
-    owner: PublicKey,
-  ): Promise<bigint> {
+  /**
+   * Read every token the wallet holds rather than a fixed list, so the picker
+   * reflects what the user actually has. Balances and decimals come from the
+   * chain; symbols and icons from Jupiter's token list.
+   */
+  async function loadWalletTokens(owner: PublicKey) {
+    const requested = owner.toBase58();
+    if (tokensOwner === requested && walletTokens.length > 0) return;
+    tokensOwner = requested;
+    isLoadingTokens = true;
     try {
-      const ata = await getAssociatedTokenAddress(new PublicKey(mint), owner);
-      return BigInt(
-        (await getAccount(solanaWallet.getConnection(), ata)).amount,
+      const found = await fetchWalletTokens(
+        solanaWallet.getConnection(),
+        owner,
       );
+      if (tokensOwner !== requested) return; // wallet changed mid-flight
+      walletTokens = found;
+      // Keep the current selection if it is still held, else fall back.
+      if (!found.some((t) => t.mint === sourceMint)) {
+        const first = found.find((t) => t.routable) ?? found[0];
+        if (first) selectToken(first.mint);
+      }
     } catch {
-      // A missing ATA just means a zero balance.
-      return 0n;
-    }
-  }
-
-  async function refreshBalances(owner: PublicKey) {
-    const connection = solanaWallet.getConnection();
-    try {
-      const [sol, wnear, usdc] = await Promise.all([
-        getSolBalance(connection, owner),
-        readTokenBalance(SWAP_TOKENS.WNEAR.mint, owner),
-        readTokenBalance(SWAP_TOKENS.USDC.mint, owner),
-      ]);
-      balances = { SOL: sol, WNEAR: wnear, USDC: usdc };
-    } catch {
-      // Best effort: the quote and the bridge still work without balances.
+      walletTokens = [];
+    } finally {
+      isLoadingTokens = false;
     }
   }
 
@@ -251,7 +287,7 @@
   $: available =
     currentBalance === null
       ? null
-      : sourceKey === "SOL"
+      : source.mint === WSOL_MINT
         ? currentBalance > solReserve
           ? currentBalance - solReserve
           : 0n
@@ -280,14 +316,24 @@
 
   $: myTransfers = $transfers.filter((t) => t.id?.origin_chain === "Sol");
 
-  function setMax() {
-    // Cap at what is actually spendable, so Max never produces an amount the
-    // gate will reject.
-    amountInput = formatBaseUnits(available ?? 0n, source.decimals);
+  function setPercent(percent: number) {
+    // Percentages are taken from the spendable balance rather than the raw
+    // one, which is what makes 100% mean "everything you can actually send":
+    // for native SOL the network fee is already reserved, so no percentage can
+    // land on an amount the gate rejects.
+    //
+    // The result is written exactly, not through the rounded display formatter.
+    // That formatter rounds to six fraction digits, so on a 0.006051912 NEAR
+    // holding 100% produced 6052000 against a balance of 6051912 and the gate
+    // rejected the amount the button had just set.
+    amountInput = formatBaseUnitsExact(
+      ((available ?? 0n) * BigInt(percent)) / 100n,
+      source.decimals,
+    );
   }
 
-  function selectSource(key: SourceKey) {
-    sourceKey = key;
+  function selectToken(mint: string) {
+    sourceMint = mint;
     amountInput = undefined;
     quote = null;
     error = null;
@@ -357,7 +403,7 @@
           },
         });
 
-        if ($publicKey$) await refreshBalances($publicKey$);
+        if ($publicKey$) await loadWalletTokens($publicKey$);
       } catch (err) {
         error =
           err instanceof Error ? err.message : "The bridge failed. Try again.";
@@ -407,11 +453,24 @@
     {/if}
 
     <!--
-      The form is hidden while a transfer is running or has landed, so no stale
-      amount, quote or fee can be mistaken for a fresh one. `space-y-4` has to
-      live here as well: this div is what separates the cards now.
+      The form is hidden once a transfer has landed, so a stale amount, quote
+      or fee cannot be mistaken for a fresh one.
+
+      It deliberately stays visible *while* the transfer runs. It used to be
+      hidden on `isBridging` too, which meant that clicking the button blanked
+      the whole modal before the wallet had even asked for a signature, losing
+      the from/to context at exactly the moment the user needed it. Instead it
+      stays put and goes inert: the inputs and token buttons are already
+      disabled, and the values double as a record of what was submitted.
+      `space-y-4` has to live here as well: this div is what separates the cards.
     -->
-    <div class="space-y-4" class:hidden={isBridging || done}>
+    <div
+      class="space-y-4 transition-opacity duration-200"
+      class:hidden={done}
+      class:opacity-50={isBridging && !done}
+      class:pointer-events-none={isBridging && !done}
+      aria-busy={isBridging && !done}
+    >
       <div class="rounded-xl bg-white/5 border border-shitzu-4/45 p-3">
         <div
           class="text-xs font-semibold uppercase tracking-wide text-shitzu-3"
@@ -457,54 +516,127 @@
       </div>
 
       <div>
-        <div
-          class="text-xs font-semibold uppercase tracking-wide text-shitzu-3 mb-2"
-        >
-          Pay with
+        <div class="flex items-center justify-between mb-2">
+          <span
+            class="text-xs font-semibold uppercase tracking-wide text-shitzu-3"
+          >
+            Pay with
+          </span>
+          {#if isLoadingTokens}
+            <div class="i-mdi:loading animate-spin text-shitzu-3 text-sm" />
+          {:else}
+            <span class="text-xs text-shitzu-2">
+              {walletTokens.length}
+              {walletTokens.length === 1 ? "token" : "tokens"}
+            </span>
+          {/if}
         </div>
-        <div class="grid grid-cols-3 gap-2">
-          {#each SOURCE_KEYS as key}
-            <button
-              class="px-3 py-2 rounded-lg text-sm font-semibold transition-colors border {sourceKey ===
-              key
-                ? 'bg-shitzu-4 text-black border-shitzu-4'
-                : 'bg-white/5 text-shitzu-1 border-shitzu-4/45 hover:bg-white/10'}"
-              disabled={isBridging}
-              on:click={() => selectSource(key)}
-            >
-              {SWAP_TOKENS[key].symbol}
-            </button>
-          {/each}
-        </div>
+
+        {#if walletTokens.length === 0 && !isLoadingTokens}
+          <div
+            class="rounded-xl bg-white/5 border border-shitzu-4/45 p-3 text-sm text-shitzu-2"
+          >
+            No tokens found in this wallet.
+          </div>
+        {:else}
+          <ul
+            class="max-h-56 overflow-y-auto overscroll-contain noscrollbar rounded-xl border border-shitzu-4/45 divide-y divide-shitzu-4/20"
+          >
+            {#each walletTokens as token (token.mint)}
+              <li>
+                <button
+                  class="w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors {sourceMint ===
+                  token.mint
+                    ? 'bg-shitzu-4/15'
+                    : 'hover:bg-white/5'}"
+                  disabled={isBridging}
+                  on:click={() => selectToken(token.mint)}
+                >
+                  {#if token.icon}
+                    <img
+                      src={token.icon}
+                      alt=""
+                      class="w-7 h-7 rounded-full shrink-0"
+                      loading="lazy"
+                    />
+                  {:else}
+                    <span
+                      class="w-7 h-7 rounded-full bg-shitzu-4/20 shrink-0"
+                    />
+                  {/if}
+
+                  <span class="flex-1 min-w-0">
+                    <span class="flex items-center gap-1.5">
+                      <span class="text-sm font-semibold truncate">
+                        {token.symbol}
+                      </span>
+                      {#if !token.routable}
+                        <span
+                          class="text-[10px] px-1 py-0.5 rounded bg-shitzu-4/20 text-shitzu-2 shrink-0"
+                        >
+                          no route
+                        </span>
+                      {/if}
+                    </span>
+                    <span class="block text-xs text-shitzu-2">
+                      {formatTokenBalance(token)}
+                    </span>
+                  </span>
+
+                  <span class="text-xs text-shitzu-2 shrink-0 text-right">
+                    {#if token.usdValue !== undefined && token.usdValue > 0}
+                      {formatUsd(token.usdValue)}
+                    {/if}
+                  </span>
+
+                  <div
+                    class="w-4 h-4 rounded-full border-2 shrink-0 {sourceMint ===
+                    token.mint
+                      ? 'border-shitzu-4 bg-shitzu-4'
+                      : 'border-shitzu-4/45'}"
+                  />
+                </button>
+              </li>
+            {/each}
+          </ul>
+        {/if}
       </div>
 
       <div class="rounded-xl bg-white/5 border border-shitzu-4/45 p-3">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-3">
           <span class="text-sm font-medium">Amount</span>
-          <button
-            class="text-xs font-semibold text-shitzu-3 hover:text-shitzu-1 hover:underline disabled:text-shitzu-600 disabled:hover:no-underline"
-            disabled={isBridging || currentBalance === null}
-            on:click={setMax}
-          >
-            Max
-          </button>
+          <span class="text-xs text-shitzu-2 text-right">
+            {#if currentBalance === null}
+              Balance &mdash;
+            {:else}
+              Balance {formatBaseUnits(currentBalance, source.decimals)}
+              {source.symbol}
+            {/if}
+          </span>
         </div>
         <div class="flex items-center gap-2 mt-2">
           <input
-            class="flex-1 bg-transparent outline-none text-3xl font-semibold w-full text-shitzu-1 placeholder:text-shitzu-500"
+            class="flex-1 bg-transparent outline-none text-3xl font-semibold w-full min-w-0 text-shitzu-1 placeholder:text-shitzu-500"
             type="text"
             inputmode="decimal"
             placeholder="0.0"
             bind:value={amountInput}
             disabled={isBridging}
           />
-          <span class="text-base font-medium text-shitzu-2"
+          <span class="text-base font-medium text-shitzu-2 shrink-0"
             >{source.symbol}</span
           >
         </div>
-        <div class="text-xs text-shitzu-2 mt-1.5">
-          Balance: {formatBaseUnits(currentBalance, source.decimals)}
-          {source.symbol}
+        <div class="grid grid-cols-4 gap-1.5 mt-3">
+          {#each PERCENTS as pct}
+            <button
+              class="px-2 py-1.5 rounded-lg text-xs font-semibold bg-white/5 text-shitzu-1 border border-shitzu-4/45 hover:bg-white/10 transition-colors disabled:text-shitzu-600 disabled:hover:bg-white/5"
+              disabled={isBridging || !available || available <= 0n}
+              on:click={() => setPercent(pct)}
+            >
+              {pct}%
+            </button>
+          {/each}
         </div>
       </div>
 
@@ -528,19 +660,12 @@
             tone={noRoute ? "warning" : "default"}
             pending={!noRoute && !quote}
           />
-          {#if quote && Number(quote.priceImpactPct) > 0.01}
-            <SummaryRow
-              label="Price impact"
-              value={`${(Number(quote.priceImpactPct) * 100).toFixed(2)}%`}
-              tone="warning"
-            />
-          {/if}
         {/if}
 
         <SummaryRow
           label={needsSwap ? "Swap output" : "Amount"}
           value={bridgedWnear !== null && bridgedWnear > 0n
-            ? `${formatBaseUnits(bridgedWnear, WNEAR_DECIMALS)} ${SWAP_TOKENS.WNEAR.symbol}`
+            ? `${formatBaseUnits(bridgedWnear, WNEAR_DECIMALS)} ${NEAR_SYMBOL}`
             : null}
         />
 
@@ -549,7 +674,7 @@
         <SummaryRow
           label="Bridge fee"
           value={feeQuote
-            ? `\u2212${formatBaseUnits(feeQuote.tokenFee, WNEAR_DECIMALS)} ${SWAP_TOKENS.WNEAR.symbol} / ${formatBaseUnits(feeQuote.nativeFee, 9)} SOL`
+            ? `\u2212${formatBaseUnits(feeQuote.tokenFee, WNEAR_DECIMALS)} ${NEAR_SYMBOL} / ${formatBaseUnits(feeQuote.nativeFee, 9)} SOL`
             : null}
           tone="warning"
           pending={isQuotingFee}
@@ -558,7 +683,7 @@
         <SummaryRow
           label="You receive on Near"
           value={netAmount !== null
-            ? `${formatBaseUnits(netAmount, WNEAR_DECIMALS)} ${SWAP_TOKENS.WNEAR.symbol}`
+            ? `${formatBaseUnits(netAmount, WNEAR_DECIMALS)} ${NEAR_SYMBOL}`
             : null}
           tone="strong"
           pending={isQuotingFee}
@@ -619,10 +744,6 @@
             </li>
           {/each}
         </ol>
-        <div class="text-xs text-shitzu-2">
-          Check {poll.attempt} of {poll.total} — this usually takes a couple of minutes.
-          You can close this sheet safely.
-        </div>
       </div>
     {/if}
 
@@ -640,14 +761,14 @@
             <span class="text-shitzu-2 shrink-0">Received</span>
             <span class="text-right font-semibold">
               {formatBaseUnits(result.bridged, WNEAR_DECIMALS)}
-              {SWAP_TOKENS.WNEAR.symbol}
+              {NEAR_SYMBOL}
             </span>
           </div>
           <div class="flex justify-between gap-3 text-sm">
             <span class="text-shitzu-2 shrink-0">Bridge fee</span>
             <span class="text-right text-shitzu-2">
               −{formatBaseUnits(result.tokenFee, WNEAR_DECIMALS)}
-              {SWAP_TOKENS.WNEAR.symbol}
+              {NEAR_SYMBOL}
             </span>
           </div>
         {/if}
@@ -667,15 +788,6 @@
     >
       {done ? "Done" : buttonLabel}
     </button>
-
-    <div class="text-xs text-shitzu-2 leading-relaxed">
-      {#if needsSwap}
-        This swaps {source.symbol} to NEAR on Solana, then bridges it to your Near
-        account. You sign two transactions.
-      {:else}
-        This bridges your NEAR from Solana to your Near account.
-      {/if}
-    </div>
 
     {#if myTransfers.length > 0}
       <div class="pt-3 border-t border-shitzu-4/45">
