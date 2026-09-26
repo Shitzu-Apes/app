@@ -3,6 +3,12 @@ import { writable } from "svelte/store";
 import { client } from "$lib/api/client";
 
 export const indexer_last_block_height$ = writable<number | null>(null);
+/**
+ * Highest block the indexer has observed, regardless of whether it carried
+ * events. Unlike `indexer_last_block_height$` this does not stall while the
+ * contract is quiet, so it is what the health badge compares against the node.
+ */
+export const indexer_last_seen_block_height$ = writable<number | null>(null);
 export const node_last_block_height$ = writable<number | null>(null);
 
 const REFETCH_DELAY = 2_000;

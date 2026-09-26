@@ -36,6 +36,7 @@
   import { initializeExternalWebsocket } from "$lib/store/externalTrades";
   import {
     indexer_last_block_height$,
+    indexer_last_seen_block_height$,
     node_last_block_height$,
   } from "$lib/store/indexer";
   import { appendNewMeme } from "$lib/store/memebids";
@@ -72,6 +73,8 @@
       const data = await response.json();
 
       $indexer_last_block_height$ = res.data?.last_block_height ?? null;
+      $indexer_last_seen_block_height$ =
+        res.data?.last_seen_block_height ?? res.data?.last_block_height ?? null;
       $node_last_block_height$ = data.result.sync_info.latest_block_height;
     };
 
@@ -212,8 +215,8 @@
             <Tooltip
               info="Red: Indexer >105 blocks behind. Green: Indexer up-to-date or slightly behind."
             >
-              {#if $indexer_last_block_height$ && $node_last_block_height$}
-                {#if $node_last_block_height$ - $indexer_last_block_height$ > 105}
+              {#if $indexer_last_seen_block_height$ && $node_last_block_height$}
+                {#if $node_last_block_height$ - $indexer_last_seen_block_height$ > 105}
                   <span class="inline-flex relative mr-1">
                     <span class="w-2 h-2 bg-red-500 rounded-full"></span>
                     <span
@@ -229,8 +232,8 @@
                   </span>
                 {/if}
                 <span class="font-mono"
-                  >{$indexer_last_block_height$} ({$node_last_block_height$ -
-                    $indexer_last_block_height$})</span
+                  >{$indexer_last_seen_block_height$} ({$node_last_block_height$ -
+                    $indexer_last_seen_block_height$})</span
                 >
               {/if}
             </Tooltip>

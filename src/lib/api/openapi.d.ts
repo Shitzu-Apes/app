@@ -29,6 +29,7 @@ export interface paths {
           content: {
             "application/json": {
               last_block_height: number;
+              last_seen_block_height: number | null;
             };
           };
         };
