@@ -5,7 +5,7 @@
   import { match, P } from "ts-pattern";
 
   import { getChainIcon, getExplorerUrl } from "$lib/bridge/chains";
-  import { getOmniApi } from "$lib/bridge/omni";
+  import { fetchTransferByNonce, getTransferNonce } from "$lib/bridge/status";
   import {
     updateTokenBalance,
     findTokenByAddress,
@@ -86,17 +86,20 @@
       return;
     }
 
-    const api = getOmniApi();
+    const nonce = getTransferNonce(transfer);
+    if (nonce == null) return;
+
     try {
-      const updatedTransfer = (
-        await api.getTransfer({
-          originChain: transfer.id.origin_chain,
-          originNonce: transfer.id.kind.Nonce,
-        })
-      )[0];
+      // Read through the raw client: the SDK's schema validation rejects the
+      // live API's `id` shape, so its getTransfer always throws here.
+      const updatedTransfer = await fetchTransferByNonce(
+        transfer.id.origin_chain,
+        nonce,
+      );
+      if (!updatedTransfer) return;
 
       transfers.updateTransfer({
-        event: updatedTransfer,
+        event: updatedTransfer as unknown as Transfer,
         chain: transfer.id.origin_chain,
       });
 
@@ -115,7 +118,7 @@
       }
     } catch (err) {
       console.error(
-        `[Transfer ${transfer.id.origin_chain}:${transfer.id.kind.Nonce}] Error:`,
+        `[Transfer ${transfer.id.origin_chain}:${getTransferNonce(transfer)}] Error:`,
         err,
       );
     }

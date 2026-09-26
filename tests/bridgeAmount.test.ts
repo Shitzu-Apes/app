@@ -4,7 +4,6 @@ import test from "node:test";
 import {
   bridgeGate,
   formatBaseUnits,
-  MIN_BRIDGEABLE_WNEAR,
   parseBaseUnits,
   type BridgeGateInput,
 } from "../src/lib/bridge/amount.ts";
@@ -66,6 +65,7 @@ const ready: BridgeGateInput = {
   solanaConnected: true,
   isBridging: false,
   supported: true,
+  tokenFee: 2_064_491n,
 };
 
 test("a fully connected, quoted form can submit", () => {
@@ -138,21 +138,27 @@ test("a wNEAR source ignores quote state entirely", () => {
   }
 });
 
-test("amounts at or below the bridge fee floor are rejected", () => {
-  assert.equal(MIN_BRIDGEABLE_WNEAR, 2_500_000n);
+test("amounts at or below the quoted bridge fee are rejected", () => {
+  // The floor is now the real fee rather than a hardcoded guess, so it tracks
+  // whatever the bridge charges.
+  const fee = 2_064_491n;
+
   const atFloor = bridgeGate({
     ...ready,
     needsSwap: false,
-    bridgedWnear: MIN_BRIDGEABLE_WNEAR,
+    tokenFee: fee,
+    bridgedWnear: fee,
   });
   assert.equal(atFloor.tooSmall, true);
   assert.equal(atFloor.label, "Amount too small");
   assert.equal(atFloor.canSubmit, false);
+  assert.equal(atFloor.netAmount, null);
 
   const belowFloor = bridgeGate({
     ...ready,
     needsSwap: false,
-    bridgedWnear: MIN_BRIDGEABLE_WNEAR - 1n,
+    tokenFee: fee,
+    bridgedWnear: fee - 1n,
   });
   assert.equal(belowFloor.tooSmall, true);
   assert.equal(belowFloor.canSubmit, false);
@@ -160,10 +166,42 @@ test("amounts at or below the bridge fee floor are rejected", () => {
   const aboveFloor = bridgeGate({
     ...ready,
     needsSwap: false,
-    bridgedWnear: MIN_BRIDGEABLE_WNEAR + 1n,
+    tokenFee: fee,
+    bridgedWnear: fee + 1n,
   });
   assert.equal(aboveFloor.tooSmall, false);
   assert.equal(aboveFloor.canSubmit, true);
+  assert.equal(aboveFloor.netAmount, 1n);
+});
+
+test("the net amount is the deposit minus the fee", () => {
+  const gate = bridgeGate({
+    ...ready,
+    needsSwap: false,
+    tokenFee: 2_064_491n,
+    bridgedWnear: 203_889_181n,
+  });
+  // The user's real transfer: 0.203889181 bridged, 0.002064491 fee.
+  assert.equal(gate.netAmount, 201_824_690n);
+});
+
+test("an unquoted fee must not block the form", () => {
+  // The fee request may still be in flight; that is not a reason to disable.
+  const gate = bridgeGate({ ...ready, tokenFee: null });
+  assert.equal(gate.canSubmit, true);
+  assert.equal(gate.netAmount, null);
+  assert.equal(gate.tooSmall, false);
+});
+
+test("a completed transfer stops the form offering another", () => {
+  const gate = bridgeGate({ ...ready, done: true });
+  assert.equal(gate.canSubmit, false);
+  assert.equal(gate.label, "Done");
+});
+
+test("done outranks an in-flight label", () => {
+  const gate = bridgeGate({ ...ready, done: true, isBridging: true });
+  assert.equal(gate.label, "Done");
 });
 
 test("the swap floor is judged on wNEAR output, not the input amount", () => {

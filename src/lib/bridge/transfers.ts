@@ -1,9 +1,7 @@
 import { type Chain, type Transfer } from "omni-bridge-sdk";
 import { writable } from "svelte/store";
 
-function getTransferKey(transfer: Transfer): string {
-  return `${transfer.id?.origin_chain}:${transfer.id?.kind.Nonce}`;
-}
+import { getTransferKey } from "./status";
 
 function sortTransfers(transfers: Transfer[]): Transfer[] {
   return transfers.sort((a, b) => {
@@ -49,8 +47,7 @@ export const transfers = {
     update((transfers) =>
       sortTransfers(
         transfers.map((t) =>
-          t.id?.origin_chain === transfer.event.id?.origin_chain &&
-          t.id?.kind.Nonce === transfer.event.id?.kind.Nonce
+          getTransferKey(t) === getTransferKey(transfer.event)
             ? transfer.event
             : t,
         ),

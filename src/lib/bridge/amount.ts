@@ -1,15 +1,6 @@
 import { FixedNumber } from "$lib/util";
 
 /**
- * Smallest wNEAR amount the Omni Bridge deposit will accept.
- *
- * The bridge takes its fee in wNEAR (`transferred_token_fee`, ~0.0024 wNEAR on
- * mainnet). Anything at or below the fee cannot be deposited, so the UI rejects
- * it up front rather than letting the transaction revert.
- */
-export const MIN_BRIDGEABLE_WNEAR = 2_500_000n; // 0.0025 wNEAR at 9 decimals
-
-/**
  * Parse a decimal string into base units. Returns null for anything that is not
  * a plain non-negative decimal, or that carries more precision than `decimals`.
  */
@@ -51,6 +42,27 @@ export type BridgeGateInput = {
    * testnet deposit can never settle.
    */
   supported: boolean;
+  /**
+   * The bridge's own fee in wNEAR base units, deducted from the bridged amount.
+   * Null until quoted. A deposit at or below this cannot settle, so it also
+   * drives the minimum-amount check.
+   */
+  tokenFee: bigint | null;
+  /** True once a transfer has completed, so the form can stop offering it. */
+  done?: boolean;
+  /**
+   * Spendable balance of the selected source token, already net of any SOL that
+   * must be held back for fees. Null while balances are still loading, which
+   * must not block the form.
+   */
+  available: bigint | null;
+  /**
+   * SOL balance and the amount that has to stay put to pay for the deposit.
+   * Bridging always costs SOL for the network fee, even when the token being
+   * bridged is not SOL, so this is checked independently of the source token.
+   */
+  solBalance: bigint | null;
+  solReserve: bigint;
 };
 
 export type BridgeGate = {
@@ -60,6 +72,12 @@ export type BridgeGate = {
   /** True when the primary action should open the NEAR wallet selector. */
   needsNearConnect: boolean;
   needsSolanaConnect: boolean;
+  /** Amount that will actually land in the NEAR account, after the fee. */
+  netAmount: bigint | null;
+  /** The amount is larger than the wallet holds. */
+  insufficientBalance: boolean;
+  /** The wallet cannot cover the network fee for the deposit. */
+  insufficientSol: boolean;
 };
 
 /**
@@ -76,31 +94,60 @@ export function bridgeGate({
   solanaConnected,
   isBridging,
   supported,
+  tokenFee,
+  done = false,
+  available = null,
+  solBalance = null,
+  solReserve = 0n,
 }: BridgeGateInput): BridgeGate {
   // The sheet leads with the "From" (Solana) card, so prompt in that order.
   const needsSolanaConnect = !solanaConnected;
   const needsNearConnect = solanaConnected && !nearConnected;
+
+  // The bridge takes its fee out of the amount, so anything that does not exceed
+  // the fee cannot arrive.
   const tooSmall =
-    bridgedWnear !== null && bridgedWnear <= MIN_BRIDGEABLE_WNEAR;
+    bridgedWnear !== null && tokenFee !== null && bridgedWnear <= tokenFee;
+
+  const netAmount =
+    bridgedWnear !== null && tokenFee !== null && bridgedWnear > tokenFee
+      ? bridgedWnear - tokenFee
+      : null;
 
   const hasAmount = amount !== null && amount > 0n;
+
+  // Never block on data we have not got: an unknown balance is not a reason to
+  // disable the form, only a known-too-small one is.
+  const insufficientBalance =
+    hasAmount && available !== null && amount > available;
+  const insufficientSol = solBalance !== null && solBalance < solReserve;
+
   const quoteOk = !needsSwap || quoteAvailable === true;
+  // Never block on a quote we have not got; only a known-bad quote blocks.
+  const feeOk = tokenFee === null || !tooSmall;
 
   const canSubmit =
     supported &&
+    !done &&
     !isBridging &&
     nearConnected &&
     solanaConnected &&
     hasAmount &&
     !tooSmall &&
-    quoteOk;
+    !insufficientBalance &&
+    !insufficientSol &&
+    quoteOk &&
+    feeOk;
 
   let label: string;
-  if (isBridging) label = "Bridging…";
+  if (done) label = "Done";
+  else if (isBridging) label = "Bridging…";
   else if (!supported) label = "Mainnet only";
   else if (needsSolanaConnect) label = "Connect Solana wallet";
   else if (needsNearConnect) label = "Connect NEAR wallet";
   else if (!hasAmount) label = "Enter an amount";
+  else if (insufficientBalance) label = "Insufficient balance";
+  else if (insufficientSol) label = "Not enough SOL for fees";
   else if (tooSmall) label = "Amount too small";
   else if (needsSwap && quoteAvailable === false) label = "No route available";
   else if (needsSwap && quoteAvailable === null) label = "Fetching quote…";
@@ -112,5 +159,8 @@ export function bridgeGate({
     tooSmall,
     needsNearConnect,
     needsSolanaConnect,
+    netAmount,
+    insufficientBalance,
+    insufficientSol,
   };
 }

@@ -24,12 +24,10 @@ test(
   "live: the Omni Bridge quotes a sol->near wNEAR transfer",
   live,
   async () => {
-    const fee = await getWnearBridgeFee(SENDER, RECIPIENT);
-    assert.ok(fee.native_token_fee !== null, "expected a native fee");
-    assert.ok(fee.transferred_token_fee !== null, "expected a token fee");
-    assert.ok(BigInt(fee.native_token_fee) >= 0n);
-    assert.ok(BigInt(fee.transferred_token_fee) >= 0n);
-    assert.equal(typeof fee.usd_fee, "number");
+    const fee = await getWnearBridgeFee(SENDER, RECIPIENT, 203_889_181n);
+    assert.ok(fee.tokenFee > 0n, "expected a token fee");
+    assert.ok(fee.nativeFee > 0n, "expected a native fee");
+    assert.equal(typeof fee.usdFee, "number");
   },
 );
 
@@ -37,11 +35,14 @@ test(
   "live: the token fee is denominated in wNEAR base units",
   live,
   async () => {
-    const fee = await getWnearBridgeFee(SENDER, RECIPIENT);
-    // 2_397_060 base units of a 9-decimal token is ~0.0024 wNEAR.
-    const asWnear = Number(fee.transferred_token_fee) / 1e9;
+    const fee = await getWnearBridgeFee(SENDER, RECIPIENT, 203_889_181n);
+    // ~2_071_000 base units of a 9-decimal token is ~0.00207 wNEAR.
+    const asWnear = Number(fee.tokenFee) / 1e9;
     assert.ok(asWnear > 0, "expected a positive wNEAR fee");
     assert.ok(asWnear < 1, `fee ${asWnear} wNEAR should be well under 1`);
+    // Must be SPL scale, not the ~1e15 larger yoctoNEAR figure the on-chain
+    // transfer message records.
+    assert.ok(fee.tokenFee < 10_000_000n, `unscaled: ${fee.tokenFee}`);
   },
 );
 

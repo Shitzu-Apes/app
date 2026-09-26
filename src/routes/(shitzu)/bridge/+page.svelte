@@ -35,6 +35,11 @@
   import { getOmniApi, NETWORK_TO_CHAIN_KIND } from "$lib/bridge/omni";
   import { bridgePortfolio$ } from "$lib/bridge/portfolio";
   import {
+    fetchRecentTransfersBySender,
+    fetchTransferByTxHash,
+    type RawTransfer,
+  } from "$lib/bridge/status";
+  import {
     updateTokenBalance,
     balances$,
     TOKENS,
@@ -510,34 +515,23 @@
       .exhaustive();
 
     if (typeof rawTransferEvent === "string") {
-      let data: Transfer | undefined;
+      // Solana deposits return a signature, not a nonce, so poll until the
+      // transfer is indexed.
+      let data: RawTransfer | undefined;
       for (let i = 0; i < 20; i++) {
         await new Promise((resolve) => setTimeout(resolve, 3_000));
-        try {
-          const transfers = await api.findOmniTransfers({
-            transaction_id: rawTransferEvent,
-          });
-          if (transfers.length > 0 && transfers[0].id != null) {
-            data = (
-              await api.getTransfer({
-                originChain: transfers[0].id.origin_chain,
-                originNonce: transfers[0].id.kind.Nonce,
-              })
-            )[0];
-            break;
-          }
-        } catch (err) {
+        data = await fetchTransferByTxHash(rawTransferEvent).catch((err) => {
           console.error("Failed to fetch transfer:", err);
-          continue;
-        }
+          return undefined;
+        });
+        if (data?.id) break;
       }
 
-      if (!data) {
+      if (!data?.id) {
         throw new Error("Failed to fetch transfer data after multiple retries");
       }
-      console.log("[data]", data);
 
-      transfers.addTransfers([data]);
+      transfers.addTransfers([data as unknown as Transfer]);
     } else {
       console.log("[rawTransferEvent]", rawTransferEvent);
       let data: Transfer | undefined;
@@ -648,48 +642,29 @@
     transfers.removeTransfersByChain("Base");
   }
 
-  async function loadNearTransfers(accountId: string) {
-    const api = getOmniApi();
+  // The SDK's schema validation rejects the live API's `id` shape, so history
+  // reads go through the raw client in $lib/bridge/status instead.
+  async function loadTransfersFor(sender: string, label: string) {
     try {
-      const nearTransfers = await api.findOmniTransfers({
-        sender: `near:${accountId}`,
-        limit: 50,
-      });
-      transfers.addTransfers(nearTransfers);
+      const found = await fetchRecentTransfersBySender(sender, 50);
+      transfers.addTransfers(found as unknown as Transfer[]);
     } catch (err) {
-      console.error("Failed to load NEAR transfers:", err);
+      console.error(`Failed to load ${label} transfers:`, err);
     }
+  }
+
+  async function loadNearTransfers(accountId: string) {
+    await loadTransfersFor(`near:${accountId}`, "NEAR");
   }
 
   async function loadSolanaTransfers(publicKey: string) {
-    const api = getOmniApi();
-    try {
-      const solTransfers = await api.findOmniTransfers({
-        sender: `sol:${publicKey}`,
-        limit: 50,
-      });
-      transfers.addTransfers(solTransfers);
-    } catch (err) {
-      console.error("Failed to load Solana transfers:", err);
-    }
+    await loadTransfersFor(`sol:${publicKey}`, "Solana");
   }
 
   async function loadEvmTransfers(address: string) {
-    const api = getOmniApi();
-    const findEvmTransfers = async (chainKind: ChainKind) => {
-      try {
-        const evmTransfers = await api.findOmniTransfers({
-          sender: omniAddress(chainKind, address),
-          limit: 50,
-        });
-        transfers.addTransfers(evmTransfers);
-      } catch (err) {
-        console.error(`Failed to load ${chainKind} transfers:`, err);
-      }
-    };
-    findEvmTransfers(ChainKind.Base);
-    findEvmTransfers(ChainKind.Arb);
-    findEvmTransfers(ChainKind.Eth);
+    void loadTransfersFor(omniAddress(ChainKind.Base, address), "Base");
+    void loadTransfersFor(omniAddress(ChainKind.Arb, address), "Arbitrum");
+    void loadTransfersFor(omniAddress(ChainKind.Eth, address), "Ethereum");
   }
 
   let isLoadingMore = false;

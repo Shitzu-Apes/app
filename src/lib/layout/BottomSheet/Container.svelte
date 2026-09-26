@@ -7,6 +7,11 @@
     props: Record<string, any>;
   } | null>(null);
   const size$: Writable<"m" | "l"> = writable("m");
+  /**
+   * Whether tapping the backdrop closes the sheet. Sheets that start a
+   * transaction must opt out: a stray tap mid-bridge would abandon it.
+   */
+  const dismissible$: Writable<boolean> = writable(true);
 
   export const isBottomSheetOpen$ = derived(open, (a) => a);
 
@@ -14,10 +19,12 @@
     newComponent: typeof SvelteComponent<any>,
     props: Record<string, any> = {},
     size?: "m" | "l",
+    options?: { dismissible?: boolean },
   ) {
     open.set(true);
     component.set({ component: newComponent, props });
     size$.set(size ?? "m");
+    dismissible$.set(options?.dismissible ?? true);
     document.body.style.overflow = "hidden";
   }
 
@@ -47,10 +54,16 @@
 </script>
 
 {#if $open && mounted}
-  <button
-    class="fixed inset-0 bg-black/80 z-30 cursor-auto"
-    on:click={closeBottomSheet}
-  />
+  {#if $dismissible$}
+    <button
+      class="fixed inset-0 bg-black/80 z-30 cursor-auto"
+      on:click={closeBottomSheet}
+      aria-label="Close"
+    />
+  {:else}
+    <!-- Absorb the tap so a stray click cannot dismiss the sheet. -->
+    <div class="fixed inset-0 bg-black/80 z-30" />
+  {/if}
 {/if}
 
 {#if mounted}

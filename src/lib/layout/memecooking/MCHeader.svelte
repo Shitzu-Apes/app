@@ -21,7 +21,9 @@
   } = createDropdownMenu();
 
   function openBridgeSheet() {
-    openBottomSheet(BridgeSheet);
+    // Not dismissible on outside click: a stray tap mid-bridge would abandon a
+    // transfer that is already in flight.
+    openBottomSheet(BridgeSheet, {}, "m", { dismissible: false });
   }
 </script>
 

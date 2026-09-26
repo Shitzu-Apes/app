@@ -5,11 +5,12 @@ import {
 } from "@solana/wallet-adapter-base";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import { SolflareWalletAdapter } from "@solana/wallet-adapter-solflare";
-import { clusterApiUrl, Connection, type PublicKey } from "@solana/web3.js";
+import { clusterApiUrl, type PublicKey } from "@solana/web3.js";
 import { derived, get, writable } from "svelte/store";
 
 import { browser } from "$app/environment"; // For SvelteKit
 import { addToast } from "$lib/components/Toast.svelte";
+import { createHttpConfirmConnection } from "$lib/solana/connection";
 
 const WALLET_CONNECTED_KEY = "solana-wallet-previously-connected";
 const network =
@@ -19,7 +20,7 @@ const isMultichain =
   import.meta.env.VITE_WALLET_SELECTOR_MULTICHAIN !== "false";
 // Default to the public cluster RPC. An override is still honoured for
 // deployments that need a keyed endpoint, but nothing has to be configured.
-const connection = new Connection(
+const connection = createHttpConfirmConnection(
   import.meta.env.VITE_SOLANA_RPC_URL || clusterApiUrl(network),
 );
 
