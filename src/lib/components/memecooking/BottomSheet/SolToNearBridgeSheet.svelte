@@ -440,7 +440,7 @@
           Recent transfers
         </div>
         <div class="space-y-1.5">
-          {#each myTransfers as transfer (transfer.id?.origin_chain + ":" + transfer.id?.origin_nonce)}
+          {#each myTransfers as transfer (transfer.id?.origin_chain + ":" + transfer.id?.kind.Nonce)}
             <div in:slide|global>
               <TransferStatus {transfer} />
             </div>

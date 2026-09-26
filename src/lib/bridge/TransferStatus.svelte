@@ -91,7 +91,7 @@
       const updatedTransfer = (
         await api.getTransfer({
           originChain: transfer.id.origin_chain,
-          originNonce: transfer.id.origin_nonce,
+          originNonce: transfer.id.kind.Nonce,
         })
       )[0];
 
@@ -115,7 +115,7 @@
       }
     } catch (err) {
       console.error(
-        `[Transfer ${transfer.id.origin_chain}:${transfer.id.origin_nonce}] Error:`,
+        `[Transfer ${transfer.id.origin_chain}:${transfer.id.kind.Nonce}] Error:`,
         err,
       );
     }

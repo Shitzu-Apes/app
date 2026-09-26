@@ -39,11 +39,9 @@ export class Wallet {
           import("@near-wallet-selector/core"),
           import("@near-wallet-selector/intear-wallet"),
           import("@near-wallet-selector/meteor-wallet"),
-          import("@near-wallet-selector/here-wallet"),
-          import("@near-wallet-selector/bitte-wallet"),
+          import("@near-wallet-selector/hot-wallet"),
           import("@near-wallet-selector/near-mobile-wallet"),
           import("@near-wallet-selector/okx-wallet"),
-          import("@near-wallet-selector/my-near-wallet"),
           import("@near-wallet-selector/wallet-connect"),
           import("@near-wallet-selector/ethereum-wallets"),
           import("@web3modal/wagmi"),
@@ -53,11 +51,9 @@ export class Wallet {
             { setupWalletSelector },
             { setupIntearWallet },
             { setupMeteorWallet },
-            { setupHereWallet },
-            { setupBitteWallet },
+            { setupHotWallet },
             { setupNearMobileWallet },
             { setupOKXWallet },
-            { setupMyNearWallet },
             { setupWalletConnect },
             { setupEthereumWallets },
             { createWeb3Modal },
@@ -69,8 +65,7 @@ export class Wallet {
               modules: [
                 setupIntearWallet(),
                 setupMeteorWallet(),
-                setupHereWallet(),
-                setupBitteWallet(),
+                setupHotWallet(),
                 setupNearMobileWallet({
                   dAppMetadata: {
                     name: import.meta.env.VITE_APP_NAME ?? "Shitzu App",
@@ -80,7 +75,6 @@ export class Wallet {
                   },
                 }),
                 setupOKXWallet(),
-                setupMyNearWallet(),
                 setupWalletConnect({
                   projectId:
                     import.meta.env.VITE_WC_PROJECT_ID ??
@@ -394,6 +388,7 @@ export interface WalletMetadata<T extends SvelteComponent = any> {
   telegram?: string;
   discord?: string;
   name?: string;
+  recommended?: boolean;
   infoSheet?: T;
 }
 
@@ -402,19 +397,15 @@ export const NEAR_WALLETS: Record<string, WalletMetadata> = {
     url: "https://wallet.intear.tech/",
     twitter: "https://x.com/intea_rs",
     telegram: "https://t.me/intearchat",
+    recommended: true,
   },
   "meteor-wallet": {
     url: "https://meteorwallet.app/",
     twitter: "https://x.com/MeteorWallet",
+    recommended: true,
   },
-  "here-wallet": {
-    url: "https://herewallet.app/",
-    twitter: "https://x.com/here_wallet",
-  },
-  "bitte-wallet": {
-    url: "https://bitte.ai/",
-    twitter: "https://x.com/BitteProtocol",
-    telegram: "https://t.me/mintdev",
+  "hot-wallet": {
+    url: "https://hot-labs.org/",
   },
   "near-mobile-wallet": {
     url: "https://nearmobile.app/",
@@ -424,11 +415,6 @@ export const NEAR_WALLETS: Record<string, WalletMetadata> = {
   "okx-wallet": {
     url: "https://okx.com/web3",
     twitter: "https://x.com/okxweb3",
-  },
-  "my-near-wallet": {
-    url: "https://app.mynearwallet.com/",
-    twitter: "https://twitter.com/MyNearWallet",
-    telegram: "https://t.me/mnw_chat",
   },
   "wallet-connect": { name: "WalletConnect (Near)" },
   "ethereum-wallets": { infoSheet: EvmOnboardSheet },

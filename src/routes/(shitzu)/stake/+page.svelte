@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { actionCreators } from "@near-wallet-selector/core";
   import { writable } from "svelte/store";
   import { slide } from "svelte/transition";
 
@@ -105,15 +106,7 @@
       {
         receiverId: contractId,
         actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "withdraw_all",
-              args: {},
-              gas: 60_000_000_000_000n.toString(),
-              deposit: "0",
-            },
-          },
+          actionCreators.functionCall("withdraw_all", {}, 60_000_000_000_000n),
         ],
       },
       {

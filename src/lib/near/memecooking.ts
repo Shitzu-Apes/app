@@ -1,3 +1,4 @@
+import { actionCreators } from "@near-wallet-selector/core";
 import type {
   Action,
   FinalExecutionOutcome,
@@ -164,21 +165,19 @@ export abstract class MemeCooking {
 
     const actions: Action[] = [];
     if (!isRegistered) {
-      actions.push({
-        type: "FunctionCall",
-        params: {
-          methodName: "storage_deposit",
-          args: {},
-          gas: 20_000_000_000_000n.toString(),
-          deposit: accountCost,
-        },
-      });
+      actions.push(
+        actionCreators.functionCall(
+          "storage_deposit",
+          {},
+          20_000_000_000_000n,
+          BigInt(accountCost),
+        ),
+      );
     }
-    actions.push({
-      type: "FunctionCall",
-      params: {
-        methodName: "create_meme",
-        args: {
+    actions.push(
+      actionCreators.functionCall(
+        "create_meme",
+        {
           start_timestamp_ms: args.startTimestampMs,
           duration_ms: args.durationMs,
           name: args.name,
@@ -199,10 +198,10 @@ export abstract class MemeCooking {
               ]
             : undefined,
         },
-        gas: 250_000_000_000_000n.toString(),
-        deposit,
-      },
-    });
+        250_000_000_000_000n,
+        BigInt(deposit),
+      ),
+    );
     return wallet.signAndSendTransaction(
       {
         receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
@@ -230,15 +229,12 @@ export abstract class MemeCooking {
       transactions.push({
         receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
         actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "storage_deposit",
-              args: {},
-              gas: 30_000_000_000_000n.toString(),
-              deposit: needStorageDeposit.depositAmount,
-            },
-          },
+          actionCreators.functionCall(
+            "storage_deposit",
+            {},
+            30_000_000_000_000n,
+            BigInt(needStorageDeposit.depositAmount),
+          ),
         ],
       });
     }
@@ -246,34 +242,31 @@ export abstract class MemeCooking {
     const actions: Action[] = [];
 
     if (wrapNearDeposit) {
-      actions.push({
-        type: "FunctionCall",
-        params: {
-          methodName: "storage_deposit",
-          args: {},
-          gas: 15_000_000_000_000n.toString(),
-          deposit: wrapNearDeposit.depositAmount,
-        },
-      });
+      actions.push(
+        actionCreators.functionCall(
+          "storage_deposit",
+          {},
+          15_000_000_000_000n,
+          BigInt(wrapNearDeposit.depositAmount),
+        ),
+      );
     }
 
     if (args.extraNearDeposit && args.extraNearDeposit !== "0") {
-      actions.push({
-        type: "FunctionCall",
-        params: {
-          methodName: "near_deposit",
-          args: {},
-          gas: 15_000_000_000_000n.toString(),
-          deposit: args.extraNearDeposit,
-        },
-      });
+      actions.push(
+        actionCreators.functionCall(
+          "near_deposit",
+          {},
+          15_000_000_000_000n,
+          BigInt(args.extraNearDeposit),
+        ),
+      );
     }
 
-    actions.push({
-      type: "FunctionCall",
-      params: {
-        methodName: "ft_transfer_call",
-        args: {
+    actions.push(
+      actionCreators.functionCall(
+        "ft_transfer_call",
+        {
           receiver_id: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
           amount: args.amount,
           msg: JSON.stringify({
@@ -283,10 +276,10 @@ export abstract class MemeCooking {
             },
           }),
         },
-        gas: 100_000_000_000_000n.toString(),
-        deposit: "1",
-      },
-    });
+        100_000_000_000_000n,
+        1n,
+      ),
+    );
     transactions.push({
       receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
       actions,
@@ -305,18 +298,15 @@ export abstract class MemeCooking {
     transactions.push({
       receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
       actions: [
-        {
-          type: "FunctionCall",
-          params: {
-            methodName: "withdraw",
-            args: {
-              meme_id: args.memeId,
-              amount: args.amount,
-            },
-            gas: 100_000_000_000_000n.toString(),
-            deposit: "1",
+        actionCreators.functionCall(
+          "withdraw",
+          {
+            meme_id: args.memeId,
+            amount: args.amount,
           },
-        },
+          100_000_000_000_000n,
+          1n,
+        ),
       ],
     });
 
@@ -325,17 +315,14 @@ export abstract class MemeCooking {
       transactions.push({
         receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
         actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "near_withdraw",
-              args: {
-                amount: (BigInt(args.amount) - withdrawFee).toString(),
-              },
-              gas: 20_000_000_000_000n.toString(),
-              deposit: "1",
+          actionCreators.functionCall(
+            "near_withdraw",
+            {
+              amount: (BigInt(args.amount) - withdrawFee).toString(),
             },
-          },
+            20_000_000_000_000n,
+            1n,
+          ),
         ],
       });
     }
@@ -367,15 +354,12 @@ export abstract class MemeCooking {
         transactions.push({
           receiverId: tokenId,
           actions: [
-            {
-              type: "FunctionCall",
-              params: {
-                methodName: "storage_deposit",
-                args: {},
-                gas: 30_000_000_000_000n.toString(),
-                deposit: MIN_STORAGE_DEPOSIT.toString(),
-              },
-            },
+            actionCreators.functionCall(
+              "storage_deposit",
+              {},
+              30_000_000_000_000n,
+              MIN_STORAGE_DEPOSIT,
+            ),
           ],
         });
       }
@@ -390,17 +374,14 @@ export abstract class MemeCooking {
     transactions.push({
       receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
       actions: [
-        {
-          type: "FunctionCall",
-          params: {
-            methodName: "claim",
-            args: {
-              meme_id: meme.meme_id,
-            },
-            gas: 50_000_000_000_000n.toString(),
-            deposit: "1",
+        actionCreators.functionCall(
+          "claim",
+          {
+            meme_id: meme.meme_id,
           },
-        },
+          50_000_000_000_000n,
+          1n,
+        ),
       ],
     });
 
@@ -408,17 +389,14 @@ export abstract class MemeCooking {
       transactions.push({
         receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
         actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "near_withdraw",
-              args: {
-                amount: unwrapAmount,
-              },
-              gas: 20_000_000_000_000n.toString(),
-              deposit: "1",
+          actionCreators.functionCall(
+            "near_withdraw",
+            {
+              amount: unwrapAmount,
             },
-          },
+            20_000_000_000_000n,
+            1n,
+          ),
         ],
       });
     }
@@ -435,29 +413,27 @@ export abstract class MemeCooking {
   ) {
     const actions: Action[] = [];
     if (hasRevenue) {
-      actions.push({
-        type: "FunctionCall",
-        params: {
-          methodName: "claim_income",
-          args: {
+      actions.push(
+        actionCreators.functionCall(
+          "claim_income",
+          {
             token_ids: args.token_ids,
           },
-          gas: 230_000_000_000_000n.toString(),
-          deposit: "1",
-        },
-      });
+          230_000_000_000_000n,
+          1n,
+        ),
+      );
     }
 
     if (hasShitstarClaim) {
-      actions.push({
-        type: "FunctionCall",
-        params: {
-          methodName: "claim_shitstars",
-          args: {},
-          gas: 70_000_000_000_000n.toString(),
-          deposit: "1",
-        },
-      });
+      actions.push(
+        actionCreators.functionCall(
+          "claim_shitstars",
+          {},
+          70_000_000_000_000n,
+          1n,
+        ),
+      );
     }
 
     return wallet.signAndSendTransaction(
@@ -487,15 +463,12 @@ export abstract class MemeCooking {
       transactions.push({
         receiverId: tokenId,
         actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "storage_deposit",
-              args: {},
-              gas: 30_000_000_000_000n.toString(),
-              deposit: MIN_STORAGE_DEPOSIT.toString(),
-            },
-          },
+          actionCreators.functionCall(
+            "storage_deposit",
+            {},
+            30_000_000_000_000n,
+            MIN_STORAGE_DEPOSIT,
+          ),
         ],
       });
     }
@@ -503,17 +476,14 @@ export abstract class MemeCooking {
     transactions.push({
       receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
       actions: [
-        {
-          type: "FunctionCall",
-          params: {
-            methodName: "claim_vesting",
-            args: {
-              meme_id: args.meme.meme_id,
-            },
-            gas: 100_000_000_000_000n.toString(),
-            deposit: "1",
+        actionCreators.functionCall(
+          "claim_vesting",
+          {
+            meme_id: args.meme.meme_id,
           },
-        },
+          100_000_000_000_000n,
+          1n,
+        ),
       ],
     });
 
@@ -603,15 +573,12 @@ export abstract class MemeCooking {
       transactions.push({
         receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
         actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "storage_deposit",
-              args: {},
-              gas: 30_000_000_000_000n.toString(),
-              deposit: accountCost,
-            },
-          },
+          actionCreators.functionCall(
+            "storage_deposit",
+            {},
+            30_000_000_000_000n,
+            BigInt(accountCost),
+          ),
         ],
       });
     }
@@ -619,15 +586,12 @@ export abstract class MemeCooking {
       transactions.push({
         receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
         actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "storage_deposit",
-              args: {},
-              gas: 15_000_000_000_000n.toString(),
-              deposit: wrapNearMinDeposit,
-            },
-          },
+          actionCreators.functionCall(
+            "storage_deposit",
+            {},
+            15_000_000_000_000n,
+            BigInt(wrapNearMinDeposit),
+          ),
         ],
       });
     }

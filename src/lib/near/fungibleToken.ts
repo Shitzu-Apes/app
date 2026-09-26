@@ -1,3 +1,4 @@
+import { actionCreators } from "@near-wallet-selector/core";
 import type { FinalExecutionOutcome } from "near-api-js/lib/providers";
 
 import { view } from "./utils";
@@ -69,19 +70,16 @@ export abstract class Ft {
       {
         receiverId: tokenId,
         actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "ft_transfer_call",
-              args: {
-                receiver_id: receiverId,
-                amount: amount,
-                msg: memo,
-              },
-              gas: 50_000_000_000_000n.toString(),
-              deposit: "1",
+          actionCreators.functionCall(
+            "ft_transfer_call",
+            {
+              receiver_id: receiverId,
+              amount: amount,
+              msg: memo,
             },
-          },
+            50_000_000_000_000n,
+            1n,
+          ),
         ],
       },
       {

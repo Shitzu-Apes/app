@@ -1,3 +1,4 @@
+import { actionCreators } from "@near-wallet-selector/core";
 import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
 
 import { rpcFetch } from "./rpc-retry";
@@ -46,14 +47,7 @@ export async function sendNear(
   return nearWallet.signAndSendTransaction(
     {
       receiverId,
-      actions: [
-        {
-          type: "Transfer",
-          params: {
-            deposit: amount,
-          },
-        },
-      ],
+      actions: [actionCreators.transfer(BigInt(amount))],
     },
     callback,
   );

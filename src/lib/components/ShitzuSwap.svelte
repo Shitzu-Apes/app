@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { actionCreators } from "@near-wallet-selector/core";
   import type { Transaction } from "@near-wallet-selector/core";
   import { writable } from "svelte/store";
 
@@ -152,15 +153,12 @@
       transactions.push({
         receiverId: "token.0xshitzu.near",
         actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "storage_deposit",
-              args: {},
-              gas: 20_000_000_000_000n.toString(),
-              deposit,
-            },
-          },
+          actionCreators.functionCall(
+            "storage_deposit",
+            {},
+            20_000_000_000_000n,
+            BigInt(deposit),
+          ),
         ],
       });
     }
@@ -168,38 +166,32 @@
     transactions.push({
       receiverId: "wrap.near",
       actions: [
-        {
-          type: "FunctionCall",
-          params: {
-            methodName: "near_deposit",
-            args: {},
-            gas: 30_000_000_000_000n.toString(),
-            deposit: $input$.toU128(),
+        actionCreators.functionCall(
+          "near_deposit",
+          {},
+          30_000_000_000_000n,
+          BigInt($input$.toU128()),
+        ),
+        actionCreators.functionCall(
+          "ft_transfer_call",
+          {
+            receiver_id: "v2.ref-finance.near",
+            amount: $input$.toU128(),
+            msg: JSON.stringify({
+              actions: [
+                {
+                  pool_id: 4369,
+                  token_in: "wrap.near",
+                  amount_in: $input$.toU128(),
+                  token_out: "token.0xshitzu.near",
+                  min_amount_out,
+                },
+              ],
+            }),
           },
-        },
-        {
-          type: "FunctionCall",
-          params: {
-            methodName: "ft_transfer_call",
-            args: {
-              receiver_id: "v2.ref-finance.near",
-              amount: $input$.toU128(),
-              msg: JSON.stringify({
-                actions: [
-                  {
-                    pool_id: 4369,
-                    token_in: "wrap.near",
-                    amount_in: $input$.toU128(),
-                    token_out: "token.0xshitzu.near",
-                    min_amount_out,
-                  },
-                ],
-              }),
-            },
-            gas: 270_000_000_000_000n.toString(),
-            deposit: "1",
-          },
-        },
+          270_000_000_000_000n,
+          1n,
+        ),
       ],
     });
 

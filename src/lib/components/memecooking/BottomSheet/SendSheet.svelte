@@ -1,7 +1,8 @@
 <script lang="ts">
-  import type {
-    Action,
-    FinalExecutionOutcome,
+  import {
+    actionCreators,
+    type Action,
+    type FinalExecutionOutcome,
   } from "@near-wallet-selector/core";
   import { writable } from "svelte/store";
 
@@ -51,18 +52,17 @@
     const actions: Action[] = [];
     if (!isRegistered) {
       const deposit = await Ft.storageRequirement(tokenId);
-      actions.push({
-        type: "FunctionCall",
-        params: {
-          methodName: "storage_deposit",
-          args: {
+      actions.push(
+        actionCreators.functionCall(
+          "storage_deposit",
+          {
             account_id: recipientId,
             registration_only: true,
           },
-          gas: 20_000_000_000_000n.toString(),
-          deposit,
-        },
-      });
+          20_000_000_000_000n,
+          BigInt(deposit),
+        ),
+      );
     }
 
     const callback: TransactionCallbacks<FinalExecutionOutcome[]> = {
@@ -84,18 +84,17 @@
         refreshTokenBalance($accountId$);
       },
     };
-    actions.push({
-      type: "FunctionCall",
-      params: {
-        methodName: "ft_transfer",
-        args: {
+    actions.push(
+      actionCreators.functionCall(
+        "ft_transfer",
+        {
           receiver_id: recipientId,
           amount: $input$.toU128(),
         },
-        gas: "30000000000000",
-        deposit: "1",
-      },
-    });
+        30_000_000_000_000n,
+        1n,
+      ),
+    );
     try {
       await nearWallet.signAndSendTransactions(
         {

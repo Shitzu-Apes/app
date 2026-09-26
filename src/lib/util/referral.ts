@@ -1,3 +1,5 @@
+import { actionCreators } from "@near-wallet-selector/core";
+
 import { addToast } from "$lib/components/Toast.svelte";
 import type { Meme } from "$lib/models/memecooking";
 import { nearWallet } from "$lib/near";
@@ -60,18 +62,12 @@ export async function shareWithReferral($accountId$?: string, meme?: Meme) {
         {
           receiverId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
           actions: [
-            {
-              type: "FunctionCall",
-              params: {
-                methodName: "storage_deposit",
-                args: {},
-                gas: 30_000_000_000_000n.toString(),
-                deposit: (
-                  BigInt(accountCost) +
-                  5n * BigInt(perMemeDeposit)
-                ).toString(),
-              },
-            },
+            actionCreators.functionCall(
+              "storage_deposit",
+              {},
+              30_000_000_000_000n,
+              BigInt(accountCost) + 5n * BigInt(perMemeDeposit),
+            ),
           ],
         },
         {},

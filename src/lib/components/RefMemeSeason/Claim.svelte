@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { actionCreators } from "@near-wallet-selector/core";
   import { createEventDispatcher } from "svelte";
 
   import { addToast } from "../Toast.svelte";
@@ -52,15 +53,11 @@
       {
         receiverId: "memeseason.0xshitzu.near",
         actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "claim_ref_memeseason",
-              args: {},
-              gas: 50_000_000_000_000n.toString(),
-              deposit: "0",
-            },
-          },
+          actionCreators.functionCall(
+            "claim_ref_memeseason",
+            {},
+            50_000_000_000_000n,
+          ),
         ],
       },
       {

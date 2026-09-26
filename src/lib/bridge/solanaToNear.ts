@@ -70,12 +70,17 @@ export async function executeSwap(
 }
 
 /** Omni Bridge fee for moving wNEAR from Solana to a NEAR account. */
-export async function getWnearBridgeFee(sender: PublicKey, recipient: string) {
+export async function getWnearBridgeFee(
+  sender: PublicKey,
+  recipient: string,
+  amount: bigint,
+) {
   const api = getOmniApi();
   return api.getFee(
     omniAddress(ChainKind.Sol, sender.toBase58()),
     omniAddress(ChainKind.Near, recipient),
     omniAddress(ChainKind.Sol, WNEAR_MINT),
+    amount,
   );
 }
 
@@ -86,7 +91,7 @@ export async function executeWnearBridge(
   recipient: string,
   provider: AnchorProvider,
 ): Promise<string> {
-  const fee = await getWnearBridgeFee(sender, recipient);
+  const fee = await getWnearBridgeFee(sender, recipient, amount);
   const client = getClient(ChainKind.Sol, provider);
   try {
     return await client.initTransfer({
@@ -126,7 +131,7 @@ export async function reconcileTransfer(
         const transfer = (
           await api.getTransfer({
             originChain: id.origin_chain,
-            originNonce: id.origin_nonce,
+            originNonce: id.kind.Nonce,
           })
         )[0];
         if (transfer) {
@@ -192,7 +197,7 @@ export async function bridgeSolanaToNear({
 
   onProgress?.({ leg: "bridge", message: "Bridging NEAR to Near…" });
 
-  const fee = await getWnearBridgeFee(sender, recipient);
+  const fee = await getWnearBridgeFee(sender, recipient, wnearAmount);
   const tokenFee = fee.transferred_token_fee ?? 0n;
   if (wnearAmount <= tokenFee) {
     throw new BridgeError("That amount is too small to cover the bridge fee");

@@ -224,10 +224,15 @@
                         class={`w-10 h-10 object-contain mr-5 ${mod.metadata.name.replaceAll(" ", "-").toLowerCase()}`}
                       />
                       <div class="flex flex-col text-left uppercase mr-auto">
-                        <span class="text-white"
-                          >{NEAR_WALLETS[mod.id].name ??
-                            mod.metadata.name}</span
-                        >
+                        <span class="text-white flex items-center gap-2"
+                          >{NEAR_WALLETS[mod.id].name ?? mod.metadata.name}
+                          {#if NEAR_WALLETS[mod.id].recommended}
+                            <span
+                              class="normal-case text-[10px] font-semibold tracking-wide text-purple-950 bg-lime rounded-full px-2 py-0.5"
+                              >Recommended</span
+                            >
+                          {/if}
+                        </span>
                         {#if NEAR_WALLETS[mod.id].url != null}
                           <span class="text-sm text-gray-400">
                             {new URL(NEAR_WALLETS[mod.id].url ?? "").hostname}

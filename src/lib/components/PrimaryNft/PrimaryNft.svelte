@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { actionCreators } from "@near-wallet-selector/core";
   import type { Transaction } from "@near-wallet-selector/core";
   import { slide } from "svelte/transition";
 
@@ -31,15 +32,7 @@
       transactions.push({
         receiverId: import.meta.env.VITE_REWARDER_CONTRACT_ID,
         actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "unstake",
-              args: {},
-              gas: 30_000_000_000_000n.toString(),
-              deposit: "0",
-            },
-          },
+          actionCreators.functionCall("unstake", {}, 30_000_000_000_000n),
         ],
       });
     }
@@ -47,19 +40,16 @@
     transactions.push({
       receiverId: import.meta.env.VITE_NFT_CONTRACT_ID,
       actions: [
-        {
-          type: "FunctionCall",
-          params: {
-            methodName: "nft_transfer_call",
-            args: {
-              receiver_id: import.meta.env.VITE_REWARDER_CONTRACT_ID,
-              token_id: selectedNftTokenId,
-              msg: "",
-            },
-            gas: 50_000_000_000_000n.toString(),
-            deposit: "1",
+        actionCreators.functionCall(
+          "nft_transfer_call",
+          {
+            receiver_id: import.meta.env.VITE_REWARDER_CONTRACT_ID,
+            token_id: selectedNftTokenId,
+            msg: "",
           },
-        },
+          50_000_000_000_000n,
+          1n,
+        ),
       ],
     });
 
@@ -83,15 +73,7 @@
       {
         receiverId: import.meta.env.VITE_REWARDER_CONTRACT_ID,
         actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "unstake",
-              args: {},
-              gas: 30_000_000_000_000n.toString(),
-              deposit: "0",
-            },
-          },
+          actionCreators.functionCall("unstake", {}, 30_000_000_000_000n),
         ],
       },
       {

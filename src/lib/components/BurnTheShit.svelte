@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { actionCreators } from "@near-wallet-selector/core";
   import type { Transaction } from "@near-wallet-selector/core";
   import { createEventDispatcher } from "svelte";
   import { get } from "svelte/store";
@@ -28,15 +29,12 @@
         transactions.push({
           receiverId: tokenId,
           actions: [
-            {
-              type: "FunctionCall",
-              params: {
-                methodName: "storage_deposit",
-                args: {},
-                gas: 20_000_000_000_000n.toString(),
-                deposit,
-              },
-            },
+            actionCreators.functionCall(
+              "storage_deposit",
+              {},
+              20_000_000_000_000n,
+              BigInt(deposit),
+            ),
           ],
         });
       }),
@@ -49,31 +47,20 @@
           {
             receiverId: import.meta.env.VITE_VALIDATOR_CONTRACT_ID,
             actions: [
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "claim",
-                  args: {
-                    token_id: import.meta.env.VITE_DOGSHIT_CONTRACT_ID,
-                  },
-                  gas: 50_000_000_000_000n.toString(),
-                  deposit: "1",
+              actionCreators.functionCall(
+                "claim",
+                {
+                  token_id: import.meta.env.VITE_DOGSHIT_CONTRACT_ID,
                 },
-              },
+                50_000_000_000_000n,
+                1n,
+              ),
             ],
           },
           {
             receiverId: import.meta.env.VITE_DOGSHIT_CONTRACT_ID,
             actions: [
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "burn",
-                  args: {},
-                  gas: 250_000_000_000_000n.toString(),
-                  deposit: "1",
-                },
-              },
+              actionCreators.functionCall("burn", {}, 250_000_000_000_000n, 1n),
             ],
           },
         ],

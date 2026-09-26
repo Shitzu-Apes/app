@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { actionCreators } from "@near-wallet-selector/core";
   import type { Transaction } from "@near-wallet-selector/core";
   import { getConnectorClient, type Config } from "@wagmi/core";
   import {
@@ -132,7 +133,12 @@
         TOKENS[$selectedToken$].addresses[$sourceNetwork$] ?? "",
       );
 
-      const fee = await api.getFee(sender, recipient, tokenAddress);
+      const fee = await api.getFee(
+        sender,
+        recipient,
+        tokenAddress,
+        $amount$.toBigInt(),
+      );
       nativeFee = fee.native_token_fee ?? 0n;
       usdFee = fee.usd_fee;
     } catch (err) {
@@ -316,7 +322,12 @@
     const tokenAddr = omniAddress(chainKind, tokenAddress);
 
     const api = getOmniApi();
-    const fee = await api.getFee(sender, recipient, tokenAddr);
+    const fee = await api.getFee(
+      sender,
+      recipient,
+      tokenAddr,
+      $amount$!.toBigInt(),
+    );
     return client.initTransfer({
       amount: $amount$!.toBigInt(),
       fee: fee.transferred_token_fee ?? 0n,
@@ -366,21 +377,23 @@
             additionalTransactions.push({
               receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
               actions: [
-                {
-                  type: "FunctionCall",
-                  params: {
-                    methodName: "near_deposit",
-                    args: {},
-                    gas: 30_000_000_000_000n.toString(),
-                    deposit: extraNearDeposit.toU128(),
-                  },
-                },
+                actionCreators.functionCall(
+                  "near_deposit",
+                  {},
+                  30_000_000_000_000n,
+                  BigInt(extraNearDeposit.toU128()),
+                ),
               ],
             });
           }
         }
 
-        const fee = await api.getFee(sender, recipient, tokenAddress);
+        const fee = await api.getFee(
+          sender,
+          recipient,
+          tokenAddress,
+          amount.toBigInt(),
+        );
         return client.initTransfer(
           {
             amount: amount.toBigInt(),
@@ -426,7 +439,12 @@
         );
         const tokenAddress = omniAddress(ChainKind.Sol, solanaTokenAddress);
 
-        const fee = await api.getFee(sender, recipient, tokenAddress);
+        const fee = await api.getFee(
+          sender,
+          recipient,
+          tokenAddress,
+          $amount$.toBigInt(),
+        );
         return client.initTransfer({
           amount: $amount$.toBigInt(),
           fee: fee.transferred_token_fee ?? 0n,
@@ -503,7 +521,7 @@
             data = (
               await api.getTransfer({
                 originChain: transfers[0].id.origin_chain,
-                originNonce: transfers[0].id.origin_nonce,
+                originNonce: transfers[0].id.kind.Nonce,
               })
             )[0];
             break;
@@ -1177,7 +1195,7 @@
       <div class="flex flex-col gap-1.5 mt-4 pt-4 border-t border-lime">
         <div class="text-sm text-lime">Recent Transfers</div>
         <div class="flex flex-col gap-1.5">
-          {#each visibleTransfers as transfer (transfer.id?.origin_chain + ":" + transfer.id?.origin_nonce)}
+          {#each visibleTransfers as transfer (transfer.id?.origin_chain + ":" + transfer.id?.kind.Nonce)}
             <div in:slide|global class="flex flex-col">
               <TransferStatus {transfer} />
             </div>

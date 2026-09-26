@@ -1,3 +1,4 @@
+import { actionCreators } from "@near-wallet-selector/core";
 import type {
   Action,
   FinalExecutionOutcome,
@@ -58,15 +59,12 @@ export async function handleBuy(
     transactions.push({
       receiverId: tokenId,
       actions: [
-        {
-          type: "FunctionCall",
-          params: {
-            methodName: "storage_deposit",
-            args: {},
-            gas: 20_000_000_000_000n.toString(),
-            deposit: storageRequirement,
-          },
-        },
+        actionCreators.functionCall(
+          "storage_deposit",
+          {},
+          20_000_000_000_000n,
+          BigInt(storageRequirement),
+        ),
       ],
     });
   }
@@ -75,18 +73,15 @@ export async function handleBuy(
     transactions.push({
       receiverId: import.meta.env.VITE_REF_CONTRACT_ID,
       actions: [
-        {
-          type: "FunctionCall",
-          params: {
-            methodName: "mft_register",
-            args: {
-              token_id: `:${meme.pool_id}`,
-              account_id: "shitzu.sputnik-dao.near",
-            },
-            gas: 20_000_000_000_000n.toString(),
-            deposit: 10_000_000_000_000_000_000_000n.toString(),
+        actionCreators.functionCall(
+          "mft_register",
+          {
+            token_id: `:${meme.pool_id}`,
+            account_id: "shitzu.sputnik-dao.near",
           },
-        },
+          20_000_000_000_000n,
+          10_000_000_000_000_000_000_000n,
+        ),
       ],
     });
   }
@@ -107,21 +102,19 @@ export async function handleBuy(
 
   const actions: Action[] = [];
   if (nearDeposit > 0n) {
-    actions.push({
-      type: "FunctionCall",
-      params: {
-        methodName: "near_deposit",
-        args: {},
-        gas: 30_000_000_000_000n.toString(),
-        deposit: nearDeposit.toString(),
-      },
-    });
+    actions.push(
+      actionCreators.functionCall(
+        "near_deposit",
+        {},
+        30_000_000_000_000n,
+        nearDeposit,
+      ),
+    );
   }
-  actions.push({
-    type: "FunctionCall",
-    params: {
-      methodName: "ft_transfer_call",
-      args: {
+  actions.push(
+    actionCreators.functionCall(
+      "ft_transfer_call",
+      {
         receiver_id: import.meta.env.VITE_REF_CONTRACT_ID,
         amount: input.toU128(),
         msg: JSON.stringify({
@@ -137,10 +130,10 @@ export async function handleBuy(
           ],
         }),
       },
-      gas: 150_000_000_000_000n.toString(),
-      deposit: "1",
-    },
-  });
+      150_000_000_000_000n,
+      1n,
+    ),
+  );
 
   transactions.push({
     receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
@@ -190,15 +183,12 @@ export async function handleSell(
     transactions.push({
       receiverId: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID!,
       actions: [
-        {
-          type: "FunctionCall",
-          params: {
-            methodName: "storage_deposit",
-            args: {},
-            gas: 20_000_000_000_000n.toString(),
-            deposit,
-          },
-        },
+        actionCreators.functionCall(
+          "storage_deposit",
+          {},
+          20_000_000_000_000n,
+          BigInt(deposit),
+        ),
       ],
     });
   }
@@ -213,15 +203,12 @@ export async function handleSell(
       transactions.push({
         receiverId: SHITZU_CONTRACT_ID,
         actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "storage_deposit",
-              args: {},
-              gas: 20_000_000_000_000n.toString(),
-              deposit,
-            },
-          },
+          actionCreators.functionCall(
+            "storage_deposit",
+            {},
+            20_000_000_000_000n,
+            BigInt(deposit),
+          ),
         ],
       });
     }
@@ -233,15 +220,12 @@ export async function handleSell(
     transactions.push({
       receiverId: tokenOut,
       actions: [
-        {
-          type: "FunctionCall",
-          params: {
-            methodName: "storage_deposit",
-            args: {},
-            gas: 20_000_000_000_000n.toString(),
-            deposit,
-          },
-        },
+        actionCreators.functionCall(
+          "storage_deposit",
+          {},
+          20_000_000_000_000n,
+          BigInt(deposit),
+        ),
       ],
     });
   }
@@ -253,18 +237,15 @@ export async function handleSell(
     transactions.push({
       receiverId: import.meta.env.VITE_REF_CONTRACT_ID,
       actions: [
-        {
-          type: "FunctionCall",
-          params: {
-            methodName: "mft_register",
-            args: {
-              token_id: `:${meme.pool_id}`,
-              account_id: "shitzu.sputnik-dao.near",
-            },
-            gas: 20_000_000_000_000n.toString(),
-            deposit: 10_000_000_000_000_000_000_000n.toString(),
+        actionCreators.functionCall(
+          "mft_register",
+          {
+            token_id: `:${meme.pool_id}`,
+            account_id: "shitzu.sputnik-dao.near",
           },
-        },
+          20_000_000_000_000n,
+          10_000_000_000_000_000_000_000n,
+        ),
       ],
     });
   }
@@ -290,23 +271,20 @@ export async function handleSell(
   transactions.push({
     receiverId: tokenIn,
     actions: [
-      {
-        type: "FunctionCall",
-        params: {
-          methodName: "ft_transfer_call",
-          args: {
-            receiver_id: import.meta.env.VITE_REF_CONTRACT_ID,
-            amount: input.toU128(),
-            msg: JSON.stringify({
-              referral_id: isMainnet ? "shitzu.sputnik-dao.near" : undefined,
-              actions: route,
-              skip_unwrap_near: !unwrapNear,
-            }),
-          },
-          gas: 150_000_000_000_000n.toString(),
-          deposit: "1",
+      actionCreators.functionCall(
+        "ft_transfer_call",
+        {
+          receiver_id: import.meta.env.VITE_REF_CONTRACT_ID,
+          amount: input.toU128(),
+          msg: JSON.stringify({
+            referral_id: isMainnet ? "shitzu.sputnik-dao.near" : undefined,
+            actions: route,
+            skip_unwrap_near: !unwrapNear,
+          }),
         },
-      },
+        150_000_000_000_000n,
+        1n,
+      ),
     ],
   });
 

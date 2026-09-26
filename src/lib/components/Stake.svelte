@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createTabs, melt } from "@melt-ui/svelte";
+  import { actionCreators } from "@near-wallet-selector/core";
   import { writable } from "svelte/store";
   import { crossfade, fade, slide } from "svelte/transition";
   import { match } from "ts-pattern";
@@ -107,25 +108,25 @@
       {
         receiverId: contractId,
         actions: [
-          {
-            type: "FunctionCall",
-            params: match(active.label)
-              .with("Stake", () => ({
-                methodName: "deposit_and_stake",
-                args: {},
-                gas: 30_000_000_000_000n.toString(),
-                deposit: $input$.toU128(),
-              }))
-              .with("Unstake", () => ({
-                methodName: "unstake",
-                args: {
+          match(active.label)
+            .with("Stake", () =>
+              actionCreators.functionCall(
+                "deposit_and_stake",
+                {},
+                30_000_000_000_000n,
+                BigInt($input$.toU128()),
+              ),
+            )
+            .with("Unstake", () =>
+              actionCreators.functionCall(
+                "unstake",
+                {
                   amount: $input$.toU128(),
                 },
-                gas: 30_000_000_000_000n.toString(),
-                deposit: "0",
-              }))
-              .exhaustive(),
-          },
+                30_000_000_000_000n,
+              ),
+            )
+            .exhaustive(),
         ],
       },
       {

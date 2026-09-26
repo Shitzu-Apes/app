@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { actionCreators } from "@near-wallet-selector/core";
   import { createEventDispatcher } from "svelte";
   import { writable } from "svelte/store";
 
@@ -65,19 +66,16 @@
       {
         receiverId: "token.0xshitzu.near",
         actions: [
-          {
-            type: "FunctionCall",
-            params: {
-              methodName: "ft_transfer_call",
-              args: {
-                receiver_id: "rewards.0xshitzu.near",
-                amount: $input$.toU128(),
-                msg: "Donation",
-              },
-              gas: 50_000_000_000_000n.toString(),
-              deposit: "1",
+          actionCreators.functionCall(
+            "ft_transfer_call",
+            {
+              receiver_id: "rewards.0xshitzu.near",
+              amount: $input$.toU128(),
+              msg: "Donation",
             },
-          },
+            50_000_000_000_000n,
+            1n,
+          ),
         ],
       },
       {
