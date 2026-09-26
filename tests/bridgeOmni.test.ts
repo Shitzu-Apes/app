@@ -21,7 +21,8 @@ test("importing omni switches the SDK's on-chain addresses off mainnet", async (
   await import("../src/lib/bridge/omni.ts?testnet");
 
   assert.equal(getNetwork(), "testnet");
-  assert.equal(addresses.near, "omni.n-bridge.testnet");
+  // Since 0.21 `addresses.near` is an object, not a bare contract id.
+  assert.equal(addresses.near.contract, "omni.n-bridge.testnet");
   assert.equal(
     addresses.sol.locker,
     "862HdJV59Vp83PbcubUnvuXc4EAXP8CDDs6LTxFpunTe",
@@ -34,7 +35,7 @@ test("mainnet leaves the SDK on mainnet addresses", async () => {
 
   const { getNetwork, addresses } = await import("omni-bridge-sdk");
   assert.equal(getNetwork(), "mainnet");
-  assert.equal(addresses.near, "omni.bridge.near");
+  assert.equal(addresses.near.contract, "omni.bridge.near");
 });
 
 test("network <-> chain kind maps round-trip", async () => {

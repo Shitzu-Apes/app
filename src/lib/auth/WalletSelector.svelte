@@ -8,6 +8,7 @@
     hasAcceptedWalletDisclaimer,
   } from "./showWalletSelector";
 
+  import { shouldShowEvm } from "$lib/auth/capabilities";
   import {
     wagmiConfig,
     evmWallet$,
@@ -31,11 +32,9 @@
     import.meta.env.VITE_WALLET_SELECTOR_MULTICHAIN !== "false";
 
   // EVM is gated separately from Solana: meme.cooking supports NEAR + Solana
-  // but has no EVM flow, so it can enable Solana while hiding the EVM tab.
-  const showEvm =
-    import.meta.env.VITE_WALLET_SELECTOR_EVM === undefined
-      ? isMultichain
-      : import.meta.env.VITE_WALLET_SELECTOR_EVM !== "false";
+  // but has no EVM flow. Defaults to the served hostname so it is correct in
+  // local dev too, with the env var as an explicit override.
+  const showEvm = shouldShowEvm(isMultichain);
 
   let disclaimerAccepted = hasAcceptedWalletDisclaimer();
 

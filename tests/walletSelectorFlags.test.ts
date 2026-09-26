@@ -8,20 +8,15 @@ const SOLANA_WALLET = "src/lib/solana/wallet.ts";
 
 const src = (f: string) => readFileSync(f, "utf8");
 
-test("EVM has its own flag, independent of multichain", () => {
-  const s = src(SELECTOR);
-  assert.match(s, /VITE_WALLET_SELECTOR_EVM/);
-  // The EVM tab must be gated on the EVM flag, not on isMultichain.
-  assert.match(s, /\{#if showEvm\}[\s\S]*?handleNetworkChange\("evm"\)/);
-});
-
-test("the EVM tab falls back to multichain when the flag is unset", () => {
+test("EVM gating lives in capabilities.ts, not inline in the selector", () => {
   const s = src(SELECTOR);
   assert.match(
     s,
-    /VITE_WALLET_SELECTOR_EVM === undefined\s*\?\s*isMultichain/,
-    "unset EVM flag should follow multichain",
+    /import \{ shouldShowEvm \} from "\$lib\/auth\/capabilities"/,
   );
+  assert.match(s, /const showEvm = shouldShowEvm\(isMultichain\)/);
+  // The EVM tab must be gated on showEvm, not on isMultichain directly.
+  assert.match(s, /\{#if showEvm\}[\s\S]*?handleNetworkChange\("evm"\)/);
 });
 
 test("a hidden EVM tab cannot be selected via initialNetwork", () => {
