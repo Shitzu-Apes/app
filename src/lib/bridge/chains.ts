@@ -129,17 +129,25 @@ export const CHAINS: Record<Network, BridgeChain> = {
 /** Networks that carry a bridged token, in display order. */
 export const BRIDGE_NETWORKS = Object.keys(CHAINS) as Network[];
 
-const NETWORK_BY_CHAIN = new Map<Chain, BridgeChain>(
-  Object.values(CHAINS).map((c) => [c.chain, c]),
+/**
+ * Keyed by lowercased id, because the same chain arrives spelled several ways:
+ * the SDK and API receipts say `Sol`, while a `"chain:address"` prefix from a
+ * transfer message says `sol`. Matching case-sensitively meant every prefix
+ * form missed the registry and fell through to the Ethereum icon, and made
+ * explorer links come back empty.
+ */
+const NETWORK_BY_CHAIN = new Map<string, BridgeChain>(
+  Object.values(CHAINS).map((c) => [c.chain.toLowerCase(), c]),
 );
 
 /**
- * Resolve an Omni Bridge chain id (`Near`, `Sol`, `Arb`, ...) to its chain
+ * Resolve an Omni Bridge chain id (`Sol`, `sol`, `Arb`, ...) to its chain
  * definition. Returns undefined for unknown ids instead of throwing, so a new
  * chain on the API side cannot break rendering.
  */
 export function getChainByChainId(chainId: string): BridgeChain | undefined {
-  return NETWORK_BY_CHAIN.get(chainId as Chain);
+  if (!chainId) return undefined;
+  return NETWORK_BY_CHAIN.get(chainId.toLowerCase());
 }
 
 /** Resolve a chain from a `"chain:address"` prefix used by receipts/logs. */
@@ -147,11 +155,27 @@ export function getChainByOmniAddress(
   address: string,
 ): BridgeChain | undefined {
   const [prefix] = address.split(":");
-  return prefix ? getChainByChainId(prefix.toLowerCase()) : undefined;
+  return prefix ? getChainByChainId(prefix) : undefined;
 }
 
+/**
+ * Chain icon, falling back to the EVM mark.
+ *
+ * The fallback is only reached for a chain this build does not know about, which
+ * is rare now that lookup is case-insensitive. It is still worth knowing that it
+ * is the EVM logo: it is how a Solana transfer came to be drawn as an Ethereum
+ * one. There is no neutral chain asset in `static/`, so rather than point at a
+ * file that does not exist, an unknown chain is flagged in the console and the
+ * caller decides what to render.
+ */
 export function getChainIcon(chainId: string): string {
-  return getChainByChainId(chainId)?.icon ?? "/evm-logo.svg";
+  const chain = getChainByChainId(chainId);
+  if (!chain) {
+    console.warn(
+      `No icon for chain "${chainId}"; falling back to the EVM mark.`,
+    );
+  }
+  return chain?.icon ?? "/evm-logo.svg";
 }
 
 export function getExplorerUrl(

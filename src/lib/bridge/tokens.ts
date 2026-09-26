@@ -712,7 +712,7 @@ export function findTokenByAddress(
   chainId: string,
   address: string,
 ): keyof typeof TOKENS | undefined {
-  const chain = getChainByChainId(chainId.toLowerCase());
+  const chain = getChainByChainId(chainId);
   if (!chain) {
     console.warn(`Unknown chain ID: ${chainId}`);
     return undefined;
