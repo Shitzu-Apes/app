@@ -31,13 +31,17 @@ export const memesQueryFactory = createQueryKeyStore({
 
         const memes = [...res.data, ...EXTERNAL_MEMES];
 
-        // assign last_updated to each meme
-        memes.forEach((meme) => {
-          meme.last_change_ms = uniqueMemeIds.has(
-            String(meme.meme_id) || meme.token_id,
-          )
-            ? new Date().getTime()
-            : null;
+        // Keep the server's last_change_ms so "bump order" reflects real
+        // activity. Only force a bump for memes the user has a local
+        // notification for, and never below the value the server sent.
+        const now = new Date().getTime();
+        memes.forEach((meme, i) => {
+          if (
+            uniqueMemeIds.has(String(meme.meme_id)) &&
+            Number(meme.last_change_ms ?? 0) < now
+          ) {
+            memes[i] = { ...meme, last_change_ms: now };
+          }
         });
 
         return memes;
