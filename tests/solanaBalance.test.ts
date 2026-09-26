@@ -35,14 +35,30 @@ test("the default RPC is the public cluster endpoint", () => {
   );
 });
 
-test("meme.cooking workflows no longer require an RPC secret", () => {
-  for (const mode of ["production", "staging", "testnet"]) {
+test("mainnet meme.cooking deploys inject a keyed Solana RPC", () => {
+  for (const mode of ["production", "staging"]) {
     const wf = readFileSync(
       `.github/workflows/deploy-meme-${mode}.yml`,
       "utf8",
     );
-    assert.doesNotMatch(wf, /VITE_SOLANA_RPC_URL/, mode);
+    // Appended to the mode-specific file, or `vite build --mode <mode>` never
+    // sees it.
+    assert.match(
+      wf,
+      new RegExp(
+        `VITE_SOLANA_RPC_URL=\\$VITE_SOLANA_RPC_URL.*>> \\.env\\.${mode}`,
+      ),
+      mode,
+    );
+    assert.match(wf, /secrets\.VITE_SOLANA_RPC_URL/, mode);
   }
+});
+
+test("testnet stays on the devnet cluster", () => {
+  // The secret is a mainnet provider, so injecting it here would point the
+  // testnet build at mainnet. Devnet answers browser requests without a key.
+  const wf = readFileSync(".github/workflows/deploy-meme-testnet.yml", "utf8");
+  assert.doesNotMatch(wf, /VITE_SOLANA_RPC_URL/);
 });
 
 test("the public devnet cluster answers balance queries", live, async () => {

@@ -76,6 +76,13 @@ jobs:
       - name: Add WalletConnect project ID to .env
         run: echo "VITE_WC_PROJECT_ID=44dd0ed9ce175eeb72a67532fbfb6f96" >> .env.production
 
+      # The public mainnet cluster answers 403 "Access forbidden" to browser
+      # origins, which breaks every Solana read on the site.
+      - name: Add Solana RPC URL to .env
+        run: echo "VITE_SOLANA_RPC_URL=$VITE_SOLANA_RPC_URL" >> .env.production
+        env:
+          VITE_SOLANA_RPC_URL: ${{ secrets.VITE_SOLANA_RPC_URL }}
+
       # - name: Add Near RPC URL to .env
       #   run: echo "VITE_NODE_URL=$VITE_NODE_URL" >> .env.production.local
       #   env:
