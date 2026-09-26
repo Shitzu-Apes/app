@@ -1,4 +1,3 @@
-import { MetaPool } from "./metapool";
 import { view } from "./utils";
 
 import type { AccountId } from "$lib/abi";
@@ -101,9 +100,7 @@ export abstract class RegularPool {
     );
   }
 
-  public static async getAPY() {
-    return await MetaPool.getValidatorAPY(
-      import.meta.env.VITE_REGULAR_VALIDATOR_CONTRACT_ID,
-    );
+  public static getAPY(): number {
+    return 4.18;
   }
 }
