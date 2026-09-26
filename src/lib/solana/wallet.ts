@@ -1,4 +1,4 @@
-import { AnchorProvider, type Provider } from "@coral-xyz/anchor";
+import { AnchorProvider } from "@coral-xyz/anchor";
 import {
   WalletConnectionError,
   type SignerWalletAdapter,
@@ -17,8 +17,10 @@ const network =
 const isMultichain =
   import.meta.env.VITE_WALLET_SELECTOR_MULTICHAIN === undefined ||
   import.meta.env.VITE_WALLET_SELECTOR_MULTICHAIN !== "false";
+// Default to the public cluster RPC. An override is still honoured for
+// deployments that need a keyed endpoint, but nothing has to be configured.
 const connection = new Connection(
-  import.meta.env.VITE_SOLANA_RPC_URL ?? clusterApiUrl(network),
+  import.meta.env.VITE_SOLANA_RPC_URL || clusterApiUrl(network),
 );
 
 export class SolanaWallet {
@@ -28,7 +30,7 @@ export class SolanaWallet {
   );
   private _publicKey$ = writable<PublicKey | undefined>();
   private _isAutoConnecting$ = writable(false);
-  private _provider: Provider | null = null; // Add a provider instance variable
+  private _provider: AnchorProvider | null = null;
 
   constructor() {
     const wallets = isMultichain
@@ -63,10 +65,13 @@ export class SolanaWallet {
   public wallets$ = derived(this._wallets$, (w) => w);
   public selectedWallet$ = derived(this._selectedWallet$, (w) => w);
   public publicKey$ = derived(this._publicKey$, (k) => k);
-  public connected$ = derived(
-    this._selectedWallet$,
-    (w) => w?.connected ?? false,
-  );
+  /**
+   * Derived from our own public key rather than the adapter's `connected`
+   * field, so this can never disagree with what the rest of the app treats as
+   * connected. The wallet selector gates its disconnect UI on this, so a
+   * divergence here would leave a connected Solana wallet with no way out.
+   */
+  public connected$ = derived(this._publicKey$, (k) => k != null);
   public isAutoConnecting$ = derived(this._isAutoConnecting$, (s) => s);
 
   private async autoConnect() {
@@ -226,7 +231,7 @@ export class SolanaWallet {
     }
   }
 
-  public getProvider(): Provider | null {
+  public getProvider(): AnchorProvider | null {
     return this._provider;
   }
 

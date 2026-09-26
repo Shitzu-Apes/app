@@ -23,7 +23,7 @@
   <div class="flex flex-col gap-4">
     <button
       class="px-4 py-1 rounded-lg text-sm bg-shitzu-4 text-black font-medium hover:bg-shitzu-5 transition-colors duration-200"
-      on:click={() => showWalletSelector("shitzu")}
+      on:click={() => showWalletSelector("shitzu", "near")}
     >
       Connect Wallet
     </button>

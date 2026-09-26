@@ -16,7 +16,6 @@
     ChainKind,
     getClient,
     omniAddress,
-    OmniBridgeAPI,
     type Chain,
     type Transfer,
   } from "omni-bridge-sdk";
@@ -26,10 +25,14 @@
   import { match, P } from "ts-pattern";
 
   import OmniBridgeSheet from "./OmniBridgeSheet.svelte";
-  import TokenInfo from "./TokenInfo.svelte";
-  import TransferStatus from "./TransferStatus.svelte";
   import UserMenu from "./UserMenu.svelte";
-  import { bridgePortfolio$ } from "./portfolio";
+
+  import { showWalletSelector } from "$lib/auth";
+  import TokenInfo from "$lib/bridge/TokenInfo.svelte";
+  import TransferStatus from "$lib/bridge/TransferStatus.svelte";
+  import { CHAINS } from "$lib/bridge/chains";
+  import { getOmniApi, NETWORK_TO_CHAIN_KIND } from "$lib/bridge/omni";
+  import { bridgePortfolio$ } from "$lib/bridge/portfolio";
   import {
     updateTokenBalance,
     balances$,
@@ -37,11 +40,9 @@
     getTokenBalance,
     TOKEN_ENTRIES,
     isTokenAvailableOnNetwork,
-  } from "./tokens";
-  import { transfers } from "./transfers";
-  import { getTokenPrice } from "./utils";
-
-  import { showWalletSelector } from "$lib/auth";
+  } from "$lib/bridge/tokens";
+  import { transfers } from "$lib/bridge/transfers";
+  import { getTokenPrice } from "$lib/bridge/utils";
   import Button from "$lib/components/Button.svelte";
   import { addToast } from "$lib/components/Toast.svelte";
   import TokenInput from "$lib/components/TokenInput.svelte";
@@ -61,14 +62,11 @@
   const { accountId$, selector$ } = nearWallet;
   const { publicKey$ } = solanaWallet;
 
-  const networks = [
-    { id: "near", name: "Near", icon: "/near-logo.webp" },
-    { id: "solana", name: "Solana", icon: "/sol-logo.webp" },
-    { id: "base", name: "Base", icon: "/base-logo.webp" },
-    { id: "arbitrum", name: "Arbitrum", icon: "/arb-logo.webp" },
-    { id: "ethereum", name: "Ethereum", icon: "/evm-logo.svg" },
-    { id: "bnb", name: "Bnb", icon: "/bnb-logo.svg" },
-  ] as const;
+  const networks = Object.values(CHAINS).map((c) => ({
+    id: c.network,
+    name: c.name,
+    icon: c.icon,
+  }));
 
   const sourceNetwork$ = writable<Network>("near");
   const destinationNetwork$ = writable<Network>("solana");
@@ -92,12 +90,7 @@
 
     isFeeLoading = true;
     try {
-      const api = new OmniBridgeAPI({
-        baseUrl:
-          import.meta.env.VITE_NETWORK_ID === "mainnet"
-            ? "https://mainnet.api.bridge.nearone.org"
-            : "https://testnet.api.bridge.nearone.org",
-      });
+      const api = getOmniApi();
 
       const sender = match($sourceNetwork$)
         .with("near", () => omniAddress(ChainKind.Near, $accountId$ ?? ""))
@@ -130,26 +123,12 @@
       if (!sender) return;
 
       const recipient = omniAddress(
-        match($destinationNetwork$)
-          .with("near", () => ChainKind.Near)
-          .with("solana", () => ChainKind.Sol)
-          .with("base", () => ChainKind.Base)
-          .with("arbitrum", () => ChainKind.Arb)
-          .with("ethereum", () => ChainKind.Eth)
-          .with("bnb", () => ChainKind.Bnb)
-          .exhaustive(),
+        NETWORK_TO_CHAIN_KIND[$destinationNetwork$],
         $recipientAddress$,
       );
 
       const tokenAddress = omniAddress(
-        match($sourceNetwork$)
-          .with("near", () => ChainKind.Near)
-          .with("solana", () => ChainKind.Sol)
-          .with("base", () => ChainKind.Base)
-          .with("arbitrum", () => ChainKind.Arb)
-          .with("ethereum", () => ChainKind.Eth)
-          .with("bnb", () => ChainKind.Bnb)
-          .exhaustive(),
+        NETWORK_TO_CHAIN_KIND[$sourceNetwork$],
         TOKENS[$selectedToken$].addresses[$sourceNetwork$] ?? "",
       );
 
@@ -331,24 +310,12 @@
 
     const sender = omniAddress(chainKind, $evmWallet$.address);
     const recipient = omniAddress(
-      match($destinationNetwork$)
-        .with("near", () => ChainKind.Near)
-        .with("solana", () => ChainKind.Sol)
-        .with("base", () => ChainKind.Base)
-        .with("arbitrum", () => ChainKind.Arb)
-        .with("ethereum", () => ChainKind.Eth)
-        .with("bnb", () => ChainKind.Bnb)
-        .exhaustive(),
+      NETWORK_TO_CHAIN_KIND[$destinationNetwork$],
       $recipientAddress$,
     );
     const tokenAddr = omniAddress(chainKind, tokenAddress);
 
-    const api = new OmniBridgeAPI({
-      baseUrl:
-        import.meta.env.VITE_NETWORK_ID === "mainnet"
-          ? "https://mainnet.api.bridge.nearone.org"
-          : "https://testnet.api.bridge.nearone.org",
-    });
+    const api = getOmniApi();
     const fee = await api.getFee(sender, recipient, tokenAddr);
     return client.initTransfer({
       amount: $amount$!.toBigInt(),
@@ -371,12 +338,7 @@
       return;
     }
 
-    const api = new OmniBridgeAPI({
-      baseUrl:
-        import.meta.env.VITE_NETWORK_ID === "mainnet"
-          ? "https://mainnet.api.bridge.nearone.org"
-          : "https://testnet.api.bridge.nearone.org",
-    });
+    const api = getOmniApi();
 
     const rawTransferEvent = await match($sourceNetwork$)
       .with("near", async () => {
@@ -386,14 +348,7 @@
 
         const sender = omniAddress(ChainKind.Near, $accountId$ ?? "");
         const recipient = omniAddress(
-          match($destinationNetwork$)
-            .with("near", () => ChainKind.Near)
-            .with("solana", () => ChainKind.Sol)
-            .with("base", () => ChainKind.Base)
-            .with("arbitrum", () => ChainKind.Arb)
-            .with("ethereum", () => ChainKind.Eth)
-            .with("bnb", () => ChainKind.Bnb)
-            .exhaustive(),
+          NETWORK_TO_CHAIN_KIND[$destinationNetwork$],
           $recipientAddress$,
         );
         const tokenAddress = omniAddress(
@@ -466,14 +421,7 @@
 
         const sender = omniAddress(ChainKind.Sol, publicKey);
         const recipient = omniAddress(
-          match($destinationNetwork$)
-            .with("near", () => ChainKind.Near)
-            .with("solana", () => ChainKind.Sol)
-            .with("base", () => ChainKind.Base)
-            .with("arbitrum", () => ChainKind.Arb)
-            .with("ethereum", () => ChainKind.Eth)
-            .with("bnb", () => ChainKind.Bnb)
-            .exhaustive(),
+          NETWORK_TO_CHAIN_KIND[$destinationNetwork$],
           $recipientAddress$,
         );
         const tokenAddress = omniAddress(ChainKind.Sol, solanaTokenAddress);
@@ -683,12 +631,7 @@
   }
 
   async function loadNearTransfers(accountId: string) {
-    const api = new OmniBridgeAPI({
-      baseUrl:
-        import.meta.env.VITE_NETWORK_ID === "mainnet"
-          ? "https://mainnet.api.bridge.nearone.org"
-          : "https://testnet.api.bridge.nearone.org",
-    });
+    const api = getOmniApi();
     try {
       const nearTransfers = await api.findOmniTransfers({
         sender: `near:${accountId}`,
@@ -701,12 +644,7 @@
   }
 
   async function loadSolanaTransfers(publicKey: string) {
-    const api = new OmniBridgeAPI({
-      baseUrl:
-        import.meta.env.VITE_NETWORK_ID === "mainnet"
-          ? "https://mainnet.api.bridge.nearone.org"
-          : "https://testnet.api.bridge.nearone.org",
-    });
+    const api = getOmniApi();
     try {
       const solTransfers = await api.findOmniTransfers({
         sender: `sol:${publicKey}`,
@@ -719,12 +657,7 @@
   }
 
   async function loadEvmTransfers(address: string) {
-    const api = new OmniBridgeAPI({
-      baseUrl:
-        import.meta.env.VITE_NETWORK_ID === "mainnet"
-          ? "https://mainnet.api.bridge.nearone.org"
-          : "https://testnet.api.bridge.nearone.org",
-    });
+    const api = getOmniApi();
     const findEvmTransfers = async (chainKind: ChainKind) => {
       try {
         const evmTransfers = await api.findOmniTransfers({
@@ -1226,18 +1159,9 @@
           <div class="text-center text-xs text-lime/70">
             Network fee: {new FixedNumber(
               nativeFee,
-              match($sourceNetwork$)
-                .with("near", () => 24)
-                .with("solana", () => 9)
-                .with(P.union("base", "arbitrum", "ethereum", "bnb"), () => 18)
-                .exhaustive(),
+              CHAINS[$sourceNetwork$].nativeDecimals,
             ).format({ maximumFractionDigits: 4 })}
-            {match($sourceNetwork$)
-              .with("near", () => "NEAR")
-              .with("solana", () => "SOL")
-              .with(P.union("base", "arbitrum", "ethereum"), () => "ETH")
-              .with("bnb", () => "BNB")
-              .exhaustive()}
+            {CHAINS[$sourceNetwork$].nativeSymbol}
             {#if usdFee !== undefined}
               <span class="opacity-75">
                 (${usdFee.toFixed(2)})

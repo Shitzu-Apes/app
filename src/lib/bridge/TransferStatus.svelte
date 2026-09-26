@@ -1,12 +1,17 @@
 <script lang="ts">
   import dayjs from "dayjs";
-  import { OmniBridgeAPI, type Transfer } from "omni-bridge-sdk";
+  import { type Transfer } from "omni-bridge-sdk";
   import { onMount } from "svelte";
   import { match, P } from "ts-pattern";
 
-  import { updateTokenBalance, findTokenByAddress, TOKENS } from "./tokens";
-  import { transfers } from "./transfers";
-
+  import { getChainIcon, getExplorerUrl } from "$lib/bridge/chains";
+  import { getOmniApi } from "$lib/bridge/omni";
+  import {
+    updateTokenBalance,
+    findTokenByAddress,
+    TOKENS,
+  } from "$lib/bridge/tokens";
+  import { transfers } from "$lib/bridge/transfers";
   import { FixedNumber } from "$lib/util";
 
   export let transfer: Transfer;
@@ -69,56 +74,6 @@
     .with(["", P.any], () => undefined)
     .exhaustive();
 
-  function getChainIcon(chainId: string): string {
-    return match(chainId as "near" | "sol" | "base" | "arb" | "eth" | "bnb")
-      .with("near", () => "/near-logo.webp")
-      .with("sol", () => "/sol-logo.webp")
-      .with("base", () => "/base-logo.webp")
-      .with("arb", () => "/arb-logo.webp")
-      .with("eth", () => "/evm-logo.svg")
-      .with("bnb", () => "/bnb-logo.svg")
-      .exhaustive();
-  }
-
-  function getExplorerUrl(
-    chain: string,
-    address: string,
-    type: "address" | "tx" = "address",
-  ): string {
-    return match(chain as "near" | "sol" | "base" | "arb" | "eth" | "bnb")
-      .with(
-        "near",
-        () =>
-          `https://${import.meta.env.VITE_NETWORK_ID === "mainnet" ? "" : "testnet."}nearblocks.io/${type === "address" ? "address" : "txns"}/${address}`,
-      )
-      .with(
-        "sol",
-        () =>
-          `https://solscan.io/${type === "address" ? "account" : "tx"}/${address}`,
-      )
-      .with(
-        "base",
-        () =>
-          `https://${import.meta.env.VITE_NETWORK_ID === "mainnet" ? "" : "sepolia."}basescan.org/${type === "address" ? "address" : "tx"}/${address}`,
-      )
-      .with(
-        "arb",
-        () =>
-          `https://${import.meta.env.VITE_NETWORK_ID === "mainnet" ? "" : "sepolia."}arbiscan.io/${type === "address" ? "address" : "tx"}/${address}`,
-      )
-      .with(
-        "eth",
-        () =>
-          `https://${import.meta.env.VITE_NETWORK_ID === "mainnet" ? "" : "sepolia."}etherscan.io/${type === "address" ? "address" : "tx"}/${address}`,
-      )
-      .with(
-        "bnb",
-        () =>
-          `https://${import.meta.env.VITE_NETWORK_ID === "mainnet" ? "" : "testnet."}bscscan.com/${type === "address" ? "address" : "tx"}/${address}`,
-      )
-      .exhaustive();
-  }
-
   function formatAddress(address: string): string {
     if (address.length > 24) {
       return `${address.slice(0, 12)}...${address.slice(-4)}`;
@@ -131,12 +86,7 @@
       return;
     }
 
-    const api = new OmniBridgeAPI({
-      baseUrl:
-        import.meta.env.VITE_NETWORK_ID === "mainnet"
-          ? "https://mainnet.api.bridge.nearone.org"
-          : "https://testnet.api.bridge.nearone.org",
-    });
+    const api = getOmniApi();
     try {
       const updatedTransfer = (
         await api.getTransfer({

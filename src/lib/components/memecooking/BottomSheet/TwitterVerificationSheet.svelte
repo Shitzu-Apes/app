@@ -2,7 +2,7 @@
   import { addToast } from "../../Toast.svelte";
   import XOauthButton from "../../XOauthButton.svelte";
 
-  import { showWalletSelector } from "$lib/auth";
+  import { requireNearWallet } from "$lib/auth";
   import { isLoggedIn$ } from "$lib/auth/login";
   import { BottomSheetContent } from "$lib/layout/BottomSheet";
   import { closeBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
@@ -17,7 +17,7 @@
 
   async function checkOwnership() {
     if (!$accountId$) {
-      showWalletSelector("shitzu");
+      requireNearWallet("shitzu");
       return;
     }
 

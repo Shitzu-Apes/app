@@ -1,9 +1,8 @@
 <script lang="ts">
   import { slide } from "svelte/transition";
 
-  import { balances$ } from "./tokens";
-
   import { showWalletSelector } from "$lib/auth";
+  import { balances$ } from "$lib/bridge/tokens";
   import Button from "$lib/components/Button.svelte";
   import { evmWallet$, disconnect as disconnectEvm } from "$lib/evm/wallet";
   import type { Token } from "$lib/models/tokens";

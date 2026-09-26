@@ -6,8 +6,8 @@
   import MEMECOOKING_LOGO from "$lib/assets/logo/meme-cooking.webp";
   import SHITZU_LOGO from "$lib/assets/logo/shitzu.webp";
   import { showWalletSelector } from "$lib/auth";
-  import BridgeSheet from "$lib/components/memecooking/BottomSheet/BridgeSheet.svelte";
   import HowItWorkSheet from "$lib/components/memecooking/BottomSheet/HowItWorkSheet.svelte";
+  import BridgeSheet from "$lib/components/memecooking/BottomSheet/SolToNearBridgeSheet.svelte";
   import Chef from "$lib/components/memecooking/Chef.svelte";
   import MemeCreationNotification from "$lib/components/memecooking/Notification/MemeCreationNotification.svelte";
   import Notification from "$lib/components/memecooking/Notification/Notification.svelte";
@@ -195,9 +195,11 @@
                   </Chef>
                   <button
                     class="text-gray-300 hover:text-white text-sm"
-                    on:click={nearWallet.signOut}
+                    title="Wallets"
+                    aria-label="Manage connected wallets"
+                    on:click={() => showWalletSelector("shitzu")}
                   >
-                    <div class="i-mdi:logout text-xl" />
+                    <div class="i-mdi:wallet text-xl" />
                   </button>
                 </div>
               {/await}
@@ -205,7 +207,7 @@
           {:else}
             <button
               class="px-4 py-1 rounded-lg text-sm bg-shitzu-4 text-black font-medium hover:bg-shitzu-5 transition-colors duration-200"
-              on:click={() => showWalletSelector("shitzu")}
+              on:click={() => showWalletSelector("shitzu", "near")}
             >
               Connect Wallet
             </button>

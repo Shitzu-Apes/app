@@ -1,6 +1,19 @@
 import ConnectWallet from "./ConnectWallet.svelte";
 import Login from "./Login.svelte";
 import WalletSelector from "./WalletSelector.svelte";
-import { showWalletSelector } from "./showWalletSelector";
+import {
+  nearWalletConnected,
+  requireNearWallet,
+  requireSolanaWallet,
+  showWalletSelector,
+} from "./showWalletSelector";
 
-export { showWalletSelector, Login, WalletSelector, ConnectWallet };
+export {
+  showWalletSelector,
+  requireNearWallet,
+  requireSolanaWallet,
+  nearWalletConnected,
+  Login,
+  WalletSelector,
+  ConnectWallet,
+};

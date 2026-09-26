@@ -11,6 +11,7 @@ import {
 import { match } from "ts-pattern";
 import { erc20Abi } from "viem";
 
+import { getChainByChainId } from "$lib/bridge/chains";
 import {
   evmWallet$,
   wagmiConfig,
@@ -59,7 +60,7 @@ export const TOKENS = {
       bnb: undefined,
     },
     addresses: {
-      near: "wrap.near",
+      near: import.meta.env.VITE_WRAP_NEAR_CONTRACT_ID,
       solana: "3ZLekZYq2qkZiSpnSvabjit34tUkjSwD1JFuW9as9wBG",
       base: undefined,
       arbitrum: undefined,
@@ -711,20 +712,11 @@ export function findTokenByAddress(
   chainId: string,
   address: string,
 ): keyof typeof TOKENS | undefined {
-  const normalizedChainId = chainId.toLowerCase();
-
-  const chain = match(normalizedChainId)
-    .with("sol", () => "solana" as const)
-    .with("near", () => "near" as const)
-    .with("base", () => "base" as const)
-    .with("arb", () => "arbitrum" as const)
-    .with("eth", () => "ethereum" as const)
-    .otherwise(() => {
-      console.warn(`Unknown chain ID: ${chainId}`);
-      return undefined;
-    });
-
-  if (!chain) return undefined;
+  const chain = getChainByChainId(chainId.toLowerCase());
+  if (!chain) {
+    console.warn(`Unknown chain ID: ${chainId}`);
+    return undefined;
+  }
 
   if (address.includes(":")) {
     address = address.split(":")[1];
@@ -732,7 +724,7 @@ export function findTokenByAddress(
 
   return Object.entries(TOKENS).find(
     ([_, token]) =>
-      token.addresses[chain]?.toLowerCase() === address.toLowerCase(),
+      token.addresses[chain.network]?.toLowerCase() === address.toLowerCase(),
   )?.[0] as keyof typeof TOKENS | undefined;
 }
 

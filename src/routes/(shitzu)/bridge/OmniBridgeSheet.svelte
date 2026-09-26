@@ -70,7 +70,7 @@
   <button
     class="w-full text-white hover:font-bold mb-8"
     on:click={() => {
-      showWalletSelector("shitzu");
+      showWalletSelector("shitzu", "near");
     }}
   >
     [Connect wallet to get started]

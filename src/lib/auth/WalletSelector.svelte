@@ -30,6 +30,13 @@
     import.meta.env.VITE_WALLET_SELECTOR_MULTICHAIN === undefined ||
     import.meta.env.VITE_WALLET_SELECTOR_MULTICHAIN !== "false";
 
+  // EVM is gated separately from Solana: meme.cooking supports NEAR + Solana
+  // but has no EVM flow, so it can enable Solana while hiding the EVM tab.
+  const showEvm =
+    import.meta.env.VITE_WALLET_SELECTOR_EVM === undefined
+      ? isMultichain
+      : import.meta.env.VITE_WALLET_SELECTOR_EVM !== "false";
+
   let disclaimerAccepted = hasAcceptedWalletDisclaimer();
 
   const { modules$, account$, iconUrl$, walletName$ } = nearWallet;
@@ -46,7 +53,9 @@
   $: evmConnected = $evmWallet$.isConnected;
 
   export let initialNetwork: "near" | "solana" | "evm" | undefined = undefined;
-  let selectedNetwork: "near" | "solana" | "evm" = initialNetwork ?? "near";
+  // Never land on a hidden tab: a caller can still pass "evm" explicitly.
+  let selectedNetwork: "near" | "solana" | "evm" =
+    initialNetwork === "evm" && !showEvm ? "near" : (initialNetwork ?? "near");
 
   function handleNetworkChange(network: "near" | "solana" | "evm") {
     if (document.startViewTransition) {
@@ -153,16 +162,18 @@
             />
             Solana
           </button>
-          <button
-            class="px-4 py-2 rounded-lg transition-colors flex items-center gap-2 {selectedNetwork ===
-            'evm'
-              ? 'bg-purple-900/40 text-purple-100'
-              : 'hover:bg-purple-900/20 text-purple-200/70 hover:text-purple-100'}"
-            on:click={() => handleNetworkChange("evm")}
-          >
-            <img src="/evm-logo.svg" alt="EVM" class="w-5 h-5 rounded-full" />
-            EVM
-          </button>
+          {#if showEvm}
+            <button
+              class="px-4 py-2 rounded-lg transition-colors flex items-center gap-2 {selectedNetwork ===
+              'evm'
+                ? 'bg-purple-900/40 text-purple-100'
+                : 'hover:bg-purple-900/20 text-purple-200/70 hover:text-purple-100'}"
+              on:click={() => handleNetworkChange("evm")}
+            >
+              <img src="/evm-logo.svg" alt="EVM" class="w-5 h-5 rounded-full" />
+              EVM
+            </button>
+          {/if}
         </div>
       {/if}
 

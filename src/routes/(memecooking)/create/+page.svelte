@@ -21,7 +21,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import Near from "$lib/assets/Near.svelte";
-  import { showWalletSelector } from "$lib/auth";
+  import { requireNearWallet } from "$lib/auth";
   import { TokenInput } from "$lib/components";
   import DurationDefault from "$lib/components/DurationDefault.svelte";
   import { addToast } from "$lib/components/Toast.svelte";
@@ -292,7 +292,7 @@
 
   async function createCoin() {
     if (!$accountId$) {
-      showWalletSelector("shitzu");
+      requireNearWallet("shitzu");
       return;
     }
 

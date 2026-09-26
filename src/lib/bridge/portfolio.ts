@@ -3,11 +3,10 @@ import { createQuery } from "@tanstack/svelte-query";
 import { derived, type Readable } from "svelte/store";
 import { z } from "zod";
 
-import { balances$, TOKENS, type Token } from "./tokens";
-
 import { queryClient } from "$lib/api/queries";
 import { priceQueryFactory } from "$lib/api/queries/prices";
 import { ref } from "$lib/api/queries/ref";
+import { balances$, TOKENS, type Token } from "$lib/bridge/tokens";
 import type { PoolInfo } from "$lib/near/ref";
 import { FixedNumber } from "$lib/util";
 

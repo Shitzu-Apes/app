@@ -1,9 +1,8 @@
 <script lang="ts">
   import { slide } from "svelte/transition";
-  import { match } from "ts-pattern";
 
-  import type { Token } from "./tokens";
-
+  import { CHAINS } from "$lib/bridge/chains";
+  import type { Token } from "$lib/bridge/tokens";
   import type { Network } from "$lib/models/tokens";
 
   export let token: Token;
@@ -53,25 +52,11 @@
           on:click={() => handleNetworkChange(network)}
         >
           <img
-            src={match(network)
-              .with("near", () => "/near-logo.webp")
-              .with("solana", () => "/sol-logo.webp")
-              .with("base", () => "/base-logo.webp")
-              .with("arbitrum", () => "/arb-logo.webp")
-              .with("ethereum", () => "/evm-logo.svg")
-              .with("bnb", () => "/bnb-logo.svg")
-              .exhaustive()}
+            src={CHAINS[network].icon}
             alt={network}
             class="w-5 h-5 rounded-full"
           />
-          {match(network)
-            .with("near", () => "NEAR")
-            .with("solana", () => "Solana")
-            .with("base", () => "Base")
-            .with("arbitrum", () => "Arbitrum")
-            .with("ethereum", () => "Ethereum")
-            .with("bnb", () => "BNB")
-            .exhaustive()}
+          {CHAINS[network].shortName}
         </button>
       {/each}
     </div>

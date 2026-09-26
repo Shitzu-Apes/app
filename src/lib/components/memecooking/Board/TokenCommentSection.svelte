@@ -11,7 +11,7 @@
   import { client, type Reply } from "$lib/api/client";
   import SHITZU_POCKET from "$lib/assets/shitzu_pocket.svg";
   import SHITZU_WOOF from "$lib/assets/static/shitzu_woof_woof.png";
-  import { showWalletSelector } from "$lib/auth";
+  import { requireNearWallet } from "$lib/auth";
   import { isLoggedIn$ } from "$lib/auth/login";
   import { Button } from "$lib/components";
   import McIcon from "$lib/components/MCIcon.svelte";
@@ -53,7 +53,7 @@
 
   async function handleReply() {
     if (!$accountId$) {
-      showWalletSelector("shitzu");
+      requireNearWallet("shitzu");
       return;
     }
     const isLoggedIn = await $isLoggedIn$;

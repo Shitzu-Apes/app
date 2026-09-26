@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { showWalletSelector } from "$lib/auth";
+  import { requireNearWallet } from "$lib/auth";
   import { isLoggedIn$ } from "$lib/auth/login";
   import { addToast } from "$lib/components/Toast.svelte";
   import XOauthButton from "$lib/components/XOauthButton.svelte";
@@ -14,7 +14,7 @@
 
   async function checkOwnership() {
     if (!$accountId$) {
-      showWalletSelector("shitzu");
+      requireNearWallet("shitzu");
       return;
     }
 

@@ -8,7 +8,7 @@
   import ExpectedReturn from "../MCRefHybridReturn.svelte";
 
   import Near from "$lib/assets/Near.svelte";
-  import { showWalletSelector } from "$lib/auth";
+  import { requireNearWallet } from "$lib/auth";
   import { Button } from "$lib/components";
   import McIcon from "$lib/components/MCIcon.svelte";
   import TokenInput from "$lib/components/TokenInput.svelte";
@@ -92,7 +92,7 @@
     if (expectedValue == null) return;
 
     if (!$accountId$) {
-      showWalletSelector("shitzu");
+      requireNearWallet("shitzu");
       return;
     }
     if (!$input$) {

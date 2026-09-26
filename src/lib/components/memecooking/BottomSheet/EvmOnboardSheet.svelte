@@ -75,7 +75,7 @@
   <button
     class="w-full text-white hover:font-bold mb-10"
     on:click={() => {
-      showWalletSelector("shitzu");
+      showWalletSelector("shitzu", "near");
     }}
   >
     [Sir wtf, this is only possible on Near]

@@ -48,7 +48,10 @@ jobs:
         run: echo "VITE_CONNECT_ID=factory.v10.meme-cooking.testnet" >> .env.testnet
 
       - name: Add multichain wallet selector to .env
-        run: echo "VITE_WALLET_SELECTOR_MULTICHAIN=false" >> .env.testnet
+        run: echo "VITE_WALLET_SELECTOR_MULTICHAIN=true" >> .env.testnet
+
+      - name: Hide EVM wallet option to .env
+        run: echo "VITE_WALLET_SELECTOR_EVM=false" >> .env.testnet
 
       - name: Add Pinate JWT to .env
         run: echo "PINATA_JWT=$PINATA_JWT" >> .env.testnet

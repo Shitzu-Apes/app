@@ -1,5 +1,5 @@
-import type { TokenPortfolio } from "./portfolio";
-import { TOKENS } from "./tokens";
+import type { TokenPortfolio } from "$lib/bridge/portfolio";
+import { TOKENS } from "$lib/bridge/tokens";
 
 // Helper function to get token price from portfolio
 export function getTokenPrice(

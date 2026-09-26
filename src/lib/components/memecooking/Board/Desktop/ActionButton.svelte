@@ -4,7 +4,7 @@
   import TeamAllocationSheet from "../../BottomSheet/TeamAllocationSheet.svelte";
 
   import Near from "$lib/assets/Near.svelte";
-  import { showWalletSelector } from "$lib/auth";
+  import { requireNearWallet } from "$lib/auth";
   import McIcon from "$lib/components/MCIcon.svelte";
   import { addToast } from "$lib/components/Toast.svelte";
   import ReferralSheet from "$lib/components/memecooking/BottomSheet/ReferralSheet.svelte";
@@ -88,7 +88,7 @@
   async function quickAction(ev: Event) {
     ev.preventDefault();
     if (!$accountId$) {
-      showWalletSelector("shitzu");
+      requireNearWallet("shitzu");
       return;
     }
 
