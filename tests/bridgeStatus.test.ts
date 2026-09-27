@@ -76,6 +76,19 @@ test("the page keys its transfer list with the shared helper", () => {
   assert.doesNotMatch(page, /kind\.Nonce/);
 });
 
+test("the page never reads a transfer through the SDK", () => {
+  // This was the last call site still using OmniBridgeAPI.getTransfer, whose
+  // TransferSchema requires id.kind. The live API omits it, so the call throws
+  // a ZodError on every transfer; the retry loop swallowed that for 60s and
+  // then reported a long-since-finalised bridge as unfindable. Reloading looked
+  // fine because the history path already used fetchTransferByNonce.
+  const page = readFileSync("src/routes/(shitzu)/bridge/+page.svelte", "utf8");
+  assert.doesNotMatch(page, /api\.getTransfer\(/);
+  assert.doesNotMatch(page, /api\.getTransferStatus\(/);
+  assert.doesNotMatch(page, /findOmniTransfers\(/);
+  assert.match(page, /await fetchTransferByNonce\(\s*chain,/);
+});
+
 test("phases advance as receipts appear", () => {
   const base = { id: { origin_chain: "Sol", origin_nonce: 1 } } as any;
   assert.equal(phaseOf({ ...base }), "submitted");

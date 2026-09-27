@@ -32,10 +32,15 @@
   import TokenInfo from "$lib/bridge/TokenInfo.svelte";
   import TransferStatus from "$lib/bridge/TransferStatus.svelte";
   import { CHAINS } from "$lib/bridge/chains";
-  import { getOmniApi, NETWORK_TO_CHAIN_KIND } from "$lib/bridge/omni";
+  import {
+    getOmniApi,
+    NETWORK_TO_CHAIN_KIND,
+    withNajActions,
+  } from "$lib/bridge/omni";
   import { bridgePortfolio$ } from "$lib/bridge/portfolio";
   import {
     fetchRecentTransfersBySender,
+    fetchTransferByNonce,
     fetchTransferByTxHash,
     getTransferKey,
     type RawTransfer,
@@ -361,7 +366,7 @@
       .with("near", async () => {
         const selector = await $selector$;
 
-        const client = getClient(ChainKind.Near, selector);
+        const client = getClient(ChainKind.Near, withNajActions(selector));
 
         const sender = omniAddress(ChainKind.Near, $accountId$ ?? "");
         const recipient = omniAddress(
@@ -533,17 +538,21 @@
 
       transfers.addTransfers([data as unknown as Transfer]);
     } else {
-      let data: Transfer | undefined;
+      // Not the SDK's getTransfer: its TransferSchema requires id.kind, which
+      // the live API omits, so every call throws a ZodError. The retry loop
+      // swallowed that for 60s and then reported the transfer as unfindable,
+      // even though it had already finalised. The reload path was unaffected
+      // because it reads through fetchTransferByNonce, which tolerates both id
+      // shapes.
+      let data: RawTransfer | undefined;
       for (let i = 0; i < 20; i++) {
         await new Promise((resolve) => setTimeout(resolve, 3_000));
         try {
-          data = (
-            await api.getTransfer({
-              originChain: chain,
-              originNonce: rawTransferEvent.transfer_message.origin_nonce,
-            })
-          )[0];
-          if (data) {
+          data = await fetchTransferByNonce(
+            chain,
+            rawTransferEvent.transfer_message.origin_nonce,
+          );
+          if (data?.id) {
             break;
           }
         } catch (err) {
@@ -552,11 +561,11 @@
         }
       }
 
-      if (!data) {
+      if (!data?.id) {
         throw new Error("Failed to fetch transfer data after multiple retries");
       }
 
-      transfers.addTransfers([data]);
+      transfers.addTransfers([data as unknown as Transfer]);
     }
 
     // Reset input fields after successful bridge
