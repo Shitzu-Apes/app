@@ -37,6 +37,7 @@
   import {
     fetchRecentTransfersBySender,
     fetchTransferByTxHash,
+    getTransferKey,
     type RawTransfer,
   } from "$lib/bridge/status";
   import {
@@ -500,7 +501,6 @@
       )
       .exhaustive();
 
-    console.log("[transferEvent]", rawTransferEvent);
     if (!rawTransferEvent) {
       throw new Error("Failed to initiate transfer");
     }
@@ -533,7 +533,6 @@
 
       transfers.addTransfers([data as unknown as Transfer]);
     } else {
-      console.log("[rawTransferEvent]", rawTransferEvent);
       let data: Transfer | undefined;
       for (let i = 0; i < 20; i++) {
         await new Promise((resolve) => setTimeout(resolve, 3_000));
@@ -556,7 +555,6 @@
       if (!data) {
         throw new Error("Failed to fetch transfer data after multiple retries");
       }
-      console.log("[data]", data);
 
       transfers.addTransfers([data]);
     }
@@ -1170,7 +1168,7 @@
       <div class="flex flex-col gap-1.5 mt-4 pt-4 border-t border-lime">
         <div class="text-sm text-lime">Recent Transfers</div>
         <div class="flex flex-col gap-1.5">
-          {#each visibleTransfers as transfer (transfer.id?.origin_chain + ":" + transfer.id?.kind.Nonce)}
+          {#each visibleTransfers as transfer (getTransferKey(transfer))}
             <div in:slide|global class="flex flex-col">
               <TransferStatus {transfer} />
             </div>

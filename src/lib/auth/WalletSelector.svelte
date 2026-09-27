@@ -27,6 +27,10 @@
 
   export let variant: colorVariant = "lime";
 
+  // A module id with no entry here used to throw a TypeError mid-each and take
+  // the whole list down, so a newly registered wallet rendered as an empty tab.
+  const walletMeta = (id: string) => NEAR_WALLETS[id] ?? {};
+
   const isMultichain =
     import.meta.env.VITE_WALLET_SELECTOR_MULTICHAIN === undefined ||
     import.meta.env.VITE_WALLET_SELECTOR_MULTICHAIN !== "false";
@@ -209,7 +213,11 @@
                 </button>
               {/await}
             {:else}
-              {#await $modules$ then mods}
+              {#await $modules$}
+                <p class="text-sm text-purple-200/70 p-4 text-center">
+                  Loading NEAR wallets…
+                </p>
+              {:then mods}
                 {#each mods as mod (mod.id)}
                   <div class="flex gap-2 items-center">
                     <button
@@ -224,25 +232,25 @@
                       />
                       <div class="flex flex-col text-left uppercase mr-auto">
                         <span class="text-white flex items-center gap-2"
-                          >{NEAR_WALLETS[mod.id].name ?? mod.metadata.name}
-                          {#if NEAR_WALLETS[mod.id].recommended}
+                          >{walletMeta(mod.id).name ?? mod.metadata.name}
+                          {#if walletMeta(mod.id).recommended}
                             <span
                               class="normal-case text-[10px] font-semibold tracking-wide text-purple-950 bg-lime rounded-full px-2 py-0.5"
                               >Recommended</span
                             >
                           {/if}
                         </span>
-                        {#if NEAR_WALLETS[mod.id].url != null}
+                        {#if walletMeta(mod.id).url != null}
                           <span class="text-sm text-gray-400">
-                            {new URL(NEAR_WALLETS[mod.id].url ?? "").hostname}
+                            {new URL(walletMeta(mod.id).url ?? "").hostname}
                           </span>
                         {/if}
                       </div>
                     </button>
                     {#if mod.type === "injected"}
-                      {#if NEAR_WALLETS[mod.id].extensionUrl != null}
+                      {#if walletMeta(mod.id).extensionUrl != null}
                         <a
-                          href={NEAR_WALLETS[mod.id].extensionUrl}
+                          href={walletMeta(mod.id).extensionUrl}
                           target="_blank"
                           rel="noopener"
                           class="hover:bg-purple-800/50 p-2 rounded-xl transition-colors"
@@ -262,11 +270,11 @@
                         >
                           <div class="i-mdi:download w-8 h-8 text-white" />
                         </a>
-                      {:else if NEAR_WALLETS[mod.id].infoSheet != null}
+                      {:else if walletMeta(mod.id).infoSheet != null}
                         <button
                           class="hover:bg-purple-800/50 p-2 rounded-xl transition-colors"
                           on:click={() => {
-                            openBottomSheet(NEAR_WALLETS[mod.id].infoSheet);
+                            openBottomSheet(walletMeta(mod.id).infoSheet);
                           }}
                           aria-label="Learn More"
                         >
@@ -278,6 +286,15 @@
                     {/if}
                   </div>
                 {/each}
+                {#if mods.length === 0}
+                  <p class="text-sm text-purple-200/70 p-4 text-center">
+                    No NEAR wallets available.
+                  </p>
+                {/if}
+              {:catch err}
+                <p class="text-sm text-red-300 p-4 text-center">
+                  Could not load NEAR wallets: {err?.message ?? err}
+                </p>
               {/await}
             {/if}
           {:else if selectedNetwork === "solana"}

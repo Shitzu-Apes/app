@@ -47,7 +47,6 @@ export const bridgeTokenPriceKeys = createQueryKeys("bridgeTokenPrice", {
   tokenPrice: (token: keyof typeof TOKENS) => ({
     queryKey: [{ token }],
     queryFn: async (): Promise<z.infer<typeof TokenPriceSchema> | null> => {
-      console.log(`[bridgeTokenPriceQuery] ${token}`);
       try {
         if (token === "NEAR") {
           const nearPriceQuery = priceQueryFactory.nearPrice.detail();
@@ -141,7 +140,6 @@ export function createBridgeTokenPriceQuery(token: keyof typeof TOKENS) {
 }
 
 export async function fetchBridgePortfolio(): Promise<TokenPortfolio> {
-  console.log(`[fetchBridgePortfolio]`);
   const tokens = await Promise.all(
     Object.entries(TOKENS).map(async ([tokenId, token]) => {
       const nearContractId = token.addresses.near;

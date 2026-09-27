@@ -132,8 +132,6 @@ export class SolanaWallet {
         localStorage.setItem(WALLET_CONNECTED_KEY, "true");
       }
 
-      console.log("wallet", wallet);
-
       addToast({
         data: {
           type: "simple",

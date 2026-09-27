@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
 
 process.env.VITE_NETWORK_ID = "mainnet";
 
@@ -48,6 +49,31 @@ test("the transfer key is stable across both id shapes", () => {
     getTransferKey({ id: { origin_chain: "Sol", kind: { Nonce: 5 } } }),
     "Sol:5",
   );
+});
+
+test("keying a transfer does not throw on the shape the API actually returns", () => {
+  // Regression guard, and this crashed in production. The bridge page keyed its
+  // transfer list with `transfer.id?.origin_chain + ":" + transfer.id?.kind.Nonce`.
+  // The optional chain covered a missing `id` but not a missing `kind`, and the
+  // live API returns `{ origin_chain, origin_nonce }` with no `kind` at all, so
+  // every render of a transfer with a real id threw
+  // "Cannot read properties of undefined (reading 'Nonce')".
+  const live = { id: { origin_chain: "Sol", origin_nonce: 732173 } };
+  assert.equal(getTransferKey(live), "Sol:732173");
+  // A missing id must stay non-fatal too.
+  assert.equal(getTransferKey({ id: null }), "undefined:undefined");
+});
+
+test("the page keys its transfer list with the shared helper", () => {
+  // The rest of the bridge already keys on getTransferKey (transfers.ts,
+  // solanaToNear.ts). The list on the page was the one place that rebuilt the
+  // key by hand, and it got the optional chaining wrong.
+  const page = readFileSync("src/routes/(shitzu)/bridge/+page.svelte", "utf8");
+  assert.match(
+    page,
+    /\{#each visibleTransfers as transfer \(getTransferKey\(transfer\)\)\}/,
+  );
+  assert.doesNotMatch(page, /kind\.Nonce/);
 });
 
 test("phases advance as receipts appear", () => {

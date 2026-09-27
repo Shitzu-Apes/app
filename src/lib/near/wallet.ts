@@ -45,7 +45,6 @@ export class Wallet {
           import("@near-wallet-selector/wallet-connect"),
           import("@near-wallet-selector/ethereum-wallets"),
           import("@web3modal/wagmi"),
-          import("@keypom/one-click-connect"),
         ]).then(
           ([
             { setupWalletSelector },
@@ -57,13 +56,37 @@ export class Wallet {
             { setupWalletConnect },
             { setupEthereumWallets },
             { createWeb3Modal },
-            { setupOneClickConnect },
           ]) => {
             this.isLoading$.set(false);
             return setupWalletSelector({
               network: import.meta.env.VITE_NETWORK_ID,
               modules: [
-                setupIntearWallet(),
+                // Intear's cross-tab logout check is a third-party call to
+                // logout-bridge-service.intear.tech with no timeout. It runs
+                // while the wallet is being restored on every page load, inside
+                // core's setupStorage -> resolveStorageState -> validateWallet
+                // -> getWallet -> setupInstance -> IntearWallet chain, which
+                // setupWalletSelector awaits. When that host is unreachable the
+                // fetch never settles, so setupWalletSelector never resolves,
+                // the module list never arrives, and the NEAR tab stays empty
+                // forever for anyone who has ever connected Intear. The service
+                // was down entirely (every request timed out), which is what
+                // triggered it.
+                //
+                // Pointing it at a same-origin path makes the call fail
+                // instantly; Intear treats a non-OK response as "still signed
+                // in" and restores the session, so only the cross-tab logout
+                // detection is lost. The failure is silent because core only
+                // logs it when `debug` is set, which we do not set.
+                //
+                // Remove this argument to restore cross-tab logout once the
+                // upstream service is reliable again. It has to stay absolute:
+                // Intear also derives a websocket URL from this value, and
+                // `new WebSocket` throws on a relative one, which would surface
+                // as an unhandled rejection.
+                setupIntearWallet({
+                  logoutBridgeService: `${window.location.origin}/logout-bridge-disabled`,
+                }),
                 setupMeteorWallet(),
                 setupHotWallet(),
                 setupNearMobileWallet({
@@ -106,11 +129,6 @@ export class Wallet {
                       "dba65fff73650d32ae5157f3492c379e",
                   }),
                 }),
-                setupOneClickConnect({
-                  contractId: import.meta.env.VITE_MEME_COOKING_CONTRACT_ID,
-                  networkId: import.meta.env.VITE_NETWORK_ID,
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                }) as any,
               ],
             });
           },

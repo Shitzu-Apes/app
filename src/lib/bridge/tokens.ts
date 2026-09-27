@@ -1,4 +1,8 @@
-import { getAssociatedTokenAddress, getAccount } from "@solana/spl-token";
+import {
+  getAssociatedTokenAddress,
+  getAccount,
+  TokenAccountNotFoundError,
+} from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
 import { readContract } from "@wagmi/core";
 import {
@@ -175,6 +179,52 @@ export const TOKENS = {
       //     icon: "/icons/etherscan.webp",
       //   },
       // },
+    },
+  },
+  OMGY: {
+    symbol: "OMGY",
+    icon: "data:image/png;base64,UklGRugCAABXRUJQVlA4INwCAACwEgCdASpgAGAAP7nG1mc9saunubsO27A3CWw+Dx/vMd/CVYQcWh/K9/ou3jMmMRKywIftWovDXru1rip0XEvUOgNwo3VU++JiOZ2Tb9lfErx21zjQjDvrU6YY72cvhd75Vszth4ja6NwABISx4pr27pMudUuDpGQT18RUjBEngNQ3yk/01daKVguQOgwaK95+lBnCJ5f+nxGJihg0AAD0x15EBecDJelA4XFmBv/FDmrDCN1+/nDdWQJZhS+4IsbdJksfhyXQAg8q769dLMs2G//Ajm+A2ewSftPqkIQDjk7zLpmMPKtZwa2rJXMA9eF5HnLYWFiqC7bbR8iGNysgti7hfAwJy2vnBzA9dGC8Xeu/hOYL+AYhMvgZslVEr2YO/cn/H0yNvRkKM5SXNrPCjkbkOfhwEV8Izot4w6JX34Md7pZ2mawO4CxUUagwBArDO5DK45/M2lZTr5w6c6f9SOB4A7pfawO+pz22s9BmrifSuLJCbf6rmWHLKo+R7u64F0Jgp118iDGyZby1LlWiRb0fHAI1dafoPYhsCvt/o+zS5vtTj5trrNi3zsb9NwZ0Vd4YSg7IV1AZbTryTs4aB/ZcInCAA+DT+7Q5cAj7BzXd08oBIJK00YwUDBKYy8ORPM6WaUvE9fAFFleq823SlLQ8g7796SAm5+76iGVQRQ//+tP1x9E4Ic0aBKywYMZ7Oy8XZqwsB2H/7imNnSSoje0+JI0ReDQ7AH96G/wXDpsmQsUXr64m9aTCST+6FDeSijTPW/Xg+wxCdcIhAcYzYo2xR8+qwSB+hsVxWNbCgxSPH00BDSrfmvA0vS4L5/CclSL3bsbEwMIlgvRwRmg0ygdWGRsszdU8nKYAYwRTidByMiwZXeFG1Cse2GiPw60jpwHR9Ek3f+5Grp14RVUCA6YHLScP09nTIn1yHg8GYfOznZiBAEeIgiqwibxDqtdU0GWnKgfSs9YAAAA=",
+    pool_id: 8700,
+    decimals: {
+      near: 18,
+      solana: 9,
+      base: undefined,
+      arbitrum: undefined,
+      ethereum: undefined,
+      bnb: undefined,
+    },
+    addresses: {
+      near: "omgy-1992.meme-cooking.near",
+      solana: "7krfuHcr3doqGj4iebDRDfJ29ugdNA4yjHBq7yL82wQa",
+      base: undefined,
+      arbitrum: undefined,
+      ethereum: undefined,
+      bnb: undefined,
+    },
+    links: {
+      near: {
+        buy: {
+          url: "https://dex.intea.rs/terminal?from=near&to=omgy-1992.meme-cooking.near",
+          icon: "/icons/intear.svg",
+        },
+        dexscreener: {
+          url: "https://dexscreener.com/near/refv1-8700",
+          icon: "/icons/dexscreener.svg",
+        },
+        explorer: {
+          url: "https://nearblocks.io/token/omgy-1992.meme-cooking.near",
+          icon: "/icons/nearblocks.webp",
+        },
+      },
+      solana: {
+        buy: {
+          url: "https://jup.ag/swap/SOL-7krfuHcr3doqGj4iebDRDfJ29ugdNA4yjHBq7yL82wQa",
+        },
+        explorer: {
+          url: "https://solscan.io/token/7krfuHcr3doqGj4iebDRDfJ29ugdNA4yjHBq7yL82wQa",
+          icon: "/icons/solscan.webp",
+        },
+      },
     },
   },
   JAMBO: {
@@ -513,6 +563,7 @@ export const TOKEN_ENTRIES = Object.entries(TOKENS) as [
 export const balances$: Record<keyof typeof TOKENS, Writable<Balance>> = {
   NEAR: writable<Balance>({}),
   SHITZU: writable<Balance>({}),
+  OMGY: writable<Balance>({}),
   JAMBO: writable<Balance>({}),
   JLU: writable<Balance>({}),
   PURGE: writable<Balance>({}),
@@ -547,22 +598,28 @@ async function fetchSolanaBalance(
   token: keyof typeof TOKENS,
   publicKey: PublicKey,
 ): Promise<FixedNumber | undefined> {
+  const mint = TOKENS[token].addresses.solana;
+  const decimals = TOKENS[token].decimals.solana;
+  // A token with no Solana presence has no mint to derive an account from.
+  if (!mint || decimals === undefined) return undefined;
+
   try {
     const connection = solanaWallet.getConnection();
-    const tokenMint = new PublicKey(
-      TOKENS[token].addresses.solana as `0x${string}`,
-    );
     const associatedTokenAddress = await getAssociatedTokenAddress(
-      tokenMint,
+      new PublicKey(mint),
       publicKey,
     );
 
     try {
       const account = await getAccount(connection, associatedTokenAddress);
-      return new FixedNumber(account.amount, 9);
+      return new FixedNumber(account.amount, decimals);
     } catch (err) {
-      // Account doesn't exist yet (no tokens) or other error
-      console.error(`Failed to fetch Solana ${token} balance:`, err);
+      // No associated token account means the wallet holds none of this token,
+      // which is the normal case for most rows rather than a failure. Logging
+      // it produced one error per token per wallet, burying real problems.
+      if (!(err instanceof TokenAccountNotFoundError)) {
+        console.error(`Failed to fetch Solana ${token} balance:`, err);
+      }
     }
   } catch (err) {
     console.error(`Failed to fetch Solana ${token} balance:`, err);
