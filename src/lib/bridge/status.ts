@@ -61,13 +61,54 @@ export function getTransferNonce(transfer: {
   return transfer.id?.origin_nonce ?? transfer.id?.kind?.Nonce;
 }
 
+/**
+ * An Omni API error, carrying the status so callers can tell the kinds apart.
+ *
+ * The distinction matters, and getting it wrong kills a working transfer. A 404 from
+ * an indexer means "not there *yet*", not "does not exist": a deposit signed a moment
+ * ago is not in the index and will be within seconds. Treating that as a permanent
+ * answer failed a real bridge mid-flight — the funds were on their way and the app
+ * said the bridge did not recognise them.
+ */
+export class OmniApiError extends Error {
+  constructor(
+    readonly status: number,
+    readonly path: string,
+  ) {
+    super(`Omni API ${path} failed (${status})`);
+    this.name = "OmniApiError";
+  }
+
+  /**
+   * The lookup itself is wrong, so asking again cannot help.
+   *
+   * A 400 means the API rejected the request — a nonce that is not a number, say.
+   * Nothing about waiting changes that, so it is the one status worth failing on
+   * immediately.
+   */
+  get isMalformed(): boolean {
+    return this.status === 400;
+  }
+
+  /**
+   * The transfer is not indexed yet, which is the ordinary state right after signing.
+   *
+   * Kept separate from `isMalformed` because the two call for opposite behaviour: this
+   * one is the reason the index phase exists at all, and the answer to it is to keep
+   * asking.
+   */
+  get isNotIndexed(): boolean {
+    return this.status === 404;
+  }
+}
+
 async function apiGet<T>(path: string, params: Record<string, string>) {
   const url = new URL(`${OMNI_API_BASE_URL}${path}`);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
 
   const res = await fetch(url);
   if (!res.ok) {
-    throw new Error(`Omni API ${path} failed (${res.status})`);
+    throw new OmniApiError(res.status, path);
   }
   return (await res.json()) as T;
 }
@@ -169,7 +210,19 @@ export function phaseOf(transfer: RawTransfer): BridgePhase {
 
 export type WaitOptions = {
   /** Solana signature or destination tx hash of the deposit. */
-  txHash: string;
+  txHash?: string;
+  /**
+   * Where a NEAR deposit is identified instead.
+   *
+   * A NEAR deposit hands back the transfer message rather than a transaction
+   * hash, and the native panel has always found it by its origin nonce. Polling
+   * the bridge's own API for that is the point: it reports the transfer's real
+   * phase — submitted, confirmed, finalising, finalised — instead of inferring
+   * arrival from a balance, and it is a single endpoint that answers for either
+   * chain. The nonce is known at signing, so there is nothing to wait to be
+   * indexed before the finalise loop can start.
+   */
+  origin?: { chain: Chain; nonce: number };
   onPhase?: (phase: BridgePhase, attempt: number, total: number) => void;
   /** Total time to wait for the transfer to be indexed. */
   indexTimeoutMs?: number;
@@ -188,6 +241,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  */
 export async function waitForTransfer({
   txHash,
+  origin,
   onPhase,
   indexTimeoutMs = 90_000,
   finaliseTimeoutMs = 180_000,
@@ -196,20 +250,45 @@ export async function waitForTransfer({
   const indexAttempts = Math.ceil(indexTimeoutMs / intervalMs);
 
   let transfer: RawTransfer | undefined;
+  // Whether every attempt so far has been a 404, which changes what the timeout can
+  // honestly claim. "The bridge has not indexed it" is a statement about the index; if
+  // the reads were failing some other way it is a statement about the API, and saying
+  // the index is behind when the API is down sends the user to the wrong place.
+  let onlyNotIndexed = true;
   for (let attempt = 1; attempt <= indexAttempts; attempt++) {
     onPhase?.("submitted", attempt, indexAttempts);
-    await sleep(intervalMs);
+    // A NEAR deposit is located by its nonce, so the first read is the one that
+    // finds it; there is no hash to wait for an indexer to catch up with.
+    if (attempt > 1) await sleep(intervalMs);
     try {
-      transfer = await fetchTransferByTxHash(txHash);
+      transfer = origin
+        ? await fetchTransferByNonce(origin.chain, origin.nonce)
+        : txHash
+          ? await fetchTransferByTxHash(txHash)
+          : undefined;
       if (transfer?.id) break;
-    } catch {
+    } catch (err) {
+      // A 404 is the bridge not having indexed the transfer yet, which for a deposit
+      // signed seconds ago is the *expected* answer rather than a refusal — measured
+      // live: the same lookup 404s immediately and resolves about a second later. So it
+      // is kept polling, and the index phase's own timeout is what distinguishes
+      // "still indexing" from "the bridge never heard of it".
+      if (err instanceof OmniApiError && err.isMalformed) {
+        throw new Error(
+          "The bridge rejected the lookup for this transfer, so it cannot be tracked. If the deposit was accepted your funds are on their way — check your destination account in a few minutes.",
+        );
+      }
+      if (!(err instanceof OmniApiError && err.isNotIndexed))
+        onlyNotIndexed = false;
       // keep polling; the indexer can lag or briefly fail
     }
   }
 
   if (!transfer?.id) {
     throw new Error(
-      "Submitted, but the bridge has not indexed it yet. Your funds are safe — check your NEAR account in a minute.",
+      onlyNotIndexed
+        ? "Submitted, but the bridge has not indexed it yet. Your funds are safe — check your NEAR account in a minute."
+        : "Submitted, but the bridge could not be read just now. Your funds are safe — check your NEAR account in a minute.",
     );
   }
 

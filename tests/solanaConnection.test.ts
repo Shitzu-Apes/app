@@ -1,7 +1,7 @@
-import assert from "node:assert/strict";
-import test from "node:test";
-import { readFileSync } from "node:fs";
 import { Connection } from "@solana/web3.js";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import test from "node:test";
 
 import {
   createHttpConfirmConnection,

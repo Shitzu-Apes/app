@@ -169,6 +169,13 @@ export async function resolveIconFromUri(
   if (cached !== undefined) return cached;
 
   let icon: string | null = null;
+  if (isBlockedIconHost(uri)) {
+    // Cached as null like any other miss, so this costs one lookup, not one per
+    // render, and the token simply shows its placeholder circle.
+    iconCache.set(uri, icon);
+    return icon;
+  }
+
   try {
     const res = await fetchImpl(uri, { signal });
     if (res.ok) {
@@ -186,6 +193,34 @@ export async function resolveIconFromUri(
 
   iconCache.set(uri, icon);
   return icon;
+}
+
+/**
+ * Hosts that are on wallet phishing blocklists, so they are never contacted.
+ *
+ * A token's metadata document is chosen by whoever deployed the token, and some
+ * point it at `wider.guru` — Jupiter's token-icon CDN, which is on MetaMask's and
+ * Phantom's blocklists. Fetching it makes the wallet warn or refuse the page, and
+ * the user sees a scary dialog because a memecoin in their wallet named a domain
+ * we happened to call. The icon is not worth that, and a missing icon is a
+ * cosmetic problem rather than a functional one.
+ *
+ * The block is on the host rather than the full URL so a new path on a known-bad
+ * host is covered too, and it is applied before the request rather than after a
+ * failure, because the point is to never trigger the wallet's warning at all.
+ */
+const BLOCKED_ICON_HOSTS = ["wider.guru", "www.wider.guru"];
+
+function isBlockedIconHost(uri: string): boolean {
+  let host: string;
+  try {
+    host = new URL(uri).hostname.toLowerCase();
+  } catch {
+    // Not an absolute URL, so not something we can judge; let the fetch fail
+    // normally rather than guessing.
+    return false;
+  }
+  return BLOCKED_ICON_HOSTS.includes(host);
 }
 
 /** Test seam. */

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import test from "node:test";
 import { readFileSync } from "node:fs";
+import test from "node:test";
 
 // Object key order is the token picker's display order: TOKEN_ENTRIES is
 // Object.entries(TOKENS) and the page renders it directly. Putting a token in

@@ -155,7 +155,10 @@ export async function executeWnearBridge(
     });
     return { signature, recovered: false };
   } catch (err) {
-    console.error("[bridge] initTransfer threw, checking if it landed", err);
+    // A warning, because this recovers: the SDK throws on a submission it may still
+    // have made, so the chain is asked directly. Logging it as an error alarmed anyone
+    // reading the console during a transfer that then went through perfectly.
+    console.warn("[bridge] initTransfer threw, checking if it landed", err);
     const signature = await findNewTransferSignature(senderTag, before);
     if (signature) {
       return { signature, recovered: true };

@@ -1,7 +1,6 @@
+import { PublicKey } from "@solana/web3.js";
 import assert from "node:assert/strict";
 import test from "node:test";
-
-import { PublicKey } from "@solana/web3.js";
 
 process.env.VITE_NETWORK_ID = "mainnet";
 

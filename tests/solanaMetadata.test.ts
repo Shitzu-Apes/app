@@ -290,6 +290,74 @@ test("an unreachable metadata document yields no icon", async () => {
   assert.equal(icon, null);
 });
 
+test("a phishing-listed metadata host is never contacted", async () => {
+  // `wider.guru` is Jupiter's token-icon CDN and it is on MetaMask's and
+  // Phantom's blocklists. Some tokens name it as their metadata document, and
+  // fetching it makes the wallet warn or refuse the page — so a memecoin in the
+  // user's wallet can put a scary dialog in front of them. The request must not
+  // be made at all, not merely allowed to fail.
+  clearIconCache();
+  let called = false;
+  const fetchImpl = async () => {
+    called = true;
+    return new Response(JSON.stringify({ image: "https://cdn.test/x.png" }));
+  };
+  const icon = await resolveIconFromUri(
+    "https://www.wider.guru/json/jup2/metadata.json",
+    undefined,
+    fetchImpl as never,
+  );
+  assert.equal(icon, null);
+  assert.equal(called, false, "the blocked host must not be requested");
+});
+
+test("the block covers a new path on the same host", async () => {
+  // Blocked on the host, not the full URL, so a new path cannot route around it.
+  clearIconCache();
+  let called = false;
+  const fetchImpl = async () => {
+    called = true;
+    return new Response("{}");
+  };
+  await resolveIconFromUri(
+    "https://wider.guru/some/other/path.json",
+    undefined,
+    fetchImpl as never,
+  );
+  assert.equal(called, false);
+});
+
+test("a blocked host is remembered, so it costs one lookup for the session", async () => {
+  clearIconCache();
+  let calls = 0;
+  const fetchImpl = async () => {
+    calls++;
+    return new Response("{}");
+  };
+  const uri = "https://www.wider.guru/json/jup2/metadata.json";
+  await resolveIconFromUri(uri, undefined, fetchImpl as never);
+  await resolveIconFromUri(uri, undefined, fetchImpl as never);
+  assert.equal(calls, 0);
+});
+
+test("an ordinary metadata host is still fetched", async () => {
+  // The block must be narrow: most tokens are fine, and silently dropping every
+  // icon would be a worse regression than the one it prevents.
+  clearIconCache();
+  let called = false;
+  const fetchImpl = async () => {
+    called = true;
+    return new Response(JSON.stringify({ image: "https://cdn.test/ok.png" }));
+  };
+  const icon = await resolveIconFromUri(
+    "https://metadata.test/token.json",
+    undefined,
+    fetchImpl as never,
+  );
+  assert.equal(called, true);
+  assert.equal(icon, "https://cdn.test/ok.png");
+});
+
 test("an icon is fetched once per document, not per render", async () => {
   clearIconCache();
   let calls = 0;

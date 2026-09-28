@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
-import test, { afterEach, beforeEach } from "node:test";
 import { readFileSync } from "node:fs";
-
+import test, { afterEach, beforeEach } from "node:test";
 import { addresses, resetConfig, setConfig, setNetwork } from "omni-bridge-sdk";
 
 // The SDK hardcodes rpc.near.org for every view call and builds a fresh client

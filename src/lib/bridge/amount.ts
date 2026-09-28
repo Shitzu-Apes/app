@@ -1,3 +1,5 @@
+import { toTokenAmount } from "$lib/bridge/format";
+import type { Network } from "$lib/models/tokens";
 import { FixedNumber } from "$lib/util";
 
 /**
@@ -35,6 +37,61 @@ export function formatBaseUnits(base: bigint | null, decimals: number): string {
 }
 
 /**
+ * Suffixes for the short scale, largest first.
+ *
+ * The quadrillion step is the reason this list is written out. Intl's own
+ * pattern stops at "T" and renders 8,949,120,000,000,000 as "8949.12T"; with the
+ * step included the same number is "8.95Q", which is the shape a reader expects
+ * and the difference between a figure that can be compared and one that has to be
+ * counted.
+ */
+const SHORT_SCALE: [number, string][] = [
+  [1e15, "Q"],
+  [1e12, "T"],
+  [1e9, "B"],
+  [1e6, "M"],
+  [1e3, "K"],
+];
+
+/**
+ * The amount, shortened once it stops being readable in full.
+ *
+ * A route can legitimately quote quadrillions of a low-decimal memecoin, and
+ * "8,949,120,000,000,000 BLACKDRAGON" is both wider than the row and impossible
+ * to compare at a glance against the route above it. The number is on screen
+ * *beside another number* precisely so the two can be compared, and 19 digits
+ * defeats that.
+ *
+ * The scale is chosen here rather than left to `notation: "compact"`, because
+ * Intl's en-US pattern keeps the mantissa under 10,000 and so renders this as
+ * "8949.12T" instead of "8.95Q". Both are the same number; only one of them is
+ * the shape a reader recognises. Intl still does the number itself, so grouping
+ * and rounding follow the locale rather than a hand-rolled string.
+ *
+ * Below the threshold the full figure is returned, because a balance of `1.5` is
+ * not improved by being written `1.5`, and precision is the point at that size.
+ */
+export function formatBaseUnitsCompact(
+  base: bigint | null,
+  decimals: number,
+): string {
+  if (base === null) return "0";
+  const value = toTokenAmount(base, decimals);
+  const magnitude = Math.abs(value);
+  if (magnitude < 10_000) return formatBaseUnits(base, decimals);
+
+  for (const [size, suffix] of SHORT_SCALE) {
+    if (magnitude < size) continue;
+    return (
+      new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(
+        value / size,
+      ) + suffix
+    );
+  }
+  return formatBaseUnits(base, decimals);
+}
+
+/**
  * The exact amount, for anything that will be parsed back.
  *
  * `formatBaseUnits` rounds, so feeding its output into `parseBaseUnits` can
@@ -51,6 +108,44 @@ export function formatBaseUnitsExact(
 ): string {
   if (base === null) return "0";
   return new FixedNumber(base, decimals).toString();
+}
+
+/**
+ * Re-denominate an amount from one chain's base units to another's.
+ *
+ * The Omni Bridge preserves *value*, not raw units. The SDK proves it: on the
+ * NEAR leg it computes `normalizeAmount(amount, originDecimals, nearDecimals)`
+ * and sends that as `amount_to_send`, and `getMinimumTransferableAmount` scales
+ * up when the origin chain has more decimals than the destination. So 0.2 wNEAR
+ * leaves Solana as 200_000_000 SPL base units and arrives on NEAR as
+ * 200_000_000_000_000_000_000_000.
+ *
+ * This matters because wNEAR is 9 decimals on Solana and 24 on NEAR, and every
+ * meme token is 9 on Solana against 18 on NEAR. An amount carried across the
+ * bridge without re-basing is wrong by a factor of 10^15, and it still *looks*
+ * right when formatted with the source chain's decimals — which is exactly how
+ * the existing Solana-to-NEAR sheet gets away with it. Anything that adds a
+ * bridged amount to a NEAR balance, or compares the two, has to re-base first.
+ *
+ * Scaling down truncates, matching the bridge contract's own behaviour. The
+ * dust is bounded by `10 ** -15` of a token, so it cannot be recovered but does
+ * not matter.
+ */
+export function rebaseAmount(
+  amount: bigint,
+  fromDecimals: number,
+  toDecimals: number,
+): bigint {
+  if (fromDecimals === toDecimals) return amount;
+  if (fromDecimals > toDecimals) {
+    return amount / 10n ** BigInt(fromDecimals - toDecimals);
+  }
+  return amount * 10n ** BigInt(toDecimals - fromDecimals);
+}
+
+/** True when `amount`, in `decimals`, is worth less than one whole token. */
+export function isSubUnit(amount: bigint, decimals: number): boolean {
+  return decimals > 0 && amount > 0n && amount < 10n ** BigInt(decimals);
 }
 
 export type BridgeGateInput = {
@@ -190,4 +285,37 @@ export function bridgeGate({
     insufficientBalance,
     insufficientSol,
   };
+}
+
+/**
+ * Is this amount too small to be worth a route?
+ *
+ * It used to be "less than one whole token", applied on every chain, and that is a
+ * reasonable rule for a memecoin and a wrong one for a currency. **SOL has nine
+ * decimals and is traded in fractions**: 0.5 SOL is about a hundred dollars, and under
+ * this rule every swap into SOL below a whole SOL was rejected as dust. That is why
+ * USDC → SOL found nothing while USDC → anything else worked, and why the same swap
+ * from SOL outward worked — the outgoing side was judged against the *other* token's
+ * decimals.
+ *
+ * The rule is really "do not show a route that rounds to zero", and the honest test for
+ * that is whether the amount survives being displayed. A hundredth of a unit is shown
+ * as-is; below that the formatter is into significant digits, and that is the point at
+ * which a route stops being worth offering.
+ *
+ * Stablecoins and wrapped assets are valued in whole units by convention, and SOL is
+ * not, so the threshold differs — and `isSubUnit` is kept for the callers that really
+ * do mean "less than one" rather than "too small to show".
+ */
+export function amountIsUnusable(
+  amount: bigint,
+  network: Network,
+  decimals: number,
+): boolean {
+  if (amount <= 0n) return true;
+  if (decimals <= 0) return false;
+  const unit = 10n ** BigInt(decimals);
+  // A hundredth of a unit is a real amount on any chain — 0.01 SOL, 0.01 USDC.
+  const floor = unit / 100n;
+  return amount < (floor > 0n ? floor : 1n);
 }

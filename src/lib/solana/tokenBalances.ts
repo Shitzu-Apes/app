@@ -218,14 +218,14 @@ type JupiterToken = {
 };
 
 /**
- * Module-level caches.
+ * Module-level caches, of resolved values rather than promises.
  *
- * A busy wallet holds dozens of tokens, and Jupiter rate-limits: firing every
- * metadata lookup at once earns a burst of 429s, which silently degrades tokens
- * to shortened mints with no price. Caching also means reopening the sheet is
- * instant instead of re-fetching everything.
+ * A busy wallet holds dozens of tokens and Jupiter rate-limits, so the cost is now
+ * kept low by asking once per hundred mints (see `fetchJupiterMetadata`) rather than
+ * by throttling a stream of per-mint calls. Caching what came back means a second
+ * wallet read costs nothing, and reopening the sheet is instant.
  */
-const metadataCache = new Map<string, Promise<JupiterToken | null>>();
+const metadataCache = new Map<string, JupiterToken>();
 const priceCache = new Map<string, number>();
 
 /** How many Jupiter calls may be in flight at once. */
@@ -246,43 +246,71 @@ async function withJupiterSlot<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
-async function fetchJupiterToken(
-  mint: string,
-  signal?: AbortSignal,
-): Promise<JupiterToken | null> {
-  const cached = metadataCache.get(mint);
-  if (cached) return cached;
+/**
+ * How many mints go into one search call.
+ *
+ * Jupiter's own limit, and the whole point of this module's batching: the search
+ * endpoint takes comma-separated mints, up to 100 in a query. It used to be asked for
+ * one mint at a time, so a wallet holding sixty tokens cost sixty requests against a
+ * public endpoint that rate-limits — and the symptom was tokens silently degrading to
+ * shortened mints with no price, which reads as the app being broken rather than as a
+ * rate limit. One call now covers a large wallet outright.
+ */
+const METADATA_BATCH = 100;
 
-  const request = withJupiterSlot(async () => {
-    // One backoff retry: a cold load can catch a rate limit, and a token
-    // falling back to a shortened mint is a visibly worse experience than a
-    // short wait.
+/**
+ * Metadata for a set of mints, in one call per hundred.
+ *
+ * The response is matched by `id` and never by position. A mint Jupiter does not know
+ * is simply **absent** from the array rather than returned as a null, so positional
+ * matching walks off the end as soon as one mint is missing and attaches the next
+ * token's symbol to the wrong token — a silent, plausible-looking corruption rather
+ * than a visible failure. Verified live: four mints in, three out, absent not null.
+ */
+async function fetchJupiterMetadata(
+  mints: string[],
+  signal?: AbortSignal,
+): Promise<Map<string, JupiterToken>> {
+  const wanted = mints.filter((mint) => !metadataCache.has(mint));
+  const found = new Map<string, JupiterToken>();
+  for (const [mint, meta] of metadataCache) {
+    if (meta) found.set(mint, meta);
+  }
+  if (wanted.length === 0) return found;
+
+  for (let i = 0; i < wanted.length; i += METADATA_BATCH) {
+    const batch = wanted.slice(i, i + METADATA_BATCH);
+    // One backoff retry: a cold load can catch a rate limit, and a token falling back
+    // to a shortened mint is a visibly worse experience than a short wait.
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
-        const res = await fetch(
-          `${JUPITER_TOKEN_SEARCH}?query=${encodeURIComponent(mint)}`,
-          { signal },
+        const res = await withJupiterSlot(() =>
+          fetch(
+            `${JUPITER_TOKEN_SEARCH}?query=${encodeURIComponent(batch.join(","))}`,
+            { signal },
+          ),
         );
         if (res.status === 429 && attempt === 0) {
           await new Promise((r) => setTimeout(r, 600));
           continue;
         }
-        if (!res.ok) return null;
-        const found = (await res.json()) as JupiterToken[];
-        return found?.[0] ?? null;
+        if (!res.ok) break;
+        const body = (await res.json()) as JupiterToken[];
+        if (Array.isArray(body)) {
+          for (const token of body) {
+            if (token?.id) {
+              found.set(token.id, token);
+              metadataCache.set(token.id, token);
+            }
+          }
+        }
+        break;
       } catch {
-        return null;
+        break;
       }
     }
-    return null;
-  }).then((meta) => {
-    // Do not cache a failure: a later attempt may succeed.
-    if (!meta) metadataCache.delete(mint);
-    return meta;
-  });
-
-  metadataCache.set(mint, request);
-  return request;
+  }
+  return found;
 }
 
 /**
@@ -295,25 +323,27 @@ export async function enrichWithMetadata(
   tokens: WalletToken[],
   signal?: AbortSignal,
 ): Promise<WalletToken[]> {
-  await Promise.all(
-    tokens.map(async (token) => {
-      if (token.native) return;
-      const meta = await fetchJupiterToken(token.mint, signal);
-      if (!meta) return;
-      // Anything we ship an asset for is already correct locally, and must not
-      // be degraded by a third party: Jupiter calls the wrapped NEAR token
-      // "wNEAR" and has no icon for it, whereas the product deliberately calls
-      // it NEAR and has an icon on disk.
-      if (knownSymbol(token.mint)) {
-        token.routable = true;
-        return;
-      }
-      token.symbol = meta.symbol ?? token.symbol;
-      token.name = meta.name;
-      token.icon = meta.icon;
+  // Native SOL needs nothing from anyone, so it is not asked about.
+  const mints = tokens.filter((t) => !t.native).map((t) => t.mint);
+  const byMint = await fetchJupiterMetadata(mints, signal);
+
+  for (const token of tokens) {
+    if (token.native) continue;
+    const meta = byMint.get(token.mint);
+    if (!meta) continue;
+    // Anything we ship an asset for is already correct locally, and must not
+    // be degraded by a third party: Jupiter calls the wrapped NEAR token
+    // "wNEAR" and has no icon for it, whereas the product deliberately calls
+    // it NEAR and has an icon on disk.
+    if (knownSymbol(token.mint)) {
       token.routable = true;
-    }),
-  );
+      continue;
+    }
+    token.symbol = meta.symbol ?? token.symbol;
+    token.name = meta.name;
+    token.icon = meta.icon;
+    token.routable = true;
+  }
 
   // Routable first, then by USD value. Comparing raw base units across tokens
   // would be meaningless: 15 tokens with 6 decimals outranks 4 tokens with 9
@@ -336,7 +366,15 @@ export async function enrichWithMetadata(
 }
 
 const JUPITER_PRICE = "https://lite-api.jup.ag/price/v3";
-const PRICE_BATCH = 40;
+
+/**
+ * Mints per price call.
+ *
+ * A hundred, which is the most the search endpoint takes and which the price endpoint
+ * accepts too — verified live, so the two can be asked in the same sized bites and a
+ * large wallet costs one request of each rather than several.
+ */
+const PRICE_BATCH = 100;
 
 /**
  * Fill in USD prices so holdings can be ordered by value.

@@ -1,8 +1,7 @@
-import assert from "node:assert/strict";
-import test from "node:test";
-import { readFileSync } from "node:fs";
-
 import { Connection, PublicKey } from "@solana/web3.js";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import test from "node:test";
 
 import {
   enrichWithMetadata,
@@ -337,15 +336,29 @@ test("ordering degrades safely when pricing is unavailable", async () => {
 });
 
 test("jupiter calls are throttled and cached, not fired all at once", () => {
-  // A wallet with dozens of tokens used to earn a burst of 429s, which
-  // silently downgraded every token to a shortened mint.
+  // A wallet with dozens of tokens used to earn a burst of 429s, which silently
+  // downgraded every token to a shortened mint. The requests are now batched a hundred
+  // at a time, which is what removed the burst; the throttle and the caches stay as
+  // the backstop for a wallet large enough to need several calls. The behaviour of both
+  // is covered against the real functions in `solanaTokenMetadata`.
   const src = readFileSync("src/lib/solana/tokenBalances.ts", "utf8");
   assert.match(src, /MAX_CONCURRENT_JUPITER = \d+/);
   assert.match(src, /withJupiterSlot/);
   assert.match(src, /metadataCache/);
   assert.match(src, /priceCache/);
-  // Failures must not be cached, or one 429 would stick for the session.
-  assert.match(src, /if \(!meta\) metadataCache\.delete\(mint\)/);
+  // A hundred mints per call, which is Jupiter's documented limit for the search
+  // endpoint and one the price endpoint accepts too.
+  assert.match(src, /const METADATA_BATCH = 100;/);
+  assert.match(src, /const PRICE_BATCH = 100;/);
+  // Failures must not be cached, or one 429 would stick for the session. The cache
+  // holds resolved metadata and nothing writes to it unless a token actually came back,
+  // so there is no failure to evict — which is stronger than evicting one.
+  assert.match(src, /const metadataCache = new Map<string, JupiterToken>\(\);/);
+  assert.doesNotMatch(
+    src,
+    /metadataCache\.delete/,
+    "there is no eviction because a failure is never written",
+  );
 });
 
 test("pricing survives a failure and leaves tokens unpriced, not dropped", async () => {

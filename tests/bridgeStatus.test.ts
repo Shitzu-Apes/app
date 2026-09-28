@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import test from "node:test";
 import { readFileSync } from "node:fs";
+import test from "node:test";
 
 process.env.VITE_NETWORK_ID = "mainnet";
 
@@ -68,7 +68,7 @@ test("the page keys its transfer list with the shared helper", () => {
   // The rest of the bridge already keys on getTransferKey (transfers.ts,
   // solanaToNear.ts). The list on the page was the one place that rebuilt the
   // key by hand, and it got the optional chaining wrong.
-  const page = readFileSync("src/routes/(shitzu)/bridge/+page.svelte", "utf8");
+  const page = readFileSync("src/lib/bridge/NativeBridgePanel.svelte", "utf8");
   assert.match(
     page,
     /\{#each visibleTransfers as transfer \(getTransferKey\(transfer\)\)\}/,
@@ -82,7 +82,7 @@ test("the page never reads a transfer through the SDK", () => {
   // a ZodError on every transfer; the retry loop swallowed that for 60s and
   // then reported a long-since-finalised bridge as unfindable. Reloading looked
   // fine because the history path already used fetchTransferByNonce.
-  const page = readFileSync("src/routes/(shitzu)/bridge/+page.svelte", "utf8");
+  const page = readFileSync("src/lib/bridge/NativeBridgePanel.svelte", "utf8");
   assert.doesNotMatch(page, /api\.getTransfer\(/);
   assert.doesNotMatch(page, /api\.getTransferStatus\(/);
   assert.doesNotMatch(page, /findOmniTransfers\(/);
@@ -216,3 +216,169 @@ test(
     );
   },
 );
+
+// A NEAR deposit has no transaction hash, so it is found by its origin nonce.
+
+test("a NEAR deposit is located by its origin nonce, not a hash", () => {
+  // The API answers for both, but only a Solana deposit has a signature to ask
+  // with. A NEAR deposit hands back the transfer message, and its `origin_nonce`
+  // is the only handle on the transfer's progress — so the wait has to accept it,
+  // or a NEAR-sourced transfer can never be waited on at all.
+  const src = readFileSync("src/lib/bridge/status.ts", "utf8");
+  assert.match(src, /origin\?: \{ chain: Chain; nonce: number \}/);
+  assert.match(
+    src,
+    /origin\s*\?\s*await fetchTransferByNonce\(origin\.chain, origin\.nonce\)/,
+  );
+});
+
+test("the index loop reads before it sleeps", () => {
+  // The hash is a Solana receipt the indexer has to catch up with, which is why
+  // there is an indexing phase at all. A nonce is known at signing, so sleeping
+  // first would add an interval of dead time to every transfer, and a deposit that
+  // is already indexed would be found one interval later than it could be.
+  const src = readFileSync("src/lib/bridge/status.ts", "utf8");
+  assert.match(src, /if \(attempt > 1\) await sleep\(intervalMs\);/);
+});
+
+test("a wait with no locator ends as unfindable rather than throwing on undefined", async () => {
+  // With neither a hash nor a nonce there is nothing to look up. It has to end as
+  // an unfindable transfer rather than dereferencing `undefined.txHash` deep in
+  // the loop.
+  const { waitForTransfer } = await import("../src/lib/bridge/status.ts");
+  await assert.rejects(
+    waitForTransfer({ indexTimeoutMs: 1, intervalMs: 1 }),
+    /has not indexed it yet/,
+  );
+});
+
+// A 404 from the bridge indexer means "not there yet", not "does not exist". Measured
+// live against a transfer that was on its way to Solana: the same lookup 404s the
+// instant it is asked and resolves about a second later. Failing on that killed a
+// working bridge — the funds arrived and the app said the bridge did not recognise
+// them.
+
+/** A stub indexer: 404 for the first `misses` reads, then the transfer. */
+function stubIndexer(misses: number, body: unknown = [{}]) {
+  const original = globalThis.fetch;
+  let reads = 0;
+  globalThis.fetch = (async () => {
+    reads++;
+    if (reads <= misses) {
+      return new Response("", { status: 404 });
+    }
+    return new Response(JSON.stringify(body), { status: 200 });
+  }) as typeof fetch;
+  return {
+    get reads() {
+      return reads;
+    },
+    restore: () => {
+      globalThis.fetch = original;
+    },
+  };
+}
+
+const finalised = [
+  {
+    id: { origin_chain: "Near", origin_nonce: 562921 },
+    initialized: { NearReceipt: { block_height: 1, transaction_hash: "abc" } },
+    finalised: { Solana: { slot: 2, signature: "sig" } },
+  },
+];
+
+test("a 404 right after signing is retried, not treated as a dead transfer", async () => {
+  const { waitForTransfer } = await import("../src/lib/bridge/status.ts");
+  const stub = stubIndexer(1, finalised);
+  try {
+    const transfer = await waitForTransfer({
+      txHash: "CB9fT7GZxghTjLmZug3BijQpR2jMEVSLZLiuaaCqhq9W",
+      indexTimeoutMs: 1_000,
+      intervalMs: 1,
+    });
+    assert.ok(transfer.id, "the transfer is found on the second read");
+    assert.equal(stub.reads, 2, "and the 404 did not end the wait");
+  } finally {
+    stub.restore();
+  }
+});
+
+test("a 400 still fails at once, because waiting cannot fix a malformed lookup", async () => {
+  const { waitForTransfer } = await import("../src/lib/bridge/status.ts");
+  const original = globalThis.fetch;
+  let reads = 0;
+  globalThis.fetch = (async () => {
+    reads++;
+    return new Response("", { status: 400 });
+  }) as typeof fetch;
+  try {
+    await assert.rejects(
+      waitForTransfer({ txHash: "abc", indexTimeoutMs: 1_000, intervalMs: 1 }),
+      /rejected the lookup/,
+    );
+    assert.equal(reads, 1, "one read, not the whole budget spent");
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test("a 5xx keeps waiting, as it always did", async () => {
+  const { waitForTransfer } = await import("../src/lib/bridge/status.ts");
+  const original = globalThis.fetch;
+  let reads = 0;
+  globalThis.fetch = (async () => {
+    reads++;
+    if (reads < 3) return new Response("", { status: 503 });
+    return new Response(JSON.stringify(finalised), { status: 200 });
+  }) as typeof fetch;
+  try {
+    const transfer = await waitForTransfer({
+      txHash: "abc",
+      indexTimeoutMs: 1_000,
+      intervalMs: 1,
+    });
+    assert.ok(transfer.id);
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test("a timeout after only 404s blames the index, not the API", async () => {
+  // "The bridge has not indexed it" is a claim about the index. If the reads were
+  // failing some other way the claim is false, and it sends the user to check the
+  // wrong thing.
+  const { waitForTransfer } = await import("../src/lib/bridge/status.ts");
+  let stub = stubIndexer(99);
+  try {
+    await assert.rejects(
+      waitForTransfer({ txHash: "abc", indexTimeoutMs: 3, intervalMs: 1 }),
+      /has not indexed it yet/,
+    );
+  } finally {
+    stub.restore();
+  }
+
+  const original = globalThis.fetch;
+  globalThis.fetch = (async () =>
+    new Response("", { status: 503 })) as typeof fetch;
+  try {
+    await assert.rejects(
+      waitForTransfer({ txHash: "abc", indexTimeoutMs: 3, intervalMs: 1 }),
+      /could not be read just now/,
+    );
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test("the two 404 conditions are not the same property any more", async () => {
+  // Conflating them is the bug: `isNotFound` covered both 404 and 400, so the
+  // not-yet-indexed case inherited the malformed-lookup behaviour.
+  const { OmniApiError } = await import("../src/lib/bridge/status.ts");
+  assert.equal(new OmniApiError(404, "/x").isNotIndexed, true);
+  assert.equal(new OmniApiError(404, "/x").isMalformed, false);
+  assert.equal(new OmniApiError(400, "/x").isMalformed, true);
+  assert.equal(new OmniApiError(400, "/x").isNotIndexed, false);
+  assert.equal(new OmniApiError(503, "/x").isNotIndexed, false);
+  assert.equal(new OmniApiError(503, "/x").isMalformed, false);
+});

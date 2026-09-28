@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import test from "node:test";
 import { readFileSync } from "node:fs";
+import test from "node:test";
 
 // The tab decision must be correct for BOTH products, in CI and in local dev.
 // Evaluated against the real predicate from src/lib/auth/capabilities.ts.

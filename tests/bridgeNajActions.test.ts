@@ -1,10 +1,10 @@
-import assert from "node:assert/strict";
-import test from "node:test";
-import { readFileSync } from "node:fs";
 import {
   actionCreators,
   najActionToInternal,
 } from "@near-wallet-selector/core";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import test from "node:test";
 
 import { withNajActions } from "../src/lib/bridge/omni.ts";
 
@@ -141,7 +141,7 @@ test("a null wallet is passed through", async () => {
 
 test("the bridge wraps the selector it hands to the SDK", () => {
   // Source guard so the wrapper cannot be dropped from the deposit path.
-  const page = readFileSync("src/routes/(shitzu)/bridge/+page.svelte", "utf8");
+  const page = readFileSync("src/lib/bridge/NativeBridgePanel.svelte", "utf8");
   assert.match(
     page,
     /getClient\(ChainKind\.Near, withNajActions\(selector\)\)/,

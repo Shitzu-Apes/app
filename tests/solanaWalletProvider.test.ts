@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import test from "node:test";
 import { readFileSync } from "node:fs";
+import test from "node:test";
 
 const WALLET = "src/lib/solana/wallet.ts";
 const src = readFileSync(WALLET, "utf8");

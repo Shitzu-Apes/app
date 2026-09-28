@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import test from "node:test";
 import { readFileSync } from "node:fs";
+import test from "node:test";
 
 const CONTAINER = "src/lib/layout/BottomSheet/Container.svelte";
 const HEADER = "src/lib/layout/memecooking/MCHeader.svelte";
