@@ -130,10 +130,11 @@ export function createRouteSearchDeps({
       sourceQuoter(sourceToken, rail.sourceAddress, amountIn),
     quoteTargetSwap: (rail, amountIn) =>
       // What the rail's cargo is *held as* on arrival, not the registry's address
-      // for it. On NEAR those differ: the payout arrives as native NEAR, so
-      // quoting the wrap contract builds a route that begins by unwrapping, and
-      // that transaction reverts on an account holding no wNEAR. Quoting it here
-      // too means the number the user agreed to is the number a real route gives.
+      // for it. On NEAR those differ for the wNEAR rail: the payout arrives as
+      // native NEAR, so quoting the wrap contract builds a route that begins by
+      // unwrapping, and that transaction reverts on an account holding no wNEAR.
+      // Quoting it here too means the number the user agreed to is the number a
+      // real route gives.
       destQuoter(railAssetOnArrival(rail, dest), targetToken, amountIn),
     quoteBridgeFee: (rail, amount) =>
       getBridgeFee({

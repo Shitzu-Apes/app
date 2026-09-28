@@ -211,15 +211,49 @@ test("a NEAR rail's cargo is held as native NEAR on arrival, not the wrap contra
   // contract; receiving it on NEAR delivers *native* NEAR because the payout
   // unwraps. So the destination swap has to be quoted with `near`.
   const { railAssetOnArrival } = await import("../src/lib/bridge/rail.ts");
-  const rail = { sourceAddress: "wrap.near", destAddress: "wrap.near" };
+  const rail = {
+    tokenId: "NEAR",
+    sourceAddress: "wrap.near",
+    destAddress: "wrap.near",
+  };
   assert.equal(railAssetOnArrival(rail, "near"), "near");
   // The Solana side really is wNEAR as an SPL mint, so it needs no translation.
   assert.equal(
     railAssetOnArrival(
-      { sourceAddress: "wrap.near", destAddress: "So111" },
+      { tokenId: "NEAR", sourceAddress: "wrap.near", destAddress: "So111" },
       "solana",
     ),
     "So111",
+  );
+});
+
+test("only the wNEAR rail unwraps on arrival", async () => {
+  // Every other rail is credited to the NEAR account as its own NEP-141. Returning
+  // `near` for all of them quoted — and then ran — the destination swap against a
+  // balance the transfer never produced: bridging SHITZU and then swapping the
+  // user's existing native NEAR instead of the SHITZU that had just arrived.
+  const { railAssetOnArrival } = await import("../src/lib/bridge/rail.ts");
+  assert.equal(
+    railAssetOnArrival(
+      {
+        tokenId: "SHITZU",
+        sourceAddress: "AFbJW5",
+        destAddress: "token.0xshitzu.near",
+      },
+      "near",
+    ),
+    "token.0xshitzu.near",
+  );
+  assert.equal(
+    railAssetOnArrival(
+      {
+        tokenId: "OMGY",
+        sourceAddress: "7krfuH",
+        destAddress: "omgy-1992.meme-cooking.near",
+      },
+      "near",
+    ),
+    "omgy-1992.meme-cooking.near",
   );
 });
 

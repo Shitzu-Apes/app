@@ -194,15 +194,23 @@ function onNetwork(
  * So the asset on the *receiving* side of a NEAR rail is native NEAR, while the
  * asset on the sending side is the wrapped contract. Only the destination is
  * affected, which is why this is about arriving and not about bridging.
+ *
+ * Every other rail arrives as its own NEP-141. This function used to return `near`
+ * for any rail on the NEAR side, which made a SHITZU bridge look like it paid out
+ * native NEAR — and the destination swap that followed then ran against whatever
+ * NEAR the account happened to hold rather than the SHITZU the bridge had just
+ * delivered.
  */
 export function railAssetOnArrival(
-  rail: Pick<Rail, "sourceAddress" | "destAddress">,
+  rail: Pick<Rail, "tokenId" | "sourceAddress" | "destAddress">,
   network: Network,
 ): string {
   // The Solana side is genuinely wNEAR as an SPL mint, so it needs no translation.
   if (network !== "near") return rail.destAddress;
-  // A NEAR rail's destination is the NEAR asset. Delivered natively.
-  return "near";
+  // Only the wrapped-NEAR rail unwraps on payout. The registry key is the honest
+  // test for it: the address is `wrap.near` on mainnet and `wrap.testnet` on
+  // testnet, and hardcoding either one would be wrong on the other.
+  return rail.tokenId === "NEAR" ? "near" : rail.destAddress;
 }
 
 /**

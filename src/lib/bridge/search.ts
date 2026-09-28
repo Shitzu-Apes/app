@@ -2,6 +2,7 @@ import { amountIsUnusable, rebaseAmount } from "./amount";
 import { labelFor } from "./format";
 import {
   canSwapOnSolana,
+  railAssetOnArrival,
   railCandidates,
   SOLANA_LIQUIDITY,
   type Rail,
@@ -257,17 +258,29 @@ function sourceIsRail(
  * the rail's key turns the native bridge path into a self-swap. That is the path
  * for every token the bridge actually carries, so losing it costs the whole
  * direct-bridge route.
+ *
+ * Compared against the asset that *lands*, not the rail's registry address, because
+ * the two are not always the same token. A wNEAR rail pays out native NEAR on the
+ * NEAR side — the payout unwraps — while the target picker offers that as the
+ * native `near` row. Comparing it against `wrap.near` said the direct bridge needed
+ * a destination swap and then asked the router for `near -> near`, which has no
+ * answer: native NEAR was unreachable from every Solana token.
  */
 function targetIsRail(
   targetTokenId: string,
   targetAddress: string | undefined,
   rail: Rail,
+  dest: Network,
 ): boolean {
   if (targetTokenId === rail.tokenId) return true;
+  // What the rail actually lands as, which is not always its registry address: a
+  // wNEAR rail pays out native NEAR, and the target picker offers that as `near`.
+  const arrival = railAssetOnArrival(rail, dest);
   return (
-    targetAddress !== undefined &&
-    targetAddress !== "" &&
-    targetAddress === rail.destAddress
+    targetTokenId === arrival ||
+    (targetAddress !== undefined &&
+      targetAddress !== "" &&
+      targetAddress === arrival)
   );
 }
 
@@ -388,6 +401,7 @@ async function planForRail(
     targetTokenId,
     input.targetAddress,
     rail,
+    dest,
   );
   if (
     (input.source === "solana" && needsSourceSwap) ||

@@ -346,6 +346,89 @@ test("NEAR to NEAR is not a bridge", async () => {
   assert.deepEqual(plans, []);
 });
 
+test("native NEAR as the target is the wNEAR rail's own arrival", async () => {
+  // A Solana token converted into native NEAR is finished when the wNEAR rail
+  // lands, because the payout unwraps. The target picker's row for it carries the
+  // native `near` address while the rail's registry address is `wrap.near`, so
+  // comparing the two literally said a destination swap was needed and then asked
+  // the router for NEAR -> NEAR. Every Solana token reported NEAR as unreachable.
+  //
+  // The target dep quotes a real figure for any rail that needs one, so a missing
+  // plan means "rejected", not "the fixture priced zero".
+  const d = deps({ target: () => leg(10n ** 23n) });
+  const { plans } = await searchRoutes(
+    {
+      ...base,
+      source: "solana",
+      dest: "near",
+      sourceTokenId: "DezXAZ8z",
+      sourceAddress: "DezXAZ8z",
+      targetTokenId: "near",
+      targetAddress: "near",
+      targetDecimals: 24,
+    },
+    d,
+  );
+  const near = plans.find((p) => p.rail.tokenId === "NEAR");
+  assert.ok(near, "the wNEAR rail carries it");
+  assert.equal(near.targetSwap, null, "and needs no destination swap");
+  assert.equal(near.receiveAmount, near.arrivedAmount);
+  assert.equal(
+    d.calls.includes("target:NEAR"),
+    false,
+    "the router is never asked to swap NEAR into itself",
+  );
+});
+
+test("wNEAR on Solana straight to native NEAR is the native bridge path", async () => {
+  // The conversion the report is about: "near (sol) to near (near) unwraps to
+  // native near". Source is the rail, and the payout is the target, so it is one
+  // bridge with nothing on either side of it.
+  const { plans } = await searchRoutes(
+    {
+      ...base,
+      source: "solana",
+      dest: "near",
+      sourceTokenId: "So111",
+      sourceAddress: "So111",
+      targetTokenId: "near",
+      targetAddress: "near",
+      targetDecimals: 24,
+      // 1 NEAR, in wNEAR's 9 decimals — anything under 0.01 NEAR is dust on a
+      // 24-decimal chain and is refused by the size rule.
+      amount: 1_000_000_000n,
+    },
+    deps({ target: () => null }),
+  );
+  const near = plans.find((p) => p.rail.tokenId === "NEAR");
+  assert.ok(near, "the wNEAR rail carries it");
+  assert.equal(near.sourceSwap, null, "no swap on Solana");
+  assert.equal(near.targetSwap, null, "no swap on NEAR");
+  assert.equal(isNativePlan(near), true);
+});
+
+test("every other rail still needs a real swap into native NEAR", async () => {
+  // The mirror: bridging SHITZU does not land as NEAR, so the destination swap is
+  // real and must be quoted. Suppressing it would promise the user NEAR and
+  // deliver SHITZU.
+  const { plans } = await searchRoutes(
+    {
+      ...base,
+      source: "solana",
+      dest: "near",
+      sourceTokenId: "AFbJW5",
+      sourceAddress: "AFbJW5",
+      targetTokenId: "near",
+      targetAddress: "near",
+      targetDecimals: 24,
+    },
+    deps({ target: () => leg(10n ** 23n) }),
+  );
+  const shitzu = plans.find((p) => p.rail.tokenId === "SHITZU");
+  assert.ok(shitzu, "SHITZU is its own rail");
+  assert.ok(shitzu.targetSwap, "and it must be swapped into NEAR");
+});
+
 // --- rejections ------------------------------------------------------------------
 
 test("an amount the bridge fee swallows is rejected, not silently rounded", async () => {
@@ -736,4 +819,45 @@ test("a bridge asset's decimals still come from the registry", async () => {
   assert.equal(plans.length, 1, JSON.stringify(rejected));
   // 9 on Solana, where wNEAR lives, not the 24 the same token has on NEAR.
   assert.equal(plans[0].targetDecimals, 9);
+});
+
+test("native NEAR is recognized whether the caller hands over the id or the address", async () => {
+  // The picker resolves both, but a caller with only one of them must not be told a
+  // destination swap is needed: it would quote NEAR into itself and drop the route.
+  const byId = await searchRoutes(
+    {
+      ...base,
+      source: "solana",
+      dest: "near",
+      sourceTokenId: "DezXAZ8z",
+      sourceAddress: "DezXAZ8z",
+      targetTokenId: "near",
+      targetDecimals: 24,
+    },
+    deps({ target: () => leg(10n ** 23n) }),
+  );
+  const byIdNear = byId.plans.find((p) => p.rail.tokenId === "NEAR");
+  assert.ok(byIdNear);
+  assert.equal(
+    byIdNear.targetSwap,
+    null,
+    "the id alone identifies the arrival",
+  );
+
+  const byAddress = await searchRoutes(
+    {
+      ...base,
+      source: "solana",
+      dest: "near",
+      sourceTokenId: "DezXAZ8z",
+      sourceAddress: "DezXAZ8z",
+      targetTokenId: "something-else",
+      targetAddress: "near",
+      targetDecimals: 24,
+    },
+    deps({ target: () => leg(10n ** 23n) }),
+  );
+  const byAddressNear = byAddress.plans.find((p) => p.rail.tokenId === "NEAR");
+  assert.ok(byAddressNear);
+  assert.equal(byAddressNear.targetSwap, null, "and so does the address alone");
 });
