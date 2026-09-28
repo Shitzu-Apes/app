@@ -1413,3 +1413,46 @@ test("the caller does not finish a transfer that parked", () => {
     "which is still how a finished transfer ends",
   );
 });
+
+test("the desktop layout is a grid, not a second copy of the form", () => {
+  // The form was a single tall column, which is right on a phone and left most of a
+  // desktop window empty. It is two independent ends of a transfer, and side by side is
+  // how they are actually thought about.
+  //
+  // A CSS grid rather than two markups swapped by a JS width check: this form holds two
+  // token lists and two wallet addresses, and rendering both layouts would put every
+  // id, list and input into the DOM twice.
+  const body = readFileSync("src/lib/bridge/AnyToAnyPanel.svelte", "utf8");
+  assert.match(
+    body,
+    /class="grid gap-4 lg:grid-cols-2 items-start"/,
+    "one grid, stacked below the breakpoint",
+  );
+  assert.doesNotMatch(
+    body,
+    /\{#if desktop\}/,
+    "and no second copy of the form behind a width check",
+  );
+  // Each end is a column of its own, so the amount stays with the token it is about.
+  assert.match(
+    body,
+    /<div class="space-y-4">\s*\n\s*<div class="rounded-xl bg-white\/5 border border-shitzu-4\/45 p-3">\s*\n\s*<ChainEnd\s*\n\s*bare\s*\n\s*label="From"/,
+  );
+});
+
+test("only the bridge takes the wide container", () => {
+  // The 28rem cap is right for a feed or a form that reads better narrow; a wide column
+  // of text is worse, not better. The bridge asks for the room explicitly rather than
+  // the cap being lifted everywhere.
+  const body = readFileSync("src/lib/layout/Body.svelte", "utf8");
+  assert.match(body, /export let wide = false;/);
+  assert.match(body, /max-w-\[min\(64rem,100%\)\]/, "wide is 64rem");
+  assert.match(body, /max-w-\[min\(28rem,100%\)\]/, "the default is unchanged");
+
+  const layout = readFileSync("src/routes/(shitzu)/+layout.svelte", "utf8");
+  assert.match(
+    layout,
+    /<Body wide=\{\$page\.url\.pathname\.startsWith\("\/bridge"\)\}>/,
+    "and the bridge is the one that asks",
+  );
+});

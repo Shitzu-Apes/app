@@ -2081,137 +2081,155 @@
     as one. It also retires the "Pay with" and "Receive" headings, which said the
     same thing as From and To while implying they were something else.
   -->
-  <div class="rounded-xl bg-white/5 border border-shitzu-4/45 p-3">
-    <ChainEnd
-      bare
-      label="From"
-      network={source}
-      address={senderAddress}
-      connected={Boolean(senderAddress)}
-      onPick={pickSource}
-      onConnect={() => connect(source)}
-    />
+  <!--
+    From and To, side by side where there is room.
 
-    <!--
-      One list, whichever chain the source is on. The two branches used to differ
-      only in which balance they loaded, and having them as separate blocks meant
-      the NEAR side quietly never learned to show anything but native NEAR.
-    -->
-    <div class="mt-3">
-      <SourceTokenList
-        options={sourceOptions}
-        selectedId={sourceTokenId}
-        showHeading={false}
-        loading={source === "solana"
-          ? isLoadingSolanaTokens
-          : isLoadingNearHoldings}
-        emptyMessage={sourceWalletConnected
-          ? solanaBalancesUnreadable
-            ? "Couldn't read this wallet's balances. Reconnect and try again."
-            : "No tokens found in this wallet."
-          : "Connect your wallet to see your balances."}
-        on:select={(e) => {
-          sourceTokenId = e.detail;
-          reset();
-        }}
-      />
-    </div>
+    One column on a phone, which is right — everything is reachable with a thumb
+    and nothing needs scrolling sideways. Two on a desktop, because the form was
+    leaving most of the window empty and asking the user to scroll through a
+    layout that had room to sit beside itself.
 
-    <!--
-      The amount is a card inside the From card, not a sibling of it.
-      Everything about spending — which chain, which wallet, which token, how much
-      of it — is one decision, and it had been split across two cards with the
-      To card in between. It also puts the token the balance refers to directly
-      above the number that balance is about.
-    -->
-    <div class="mt-3 rounded-lg bg-white/5 border border-shitzu-4/45 p-3">
-      <div class="flex items-center justify-between gap-3">
-        <span class="text-sm font-medium">Amount</span>
-        <span class="text-xs text-shitzu-2 text-right">
-          {#if spendable === null}
-            Balance &mdash;
-          {:else}
-            Balance {formatBaseUnits(spendable, sourceDecimals)}
-            {sourceSymbol}
-          {/if}
-        </span>
-      </div>
-      <div class="flex items-center gap-2 mt-2">
-        <input
-          class="flex-1 bg-transparent outline-none text-3xl font-semibold w-full min-w-0 text-shitzu-1 placeholder:text-shitzu-500"
-          type="text"
-          inputmode="decimal"
-          placeholder="0.0"
-          bind:value={amountInput}
-          on:input={() =>
-            searchTrace("amount typed", {
-              raw: amountInput ?? null,
-              parsed: amount === null ? "null" : amount.toString(),
-              sourceDecimals,
-              sourceTokenId,
-            })}
+    A CSS grid rather than two markups swapped by a JS width check. This form holds
+    two token lists and two wallet addresses, and rendering both layouts would put
+    every id, list and input into the DOM twice.
+  -->
+  <div class="grid gap-4 lg:grid-cols-2 items-start">
+    <div class="space-y-4">
+      <div class="rounded-xl bg-white/5 border border-shitzu-4/45 p-3">
+        <ChainEnd
+          bare
+          label="From"
+          network={source}
+          address={senderAddress}
+          connected={Boolean(senderAddress)}
+          onPick={pickSource}
+          onConnect={() => connect(source)}
         />
-        {#if sourceIcon}
-          <img
-            src={sourceIcon}
-            alt={sourceSymbol}
-            class="w-6 h-6 rounded-full"
+
+        <!--
+        One list, whichever chain the source is on. The two branches used to differ
+        only in which balance they loaded, and having them as separate blocks meant
+        the NEAR side quietly never learned to show anything but native NEAR.
+      -->
+        <div class="mt-3">
+          <SourceTokenList
+            options={sourceOptions}
+            selectedId={sourceTokenId}
+            showHeading={false}
+            loading={source === "solana"
+              ? isLoadingSolanaTokens
+              : isLoadingNearHoldings}
+            emptyMessage={sourceWalletConnected
+              ? solanaBalancesUnreadable
+                ? "Couldn't read this wallet's balances. Reconnect and try again."
+                : "No tokens found in this wallet."
+              : "Connect your wallet to see your balances."}
+            on:select={(e) => {
+              sourceTokenId = e.detail;
+              reset();
+            }}
           />
-        {/if}
-        <span class="text-base font-medium text-shitzu-2 shrink-0"
-          >{sourceSymbol}</span
-        >
-      </div>
-      {#if amount !== null && amount > 0n && sourcePrice > 0}
-        <div class="text-xs text-shitzu-2 mt-1">
-          ≈ {usdFor(amount, sourceDecimals, sourcePrice)}
         </div>
-      {/if}
-      <div class="grid grid-cols-4 gap-1.5 mt-3">
-        {#each PERCENTS as pct (pct)}
-          <button
-            type="button"
-            class="px-2 py-1.5 rounded-lg text-xs font-semibold bg-white/5 text-shitzu-1 border border-shitzu-4/45 hover:bg-white/10 transition-colors disabled:text-shitzu-600 disabled:hover:bg-white/5"
-            disabled={!spendable || spendable <= 0n}
-            on:click={() => setPercent(pct)}
-          >
-            {pct}%
-          </button>
-        {/each}
+
+        <!--
+        The amount is a card inside the From card, not a sibling of it.
+        Everything about spending — which chain, which wallet, which token, how much
+        of it — is one decision, and it had been split across two cards with the
+        To card in between. It also puts the token the balance refers to directly
+        above the number that balance is about.
+      -->
+        <div class="mt-3 rounded-lg bg-white/5 border border-shitzu-4/45 p-3">
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-sm font-medium">Amount</span>
+            <span class="text-xs text-shitzu-2 text-right">
+              {#if spendable === null}
+                Balance &mdash;
+              {:else}
+                Balance {formatBaseUnits(spendable, sourceDecimals)}
+                {sourceSymbol}
+              {/if}
+            </span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <input
+              class="flex-1 bg-transparent outline-none text-3xl font-semibold w-full min-w-0 text-shitzu-1 placeholder:text-shitzu-500"
+              type="text"
+              inputmode="decimal"
+              placeholder="0.0"
+              bind:value={amountInput}
+              on:input={() =>
+                searchTrace("amount typed", {
+                  raw: amountInput ?? null,
+                  parsed: amount === null ? "null" : amount.toString(),
+                  sourceDecimals,
+                  sourceTokenId,
+                })}
+            />
+            {#if sourceIcon}
+              <img
+                src={sourceIcon}
+                alt={sourceSymbol}
+                class="w-6 h-6 rounded-full"
+              />
+            {/if}
+            <span class="text-base font-medium text-shitzu-2 shrink-0"
+              >{sourceSymbol}</span
+            >
+          </div>
+          {#if amount !== null && amount > 0n && sourcePrice > 0}
+            <div class="text-xs text-shitzu-2 mt-1">
+              ≈ {usdFor(amount, sourceDecimals, sourcePrice)}
+            </div>
+          {/if}
+          <div class="grid grid-cols-4 gap-1.5 mt-3">
+            {#each PERCENTS as pct (pct)}
+              <button
+                type="button"
+                class="px-2 py-1.5 rounded-lg text-xs font-semibold bg-white/5 text-shitzu-1 border border-shitzu-4/45 hover:bg-white/10 transition-colors disabled:text-shitzu-600 disabled:hover:bg-white/5"
+                disabled={!spendable || spendable <= 0n}
+                on:click={() => setPercent(pct)}
+              >
+                {pct}%
+              </button>
+            {/each}
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="rounded-xl bg-white/5 border border-shitzu-4/45 p-3">
-    <ChainEnd
-      bare
-      label="To"
-      network={dest}
-      address={recipientAddress}
-      connected={Boolean(recipientAddress)}
-      onPick={pickDest}
-      onConnect={() => connect(dest)}
-    />
+    <div class="space-y-4">
+      <div class="rounded-xl bg-white/5 border border-shitzu-4/45 p-3">
+        <ChainEnd
+          bare
+          label="To"
+          network={dest}
+          address={recipientAddress}
+          connected={Boolean(recipientAddress)}
+          onPick={pickDest}
+          onConnect={() => connect(dest)}
+        />
 
-    <div class="mt-3">
-      <TargetTokenList
-        options={targets}
-        network={dest}
-        selectedId={targetTokenId}
-        prices={targetPrices}
-        showHeading={false}
-        loading={isLoadingCatalog || searching_}
-        sameChain={source === dest}
-        searching={searching_}
-        on:search={(e) => void runSuggest(e.detail)}
-        on:clearSearch={clearSuggest}
-        on:select={(e) => {
-          targetTokenId = e.detail;
-          // The amount is not touched: it was already decided, and the quote is
-          // re-run for the new target.
-          reset(true);
-        }}
-      />
+        <div class="mt-3">
+          <TargetTokenList
+            options={targets}
+            network={dest}
+            selectedId={targetTokenId}
+            prices={targetPrices}
+            showHeading={false}
+            loading={isLoadingCatalog || searching_}
+            sameChain={source === dest}
+            searching={searching_}
+            on:search={(e) => void runSuggest(e.detail)}
+            on:clearSearch={clearSuggest}
+            on:select={(e) => {
+              targetTokenId = e.detail;
+              // The amount is not touched: it was already decided, and the quote is
+              // re-run for the new target.
+              reset(true);
+            }}
+          />
+        </div>
+      </div>
     </div>
   </div>
 

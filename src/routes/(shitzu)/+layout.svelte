@@ -12,6 +12,7 @@
   import { get } from "svelte/store";
   import { blur } from "svelte/transition";
 
+  import { page } from "$app/stores";
   import { queryClient } from "$lib/api/queries";
   import Toast from "$lib/components/Toast.svelte";
   import { wagmiConfig } from "$lib/evm/wallet";
@@ -94,7 +95,11 @@
       <div
         class="flex flex-col min-h-screen prose prose-invert prose-lime mx-auto max-w-none pb-15"
       >
-        <Body>
+        <!--
+          The bridge asks for the full width. Every other page keeps the 28rem column,
+          which is what a feed or a form wants — see `Body`.
+        -->
+        <Body wide={$page.url.pathname.startsWith("/bridge")}>
           <slot />
         </Body>
         <Footer />
