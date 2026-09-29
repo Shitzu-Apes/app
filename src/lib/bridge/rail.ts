@@ -89,7 +89,7 @@ export type ConvertChain = (typeof CONVERT_CHAINS)[number];
  *
  * `NEAR` is the registry's key for wrapped NEAR, which is what every NEAR rail arrives
  * as on Solana and therefore the natural middle of nearly every swap on that side.
- * `SHITZU` is the other pool known to be there.
+ * `SHITZU` and `JAMBO` are the other pools known to be there.
  *
  * This is a list of what is *known*, not a claim that the rest has no liquidity — a
  * token is added here the moment a pool for it is confirmed. That is why it is not
@@ -99,6 +99,7 @@ export type ConvertChain = (typeof CONVERT_CHAINS)[number];
 export const SOLANA_LIQUIDITY: ReadonlySet<TokenId> = new Set([
   "NEAR",
   "SHITZU",
+  "JAMBO",
 ]);
 
 /**

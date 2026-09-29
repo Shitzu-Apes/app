@@ -146,9 +146,10 @@ test(
   "live: Solana quotes wNEAR into PURGE, the one meme token Jupiter will trade",
   live,
   async () => {
-    // SHITZU, OMGY, JLU and POPPY all answer TOKEN_NOT_TRADABLE here and JAMBO
-    // answers NO_ROUTES_FOUND, at any amount. PURGE is the only meme token with
-    // a live Solana pool, which is why Convert-to-Solana is thin today.
+    // SHITZU, OMGY, JLU and POPPY all answer TOKEN_NOT_TRADABLE here, at any
+    // amount, and JAMBO has an Orca pool but Jupiter does not route it yet —
+    // still NO_ROUTES_FOUND. PURGE is the one meme token with a routable
+    // Solana pool, which is why Convert-to-Solana is thin today.
     const quote = await quoteOnSolana(
       WNEAR_SOL,
       "GqcYoMUr1x4N3kU7ViFd3T3EUx3C2cWKRdWFjYxSkKuh",

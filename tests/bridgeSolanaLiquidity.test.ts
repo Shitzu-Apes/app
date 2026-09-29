@@ -11,8 +11,8 @@ const { SOLANA_LIQUIDITY, canSwapOnSolana } = await import(
 // What is restricted is the *rail*, not the token being swapped.
 //
 // A route that swaps on the Solana side needs that rail to have a pool there, and
-// only wNEAR and SHITZU are known to. So those are the only rails a Solana-side swap
-// may run through. Gating the target instead — which is what this did first — is
+// only wNEAR, SHITZU and JAMBO are known to. So those are the only rails a Solana-side
+// swap may run through. Gating the target instead — which is what this did first — is
 // wrong twice over: it forbids USDC → USDC, which is the deepest pair on Solana and
 // the conversion most likely to be wanted, and it does so only after asking the
 // router about every rail in the registry.
@@ -99,8 +99,8 @@ const search = async (input: Record<string, unknown>) => {
   return { asked, result };
 };
 
-test("the Solana whitelist is wNEAR and SHITZU, and nothing else", () => {
-  assert.deepEqual([...SOLANA_LIQUIDITY].sort(), ["NEAR", "SHITZU"]);
+test("the Solana whitelist is wNEAR, SHITZU and JAMBO, and nothing else", () => {
+  assert.deepEqual([...SOLANA_LIQUIDITY].sort(), ["JAMBO", "NEAR", "SHITZU"]);
 });
 
 test("a token is matched by registry key or by mint, not by one of them", () => {
@@ -108,6 +108,12 @@ test("a token is matched by registry key or by mint, not by one of them", () => 
   // matching only the key would reject the one token every NEAR rail arrives as.
   assert.equal(canSwapOnSolana(registry, "NEAR", undefined), true, "by key");
   assert.equal(canSwapOnSolana(registry, "anything", "SoW"), true, "by mint");
+  assert.equal(canSwapOnSolana(registry, "JAMBO", undefined), true, "by key");
+  assert.equal(
+    canSwapOnSolana(registry, "anything", "JAMBOmint"),
+    true,
+    "by mint",
+  );
   assert.equal(canSwapOnSolana(registry, "OMGY", "OMGYmint"), false);
   assert.equal(canSwapOnSolana(registry, "OMGY", undefined), false);
   assert.equal(
@@ -120,7 +126,7 @@ test("a token is matched by registry key or by mint, not by one of them", () => 
 test("a mint handed over as the token id counts, with no address alongside", () => {
   // The picker can hand over a token it knows only by its mint, putting it in the id
   // and leaving the address unset. Checking the address field alone would reject
-  // wNEAR and SHITZU for every such rail.
+  // wNEAR, SHITZU and JAMBO for every such rail.
   assert.equal(canSwapOnSolana(registry, "SoW", undefined), true);
   assert.equal(
     canSwapOnSolana(
@@ -154,8 +160,8 @@ test("USDC on NEAR into USDC on Solana routes, over wNEAR", async () => {
 
 test("only the Solana-liquid rails are put to the router at all", async () => {
   // The complaint this fixes: every bridgeable token was being asked about, and six
-  // of eight answers were going to be rejections. Asking two rails instead of eight is
-  // the difference, and it has to be measured on calls rather than asserted.
+  // of eight answers were going to be rejections. Asking three rails instead of eight
+  // is the difference, and it has to be measured on calls rather than asserted.
   const { asked, result } = await search({
     source: "near",
     dest: "solana",
@@ -166,14 +172,14 @@ test("only the Solana-liquid rails are put to the router at all", async () => {
   });
   assert.deepEqual(
     [...new Set(asked.map((call) => call.split(":")[1]))].sort(),
-    ["NEAR", "SHITZU"],
+    ["JAMBO", "NEAR", "SHITZU"],
     "the router is only asked about rails that can carry the swap",
   );
-  assert.equal(asked.length, 4, "two rails, two legs each");
+  assert.equal(asked.length, 6, "three rails, two legs each");
   assert.equal(
     result.rejected.length,
-    3,
-    "the other three are dropped without being asked",
+    2,
+    "the other two are dropped without being asked",
   );
   assert.ok(
     result.rejected.every((r) => r.reason === "no-solana-liquidity"),
@@ -223,7 +229,7 @@ test("a straight bridge of a token with no Solana liquidity is still allowed", a
 
 test("a Solana source that must be swapped is restricted the same way", async () => {
   // The mirror: spending a Solana token the registry has no key for, so every rail
-  // needs a source swap on Solana and only two rails can carry it.
+  // needs a source swap on Solana and only three rails can carry it.
   const { asked, result } = await search({
     source: "solana",
     dest: "near",
@@ -233,7 +239,7 @@ test("a Solana source that must be swapped is restricted the same way", async ()
   });
   assert.deepEqual(
     [...new Set(asked.map((call) => call.split(":")[1]))].sort(),
-    ["NEAR", "SHITZU"],
+    ["JAMBO", "NEAR", "SHITZU"],
   );
   assert.ok(result.plans.length > 0, "and it still routes");
 });
