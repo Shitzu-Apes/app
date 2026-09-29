@@ -2,6 +2,7 @@ import { writable } from "svelte/store";
 
 import { client } from "$lib/api/client";
 import { rpcFetch } from "$lib/near/rpc-retry";
+import { pollUntil } from "$lib/util/pollUntil";
 
 export const indexer_last_block_height$ = writable<number | null>(null);
 /**
@@ -16,31 +17,31 @@ const REFETCH_DELAY = 2_000;
 const FINAL_DELAY = 1_000;
 
 export function awaitIndexerBlockHeight(blockHeight: number) {
-  const updateBlockHeight = async (resolve: (value: unknown) => void) => {
-    const res = await client.GET("/info");
-    const currentBlockHeight = res.data?.last_block_height ?? 0;
-    indexer_last_block_height$.set(currentBlockHeight);
-    if (currentBlockHeight >= blockHeight) {
-      setTimeout(resolve, FINAL_DELAY);
-    } else {
-      setTimeout(() => updateBlockHeight(resolve), REFETCH_DELAY);
-    }
-  };
-  return new Promise(updateBlockHeight);
+  return pollUntil({
+    refetchDelay: REFETCH_DELAY,
+    finalDelay: FINAL_DELAY,
+    tick: async () => (await client.GET("/info")).data?.last_block_height ?? 0,
+    isDone: (currentBlockHeight) => currentBlockHeight >= blockHeight,
+    onValue: (currentBlockHeight) =>
+      indexer_last_block_height$.set(currentBlockHeight),
+    onError: (error) =>
+      console.warn("[awaitIndexerBlockHeight]: poll failed, retrying", error),
+  });
 }
 
 export function awaitRpcBlockHeight(blockHeight: number) {
-  const updateBlockHeight = async (resolve: (value: unknown) => void) => {
-    const status = await rpcFetch<{
-      sync_info: { latest_block_height: number };
-    }>(import.meta.env.VITE_NODE_URL, { method: "status", params: [] });
-    const currentBlockHeight = status.sync_info.latest_block_height;
-    node_last_block_height$.set(currentBlockHeight);
-    if (currentBlockHeight >= blockHeight) {
-      setTimeout(resolve, FINAL_DELAY);
-    } else {
-      setTimeout(() => updateBlockHeight(resolve), REFETCH_DELAY);
-    }
-  };
-  return new Promise(updateBlockHeight);
+  return pollUntil({
+    refetchDelay: REFETCH_DELAY,
+    finalDelay: FINAL_DELAY,
+    tick: () =>
+      rpcFetch<{ sync_info: { latest_block_height: number } }>(
+        import.meta.env.VITE_NODE_URL,
+        { method: "status", params: [] },
+      ),
+    isDone: (status) => status.sync_info.latest_block_height >= blockHeight,
+    onValue: (status) =>
+      node_last_block_height$.set(status.sync_info.latest_block_height),
+    onError: (error) =>
+      console.warn("[awaitRpcBlockHeight]: poll failed, retrying", error),
+  });
 }
