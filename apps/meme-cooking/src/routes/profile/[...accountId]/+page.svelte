@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { FinalExecutionOutcome } from "@near-wallet-selector/core";
-  import { onMount } from "svelte";
+  import { onDestroy } from "svelte";
   import { writable } from "svelte/store";
   import { match } from "ts-pattern";
 
@@ -42,11 +42,15 @@
   $: $balanceQuery?.isLoading;
   $: $nearPriceQuery?.isLoading;
 
-  onMount(() => {
-    const memesQuery = useMemesQuery();
-    const unsubscribe = memesQuery.subscribe(() => {});
-    return () => unsubscribe();
-  });
+  // `createQuery` reads the QueryClient from Svelte's context, so it must run
+  // during component initialization - calling it from `onMount` throws
+  // "Function called outside component initialization" and, on client-side
+  // navigation, that exception aborts Svelte's flush and freezes the page on
+  // its loading state. Keep the shared memes query subscribed for the lifetime
+  // of the page instead.
+  const memesQuery = useMemesQuery();
+  const unsubscribeMemes = memesQuery.subscribe(() => {});
+  onDestroy(unsubscribeMemes);
 
   $: isLoading =
     (accountId && $mcAccountQuery?.isLoading) ||
