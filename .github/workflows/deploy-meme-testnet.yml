@@ -26,63 +26,68 @@ jobs:
         with:
           node-version: lts/*
 
+      - name: Enable corepack
+        run: corepack enable
+
       - name: Install step
-        run: "yarn install"
+        run: "yarn install --immutable"
 
       - name: Copy Charting Library files
         run: "./copy_charting_library_files.sh"
 
       - name: Svelte Check
-        run: "yarn run check"
+        run: "yarn workspace meme-cooking run check"
 
       - name: Add app name to .env
-        run: echo "VITE_APP_NAME=Meme.Cooking" >> .env.testnet
+        run: echo "VITE_APP_NAME=Meme.Cooking" >> apps/meme-cooking/.env.testnet
 
       - name: Add contract connect ID to .env
-        run: echo "VITE_APP_LOGO=https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/main/logo/meme-cooking.webp" >> .env.testnet
+        run: echo "VITE_APP_LOGO=https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/main/logo/meme-cooking.webp" >> apps/meme-cooking/.env.testnet
 
       - name: Add commit hash to .env
-        run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> .env.testnet
+        run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> apps/meme-cooking/.env.testnet
 
       - name: Add contract connect ID to .env
-        run: echo "VITE_CONNECT_ID=factory.v10.meme-cooking.testnet" >> .env.testnet
+        run: echo "VITE_CONNECT_ID=factory.v10.meme-cooking.testnet" >> apps/meme-cooking/.env.testnet
 
       - name: Add multichain wallet selector to .env
-        run: echo "VITE_WALLET_SELECTOR_MULTICHAIN=true" >> .env.testnet
+        run: echo "VITE_WALLET_SELECTOR_MULTICHAIN=true" >> apps/meme-cooking/.env.testnet
 
       - name: Hide EVM wallet option to .env
-        run: echo "VITE_WALLET_SELECTOR_EVM=false" >> .env.testnet
+        run: echo "VITE_WALLET_SELECTOR_EVM=false" >> apps/meme-cooking/.env.testnet
 
       - name: Add Pinate JWT to .env
-        run: echo "PINATA_JWT=$PINATA_JWT" >> .env.testnet
+        run: echo "PINATA_JWT=$PINATA_JWT" >> apps/meme-cooking/.env.testnet
         env:
           PINATA_JWT: ${{ secrets.PINATA_JWT }}
 
       - name: Add Endpoint secret to .env
-        run: echo "ENDPOINT_SECRET=$ENDPOINT_SECRET" >> .env.testnet
+        run: echo "ENDPOINT_SECRET=$ENDPOINT_SECRET" >> apps/meme-cooking/.env.testnet
         env:
           ENDPOINT_SECRET: ${{ secrets.ENDPOINT_SECRET_TESTNET }}
 
       - name: Add account ID to .env
-        run: echo "ACCOUNT_ID=$ACCOUNT_ID" >> .env.testnet
+        run: echo "ACCOUNT_ID=$ACCOUNT_ID" >> apps/meme-cooking/.env.testnet
         env:
           ACCOUNT_ID: ${{ secrets.ACCOUNT_ID_TESTNET }}
 
       - name: Add private key to .env
-        run: echo "PRIVATE_KEY=$PRIVATE_KEY" >> .env.testnet
+        run: echo "PRIVATE_KEY=$PRIVATE_KEY" >> apps/meme-cooking/.env.testnet
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY_TESTNET }}
 
       - name: Add WalletConnect project ID to .env
-        run: echo "VITE_WC_PROJECT_ID=44dd0ed9ce175eeb72a67532fbfb6f96" >> .env.testnet
+        run: echo "VITE_WC_PROJECT_ID=44dd0ed9ce175eeb72a67532fbfb6f96" >> apps/meme-cooking/.env.testnet
 
       - name: Build step
         run: "yarn vite build --mode testnet"
+        working-directory: apps/meme-cooking
 
       - name: Lint
         run: "yarn lint"
 
       - name: Upload to Cloudflare Pages
         run: yarn wrangler pages deploy --project-name meme-cooking-testnet .svelte-kit/cloudflare
+        working-directory: apps/meme-cooking
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

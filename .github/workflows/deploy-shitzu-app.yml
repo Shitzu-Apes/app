@@ -26,41 +26,46 @@ jobs:
         with:
           node-version: lts/*
 
+      - name: Enable corepack
+        run: corepack enable
+
       - name: Install step
-        run: "yarn install"
+        run: "yarn install --immutable"
 
       - name: Copy Charting Library files
         run: "./copy_charting_library_files.sh"
 
       - name: Svelte Check
-        run: "yarn run check"
+        run: "yarn workspace shitzu-app run check"
 
       - name: Add commit hash to .env
-        run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> .env
+        run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> apps/shitzu-app/.env
 
       - name: Add contract connect ID to .env
-        run: echo "VITE_CONNECT_ID=shit.0xshitzu.near" >> .env
+        run: echo "VITE_CONNECT_ID=shit.0xshitzu.near" >> apps/shitzu-app/.env
 
       - name: Add WalletConnect project ID to .env
-        run: echo "VITE_WC_PROJECT_ID=dba65fff73650d32ae5157f3492c379e" >> .env
+        run: echo "VITE_WC_PROJECT_ID=dba65fff73650d32ae5157f3492c379e" >> apps/shitzu-app/.env
 
       # - name: Add Near RPC URL to .env
-      #   run: echo "VITE_NODE_URL=$VITE_NODE_URL" >> .env.local
+      #   run: echo "VITE_NODE_URL=$VITE_NODE_URL" >> apps/shitzu-app/.env.local
       #   env:
       #     VITE_NODE_URL: ${{ secrets.VITE_NODE_URL }}
 
       - name: Add Solana RPC URL to .env
-        run: echo "VITE_SOLANA_RPC_URL=$VITE_SOLANA_RPC_URL" >> .env
+        run: echo "VITE_SOLANA_RPC_URL=$VITE_SOLANA_RPC_URL" >> apps/shitzu-app/.env
         env:
           VITE_SOLANA_RPC_URL: ${{ secrets.VITE_SOLANA_RPC_URL }}
 
       - name: Build step
         run: "yarn build"
+        working-directory: apps/shitzu-app
 
       - name: Lint
         run: "yarn lint"
 
       - name: Upload to Cloudflare Pages
         run: yarn wrangler pages deploy --project-name shitzu-app .svelte-kit/cloudflare
+        working-directory: apps/shitzu-app
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

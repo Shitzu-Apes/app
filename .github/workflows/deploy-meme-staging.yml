@@ -26,70 +26,75 @@ jobs:
         with:
           node-version: lts/*
 
+      - name: Enable corepack
+        run: corepack enable
+
       - name: Install step
-        run: "yarn install"
+        run: "yarn install --immutable"
 
       - name: Copy Charting Library files
         run: "./copy_charting_library_files.sh"
 
       - name: Svelte Check
-        run: "yarn run check"
+        run: "yarn workspace meme-cooking run check"
 
       - name: Add app name to .env
-        run: echo "VITE_APP_NAME=Meme.Cooking" >> .env.staging
+        run: echo "VITE_APP_NAME=Meme.Cooking" >> apps/meme-cooking/.env.staging
 
       - name: Add contract connect ID to .env
-        run: echo "VITE_APP_LOGO=https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/main/logo/meme-cooking.webp" >> .env.staging
+        run: echo "VITE_APP_LOGO=https://raw.githubusercontent.com/Shitzu-Apes/brand-kit/main/logo/meme-cooking.webp" >> apps/meme-cooking/.env.staging
 
       - name: Add commit hash to .env
-        run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> .env.staging
+        run: echo "VITE_COMMIT_HASH=\"${{ github.sha }}\"" >> apps/meme-cooking/.env.staging
 
       - name: Add contract connect ID to .env
-        run: echo "VITE_CONNECT_ID=meme-cooking-test.near" >> .env.staging
+        run: echo "VITE_CONNECT_ID=meme-cooking-test.near" >> apps/meme-cooking/.env.staging
 
       - name: Add multichain wallet selector to .env
-        run: echo "VITE_WALLET_SELECTOR_MULTICHAIN=true" >> .env.staging
+        run: echo "VITE_WALLET_SELECTOR_MULTICHAIN=true" >> apps/meme-cooking/.env.staging
 
       - name: Hide EVM wallet option to .env
-        run: echo "VITE_WALLET_SELECTOR_EVM=false" >> .env.staging
+        run: echo "VITE_WALLET_SELECTOR_EVM=false" >> apps/meme-cooking/.env.staging
 
       - name: Add Pinate JWT to .env
-        run: echo "PINATA_JWT=$PINATA_JWT" >> .env.staging
+        run: echo "PINATA_JWT=$PINATA_JWT" >> apps/meme-cooking/.env.staging
         env:
           PINATA_JWT: ${{ secrets.PINATA_JWT }}
 
       - name: Add Endpoint secret to .env
-        run: echo "ENDPOINT_SECRET=$ENDPOINT_SECRET" >> .env.staging
+        run: echo "ENDPOINT_SECRET=$ENDPOINT_SECRET" >> apps/meme-cooking/.env.staging
         env:
           ENDPOINT_SECRET: ${{ secrets.ENDPOINT_SECRET_MAINNET }}
 
       - name: Add account ID to .env
-        run: echo "ACCOUNT_ID=$ACCOUNT_ID" >> .env.staging
+        run: echo "ACCOUNT_ID=$ACCOUNT_ID" >> apps/meme-cooking/.env.staging
         env:
           ACCOUNT_ID: ${{ secrets.ACCOUNT_ID_MAINNET }}
 
       - name: Add private key to .env
-        run: echo "PRIVATE_KEY=$PRIVATE_KEY" >> .env.staging
+        run: echo "PRIVATE_KEY=$PRIVATE_KEY" >> apps/meme-cooking/.env.staging
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY_MAINNET }}
 
       - name: Add WalletConnect project ID to .env
-        run: echo "VITE_WC_PROJECT_ID=44dd0ed9ce175eeb72a67532fbfb6f96" >> .env.staging
+        run: echo "VITE_WC_PROJECT_ID=44dd0ed9ce175eeb72a67532fbfb6f96" >> apps/meme-cooking/.env.staging
 
       # The public mainnet cluster answers 403 "Access forbidden" to browser
       # origins, which breaks every Solana read on the site.
       - name: Add Solana RPC URL to .env
-        run: echo "VITE_SOLANA_RPC_URL=$VITE_SOLANA_RPC_URL" >> .env.staging
+        run: echo "VITE_SOLANA_RPC_URL=$VITE_SOLANA_RPC_URL" >> apps/meme-cooking/.env.staging
         env:
           VITE_SOLANA_RPC_URL: ${{ secrets.VITE_SOLANA_RPC_URL }}
 
       - name: Build step
         run: "yarn vite build --mode staging"
+        working-directory: apps/meme-cooking
 
       - name: Lint
         run: "yarn lint"
 
       - name: Upload to Cloudflare Pages
         run: yarn wrangler pages deploy --project-name meme-cooking-staging .svelte-kit/cloudflare
+        working-directory: apps/meme-cooking
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

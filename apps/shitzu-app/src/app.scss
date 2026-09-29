@@ -1,0 +1,16 @@
+html {
+  overflow-x: hidden;
+}
+
+body {
+  min-height: -webkit-fill-available;
+}
+
+.noscrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.noscrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

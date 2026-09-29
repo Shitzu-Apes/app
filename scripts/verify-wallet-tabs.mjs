@@ -22,12 +22,12 @@ function readTrackedEnv(file) {
   return out;
 }
 
-/** Collect `echo "K=V" >> .env...` appends from a workflow. */
+/** Collect `echo "K=V" >> apps/<app>/.env...` appends from a workflow. */
 function ciAppends(workflow) {
   const src = readFileSync(workflow, "utf8");
   const out = {};
   for (const m of src.matchAll(
-    /echo "([A-Z0-9_]+)=([^"]*)"\s*>>\s*\.env\.?(\w*)/g,
+    /echo "([A-Z0-9_]+)=([^"]*)"\s*>>\s*(?:[\w./-]+\/)?\.env\.?(\w*)/g,
   )) {
     const [, key, value] = m;
     if (value.includes("secrets.")) continue; // injected by CI, not a flag
@@ -40,7 +40,7 @@ function ciAppends(workflow) {
 // this simulation.
 const tracked = execFileSync("git", ["ls-files"], { encoding: "utf8" })
   .split("\n")
-  .filter((f) => f.startsWith(".env"));
+  .filter((f) => f.startsWith(".env") || f.includes("/.env"));
 if (tracked.some((f) => f.includes(".local"))) {
   console.error("A local .env file is tracked; this simulation is invalid.");
   process.exit(1);
@@ -49,24 +49,28 @@ if (tracked.some((f) => f.includes(".local"))) {
 const APPS = [
   {
     name: "shitzu (app.shitzuapes.xyz)",
+    dir: "apps/shitzu-app",
     mode: "production",
     wf: ".github/workflows/deploy-shitzu-app.yml",
     evm: true,
   },
   {
     name: "meme.cooking production",
+    dir: "apps/meme-cooking",
     mode: "production",
     wf: ".github/workflows/deploy-meme-production.yml",
     evm: false,
   },
   {
     name: "meme.cooking staging",
+    dir: "apps/meme-cooking",
     mode: "staging",
     wf: ".github/workflows/deploy-meme-staging.yml",
     evm: false,
   },
   {
     name: "meme.cooking testnet",
+    dir: "apps/meme-cooking",
     mode: "testnet",
     wf: ".github/workflows/deploy-meme-testnet.yml",
     evm: false,
@@ -77,8 +81,8 @@ let bad = 0;
 for (const app of APPS) {
   // `vite build` with no --mode defaults to "production".
   const env = {
-    ...readTrackedEnv(".env"),
-    ...readTrackedEnv(`.env.${app.mode}`),
+    ...readTrackedEnv(`${app.dir}/.env`),
+    ...readTrackedEnv(`${app.dir}/.env.${app.mode}`),
     ...ciAppends(app.wf),
   };
 

@@ -26,7 +26,7 @@ for key in "${keys[@]}"; do
     set -e
 done
 
-yarn tsup abi-gen/index.ts --dts-only -d src/lib/abi --format esm
-sed -E -i 's|\[k: string\]: unknown;||g' src/lib/abi/index.d.ts
-yarn prettier --write src/lib/abi
+yarn tsup abi-gen/index.ts --dts-only -d packages/lib/src/abi --format esm
+sed -E -i 's|\[k: string\]: unknown;||g' packages/lib/src/abi/index.d.ts
+yarn prettier --write packages/lib/src/abi
 rm -rf abi-gen

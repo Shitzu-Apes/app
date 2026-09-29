@@ -1,19 +1,27 @@
 node_modules
+node_modules.yarn1.bak
 
 build
 abi-gen
 
 .svelte-kit
 .cloudflare
+.wrangler
 
-/src/lib/models/api.d.ts
+.yarn/cache
+.yarn/install-state.gz
+.yarn/build-state.yml
+.yarn/unplugged
+.pnp.*
+
+/packages/lib/src/models/api.d.ts
 
 .env.local
 .env.production.local
 
-src/lib/charting_library
-src/lib/datafeeds
-static/charting_library
+packages/lib/src/charting_library
+packages/lib/src/datafeeds
+packages/static/charting_library
 
 .near-credentials
 # SpecStory explanation file

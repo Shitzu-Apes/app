@@ -3,10 +3,11 @@ pnpm-lock.yaml
 package-lock.json
 yarn.lock
 /abi
+node_modules.yarn1.bak
 
 # need to support all Svelte Component
-src/lib/layout/BottomSheet
+packages/lib/src/layout/BottomSheet
 charting_library/
-src/lib/charting_library
-src/lib/datafeeds
-static/charting_library
+packages/lib/src/charting_library
+packages/lib/src/datafeeds
+packages/static/charting_library
