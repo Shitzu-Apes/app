@@ -69,10 +69,48 @@ export class IntearError extends Error {
   constructor(
     message: string,
     readonly status?: number,
+    /**
+     * The server's own hint, from `Retry-After`, in milliseconds. Only ever set
+     * from a header it actually sent; never invented here.
+     */
+    readonly retryAfterMs?: number,
   ) {
     super(message);
     this.name = "IntearError";
   }
+}
+
+/**
+ * The longest a `Retry-After` from the router may hold a request.
+ *
+ * The header is the server's own answer to "when may I come back", and on a live
+ * 429 it read `Retry-After: 5` — five seconds, which is a long time to hold a form
+ * but the honest number. It is still capped, because it is also the one value in
+ * the response that can hang a search or a signed transfer for as long as the
+ * server cares to name.
+ */
+export const MAX_RETRY_AFTER_MS = 10_000;
+
+/**
+ * `Retry-After` as milliseconds, or undefined when there is nothing to honour.
+ *
+ * Two legal forms, both cheap to accept: a number of seconds, or an HTTP-date.
+ * `0` is kept, because "retry now" is a real instruction; an unparseable header
+ * and a date already in the past are not, so the caller falls back to its own
+ * schedule rather than waiting a negative time. The cap is applied last.
+ */
+export function parseRetryAfter(header: string | null): number | undefined {
+  if (header === null) return undefined;
+  const value = header.trim();
+  if (value === "") return undefined;
+
+  const seconds = Number(value);
+  const ms = Number.isFinite(seconds)
+    ? seconds * 1_000
+    : Date.parse(value) - Date.now();
+
+  if (!Number.isFinite(ms) || ms < 0) return undefined;
+  return Math.min(ms, MAX_RETRY_AFTER_MS);
 }
 
 /**
@@ -152,8 +190,9 @@ export function buildRouteQuery({
  *
  * An empty array is the normal, expected answer for a token with no liquidity —
  * it is a 200 with `[]`, not an error — so callers get an empty list rather than
- * a null they have to unwrap. Only a malformed request throws, because that is a
- * bug in our query rather than a fact about the market.
+ * a null they have to unwrap. A malformed request throws, because that is a bug in
+ * our query rather than a fact about the market; so does a refusal the caller
+ * upstream could not wait out, which is what `askRouter` is for.
  *
  * There is deliberately no retry on an empty result *here*. Cold router state has
  * been observed to return `[]` for a pair that routes moments later, but empty is
@@ -168,6 +207,9 @@ export function buildRouteQuery({
  * comes back empty it re-runs the whole search after a real wait. One spurious empty
  * only costs that rail the round; seven of them are one cold window seen seven times,
  * and that is the case that has to be asked again rather than reported as no route.
+ *
+ * A 429 is the other kind of no-answer and is retried there too, on a budget of its
+ * own: it is not ambiguous, and the response says exactly when to come back.
  */
 export async function getIntearRoutes(
   query: IntearQuery,
@@ -180,6 +222,7 @@ export async function getIntearRoutes(
     throw new IntearError(
       `Intear router failed (${res.status}): ${body.slice(0, 200)}`,
       res.status,
+      parseRetryAfter(res.headers.get("retry-after")),
     );
   }
 
@@ -226,6 +269,62 @@ const ROUTE_ATTEMPTS = 5;
  */
 const ROUTE_BACKOFF_MS = [500, 1000, 1500, 2000];
 
+/**
+ * How many times a rate-limited question is asked, in total.
+ *
+ * Five, where the first cut of this asked three (and the search two, which is the
+ * one re-ask that was reported refused). The reason is what a limit is: a window
+ * rather than a queue, so a single re-ask at the server's own interval lands inside
+ * the same window about as often as beside it — especially on this page, where
+ * several rails and legs are refused together and come back together. Retrying more
+ * times is the only thing that tells those two cases apart, and each attempt is
+ * spaced by the server's `Retry-After` where it sends one.
+ *
+ * Deliberately separate from `ROUTE_ATTEMPTS`. An empty answer is ambiguous — it
+ * is both "no pool" and "cold router" — so the count spent on it is a wager, and
+ * the search only spends one (see `SEARCH_ATTEMPTS`). A 429 is not ambiguous, and
+ * sharing the counters would have made a rate-limited rail in a search take the
+ * single empty attempt and go unretried.
+ */
+const RATE_LIMIT_ATTEMPTS = 5;
+
+/**
+ * The step of the linear wait when the server sends no `Retry-After`.
+ *
+ * `base * attempt`: 1s before the second ask, 2s before the third, and so on. It
+ * is the fallback, not the rule — this router does send the header (measured at
+ * five seconds), and the header wins whenever it is there, because re-asking
+ * earlier than the server named spends a request on a bucket it just said is empty
+ * and helps keep it that way.
+ */
+const RATE_LIMIT_BASE_MS = 1_000;
+
+/**
+ * One wait, in milliseconds, before the `attempt`-th re-ask.
+ *
+ * The server's hint when it sends one, its own linear schedule when it does not.
+ * Exported because the shape is a policy worth asserting on without paying it out,
+ * the same reason `emptyRetryDelay` is.
+ */
+export function rateLimitWaitMs(
+  attempt: number,
+  retryAfterMs?: number,
+  baseMs: number = RATE_LIMIT_BASE_MS,
+): number {
+  return retryAfterMs ?? baseMs * attempt;
+}
+
+/**
+ * How far a wait may be stretched, as a fraction of itself.
+ *
+ * The retries of one search go out together and come back together, so the wait is
+ * jittered by up to a quarter of itself. A flat 250 ms — what the empty retry uses,
+ * where the waits are under two seconds — would leave five-second retries bunched
+ * into the same instant, which is how a burst of them re-drains the very bucket
+ * they are waiting for.
+ */
+const RATE_LIMIT_JITTER_RATIO = 0.25;
+
 const sleep = (ms: number, signal?: AbortSignal) =>
   new Promise<void>((resolve) => {
     if (signal?.aborted) return resolve();
@@ -240,15 +339,70 @@ const sleep = (ms: number, signal?: AbortSignal) =>
     );
   });
 
+/** A rate-limited failure, or null for every other kind. */
+function rateLimited(err: unknown): IntearError | null {
+  return err instanceof IntearError && err.status === 429 ? err : null;
+}
+
 /**
- * Routes from the router, retried while the answer is empty, waiting between
- * attempts.
+ * One question to the router, re-asked only while it is rate-limiting us.
+ *
+ * Only the router's own 429 is retried, and it is the one failure the response
+ * explains: the body says "retry in 5s or use an API key" and the header says
+ * exactly when. Every other failure — a 400 from a malformed query, an
+ * unreachable host — is a fact about this request rather than about the moment,
+ * and surfaces on the first attempt. That is `rpc-retry.ts`'s rule too, for the
+ * same reason.
+ */
+async function askRouter(
+  query: IntearQuery,
+  { attempts, baseMs }: { attempts: number; baseMs: number },
+): Promise<IntearRoute[]> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await getIntearRoutes(query);
+    } catch (err) {
+      const limited = rateLimited(err);
+      if (!limited || attempt >= attempts) throw err;
+      const wait = rateLimitWaitMs(attempt, limited.retryAfterMs, baseMs);
+      await sleep(
+        wait + Math.random() * wait * RATE_LIMIT_JITTER_RATIO,
+        query.signal,
+      );
+      // A superseded search must not spend the wait on a question nobody will
+      // read: the error it already has is the answer.
+      if (query.signal?.aborted) throw err;
+    }
+  }
+}
+
+/** The two retry budgets, which are counted separately on purpose. */
+export type IntearRoutedOptions = {
+  /** How many asks an empty answer may cost, before it is believed. */
+  attempts?: number;
+  /** Waits between those asks, in milliseconds, by attempt index. */
+  backoffMs?: readonly number[];
+  /** How many asks a rate limit (429) may cost. */
+  rateLimitAttempts?: number;
+  /** The step of the linear rate-limit wait, when no `Retry-After` was sent. */
+  rateLimitBaseMs?: number;
+};
+
+/**
+ * Routes from the router, retried while the answer is empty or rate-limited,
+ * waiting between attempts.
  *
  * This lives beside the router call rather than at each call site because the
  * search and the two execution legs all need it, and they had drifted: the search
  * retried and the execution did not, so a route could be quoted and then fail on
  * a single un-retried call. The search is what put the route on screen, so the
  * execution has to be at least as persistent as the search was.
+ *
+ * The two retries are separate budgets because the two failures mean different
+ * things: empties are ambiguous and waited out, rate limits are explicit and
+ * answered when the server says. A rate limit that survives its own budget is
+ * thrown rather than folded into the empty loop, so a persistent limit cannot
+ * multiply into five searches' worth of requests.
  *
  * A retry is a *quote* retry. It happens before anything is signed, so it cannot
  * swap twice.
@@ -258,11 +412,16 @@ export async function getIntearRoutesRouted(
   {
     attempts = ROUTE_ATTEMPTS,
     backoffMs = ROUTE_BACKOFF_MS,
-  }: { attempts?: number; backoffMs?: readonly number[] } = {},
+    rateLimitAttempts = RATE_LIMIT_ATTEMPTS,
+    rateLimitBaseMs = RATE_LIMIT_BASE_MS,
+  }: IntearRoutedOptions = {},
 ): Promise<IntearRoute[]> {
   let routes: IntearRoute[] = [];
   for (let attempt = 1; attempt <= attempts; attempt++) {
-    routes = await getIntearRoutes(query);
+    routes = await askRouter(query, {
+      attempts: rateLimitAttempts,
+      baseMs: rateLimitBaseMs,
+    });
     if (routes.length > 0) return routes;
     // A superseded or aborted request should stop the loop rather than spend the
     // remaining attempts — and the remaining seconds — on an answer nobody will

@@ -340,3 +340,62 @@ test("a pair that never routes still stops after the attempt budget", async () =
     clearRoutedPairs();
   }
 });
+
+test("a rate-limited search quote is asked again rather than dropped", async () => {
+  // The bridge page walks into the router's limit in ordinary use: one search is
+  // several requests at once. A 429 used to propagate out of here, where the rail's
+  // catch in `search.ts` turned it into "no route" — so the best rail could vanish
+  // from the list for a reason nothing in the response explained.
+  clearRoutedPairs();
+  const original = globalThis.fetch;
+  const realRandom = Math.random;
+  Math.random = () => 0;
+  let calls = 0;
+  globalThis.fetch = (async () => {
+    calls++;
+    if (calls === 1) {
+      // With the header the router actually sends, so the retry is immediate.
+      return new Response(
+        "Rate limit exceeded, retry in 5s or use an API key",
+        {
+          status: 429,
+          headers: { "retry-after": "0" },
+        },
+      );
+    }
+    return new Response(
+      JSON.stringify([
+        {
+          dex_id: "Rhea",
+          estimated_amount: { amount_out: "2000" },
+          worst_case_amount: { amount_out: "1900" },
+          token_output: "token.0xshitzu.near",
+          execution_instructions: [
+            {
+              NearTransaction: {
+                receiver_id: "v2.ref-finance.near",
+                actions: [],
+              },
+            },
+          ],
+        },
+      ]),
+      { status: 200 },
+    );
+  }) as typeof fetch;
+  try {
+    // The app's own search budget, not an explicit one: defaults, deliberately.
+    const quote = await intearQuoter(NEAR_ACCOUNT)(
+      "wrap.near",
+      "token.0xshitzu.near",
+      1000n,
+    );
+    assert.ok(quote, "the rate-limited quote still routed");
+    assert.equal(quote!.guaranteedOut, 1900n);
+    assert.equal(calls, 2, "one re-ask, then the route");
+  } finally {
+    Math.random = realRandom;
+    globalThis.fetch = original;
+    clearRoutedPairs();
+  }
+});

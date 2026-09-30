@@ -12,6 +12,7 @@ import {
   routeAmounts,
   selectBestRoute,
   type IntearRoute,
+  type IntearRoutedOptions,
 } from "$lib/near/intear";
 import {
   buildSwapTx,
@@ -129,6 +130,18 @@ export function clearRoutedPairs(): void {
  */
 const SEARCH_ATTEMPTS = 1;
 
+/**
+ * Rate-limited asks a *search* may make, per leg.
+ *
+ * Four, against the execution's five, and the difference is only what is behind
+ * each. A search has the form's own re-run behind it, and one refused re-ask was
+ * the reported failure here — the rail was dropped and the route list came back
+ * without it. Three re-asks at the server's interval span about fifteen seconds,
+ * which is where a limit that outlasts its own hint stops being a limit and starts
+ * being an outage.
+ */
+const SEARCH_RATE_LIMIT_ATTEMPTS = 4;
+
 export function intearQuoter(
   traderAccountId: string,
   /**
@@ -137,13 +150,13 @@ export function intearQuoter(
    * A seam for tests, which otherwise pay several seconds of real backoff to count
    * calls. The defaults are the ones the app runs with.
    */
-  routing: { attempts?: number; backoffMs?: readonly number[] } = {},
+  routing: IntearRoutedOptions = {},
 ): SwapQuoter {
   const request = async (
     fromAddress: string,
     toAddress: string,
     amountIn: bigint,
-    routing: { attempts?: number } = {},
+    routing: IntearRoutedOptions = {},
   ): Promise<IntearRoute[]> =>
     executableRoutes(
       await getIntearRoutesRouted(
@@ -181,9 +194,19 @@ export function intearQuoter(
     // it, a user waiting, and money on the bridge, so it gets the full budget here.
     // Seven rails times two legs times three attempts is forty requests on a 400ms
     // debounce, which is a great deal of public API to spend on a keystroke.
+    //
+    // All of that is about *empty* answers, which are ambiguous. A rate limit is
+    // not ambiguous and is not waited out by the form's schedule, so it gets a
+    // budget of its own — see `SEARCH_RATE_LIMIT_ATTEMPTS`.
     const routes = await request(fromAddress, toAddress, amountIn, {
-      // A default, not an override: a caller asking for more still gets it.
+      // Defaults, not overrides: a caller asking for more still gets it. The
+      // spread matters because leaving `backoffMs` out silently replaced a test's
+      // schedule with the app's, and the search's rate-limit budget needs to be
+      // settable for exactly the same reason.
+      ...routing,
       attempts: routing.attempts ?? SEARCH_ATTEMPTS,
+      rateLimitAttempts:
+        routing.rateLimitAttempts ?? SEARCH_RATE_LIMIT_ATTEMPTS,
     });
     if (routes.length === 0) return null;
     hasRouted.add(pairKey("near", fromAddress, toAddress));
