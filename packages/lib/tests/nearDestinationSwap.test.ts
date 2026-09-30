@@ -18,6 +18,11 @@ const ACC = "marior.near";
 const RAIL = "wrap.near";
 const TARGET = "token.0xshitzu.near";
 
+/** The bytes a `call_function` query answers with. */
+const asBytes = (value: unknown) => [
+  ...new TextEncoder().encode(JSON.stringify(value)),
+];
+
 /** A router answer, and a wallet that signs nothing. */
 function stub({ signs }: { signs: boolean }) {
   const originalFetch = globalThis.fetch;
@@ -64,7 +69,7 @@ function stub({ signs }: { signs: boolean }) {
         signs ? [{ transaction: { hash: "SWAPHASH" } }] : undefined,
     }),
   };
-  globalThis.fetch = (async (url: unknown) => {
+  globalThis.fetch = (async (url: unknown, init?: { body?: string }) => {
     const body = String(url);
     if (body.includes("router.intear.tech")) {
       return new Response(JSON.stringify([route]), { status: 200 });
@@ -75,6 +80,27 @@ function stub({ signs }: { signs: boolean }) {
           jsonrpc: "2.0",
           id: "dontcare",
           result: { status: { SuccessValue: "" }, receipts_outcome: [] },
+        }),
+        { status: 200 },
+      );
+    }
+    // The node's reads. The wrapped balance is made to cover the whole input, so what
+    // is being signed is the swap alone — these tests are about the signing and the
+    // measurement. The wrap has its own tests; a route quoted from the wrapping
+    // contract is exactly the case they cover.
+    const request = JSON.parse(String(init?.body ?? "{}"));
+    if (request.method === "query") {
+      return new Response(
+        JSON.stringify({
+          jsonrpc: "2.0",
+          id: "1",
+          result: {
+            result: asBytes(
+              request.params?.method_name === "ft_balance_of"
+                ? "1000000000000000000000000"
+                : null,
+            ),
+          },
         }),
         { status: 200 },
       );

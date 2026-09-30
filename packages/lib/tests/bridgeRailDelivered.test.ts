@@ -119,18 +119,14 @@ test("a native payout is found, even though the logs are empty", async () => {
     leg({ before: { wrapped: 5n, native: 0n } }),
   );
 
-  assert.equal(result.produced, 1_000n, "what arrived is what is bridged");
-  assert.ok(
-    result.wrap,
-    "native NEAR has to be wrapped before the bridge takes it",
-  );
-  assert.equal(
-    result.wrap?.actions[0]?.functionCall?.methodName,
-    "ft_on_transfer",
-  );
+  assert.equal(result, 1_000n, "what arrived is what is bridged");
+  // The wrap itself is not built here. Whether the account already holds enough
+  // wrapped is a question about the balance at deposit time, and `wrapNearDeficit`
+  // answers it there — see bridgeWrapNear.test.ts, where the native form is what
+  // gets wrapped.
 });
 
-test("a wrapped payout is taken from the logs, and needs no wrapping", async () => {
+test("a wrapped payout is taken from the logs", async () => {
   node({
     logs: [
       JSON.stringify({
@@ -147,8 +143,7 @@ test("a wrapped payout is taken from the logs, and needs no wrapping", async () 
     leg({ before: { wrapped: 1_000n, native: 0n } }),
   );
 
-  assert.equal(result.produced, 2_500_000_000_000_000_000_000_000n);
-  assert.equal(result.wrap, null, "already wrapped, so nothing to do");
+  assert.equal(result, 2_500_000_000_000_000_000_000_000n);
 });
 
 test("a reverted swap says why, and does not fall through to the balances", async () => {
@@ -194,7 +189,7 @@ test("a balance the swap also spent is not read as what arrived", async () => {
   const result = await railDelivered(
     leg({ before: { wrapped: 100n, native: 0n }, spentToken: WRAP }),
   );
-  assert.equal(result.produced, 20n, "the log, not the net +10");
+  assert.equal(result, 20n, "the log, not the net +10");
 });
 
 test("native NEAR spent by the swap is not read as what arrived", async () => {
@@ -202,8 +197,7 @@ test("native NEAR spent by the swap is not read as what arrived", async () => {
   const result = await railDelivered(
     leg({ before: { wrapped: 0n, native: 100n }, spentToken: NATIVE }),
   );
-  assert.equal(result.produced, 2_000n, "the wrapped gain, which is clean");
-  assert.equal(result.wrap, null);
+  assert.equal(result, 2_000n, "the wrapped gain, which is clean");
 });
 
 test("when nothing arrived, the error names both forms", async () => {
@@ -251,6 +245,5 @@ test("an unreadable transaction still gets answered by the balances", async () =
   const result = await railDelivered(
     leg({ before: { wrapped: 5n, native: 0n } }),
   );
-  assert.equal(result.produced, 400n);
-  assert.ok(result.wrap);
+  assert.equal(result, 400n);
 });

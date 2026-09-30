@@ -302,6 +302,71 @@ export async function tokenBalanceOf(
 }
 
 /**
+ * Whether the account is registered for a NEP-141, i.e. whether it has a storage
+ * balance.
+ *
+ * The bridge's own deposit needs the *wrapped* form of NEAR, so before signing it
+ * has to know whether the account can hold the wrapped form at all: an account that
+ * has never touched `wrap.near` has no storage balance, so a `near_deposit` is not
+ * enough on its own and a storage deposit has to precede it. `null` from the
+ * contract is the honest answer for "never registered" — it is an answer, not a
+ * failure of the read.
+ *
+ * An unreadable node is treated as unregistered on purpose. That is the safe
+ * direction: the worst case is a small storage deposit on an account that already
+ * had one, which stays in the account, while the other assumption signs a
+ * `near_deposit` that the contract may reject outright.
+ */
+export async function ftStorageRegistered(
+  tokenId: string,
+  accountId: string,
+): Promise<boolean> {
+  try {
+    const view = await query({
+      request_type: "call_function",
+      account_id: tokenId,
+      method_name: "storage_balance_of",
+      args_base64: btoa(JSON.stringify({ account_id: accountId })),
+    });
+    const bytes = view?.result;
+    if (!Array.isArray(bytes)) return false;
+    const decoded = JSON.parse(new TextDecoder().decode(new Uint8Array(bytes)));
+    return decoded !== null && decoded !== undefined;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The NEP-145 minimum storage balance, in base units.
+ *
+ * Read rather than assumed so the figure is the contract's own, and thrown rather
+ * than defaulted to zero: a zero attached to a registration that needs one would
+ * fail the whole batch at signing, and the caller has no sensible value to fall
+ * back on. By the time this is called the caller has already decided a storage
+ * deposit is needed, so there is nothing to do but ask.
+ */
+export async function ftStorageMin(tokenId: string): Promise<bigint> {
+  const view = await query({
+    request_type: "call_function",
+    account_id: tokenId,
+    method_name: "storage_balance_bounds",
+    args_base64: btoa("{}"),
+  });
+  const bytes = view?.result;
+  if (!Array.isArray(bytes)) {
+    throw new Error("the node did not report a storage balance bound");
+  }
+  const decoded = JSON.parse(
+    new TextDecoder().decode(new Uint8Array(bytes)),
+  ) as { min?: string } | null;
+  if (decoded?.min == null) {
+    throw new Error("the token did not report a minimum storage balance");
+  }
+  return BigInt(String(decoded.min));
+}
+
+/**
  * What one of the user's own tokens gained in a transaction, or null if it cannot be
  * read.
  *

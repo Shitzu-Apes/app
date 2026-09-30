@@ -27,6 +27,8 @@ import {
 import { isReverted, revertLog, type NearTxOutcome } from "$lib/near/outcome";
 import {
   deliveredBySwap,
+  ftStorageMin,
+  ftStorageRegistered,
   nativeBalanceOf,
   receivedInTransaction,
   tokenBalanceOf,
@@ -39,6 +41,21 @@ import {
  * telling them apart is the entire job of the swap's outcome.
  */
 const NEAR_NATIVE = "near";
+
+/**
+ * The wrapping contract on this build's network.
+ *
+ * `import.meta.env` is replaced at build time and does not exist under `node --test`,
+ * so the mainnet contract is the fallback — read the way `omni.ts` reads its config,
+ * and the Convert form is mainnet-only anyway.
+ *
+ * It is needed because the form measures one balance and the chain debits another. A
+ * native NEAR row reaches the executors as this contract (the registry's address for
+ * wNEAR), and any transaction that touches it — a straight bridge's deposit, the
+ * input of a router swap — debits the *wrapped* balance, which the account only has
+ * if it was wrapped first.
+ */
+const WRAP_NEAR = import.meta.env?.VITE_WRAP_NEAR_CONTRACT_ID ?? "wrap.near";
 
 /**
  * The first half of a NEAR-sourced route: the swap into the rail, on its own.
@@ -111,10 +128,19 @@ export async function runNearSourceSwap({
     native: await nativeBalanceOf(accountId),
   };
 
-  const txHash = await signNearTransactions(
-    selector,
-    routeToNajTransactions(route),
-  );
+  // The router was asked for `token_in=wrap.near`, which builds a route that starts
+  // by spending the wrapped balance — there is no `near_deposit` in it, because the
+  // router was told the input *is* wNEAR. When the token being spent is the wrapping
+  // contract, the balance behind it on this form is native NEAR, so whatever is not
+  // already wrapped is wrapped here, in front of the route and in the same batch.
+  const transactions = routeToNajTransactions(route);
+  if (sourceTokenId === WRAP_NEAR) {
+    transactions.unshift(
+      ...(await wrapNearDeficit(WRAP_NEAR, accountId, amount)),
+    );
+  }
+
+  const txHash = await signNearTransactions(selector, transactions);
   if (!txHash) {
     throw new TransferError(
       "The swap was sent but this wallet did not report the transaction, so its result cannot be read.",
@@ -147,29 +173,12 @@ export async function runNearSourceSwap({
  * event — so the two are not distinguishable by looking in the transaction, only by
  * looking at the balances.
  *
- * The bridge takes the wrapped contract either way, so a native payout is wrapped
- * first, as part of this deposit, so the two cannot be separated and the swap's
- * output cannot be stranded between them.
+ * What comes back is the amount alone, and whoever deposits it has to make sure the
+ * rail's contract actually holds that much. A native payout leaves the wrapped
+ * contract untouched, so the deposit is what wraps the difference — see
+ * `wrapNearDeficit` for why the wrapped form is not produced here.
  */
-export async function railDelivered(
-  swap: NearSwapLeg,
-): Promise<{ produced: bigint; wrap: Omit<Transaction, "signerId"> | null }> {
-  // Wrapping native NEAR into the rail's contract, so the two cannot be separated
-  // and the swap's output cannot be stranded between them. `ft_on_transfer` with a
-  // one-yocto deposit is how NEAR wraps, and the bridge's batch is ordered, so the
-  // locker call sees the wrapped balance.
-  const wrapAction = (): Omit<Transaction, "signerId"> => ({
-    receiverId: swap.railToken,
-    actions: [
-      actionCreators.functionCall(
-        "ft_on_transfer",
-        { receiver_id: swap.railToken },
-        30_000_000_000_000n,
-        1n,
-      ),
-    ],
-  });
-
+export async function railDelivered(swap: NearSwapLeg): Promise<bigint> {
   // The logs, first, for the one thing they are actually good for: saying whether the
   // swap reverted. A panicking call emits no events, so a failed swap's log list is
   // empty and a reader that only looks for arrivals concludes the swap delivered
@@ -189,12 +198,12 @@ export async function railDelivered(
     // a NEP-141 credit emits an event.
     const wrapped = tokens.get(swap.railToken);
     if (wrapped && wrapped.amount > 0n) {
-      return { produced: wrapped.amount, wrap: null };
+      return wrapped.amount;
     }
     // A native credit only reaches this branch for a venue that logs one, which most
     // do not. Kept because it is free and it is right when it is there.
     if (native && native.amount > 0n) {
-      return { produced: native.amount, wrap: wrapAction() };
+      return native.amount;
     }
   } catch (err) {
     // The answer we want, not a failure to read.
@@ -222,17 +231,90 @@ export async function railDelivered(
 
   const wrappedGain = wrappedNow - swap.before.wrapped;
   if (wrappedReadable && wrappedGain > 0n) {
-    return { produced: wrappedGain, wrap: null };
+    return wrappedGain;
   }
 
   const nativeGain = nativeNow - swap.before.native;
   if (nativeReadable && nativeGain > 0n) {
-    return { produced: nativeGain, wrap: wrapAction() };
+    return nativeGain;
   }
 
   // Both forms named, because a message about only the wrapped contract is wrong
   // whenever the payout was native — and that is the case that reached here.
   throw new TransferError(readableError(swap, wrappedReadable, nativeReadable));
+}
+
+/**
+ * Make the account hold at least `needed` of the wrapped contract, wrapping only
+ * what it is missing.
+ *
+ * The bridge's deposit is an `ft_transfer_call` on `wrap.near`, so it debits the
+ * *wrapped* balance — while the user's NEAR is, in the case this exists for, native.
+ * Nothing else wraps it: a direct bridge has no swap in it to carry a `near_deposit`
+ * along, and a swap that pays out native NEAR leaves the wrapped contract untouched.
+ * So the account had to already hold the wrapped form, which is exactly the
+ * assumption that made bridging native NEAR fail with "the bridge deposit was
+ * rejected" while the money was sitting right there in the account.
+ *
+ * The already-wrapped balance is used first and only the difference is wrapped:
+ * wrapping the whole amount would leave the existing wrapped tokens stranded as a
+ * bonus rather than spending them, and on a 100% fill it would exceed the native
+ * balance the form checked against.
+ *
+ * Returns the transactions to sign *before* the deposit, or none when the account
+ * already holds enough — the common case for a second bridge.
+ */
+export async function wrapNearDeficit(
+  wrapToken: string,
+  accountId: string,
+  needed: bigint,
+): Promise<Omit<Transaction, "signerId">[]> {
+  if (needed <= 0n) return [];
+
+  const [wrapped, registered] = await Promise.all([
+    tokenBalanceOf(wrapToken, accountId),
+    ftStorageRegistered(wrapToken, accountId),
+  ]);
+  const deficit = needed > wrapped ? needed - wrapped : 0n;
+  if (deficit === 0n) return [];
+
+  const transactions: Omit<Transaction, "signerId">[] = [];
+
+  // The first wrap has to register the account before `near_deposit` can credit
+  // anything, and the min is read from the contract rather than assumed. A separate
+  // `storage_deposit` rather than folding it into the attached amount, because
+  // whether `near_deposit` registers on the way in is the contract's business: this
+  // is correct either way, and it is the pattern the meme.cooking flow already uses
+  // for the same contract.
+  if (!registered) {
+    transactions.push({
+      receiverId: wrapToken,
+      actions: [
+        actionCreators.functionCall(
+          "storage_deposit",
+          {},
+          20_000_000_000_000n,
+          await ftStorageMin(wrapToken),
+        ),
+      ],
+    });
+  }
+
+  transactions.push({
+    receiverId: wrapToken,
+    actions: [
+      // `near_deposit` wraps the attached deposit, which for this pair is the
+      // native-to-wrapped conversion and the only way to produce the rail's form.
+      actionCreators.functionCall(
+        "near_deposit",
+        {},
+        30_000_000_000_000n,
+        deficit,
+      ),
+    ],
+  });
+
+  return transactions;
 }
 
 /**
@@ -326,7 +408,16 @@ export async function runNearDeposit({
   const rail = railOf(plan);
   onProgress?.({ leg: "bridge", message: `Bridging ${rail.symbol}…` });
 
-  const { produced, wrap } = await railDelivered(swap);
+  const produced = await railDelivered(swap);
+
+  // The rail has to be in the account before the locker call debits it, and a swap
+  // that paid out native NEAR leaves the wrapped contract untouched. So what the
+  // account already holds wrapped is used first and only the missing part is wrapped,
+  // in the same batch and before the deposit.
+  const wrap =
+    rail.tokenId === "NEAR"
+      ? await wrapNearDeficit(rail.sourceAddress, accountId, produced)
+      : [];
 
   const prepared = await prepareDeposit(plan, {
     from: "near",
@@ -348,7 +439,7 @@ export async function runNearDeposit({
         recipient: omniAddress(CHAIN_KIND[to], recipient),
         tokenAddress: omniAddress(ChainKind.Near, rail.sourceAddress),
       },
-      wrap ? { additionalTransactions: [wrap] } : {},
+      wrap.length > 0 ? { additionalTransactions: wrap } : {},
     );
   } catch (err) {
     if (!/InitTransferEvent not found/.test(String(err))) throw err;
@@ -718,6 +809,20 @@ export async function runFromNear({
     guaranteedSwapOut = floor;
   }
 
+  // Everything this batch takes from the wrapping contract is, on this form, the
+  // user's native NEAR: a straight bridge's own deposit (there is no swap to carry a
+  // `near_deposit`), or the input of the source swap, which the router was told was
+  // wNEAR and therefore did not wrap. What the account already holds wrapped is used
+  // and only the missing part is wrapped, in front of the batch and in one signature.
+  const spendingWrappedNear =
+    sourceTokenId === WRAP_NEAR ||
+    (plan.sourceSwap === null && sourceTokenId === NEAR_NATIVE);
+  if (spendingWrappedNear) {
+    swapTransactions.unshift(
+      ...(await wrapNearDeficit(WRAP_NEAR, accountId, amount)),
+    );
+  }
+
   onProgress?.({ leg: "bridge", message: `Bridging ${rail.symbol}…` });
 
   const prepared = await prepareDeposit(plan, {
@@ -864,6 +969,22 @@ export async function runNearDestinationSwap({
   }
 
   const transactions = routeToNajTransactions(route);
+
+  // A route quoted from the wrapping contract starts by spending wNEAR, and the
+  // router was told the input *is* wNEAR, so it has no `near_deposit` in it. When the
+  // form's source row was native NEAR, that contract is only the address of the
+  // balance the user actually holds: whatever is not already wrapped is wrapped here,
+  // in front of the route and in the same batch.
+  //
+  // Never for a native `near` input — that is the arrival side, where the account
+  // already holds the native form and the router's own `near_deposit` does the
+  // wrapping. Wrapping again there would wrap the same NEAR twice.
+  if (railTokenId === WRAP_NEAR) {
+    transactions.unshift(
+      ...(await wrapNearDeficit(WRAP_NEAR, accountId, amountIn)),
+    );
+  }
+
   const txHash = await signNearTransactions(selector, transactions, (total) => {
     // The count, not a running step. The wallet owns the sequencing now, so
     // reporting "step 2 of 3" would be narrating something we cannot observe — and

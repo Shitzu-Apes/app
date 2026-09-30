@@ -407,13 +407,13 @@ test("a NEAR source with a swap splits into two presses", () => {
   const deposit = nearSrc.slice(submit, submit + 500);
   assert.ok(submit > call, "the deposit signs the bridge transaction");
   // The swap is already signed and settled, so it is not bundled in again. The one
-  // thing that *is* added is the wrap, and only when the swap delivered native NEAR
-  // — the split's whole point is that the batch is the storage deposit, the locker
-  // call, and at most that one wrap.
+  // thing that *is* added is the wrap, and only for what the account does not already
+  // hold wrapped — the split's whole point is that the batch is the storage deposit,
+  // the locker call, and at most the wrap's own transactions.
   assert.doesNotMatch(deposit, /swapTransactions/);
   assert.match(
     nearSrc,
-    /wrap \? \{ additionalTransactions: \[wrap\] \} : \{\}/,
+    /wrap\.length > 0 \? \{ additionalTransactions: wrap \} : \{\}/,
   );
 });
 
@@ -440,8 +440,13 @@ test("the deposit reads the swap's outcome from both the transaction and the bal
   assert.match(near, /swap\.spentToken !== swap\.railToken/);
   assert.match(near, /swap\.spentToken !== NEAR_NATIVE/);
 
-  // Native is wrapped rather than treated as equivalent to the wrapped contract.
-  assert.match(near, /ft_on_transfer/);
+  // Native is wrapped rather than treated as equivalent to the wrapped contract — and
+  // not with a method that does not exist: `wrap.near` has `near_deposit`, while the
+  // `ft_on_transfer` this used to build was answered with MethodNotFound on every
+  // batch that needed it.
+  assert.match(near, /wrapNearDeficit\(/);
+  assert.match(near, /near_deposit/);
+  assert.doesNotMatch(near, /ft_on_transfer/);
   // And the failure names both forms, since naming only the wrapped contract is wrong
   // whenever the payout would have been native.
   assert.match(near, /Neither \$\{swap\.railToken\} nor native NEAR grew/);
@@ -476,6 +481,61 @@ test("both source paths still exist, and each reports only what it signs", () =>
   assert.match(
     panel,
     /if \(leg === "swap"\) begin\("swap-in"\);\s*\n\s*if \(leg === "bridge"\) begin\("bridge"\);/,
+  );
+});
+
+test("a direct NEAR bridge wraps what the account does not already hold", () => {
+  // The reported bug. The deposit is an `ft_transfer_call` on wrap.near, which debits
+  // the *wrapped* balance, and a straight bridge has no swap in it to carry a
+  // `near_deposit` along — so native NEAR was bridged by a transaction that assumed
+  // the account was already wrapped, and failed while the money sat in the account.
+  const near = readFileSync("src/bridge/executeNear.ts", "utf8");
+  const runNear = near.slice(
+    near.indexOf("export async function runFromNear"),
+    near.indexOf("export async function runNearDestinationSwap"),
+  );
+  // The wrapping contract as the *source* is the signal: it is what the form's native
+  // NEAR row resolves to, and it is what a router route quoted from wNEAR spends.
+  assert.match(runNear, /sourceTokenId === WRAP_NEAR/);
+  // It rides in the same signed batch, in front of the deposit and of the swap.
+  assert.match(
+    runNear,
+    /swapTransactions\.unshift\(\s*\.\.\.\(await wrapNearDeficit\(\s*WRAP_NEAR,\s*accountId,\s*amount,?\s*\)/,
+  );
+
+  // And the split path builds the same wrap for what the swap delivered, so a native
+  // payout is wrapped rather than bridged from a balance that does not exist.
+  assert.match(
+    near,
+    /rail\.tokenId === "NEAR"[\s\S]{0,120}?await wrapNearDeficit\(\s*rail\.sourceAddress,\s*accountId,\s*produced,?\s*\)/,
+  );
+});
+
+test("the swap paths wrap too, not just the bridge deposit", () => {
+  // The other two places the same balance is debited, both of which ask the router
+  // for `token_in=wrap.near` and therefore get a route with no `near_deposit` in it:
+  // the source swap of a conversion, and the same-chain swap on NEAR.
+  const near = readFileSync("src/bridge/executeNear.ts", "utf8");
+
+  const sourceSwap = near.slice(
+    near.indexOf("export async function runNearSourceSwap"),
+    near.indexOf("export async function railDelivered"),
+  );
+  assert.match(sourceSwap, /sourceTokenId === WRAP_NEAR/);
+  assert.match(
+    sourceSwap,
+    /transactions\.unshift\(\s*\.\.\.\(await wrapNearDeficit\(\s*WRAP_NEAR,\s*accountId,\s*amount,?\s*\)/,
+  );
+
+  const destinationSwap = near.slice(
+    near.indexOf("export async function runNearDestinationSwap"),
+  );
+  // Only the wrapping contract, never a native `near` input: the arrival side already
+  // holds the native form, and the router's own `near_deposit` wraps it there.
+  assert.match(destinationSwap, /railTokenId === WRAP_NEAR/);
+  assert.match(
+    destinationSwap,
+    /transactions\.unshift\(\s*\.\.\.\(await wrapNearDeficit\(\s*WRAP_NEAR,\s*accountId,\s*amountIn,?\s*\)/,
   );
 });
 
