@@ -964,7 +964,7 @@ export async function runNearDestinationSwap({
 
   if (!route) {
     throw new TransferError(
-      "The route into your target token is no longer available. Your tokens have arrived — swap them from the token list.",
+      "No swap route is available for your target token right now.",
     );
   }
 
@@ -1007,7 +1007,7 @@ export async function runNearDestinationSwap({
   // never signed.
   if (!txHash) {
     throw new TransferError(
-      "Your wallet did not sign the swap into your target token, so it was not done. Your bridged tokens have arrived — swap them from the token list.",
+      "Your wallet did not sign the swap, so it was not done.",
     );
   }
 

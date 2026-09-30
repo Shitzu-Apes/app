@@ -1475,8 +1475,8 @@ test("whether the button can be pressed is decided in one place, not two", () =>
   const body = readFileSync("src/bridge/AnyToAnyPanel.svelte", "utf8");
   assert.match(
     body,
-    /\$: canPress = transferDone \|\| parkedPress \|\| gate\.canSubmit;/,
-    "one rule, and a parked leg is always pressable",
+    /\$: canPress =\s*\n?\s*transferDone \|\| tailFailed !== null \|\| parkedPress \|\| gate\.canSubmit;/,
+    "one rule, and both a parked leg and a landed-but-unswapped one stay pressable",
   );
   assert.match(body, /disabled=\{!canPress\}/, "the attribute uses it");
   assert.doesNotMatch(

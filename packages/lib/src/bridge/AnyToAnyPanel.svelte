@@ -916,7 +916,8 @@
    */
   $: parkedPress =
     transferState === "awaiting-deposit" || transferState === "awaiting-final";
-  $: canPress = transferDone || parkedPress || gate.canSubmit;
+  $: canPress =
+    transferDone || tailFailed !== null || parkedPress || gate.canSubmit;
   /**
    * The newest search that has *started*, which is what owns the spinner.
    *
@@ -1251,6 +1252,14 @@
     waitingForBridge = null;
     transferMessage = null;
 
+    // A destination swap that failed after the bridge landed is not a form
+    // attempt, and a recalculation is not a reason to forget it: the arrived
+    // tokens are a fact about the wallet, and both recoveries still apply. It
+    // also must not reach the park below — that branch exists for a signed source
+    // swap with nothing bridged, and this is the opposite case, a signed deposit
+    // that has already been paid out.
+    if (tailFailed) return;
+
     if (!swapStillApplies) {
       swapLeg = null;
       // The landed amount belongs to the transfer that produced it. Left behind, a
@@ -1295,6 +1304,12 @@
     // because `runningPlan` is deliberately sticky for the whole of a transfer and that
     // includes the gap between a NEAR source's two presses.
     runningPlan = null;
+    // Every way of abandoning the form passes through here — both chain pickers, a
+    // target change, and starting over — and the recovery is about the question the
+    // form was asking. Kept past a reset it would describe a route this form is no
+    // longer on, and its retry is built from a `runningPlan` that reset has just
+    // forgotten, so it goes with them.
+    tailFailed = null;
     clearAttempt();
     generation++;
   }
@@ -1337,6 +1352,9 @@
     activeStep = -1;
     stepFailed = false;
     transferDone = false;
+    // A new transfer is a new question. The previous failure's recovery goes with
+    // it; the arrived tokens are still there for the form to be pointed at by hand.
+    tailFailed = null;
     transferState = "running";
     // Captured here, once, while `best` is still the plan being signed. Every later leg
     // reads this rather than the derived value, so a search landing mid-transfer cannot
@@ -1751,6 +1769,9 @@
     // user signs each one. "Step 2 of 3" is the difference between three prompts
     // and the sense that something has gone wrong.
     transferMessage = null;
+    // A retry is a fresh attempt, so the previous failure's recovery goes with it.
+    // Set again below if this one fails too.
+    tailFailed = null;
     try {
       // What the swap actually delivered, in the target's base units.
       //
@@ -1799,6 +1820,10 @@
       transferState = "failed";
       transferError =
         err instanceof Error ? err.message : "The swap did not go through.";
+      // The delivery amount, not the error, is what the recovery needs: the retry
+      // re-quotes it and the manual route prefills the form with it, and neither
+      // can be derived once this call's argument is out of scope.
+      tailFailed = { amount: amountIn };
       return;
     } finally {
       await reloadBalances();
@@ -1829,6 +1854,53 @@
   }
 
   /**
+   * The destination swap's two ways out, as presses rather than prose.
+   *
+   * "Swap them from the token list" used to be the whole recovery, and it was a
+   * sentence: the form stayed on a spent source balance with a disabled button, so
+   * the instruction named work the user had to work out for themselves. These are
+   * the same two paths, taken for them — ask the market again, or turn the leftover
+   * bridge leg into the plain swap it now is.
+   */
+  async function retryFinalLeg() {
+    if (!tailFailed || !runningPlan) return;
+    transferState = "running";
+    stepFailed = false;
+    transferError = null;
+    await runFinalLeg(tailFailed.amount);
+  }
+
+  /**
+   * Point the form at the chain the tokens landed on and swap the rail itself.
+   *
+   * What is left after a failed destination swap is a same-chain swap: the user
+   * holds the rail token in the destination wallet and wants the target token
+   * there. So the destination chain becomes the source, the rail becomes the
+   * amount and the token being sold, and the ordinary search prices it — no
+   * bridge, no second wallet, no instruction the user has to interpret.
+   */
+  function swapManually() {
+    const plan = runningPlan;
+    const arrival = tailFailed;
+    if (!plan?.rail || !arrival) return;
+    const rail = plan.rail;
+
+    source = dest;
+    // Cleared before the reset, or `clearAttempt` sees a surviving source swap and
+    // re-parks the transfer on a deposit that has already been signed.
+    swapLeg = null;
+    landedAmount = null;
+    receivedAmount = null;
+    transferDone = false;
+    amountInput = undefined;
+    reset();
+    // Set after the reset, which forgets the previous conversion's selections.
+    sourceTokenId =
+      dest === "near" ? railAssetOnArrival(rail, "near") : rail.destAddress;
+    amountInput = formatBaseUnitsExact(arrival.amount, rail.destDecimals);
+  }
+
+  /**
    * What landed, held between the two halves of a NEAR-sourced conversion.
    *
    * The arrived amount is the destination swap's input, and it is only knowable
@@ -1837,6 +1909,21 @@
    * amount the second one needs.
    */
   let landedAmount: bigint | null = null;
+
+  /**
+   * A destination swap that failed after the bridge had already landed.
+   *
+   * Its own state rather than the generic failure, because it is a different
+   * situation with a different remedy: nothing before the swap went wrong, the
+   * tokens are in the destination wallet, and the only open question is how to
+   * turn them into the target. The amount is what both answers need — the retry
+   * re-quotes it, and the manual route prefills the form with it.
+   *
+   * A recalculation does not clear it. No edit to this form can un-arrive the
+   * money, so the two ways out stay on screen until the user takes one; only
+   * changing a chain or starting a new transfer drops it.
+   */
+  let tailFailed: { amount: bigint } | null = null;
 
   /**
    * What the destination swap actually delivered, in the target's base units.
@@ -2452,7 +2539,47 @@
     </div>
   {/if}
 
-  {#if transferError}
+  {#if tailFailed}
+    <!--
+      The bridge worked and the last swap did not, said in that order because that
+      is the order the user needs it in: the money arrived, and here are the two
+      ways to finish. The old copy — "swap them from the token list" — was an
+      instruction attached to a form whose only button was disabled by the spent
+      source balance, which is how a late failure became a dead end.
+    -->
+    <div class="rounded-xl bg-white/5 border border-shitzu-4/45 p-3 space-y-2">
+      <div class="text-sm font-medium text-shitzu-1">
+        Your {runningPlan?.rail?.symbol ?? "tokens"} arrived on {CHAINS[dest]
+          .name}
+      </div>
+      <div class="text-xs text-shitzu-2">
+        The swap into {runningPlan?.targetSymbol ?? "your target token"} did not
+        go through, and the tokens are safe in your wallet. Ask the market again,
+        or take the same swap on its own.
+      </div>
+      {#if transferError}
+        <div class="text-xs text-red-300">{transferError}</div>
+      {/if}
+      <div class="flex gap-2">
+        <button
+          type="button"
+          class="flex-1 px-3 py-2 rounded-lg text-sm font-semibold bg-shitzu-4 text-black hover:bg-shitzu-5 transition-colors"
+          on:click={retryFinalLeg}
+        >
+          Try the swap again
+        </button>
+        <button
+          type="button"
+          class="flex-1 px-3 py-2 rounded-lg text-sm font-semibold bg-white/10 text-shitzu-1 border border-shitzu-4/45 hover:bg-white/15 transition-colors"
+          on:click={swapManually}
+        >
+          Swap it yourself
+        </button>
+      </div>
+    </div>
+  {/if}
+
+  {#if transferError && !tailFailed}
     <div class="text-sm text-red-300">{transferError}</div>
   {/if}
 
@@ -2467,7 +2594,11 @@
       // A finished transfer's button is a way out, not a way to redo the conversion.
       // It was inert before, which left the form sitting on a completed plan with
       // nothing to press.
-      if (transferDone) return startAnother();
+      //
+      // A late failure's button is the same way out, and for the same reason: the
+      // conversion as planned cannot continue, and the two ways it *can* continue
+      // are in the card above the button.
+      if (transferDone || tailFailed) return startAnother();
       // The parked presses come *before* the gate, and must stay there. A pending
       // final leg is the one thing that has to remain pressable — the route is settled,
       // the money has arrived, and this is the press that completes the conversion.
@@ -2486,7 +2617,7 @@
       return startTransfer();
     }}
   >
-    {transferDone
+    {transferDone || tailFailed
       ? "Start another conversion"
       : gate.needsSourceConnect
         ? `Connect ${CHAINS[source].name} wallet`
