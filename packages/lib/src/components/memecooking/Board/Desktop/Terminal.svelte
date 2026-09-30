@@ -12,13 +12,13 @@
   import SortToggle from "./SortToggle.svelte";
 
   import { useMemesQuery } from "$lib/api/queries/memes";
-  import { useRefPoolsQuery } from "$lib/api/queries/ref";
   import SelectBox from "$lib/components/SelectBox.svelte";
   import { EXTERNAL_MEMES } from "$lib/external_memes";
   import { ScreenSize } from "$lib/models";
   import { nearWallet } from "$lib/near";
   import { widthAtLeast$ } from "$lib/screen-size";
   import { searchQuery$ } from "$lib/store/memebids";
+  import { ensurePoolsLoaded, poolsById$ } from "$lib/store/poolInfo";
   import {
     orderOptions,
     filterAndSortMeme,
@@ -46,13 +46,16 @@
   }
 
   $: memesQuery = useMemesQuery();
-  $: refPoolsQuery = useRefPoolsQuery();
+
+  // Pool stats are only needed for the memes we render, so fetch them by id
+  // instead of enumerating every pool on the Ref contract.
+  $: ensurePoolsLoaded(EXTERNAL_MEMES.map((meme) => meme.pool_id));
 
   $: displayedMemebids = match(activeTab)
     .with("other", () =>
       filterAndSortMeme(
         Object.values(EXTERNAL_MEMES),
-        $refPoolsQuery.data ?? [],
+        $poolsById$,
         {
           sort: selectedSort.value,
           order: selectedDirection.value,
@@ -68,7 +71,7 @@
     .otherwise(() =>
       filterAndSortMeme(
         $memesQuery.data ?? [],
-        $refPoolsQuery.data ?? [],
+        $poolsById$,
         {
           sort: selectedSort.value,
           order: selectedDirection.value,
@@ -137,11 +140,11 @@
     </div>
   </div>
 
-  {#if $memesQuery.status === "pending" || $refPoolsQuery.status === "pending"}
+  {#if $memesQuery.status === "pending"}
     <div class="w-full my-10">
       <LoadingLambo />
     </div>
-  {:else if $memesQuery.status === "error" || $refPoolsQuery.status === "error"}
+  {:else if $memesQuery.status === "error"}
     <div class="w-full my-10">Something went wrong</div>
   {:else}
     <VirtualMemeList

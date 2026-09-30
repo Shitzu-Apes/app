@@ -4,7 +4,7 @@
 
   export let memebid: Meme;
 
-  const statsQuery = useMemeStatsQuery(memebid.meme_id);
+  const statsQuery = useMemeStatsQuery(memebid.meme_id, memebid.pool_id);
 </script>
 
 <div class="flex flex-col">

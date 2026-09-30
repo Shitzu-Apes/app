@@ -5,9 +5,8 @@
 
   import MEMECOOKING_LOGO from "$lib/assets/logo/meme-cooking.webp";
   import SHITZU_LOGO from "$lib/assets/logo/shitzu.webp";
-  import { showWalletSelector } from "$lib/auth";
-  import HowItWorkSheet from "$lib/components/memecooking/BottomSheet/HowItWorkSheet.svelte";
-  import BridgeSheet from "$lib/components/memecooking/BottomSheet/SolToNearBridgeSheet.svelte";
+  import { showWalletSelector } from "$lib/auth/showWalletSelector";
+  import LazySheet from "$lib/components/LazySheet.svelte";
   import Chef from "$lib/components/memecooking/Chef.svelte";
   import MemeCreationNotification from "$lib/components/memecooking/Notification/MemeCreationNotification.svelte";
   import Notification from "$lib/components/memecooking/Notification/Notification.svelte";
@@ -23,7 +22,24 @@
   function openBridgeSheet() {
     // Not dismissible on outside click: a stray tap mid-bridge would abandon a
     // transfer that is already in flight.
-    openBottomSheet(BridgeSheet, {}, "m", { dismissible: false });
+    openBottomSheet(
+      LazySheet,
+      {
+        loader: () =>
+          import(
+            "$lib/components/memecooking/BottomSheet/SolToNearBridgeSheet.svelte"
+          ),
+      },
+      "m",
+      { dismissible: false },
+    );
+  }
+
+  function openHowItWorksSheet() {
+    openBottomSheet(LazySheet, {
+      loader: () =>
+        import("$lib/components/memecooking/BottomSheet/HowItWorkSheet.svelte"),
+    });
   }
 </script>
 
@@ -82,7 +98,7 @@
             <button
               use:melt={$item}
               on:click={() => {
-                openBottomSheet(HowItWorkSheet);
+                openHowItWorksSheet();
                 $open = false;
               }}
               class="flex flex-col items-center justify-center p-2 text-gray-300 hover:text-white transition-colors"

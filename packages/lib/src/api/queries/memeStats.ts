@@ -2,8 +2,8 @@ import { derived, type Readable } from "svelte/store";
 
 import { useMemeDetailQuery } from "./memes";
 import { createNearPriceQuery } from "./prices";
-import { useRefPoolsQuery } from "./ref";
 
+import { ensurePoolsLoaded, poolsById$ } from "$lib/store/poolInfo";
 import type { FixedNumber } from "$lib/util";
 import {
   calculateTokenStatsFromMeme,
@@ -22,7 +22,10 @@ export type MemeStats = {
 };
 
 // Create a derived meme stats query that combines meme data with pool stats
-export function useMemeStatsQuery(memeId: number): Readable<{
+export function useMemeStatsQuery(
+  memeId: number,
+  poolId?: number | null,
+): Readable<{
   isLoading: boolean;
   isError: boolean;
   data: MemeStats | undefined;
@@ -30,21 +33,19 @@ export function useMemeStatsQuery(memeId: number): Readable<{
   refetch: () => Promise<void>;
 }> {
   const memeQuery = useMemeDetailQuery(memeId);
-  const refPoolQuery = useRefPoolsQuery();
   const nearPriceQuery = createNearPriceQuery();
 
+  ensurePoolsLoaded([poolId]);
+
   return derived(
-    [memeQuery, refPoolQuery, nearPriceQuery],
-    ([$meme, $refPool, $nearPrice]) => {
+    [memeQuery, poolsById$, nearPriceQuery],
+    ([$meme, $pools, $nearPrice]) => {
       const refetch = async () => {
-        await Promise.all([
-          $meme.refetch(),
-          $refPool.refetch(),
-          $nearPrice.refetch(),
-        ]);
+        ensurePoolsLoaded([poolId]);
+        await Promise.all([$meme.refetch(), $nearPrice.refetch()]);
       };
 
-      if ($meme.isFetching || $refPool.isFetching || $nearPrice.isFetching) {
+      if ($meme.isFetching || $nearPrice.isFetching) {
         return {
           isLoading: true,
           isError: false,
@@ -54,16 +55,12 @@ export function useMemeStatsQuery(memeId: number): Readable<{
         };
       }
 
-      if (
-        $meme.status === "error" ||
-        $refPool.status === "error" ||
-        $nearPrice.status === "error"
-      ) {
+      if ($meme.status === "error" || $nearPrice.status === "error") {
         return {
           isLoading: false,
           isError: true,
           data: undefined,
-          error: $meme.error || $refPool.error || $nearPrice.error,
+          error: $meme.error || $nearPrice.error,
           refetch,
         };
       }
@@ -99,32 +96,30 @@ export function useMemeStatsQuery(memeId: number): Readable<{
         };
       }
       try {
-        if (meme.pool_id && $refPool.data) {
-          const poolStats = $refPool.data[meme.pool_id];
-          if (poolStats) {
-            const stat = calculateTokenStatsFromPoolInfo(
-              meme,
-              poolStats,
-              meme.decimals,
-            );
+        const poolStat = $pools.get(poolId ?? meme.pool_id ?? -1);
+        if (poolStat) {
+          const stat = calculateTokenStatsFromPoolInfo(
+            meme,
+            poolStat,
+            meme.decimals,
+          );
 
-            return {
-              isLoading: false,
-              isError: false,
-              data: {
-                mcap: {
-                  near: stat.mcap,
-                  usd: stat.mcap.mul($nearPrice.data),
-                },
-                liquidity: {
-                  near: stat.liquidity,
-                  usd: stat.liquidity.mul($nearPrice.data),
-                },
+          return {
+            isLoading: false,
+            isError: false,
+            data: {
+              mcap: {
+                near: stat.mcap,
+                usd: stat.mcap.mul($nearPrice.data),
               },
-              error: null,
-              refetch,
-            };
-          }
+              liquidity: {
+                near: stat.liquidity,
+                usd: stat.liquidity.mul($nearPrice.data),
+              },
+            },
+            error: null,
+            refetch,
+          };
         }
 
         const stat = calculateTokenStatsFromMeme(meme);

@@ -5,22 +5,17 @@
 
   import { QueryClientProvider } from "@tanstack/svelte-query";
   import { SvelteQueryDevtools } from "@tanstack/svelte-query-devtools";
-  import { reconnect, watchAccount } from "@wagmi/core";
   import dayjs from "dayjs";
   import duration from "dayjs/plugin/duration";
   import relativeTime from "dayjs/plugin/relativeTime";
   import { onDestroy, onMount } from "svelte";
-  import { cubicIn, cubicOut } from "svelte/easing";
   import { derived, get } from "svelte/store";
-  import { blur } from "svelte/transition";
 
   import { client } from "$lib/api/client";
   import { queryClient } from "$lib/api/queries";
+  import LazySheet from "$lib/components/LazySheet.svelte";
   import Toast from "$lib/components/Toast.svelte";
   import Tooltip from "$lib/components/Tooltip.svelte";
-  import LaunchSheet from "$lib/components/memecooking/BottomSheet/LaunchSheet.svelte";
-  import RegisterSheet from "$lib/components/memecooking/BottomSheet/RegisterSheet.svelte";
-  import { wagmiConfig } from "$lib/evm/wallet";
   import { BottomSheet } from "$lib/layout/BottomSheet";
   import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
   import MCHeader from "$lib/layout/memecooking/MCHeader.svelte";
@@ -58,12 +53,13 @@
     readAndSetReferral();
 
     const fetchLastBlockHeight = async () => {
-      const res = await client.GET("/info");
-
       try {
-        const status = await rpcFetch<{
-          sync_info: { latest_block_height: number };
-        }>(import.meta.env.VITE_NODE_URL, { method: "status", params: [] });
+        const [res, status] = await Promise.all([
+          client.GET("/info"),
+          rpcFetch<{
+            sync_info: { latest_block_height: number };
+          }>(import.meta.env.VITE_NODE_URL, { method: "status", params: [] }),
+        ]);
 
         $indexer_last_block_height$ = res.data?.last_block_height ?? null;
         $indexer_last_seen_block_height$ =
@@ -134,31 +130,46 @@
   });
 
   onMount(() => {
-    reconnect(wagmiConfig);
+    // Loaded on the first idle slot: the EVM/wagmi stack is only needed for the
+    // wallet dropdown and used to be the biggest part of the initial bundle.
+    const startEvm = async () => {
+      const [{ reconnect, watchAccount }, { wagmiConfig }] = await Promise.all([
+        import("@wagmi/core"),
+        import("$lib/evm/wallet"),
+      ]);
 
-    watchAccount(wagmiConfig, {
-      onChange: async (data) => {
-        const selector = await get(nearWallet.selector$);
-        if (
-          data.address != null &&
-          selector.store.getState().selectedWalletId == null
-        ) {
-          selector.wallet("ethereum-wallets").then((wallet) => {
-            // FIXME optional access key not yet supported by wallet selector
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            wallet.signIn({} as any);
-          });
-        }
-        if (
-          data.address == null &&
-          selector.store.getState().selectedWalletId === "ethereum-wallets"
-        ) {
-          selector.wallet("ethereum-wallets").then((wallet) => {
-            wallet.signOut();
-          });
-        }
-      },
-    });
+      reconnect(wagmiConfig);
+
+      watchAccount(wagmiConfig, {
+        onChange: async (data) => {
+          const selector = await get(nearWallet.selector$);
+          if (
+            data.address != null &&
+            selector.store.getState().selectedWalletId == null
+          ) {
+            selector.wallet("ethereum-wallets").then((wallet) => {
+              // FIXME optional access key not yet supported by wallet selector
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              wallet.signIn({} as any);
+            });
+          }
+          if (
+            data.address == null &&
+            selector.store.getState().selectedWalletId === "ethereum-wallets"
+          ) {
+            selector.wallet("ethereum-wallets").then((wallet) => {
+              wallet.signOut();
+            });
+          }
+        },
+      });
+    };
+
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(() => void startEvm(), { timeout: 2000 });
+    } else {
+      window.setTimeout(() => void startEvm(), 1000);
+    }
   });
 
   const { accountId$, walletId$ } = nearWallet;
@@ -172,7 +183,13 @@
       const transactions = await MemeCooking.checkRegister(accountId);
       if (transactions.length === 0) return;
 
-      openBottomSheet(RegisterSheet, { accountId, transactions });
+      openBottomSheet(LazySheet, {
+        loader: () =>
+          import(
+            "$lib/components/memecooking/BottomSheet/RegisterSheet.svelte"
+          ),
+        props: { accountId, transactions },
+      });
     },
   );
 
@@ -184,7 +201,10 @@
       !isRunning &&
       Date.now() < new Date("2024-09-30T15:01:00.000Z").valueOf()
     ) {
-      openBottomSheet(LaunchSheet);
+      openBottomSheet(LazySheet, {
+        loader: () =>
+          import("$lib/components/memecooking/BottomSheet/LaunchSheet.svelte"),
+      });
     }
   });
 
@@ -198,11 +218,7 @@
   {#key "memecooking"}
     <BottomSheet variant="shitzu" />
 
-    <div
-      in:blur={{ duration: 500, delay: 500, easing: cubicIn }}
-      out:blur={{ duration: 500, easing: cubicOut }}
-      class="w-full container mx-auto bg-dark"
-    >
+    <div class="w-full container mx-auto bg-dark">
       <div class="text-white min-h-screen flex flex-col">
         <MCHeader />
 

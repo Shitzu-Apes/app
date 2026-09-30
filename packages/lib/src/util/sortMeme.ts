@@ -19,7 +19,7 @@ export const orderOptions = [
 
 export function filterAndSortMeme<T extends Meme>(
   memes: T[],
-  refPools: PoolInfo[],
+  pools: Map<number, PoolInfo>,
   sort: {
     sort: string;
     order: string;
@@ -84,24 +84,24 @@ export function filterAndSortMeme<T extends Meme>(
   }
 
   function getPoolStatFromCache(meme: Meme) {
-    if (meme.pool_id === null || meme.pool_id === undefined) {
-      const pricePerTokenInNear = getProjectedMemePriceInNear(meme);
-      const totalSupply = BigInt(meme.total_supply || 0);
-      const price = new FixedNumber(pricePerTokenInNear, 24);
-      const mcap = new FixedNumber(
-        pricePerTokenInNear * totalSupply,
-        24 + meme.decimals,
-      );
-      const liquidity = new FixedNumber(BigInt(meme.total_deposit!) * 2n, 24);
-      return { mcap, liquidity, price };
-    }
-    const poolStat = refPools[meme.pool_id];
+    const poolId = meme.pool_id;
+    const poolStat = poolId == null ? undefined : pools.get(poolId);
 
-    if (!poolStat) {
-      throw new Error("Pool stat not found");
+    if (poolStat) {
+      return calculateTokenStatsFromPoolInfo(meme, poolStat, meme.decimals);
     }
 
-    return calculateTokenStatsFromPoolInfo(meme, poolStat, meme.decimals);
+    // Pools stream in after the list renders; until one arrives fall back to
+    // the projected stats so sorting still works.
+    const pricePerTokenInNear = getProjectedMemePriceInNear(meme);
+    const totalSupply = BigInt(meme.total_supply || 0);
+    const price = new FixedNumber(pricePerTokenInNear, 24);
+    const mcap = new FixedNumber(
+      pricePerTokenInNear * totalSupply,
+      24 + meme.decimals,
+    );
+    const liquidity = new FixedNumber(BigInt(meme.total_deposit || 0) * 2n, 24);
+    return { mcap, liquidity, price };
   }
 
   switch (sort.sort) {

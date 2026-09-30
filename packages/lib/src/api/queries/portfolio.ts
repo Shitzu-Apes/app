@@ -4,9 +4,9 @@ import { derived, type Readable } from "svelte/store";
 import { z } from "zod";
 
 import { useMemesQuery } from "./memes";
-import { useRefPoolsQuery } from "./ref";
 
 import type { Meme } from "$lib/api/client";
+import { poolsById$ } from "$lib/store/poolInfo";
 import {
   calculateTokenStatsFromMeme,
   calculateTokenStatsFromPoolInfo,
@@ -86,34 +86,26 @@ export function usePortfolioQuery(accountId: string): Readable<{
 }> {
   const fastNearQuery = useFastNearPortfolioQuery(accountId);
   const memesQuery = useMemesQuery();
-  const refPoolQuery = useRefPoolsQuery();
+  const pools$ = poolsById$;
 
   return derived(
-    [fastNearQuery, memesQuery, refPoolQuery],
-    ([$fastNear, $memes, $refPool]) => {
+    [fastNearQuery, memesQuery, pools$],
+    ([$fastNear, $memes, $pools]) => {
       const refetch = async () => {
-        await Promise.all([
-          $fastNear.refetch(),
-          $memes.refetch(),
-          $refPool.refetch(),
-        ]);
+        await Promise.all([$fastNear.refetch(), $memes.refetch()]);
       };
 
-      if (
-        $fastNear.status === "error" ||
-        $memes.status === "error" ||
-        $refPool.status === "error"
-      ) {
+      if ($fastNear.status === "error" || $memes.status === "error") {
         return {
           isLoading: false,
           isError: true,
           data: undefined,
-          error: $fastNear.error || $memes.error || $refPool.error,
+          error: $fastNear.error || $memes.error,
           refetch,
         };
       }
 
-      if (!$fastNear.data || !$memes.data || !$refPool.data) {
+      if (!$fastNear.data || !$memes.data) {
         return {
           isLoading: true,
           isError: false,
@@ -134,7 +126,7 @@ export function usePortfolioQuery(accountId: string): Readable<{
           try {
             if (meme.pool_id) {
               // Get pool stats from cache
-              const poolStats = $refPool.data[meme.pool_id];
+              const poolStats = $pools.get(meme.pool_id);
 
               if (poolStats) {
                 const stats = calculateTokenStatsFromPoolInfo(

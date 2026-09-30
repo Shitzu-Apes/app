@@ -18,7 +18,6 @@ import { fetchMyFlags } from "$lib/auth/flag";
 import { fetchIsLoggedIn, webWalletLogin } from "$lib/auth/login";
 import { addToast, addTxToast } from "$lib/components/Toast.svelte";
 import EvmOnboardSheet from "$lib/components/memecooking/BottomSheet/EvmOnboardSheet.svelte";
-import { wagmiConfig } from "$lib/evm/wallet";
 import type { UnionModuleState } from "$lib/models";
 
 export type TransactionCallbacks<T> = {
@@ -46,7 +45,7 @@ export class Wallet {
           import("@near-wallet-selector/ethereum-wallets"),
           import("@web3modal/wagmi"),
         ]).then(
-          ([
+          async ([
             { setupWalletSelector },
             { setupIntearWallet },
             { setupMeteorWallet },
@@ -58,6 +57,8 @@ export class Wallet {
             { createWeb3Modal },
           ]) => {
             this.isLoading$.set(false);
+            // Loaded on demand: the wagmi config drags in the whole EVM stack.
+            const { wagmiConfig } = await import("$lib/evm/wallet");
             return setupWalletSelector({
               network: import.meta.env.VITE_NETWORK_ID,
               modules: [

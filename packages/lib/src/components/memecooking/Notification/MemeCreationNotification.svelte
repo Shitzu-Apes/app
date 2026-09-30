@@ -37,10 +37,13 @@
 
   $: {
     if ($memes.data && $memes.data.length > 0) {
-      const firstMeme = $memes.data.sort(
-        (a, b) =>
-          Number(b.created_timestamp_ms) - Number(a.created_timestamp_ms),
-      )[0];
+      // `reduce` instead of `sort`: this runs on every list update and must not
+      // reorder the shared cache in place.
+      const firstMeme = $memes.data.reduce((latest, meme) =>
+        Number(meme.created_timestamp_ms) > Number(latest.created_timestamp_ms)
+          ? meme
+          : latest,
+      );
 
       notification = {
         meme_id: firstMeme.meme_id,

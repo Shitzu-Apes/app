@@ -4,7 +4,7 @@
 
   export let meme: Meme;
 
-  const poolStatQuery = useMemeStatsQuery(meme.meme_id);
+  const poolStatQuery = useMemeStatsQuery(meme.meme_id, meme.pool_id);
 </script>
 
 <div class="flex items-center gap-6">

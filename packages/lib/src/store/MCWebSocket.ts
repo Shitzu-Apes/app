@@ -17,20 +17,51 @@ type LiveData =
 
 const callbacks: Map<string | symbol, (data: LiveData) => void> = new Map();
 
+/**
+ * Coalescing window for websocket events (ms).
+ *
+ * The feed can deliver several trades per second, and every event used to
+ * rewrite the meme list and re-render the board. Batching them keeps the main
+ * thread free for painting.
+ */
+const FLUSH_INTERVAL_MS = 250;
+/** Upper bound on buffered events so a hidden tab cannot queue without bound. */
+const MAX_BUFFERED_EVENTS = 500;
+
+const bufferedEvents: LiveData[] = [];
+let flushScheduled = false;
+
+function dispatch(data: LiveData) {
+  if (data.action === "new_trade") {
+    const newMeme = processTradeAndUpdateMemebids(data.data);
+    if (newMeme) {
+      data = { ...data, data: { ...data.data, ...newMeme } };
+    }
+  }
+  callbacks.forEach((callback) => {
+    callback(data);
+  });
+}
+
+function flushEvents() {
+  flushScheduled = false;
+  const batch = bufferedEvents.splice(0, bufferedEvents.length);
+  batch.forEach(dispatch);
+}
+
+function enqueueEvent(data: LiveData) {
+  bufferedEvents.push(data);
+  if (bufferedEvents.length > MAX_BUFFERED_EVENTS) {
+    bufferedEvents.splice(0, bufferedEvents.length - MAX_BUFFERED_EVENTS);
+  }
+  if (flushScheduled) return;
+  flushScheduled = true;
+  setTimeout(flushEvents, FLUSH_INTERVAL_MS);
+}
+
 export function initializeWebsocket(ws: WebSocket) {
   ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    console.log("[ws.onmessage]:", data);
-    if (data.action === "new_trade") {
-      const newMeme = processTradeAndUpdateMemebids(data.data)!;
-      data.data = {
-        ...data.data,
-        ...newMeme,
-      };
-    }
-    callbacks.forEach((callback) => {
-      callback(data);
-    });
+    enqueueEvent(JSON.parse(event.data) as LiveData);
   };
 
   ws.onclose = (...args) => {
@@ -92,8 +123,7 @@ export function MCunsubscribe(id: string | symbol) {
 }
 
 const symbol = Symbol("main_feed");
-MCSubscribe(symbol, async (data) => {
-  console.log("[main_feed] meme_id", data.data.meme_id);
+MCSubscribe(symbol, (data) => {
   const memeId = Number(data.data.meme_id.toString());
   bumpMeme(memeId);
 });

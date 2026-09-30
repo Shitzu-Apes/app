@@ -37,9 +37,11 @@ test("the fallback still blocks the tap and paints the scrim", () => {
 });
 
 test("the bridge sheet opens non-dismissible", () => {
+  // The sheet is loaded lazily now, so assert on the call shape plus the
+  // non-dismissible option rather than on the component identifier.
   assert.match(
     src(HEADER),
-    /openBottomSheet\(BridgeSheet, \{\}, "m", \{ dismissible: false \}\)/,
+    /openBottomSheet\(\s*LazySheet,\s*\{[\s\S]*?SolToNearBridgeSheet\.svelte[\s\S]*?\},\s*"m",\s*\{\s*dismissible: false\s*\},\s*\)/,
   );
 });
 

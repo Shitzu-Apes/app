@@ -1,6 +1,7 @@
 import { createQueryKeyStore } from "@lukemorales/query-key-factory";
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 import { createQuery } from "@tanstack/svelte-query";
+import { derived } from "svelte/store";
 
 import { client, type Meme } from "../client";
 
@@ -9,6 +10,7 @@ import { queryClient } from ".";
 import type { Notification } from "$lib/components/memecooking/Notification/Notification.svelte";
 import { EXTERNAL_MEMES } from "$lib/external_memes";
 import type { McAccount } from "$lib/near/memecooking";
+import { ensurePoolsLoaded } from "$lib/store/poolInfo";
 
 export const memesQueryFactory = createQueryKeyStore({
   memes: {
@@ -73,9 +75,18 @@ export const memesQueryFactory = createQueryKeyStore({
 });
 
 export function useMemesQuery() {
-  return createQuery({
+  const query = createQuery({
     ...memesQueryFactory.memes.all(),
     staleTime: 30000, // 30 seconds
+  });
+
+  return derived(query, (state) => {
+    // Pool stats are only fetched for the pools the memes reference; kick that
+    // off as soon as the list arrives so sort-by-mcap has real data.
+    if (state.data) {
+      ensurePoolsLoaded(state.data.map((meme) => meme.pool_id));
+    }
+    return state;
   });
 }
 

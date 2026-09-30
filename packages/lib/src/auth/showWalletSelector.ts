@@ -1,8 +1,7 @@
 import { get } from "svelte/store";
 import { match } from "ts-pattern";
 
-import { WalletSelector } from ".";
-
+import LazySheet from "$lib/components/LazySheet.svelte";
 import { openBottomSheet } from "$lib/layout/BottomSheet/Container.svelte";
 import type { Network } from "$lib/models/tokens";
 import type { colorVariant } from "$lib/models/variant";
@@ -13,17 +12,22 @@ export async function showWalletSelector(
   variant: colorVariant = "lime",
   initialNetwork?: Network,
 ) {
-  openBottomSheet(WalletSelector, {
-    variant,
-    initialNetwork: match(initialNetwork)
-      .with("near", () => "near")
-      .with("solana", () => "solana")
-      .with("ethereum", () => "evm")
-      .with("base", () => "evm")
-      .with("arbitrum", () => "evm")
-      .with("bnb", () => "evm")
-      .with(undefined, () => undefined)
-      .exhaustive(),
+  // The selector pulls in the EVM/Solana wallet connectors, so it is loaded on
+  // click instead of at startup.
+  openBottomSheet(LazySheet, {
+    loader: () => import("./WalletSelector.svelte"),
+    props: {
+      variant,
+      initialNetwork: match(initialNetwork)
+        .with("near", () => "near")
+        .with("solana", () => "solana")
+        .with("ethereum", () => "evm")
+        .with("base", () => "evm")
+        .with("arbitrum", () => "evm")
+        .with("bnb", () => "evm")
+        .with(undefined, () => undefined)
+        .exhaustive(),
+    },
   });
 }
 

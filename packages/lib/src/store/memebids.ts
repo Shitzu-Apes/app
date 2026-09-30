@@ -8,48 +8,63 @@ import { projectedPoolStats } from "$lib/util/projectedMCap";
 
 export const searchQuery$ = writable("");
 
-export function appendNewMeme(meme: Meme) {
-  const memes = queryClient.getQueryData<Meme[]>(
-    memesQueryFactory.memes.all().queryKey,
-  );
+const memesKey = memesQueryFactory.memes.all().queryKey;
+
+/**
+ * Replace a single meme in the cached list. Other entries keep their identity
+ * so the work stays proportional to the meme that changed.
+ */
+function patchMeme(
+  memeId: number,
+  patch: (meme: Meme) => Meme,
+): Meme | undefined {
+  const memes = queryClient.getQueryData<Meme[]>(memesKey);
   if (!memes) return;
-  queryClient.setQueryData(memesQueryFactory.memes.all().queryKey, [
-    ...memes,
-    meme,
-  ]);
+  const index = memes.findIndex((meme) => meme.meme_id === memeId);
+  if (index === -1) return;
+
+  const updated = memes.slice();
+  updated[index] = patch(memes[index]);
+  queryClient.setQueryData(memesKey, updated);
+  return updated[index];
 }
 
-export function bumpMeme(meme_id: number) {
-  const memes = queryClient.getQueryData<Meme[]>(
-    memesQueryFactory.memes.all().queryKey,
-  );
-
+export function appendNewMeme(meme: Meme) {
+  const memes = queryClient.getQueryData<Meme[]>(memesKey);
   if (!memes) return;
-  const index = memes.findIndex((m) => m.meme_id === meme_id);
-  if (index === -1) return;
-  queryClient.setQueryData(
-    memesQueryFactory.memes.all().queryKey,
-    memes.map((m, i) =>
-      i === index
-        ? {
-            ...m,
-            last_change_ms: Date.now(),
-            animate: true,
-          }
-        : m,
-    ),
-  );
+  // The websocket can replay a meme that is already in the list.
+  if (memes.some((existing) => existing.meme_id === meme.meme_id)) return;
+  queryClient.setQueryData(memesKey, [...memes, meme]);
+}
 
-  setTimeout(() => {
-    queryClient.setQueryData(
-      memesQueryFactory.memes.all().queryKey,
-      memes.map((m, i) =>
-        i === index
-          ? { ...m, last_change_ms: Date.now(), animate: false }
-          : { ...m, animate: false },
-      ),
-    );
-  }, 300);
+/** Timeout handles for the shake animation, keyed by meme id. */
+const bumpTimers = new Map<number, ReturnType<typeof setTimeout>>();
+
+export function bumpMeme(meme_id: number) {
+  if (!queryClient.getQueryData<Meme[]>(memesKey)) return;
+
+  // Already shaking: just extend the highlight instead of rewriting the list.
+  if (!bumpTimers.has(meme_id)) {
+    const patched = patchMeme(meme_id, (meme) => ({
+      ...meme,
+      last_change_ms: Date.now(),
+      animate: true,
+    }));
+    if (!patched) return;
+  }
+
+  const existing = bumpTimers.get(meme_id);
+  if (existing) clearTimeout(existing);
+
+  bumpTimers.set(
+    meme_id,
+    setTimeout(() => {
+      bumpTimers.delete(meme_id);
+      // Re-read the cache: trades and new memes may have landed since the bump
+      // started, and the old snapshot must not clobber them.
+      patchMeme(meme_id, (meme) => ({ ...meme, animate: false }));
+    }, 300),
+  );
 }
 
 export function processTradeAndUpdateMemebids(trade: Meme & Trade) {
@@ -71,16 +86,11 @@ export function processTradeAndUpdateMemebids(trade: Meme & Trade) {
     ...meme,
     total_deposit: newTotalDeposit.toString(),
   };
-  const updatedMemes = [...memes];
-  updatedMemes[index] = {
+
+  patchMeme(trade.meme_id, () => ({
     ...newMeme,
     projectedPoolStats: projectedPoolStats(newMeme),
-  };
-
-  queryClient.setQueryData(
-    memesQueryFactory.memes.all().queryKey,
-    updatedMemes,
-  );
+  }));
 
   return newMeme;
 }
@@ -89,17 +99,8 @@ export function updateMemeFlagCount(
   meme_id: number,
   updater: (count: number) => number,
 ) {
-  const memes = queryClient.getQueryData<Meme[]>(
-    memesQueryFactory.memes.all().queryKey,
-  );
-  if (!memes) return;
-  const index = memes.findIndex((m) => m.meme_id === meme_id);
-  if (index === -1) return;
-
-  const updatedMemes = [...memes];
-  updatedMemes[index].flag_count = updater(updatedMemes[index].flag_count ?? 0);
-  queryClient.setQueryData(
-    memesQueryFactory.memes.all().queryKey,
-    updatedMemes,
-  );
+  patchMeme(meme_id, (meme) => ({
+    ...meme,
+    flag_count: updater(meme.flag_count ?? 0),
+  }));
 }

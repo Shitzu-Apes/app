@@ -26,8 +26,15 @@
 
   let numLanes = 3; // Default for large screens
   let containerElement: HTMLDivElement;
-  let measuredElements: HTMLDivElement[] = [];
   let resizeObserver: ResizeObserver;
+
+  const virtualizer = createWindowVirtualizer<HTMLDivElement>({
+    count: items.length,
+    estimateSize: () => 200,
+    overscan: 15,
+    lanes: numLanes,
+    gap: 8,
+  });
 
   onMount(() => {
     updateLanes();
@@ -69,29 +76,14 @@
     numLanes = newNumLanes;
   }
 
-  $: virtualizer = createWindowVirtualizer<HTMLDivElement>({
+  // Keep the virtualizer instance stable across list updates. Recreating it on
+  // every trade discarded all measurements, so rows jumped and got re-measured.
+  $: $virtualizer.setOptions({
     count: items.length,
-    estimateSize: () => 200,
-    overscan: 15,
     lanes: numLanes,
-    gap: 8,
   });
 
-  $: {
-    $virtualizer.setOptions({
-      count: items.length,
-      lanes: numLanes,
-    });
-    // Re-measure elements when items change
-    measuredElements.forEach((element) => {
-      $virtualizer.measureElement(element);
-    });
-  }
-
   function measureElement(element: HTMLDivElement) {
-    if (!measuredElements.includes(element)) {
-      measuredElements.push(element);
-    }
     $virtualizer.measureElement(element);
   }
 </script>
@@ -111,7 +103,7 @@
       <div
         style="position: relative; height: {$virtualizer.getTotalSize()}px; width: 100%;"
       >
-        {#each $virtualizer.getVirtualItems() as row ((row.index, items[row.index].meme.meme_id))}
+        {#each $virtualizer.getVirtualItems() as row (items[row.index].meme.meme_id)}
           <div
             style="position: absolute; top: 0; left: {(row.lane / numLanes) *
               100}%; width: calc({100 / numLanes}% - {row.lane === numLanes - 1
