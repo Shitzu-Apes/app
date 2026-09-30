@@ -1,3 +1,4 @@
+import type { CatalogToken } from "./catalog";
 import { CONVERT_CHAINS, type ConvertChain } from "./rail";
 
 /**
@@ -62,4 +63,50 @@ export function writeConvertQuery(query: ConvertQuery): void {
   const here = `${location.pathname}${location.search}`;
   if (here === next) return;
   history.replaceState(history.state, "", next);
+}
+
+/**
+ * The token a link's `t` names, by its address and nothing else.
+ *
+ * Exact on purpose. A search for an address can return other tokens besides the one
+ * asked about, and taking the first hit would silently swap the link's target for a
+ * different token — a worse failure than not restoring it at all.
+ */
+export function exactTarget(
+  tokens: CatalogToken[],
+  address: string,
+): CatalogToken | null {
+  return tokens.find((token) => token.address === address) ?? null;
+}
+
+/**
+ * The token a shared link asked for, or null when it cannot be found.
+ *
+ * The picker's catalogue is the *browsable* list — the bridge's own assets, the
+ * chain's curated index, and the wallet's holdings. The search reaches the rest of
+ * the market, and `t` is written from a search hit as often as from a row, so a
+ * linked target is frequently absent from the list the picker renders. That is what
+ * broke the link: the selection was validated against the catalogue, found missing,
+ * and replaced by the first row, and the rewritten URL then recorded that instead.
+ *
+ * The catalogue is consulted before the request because a row already in hand needs
+ * no answer from the network, and a failed search is a missing row rather than a
+ * thrown form: the caller falls back to the list's own default, as it did before.
+ */
+export async function resolveTarget(
+  address: string,
+  deps: {
+    /** Rows the caller already has. */
+    loaded: CatalogToken[];
+    /** The chain's own search, which is what found the token in the first place. */
+    lookup: (address: string) => Promise<CatalogToken[]>;
+  },
+): Promise<CatalogToken | null> {
+  const known = exactTarget(deps.loaded, address);
+  if (known) return known;
+  try {
+    return exactTarget(await deps.lookup(address), address);
+  } catch {
+    return null;
+  }
 }

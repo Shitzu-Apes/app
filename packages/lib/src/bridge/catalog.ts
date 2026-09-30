@@ -72,6 +72,7 @@ export type CatalogToken = BridgeableToken & {
  */
 const INTEAR_TOKENS = "https://prices.intear.tech/tokens-notfake-or-better";
 const INTEAR_SEARCH = "https://prices.intear.tech/token-search";
+const INTEAR_PRICES = "https://prices.intear.tech/prices";
 /** NEAR's wrapping contract, which wraps the same tokens as the native account. */
 const WRAP_NEAR_ADDRESS = "wrap.near";
 
@@ -324,6 +325,23 @@ export async function solanaCatalog(): Promise<CatalogToken[]> {
     );
 }
 
+/**
+ * Does this query name one NEAR account, rather than describe a search?
+ *
+ * Used to decide one thing: whether the reputation filter applies. `NotFake` keeps a
+ * wall of spam out of a picker someone is scrolling, and a contract id is not a
+ * scroll — the user has already named the token, so reputation-filtering it can only
+ * hide the answer. `dragon-3.nearlytrade.near` is `Unknown` and asking for it came
+ * back empty until the filter was dropped, which is also why its icon was missing:
+ * the indexer has the artwork, and the picker never saw the record.
+ */
+function looksLikeAccountId(query: string): boolean {
+  const trimmed = query.trim();
+  return (
+    !/\s/.test(trimmed) && /^[a-z0-9][a-z0-9._-]*\.[a-z0-9_-]+$/i.test(trimmed)
+  );
+}
+
 /** Type-ahead over the NEAR indexer, which is a query API rather than a list. */
 export async function searchNear(
   query: string,
@@ -335,8 +353,9 @@ export async function searchNear(
   url.searchParams.set("q", query.trim());
   url.searchParams.set("n", "20");
   // `NotFake` keeps a wall of spam out of a picker the user is scrolling, and
-  // the account boosts what they already hold.
-  url.searchParams.set("rep", "NotFake");
+  // the account boosts what they already hold. A contract id is not a scroll — see
+  // `looksLikeAccountId`.
+  if (!looksLikeAccountId(query)) url.searchParams.set("rep", "NotFake");
   if (accountId) url.searchParams.set("acc", accountId);
 
   const raw = await getJson<IntearToken[]>(url.toString(), signal);
@@ -347,13 +366,70 @@ export async function searchNear(
     .map((token) => ({
       tokenId: token.account_id,
       symbol: token.metadata?.symbol ?? token.account_id,
-      icon: "",
+      // The indexer's icon, carried the way the browsable list already carries it
+      // (see `intearToCatalog`). Dropping it left every NEAR search row to
+      // DexScreener, which has no image for most of this chain: three `dragon` hits
+      // with a few kilobytes of inlined artwork each were rendering as grey circles.
+      icon: token.metadata?.icon ?? "",
       address: token.account_id,
       decimals: token.metadata?.decimals ?? 18,
       price: num(token.price_usd),
       bridgeable: false,
       origin: "aggregator" as const,
     }));
+}
+
+/**
+ * The market's prices, keyed by contract id.
+ *
+ * 3,605 ids in about 130 KB — less than the curated browse list, and enough to price
+ * every token a wallet can hold in one request. Cached for the life of the page,
+ * because a single holdings load asks twice: once for the tokens, and again for
+ * native NEAR, which has no contract of its own to be listed under.
+ *
+ * A failure is not cached, for the same reason the Solana tag list is not: a blip
+ * held here would leave every balance unpriced for the rest of the session.
+ */
+let priceList: Promise<Record<string, number> | null> | null = null;
+
+function fetchPriceList(): Promise<Record<string, number> | null> {
+  if (priceList) return priceList;
+  const request = getJson<Record<string, number>>(INTEAR_PRICES);
+  priceList = request;
+  void request.then((prices) => {
+    if (!prices && priceList === request) priceList = null;
+  });
+  return request;
+}
+
+/** Forget the cached prices. A test seam, as `clearVerifiedTagList` is. */
+export function clearNearPrices(): void {
+  priceList = null;
+}
+
+/**
+ * USD prices for a set of NEAR contract ids.
+ *
+ * This used to be a `token-search` with the ids space-joined, on the belief that the
+ * endpoint took several. It does not — the query is one substring match, so a list of
+ * ids matched nothing and every holding fell back to being ordered by raw balance,
+ * with no dollar value at all. `/prices` is the endpoint that answers this question.
+ *
+ * `near` is priced as `wrap.near`, the contract that wraps it one for one: native NEAR
+ * has no contract to be listed under, and the app treats the two as one asset
+ * everywhere else (see the native row in `buildCatalog`).
+ */
+export async function pricesNear(ids: string[]): Promise<Map<string, number>> {
+  const out = new Map<string, number>();
+  const prices = await fetchPriceList();
+  if (!prices) return out;
+  for (const id of new Set(ids)) {
+    const price = id === "near" ? prices[WRAP_NEAR_ADDRESS] : prices[id];
+    // A zero is the indexer's answer for a token with no market, and a confident
+    // "$0.00" is what `usdFor` exists to avoid — so it is left out, not carried.
+    if (typeof price === "number" && price > 0) out.set(id, price);
+  }
+  return out;
 }
 
 /** Type-ahead over Jupiter's token list. */
@@ -636,6 +712,9 @@ export async function suggestTargets(
   const byAddress = new Map<string, CatalogToken>();
   for (const token of native) byAddress.set(token.address, token);
 
+  /** A hit that only DexScreener offered, and without artwork. */
+  const blankFromDex: string[] = [];
+
   for (const hit of dex) {
     if (byAddress.has(hit.tokenId)) {
       // The indexer's copy is chain-native and priced; the only thing worth taking
@@ -658,6 +737,25 @@ export async function suggestTargets(
       bridgeable: false,
       origin: "aggregator" as const,
     });
+    if (!hit.icon) blankFromDex.push(hit.tokenId);
+  }
+
+  // DexScreener carries the row but often not the artwork: on NEAR most tokens have no
+  // image there, while the indexer illustrates nearly all of them. A hit that reached
+  // the list only through DexScreener is looked up by address — an exact lookup, which
+  // is the case reputation filtering also has to step aside for — so the row does not
+  // render a grey circle for a token whose icon the app can fetch.
+  if (network === "near" && blankFromDex.length > 0) {
+    await Promise.all(
+      blankFromDex.map(async (address) => {
+        const found = (await searchNear(address).catch(() => [])).find(
+          (token) => token.address === address,
+        );
+        const existing = byAddress.get(address);
+        if (!found?.icon || !existing) return;
+        byAddress.set(address, { ...existing, icon: found.icon });
+      }),
+    );
   }
 
   if (byAddress.size > 0) return [...byAddress.values()];

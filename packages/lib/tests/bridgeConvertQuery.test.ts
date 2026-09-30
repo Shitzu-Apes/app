@@ -4,6 +4,7 @@ import test from "node:test";
 
 import {
   readConvertQuery,
+  resolveTarget,
   type ConvertQuery,
 } from "../src/bridge/convertQuery.ts";
 import { searchTokens, iconsFor } from "../src/bridge/dexscreener.ts";
@@ -53,6 +54,64 @@ test("a chain that is not one of ours falls back rather than throwing", () => {
   const read = readConvertQuery("?from=base&to=ethereum");
   assert.equal(read.from, "solana");
   assert.equal(read.to, "near");
+});
+
+/** One row of the catalogue, as the picker holds it. */
+function catalogToken(address: string, symbol: string) {
+  return {
+    tokenId: address,
+    symbol,
+    icon: "",
+    address,
+    decimals: 18,
+    bridgeable: false,
+    origin: "aggregator" as const,
+  };
+}
+
+test("a linked target resolves by exact address, catalogue first", async () => {
+  const a = catalogToken("a.near", "A");
+  const b = catalogToken("b.near", "B");
+
+  let asked = 0;
+  const inCatalog = await resolveTarget("a.near", {
+    loaded: [a],
+    lookup: async () => {
+      asked++;
+      return [];
+    },
+  });
+  assert.equal(inCatalog?.tokenId, "a.near");
+  assert.equal(asked, 0, "a row already in hand costs no request");
+
+  const found = await resolveTarget("b.near", {
+    loaded: [],
+    lookup: async () => [a, b],
+  });
+  assert.equal(found?.tokenId, "b.near");
+});
+
+test("a linked target is the exact address, never the first search hit", async () => {
+  // A search for an address can return other tokens besides the one asked about —
+  // DexScreener matches substrings — and taking the first hit would swap the user's
+  // target for a different token, which is worse than not restoring it at all.
+  const a = catalogToken("a.near", "A");
+  const b = catalogToken("b.near", "B");
+  const miss = await resolveTarget("c.near", {
+    loaded: [],
+    lookup: async () => [a, b],
+  });
+  assert.equal(miss, null);
+
+  // And a failed search is a missing row, not a thrown form: the caller falls back
+  // to the catalogue's own first row, exactly as it did before.
+  const failed = await resolveTarget("d.near", {
+    loaded: [],
+    lookup: async () => {
+      throw new Error("offline");
+    },
+  });
+  assert.equal(failed, null);
 });
 
 test("the amount is never carried in the URL", () => {

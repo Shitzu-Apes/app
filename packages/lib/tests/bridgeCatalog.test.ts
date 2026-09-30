@@ -3,6 +3,8 @@ import test from "node:test";
 
 import {
   buildCatalog,
+  clearNearPrices,
+  pricesNear,
   searchNear,
   suggestTargets,
 } from "../src/bridge/catalog.ts";
@@ -247,6 +249,58 @@ test("a Solana search falls back to the loaded list when DexScreener misses", as
   }
 });
 
+test("a DexScreener-only NEAR hit borrows the indexer's icon", async () => {
+  // DexScreener carries the row but often not the artwork: on NEAR most tokens have no
+  // image there, while the indexer illustrates nearly all of them. A grey circle for a
+  // token whose icon the app can fetch is the bug this closes.
+  const original = globalThis.fetch;
+  globalThis.fetch = (async (u: string | URL) => {
+    const url = String(u);
+    if (url.includes("dexscreener")) {
+      return new Response(
+        JSON.stringify({
+          pairs: [
+            {
+              chainId: "near",
+              baseToken: {
+                address: "dragon-3.nearlytrade.near",
+                symbol: "DRAGON",
+                decimals: 18,
+              },
+            },
+          ],
+        }),
+        { status: 200 },
+      );
+    }
+    // The indexer knows nothing for the *name* and answers for the address, which is
+    // the shape the fallback exists for.
+    if (!url.includes("dragon-3.nearlytrade.near")) {
+      return new Response(JSON.stringify([]), { status: 200 });
+    }
+    return new Response(
+      JSON.stringify([
+        {
+          account_id: "dragon-3.nearlytrade.near",
+          metadata: {
+            symbol: "DRAGON",
+            decimals: 18,
+            icon: "data:image/jpeg;base64,BBBB",
+          },
+        },
+      ]),
+      { status: 200 },
+    );
+  }) as typeof fetch;
+  try {
+    const found = await suggestTargets("near", "dragon");
+    const dragon = found.find((t) => t.address === "dragon-3.nearlytrade.near");
+    assert.equal(dragon?.icon, "data:image/jpeg;base64,BBBB");
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
 test("a NEAR search queries the indexer", async () => {
   const original = globalThis.fetch;
   let url = "";
@@ -263,5 +317,146 @@ test("a NEAR search queries the indexer", async () => {
     assert.match(url, /rep=NotFake/);
   } finally {
     globalThis.fetch = original;
+  }
+});
+
+test("a NEAR search carries the indexer's icon", async () => {
+  // The browsable list already carried the inlined artwork (see `intearToCatalog`);
+  // the search path dropped it, which left every NEAR search row to DexScreener — and
+  // DexScreener has no image for most of this chain, so hits the indexer illustrates
+  // perfectly well rendered as grey circles.
+  const original = globalThis.fetch;
+  globalThis.fetch = (async () =>
+    new Response(
+      JSON.stringify([
+        {
+          account_id: "dragonsoultoken.near",
+          metadata: {
+            symbol: "DGS",
+            decimals: 18,
+            icon: "data:image/jpeg;base64,AAAA",
+          },
+        },
+      ]),
+      { status: 200 },
+    )) as typeof fetch;
+  try {
+    const found = await searchNear("dragon");
+    assert.equal(found[0].icon, "data:image/jpeg;base64,AAAA");
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test("a contract id is looked up exactly, not reputation-filtered", async () => {
+  // The filter keeps a wall of spam out of a picker someone is scrolling, and an exact
+  // account id is not a scroll: the user has named the token. `dragon-3.nearlytrade.near`
+  // is `Unknown`, so asking for it came back empty while DexScreener still offered the
+  // token — without the artwork only the indexer has.
+  const original = globalThis.fetch;
+  const urls: string[] = [];
+  globalThis.fetch = (async (u: string | URL) => {
+    urls.push(String(u));
+    return new Response(JSON.stringify([]), { status: 200 });
+  }) as typeof fetch;
+  try {
+    await searchNear("dragon-3.nearlytrade.near");
+    await searchNear("dragon");
+    // A query with whitespace in it is not one account id, whatever else it is, and
+    // keeps the filter.
+    await searchNear("wrap.near token.0xshitzu.near");
+    assert.doesNotMatch(urls[0], /rep=/);
+    assert.match(urls[1], /rep=NotFake/);
+    assert.match(urls[2], /rep=NotFake/);
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test("holdings prices come from the market map, not a search per id", async () => {
+  // The lookup used to space-join the ids and ask `token-search`, on the belief that
+  // the endpoint took several. It does not — the query is one substring match, so a
+  // list of ids matched nothing and every holding fell back to raw balance order with
+  // no dollar value at all.
+  clearNearPrices();
+  const original = globalThis.fetch;
+  const urls: string[] = [];
+  globalThis.fetch = (async (u: string | URL) => {
+    urls.push(String(u));
+    return new Response(
+      JSON.stringify({
+        "wrap.near": 5.09,
+        "dragon-3.nearlytrade.near": 8.5e-5,
+        "worthless.near": 0,
+      }),
+      { status: 200 },
+    );
+  }) as typeof fetch;
+  try {
+    const prices = await pricesNear([
+      "near",
+      "dragon-3.nearlytrade.near",
+      "worthless.near",
+      "unknown.near",
+    ]);
+    // Native NEAR has no contract to be listed under; the wrapped one is the same
+    // asset and carries its price.
+    assert.equal(prices.get("near"), 5.09);
+    assert.equal(prices.get("dragon-3.nearlytrade.near"), 8.5e-5);
+    // A zero is the indexer's answer for a token with no market, and "$0.00" is what
+    // `usdFor` exists to avoid printing.
+    assert.equal(prices.has("worthless.near"), false);
+    assert.equal(prices.has("unknown.near"), false);
+    assert.match(urls[0], /prices\.intear\.tech\/prices$/);
+  } finally {
+    globalThis.fetch = original;
+    clearNearPrices();
+  }
+});
+
+test("the price list is fetched once for the page", async () => {
+  // A holdings load asks twice — once for the tokens, once for native NEAR — and the
+  // picker re-reads whenever the account changes. The map is 130 KB, so it is cached.
+  clearNearPrices();
+  const original = globalThis.fetch;
+  let count = 0;
+  globalThis.fetch = (async () => {
+    count++;
+    return new Response(JSON.stringify({ "wrap.near": 5 }), { status: 200 });
+  }) as typeof fetch;
+  try {
+    await pricesNear(["wrap.near"]);
+    await pricesNear(["near", "token.0xshitzu.near"]);
+    assert.equal(count, 1);
+  } finally {
+    globalThis.fetch = original;
+    clearNearPrices();
+  }
+});
+
+test("a prices outage costs the dollar values, not the list", async () => {
+  clearNearPrices();
+  const original = globalThis.fetch;
+  globalThis.fetch = (async () =>
+    new Response("", { status: 500 })) as typeof fetch;
+  try {
+    assert.equal((await pricesNear(["wrap.near"])).size, 0);
+  } finally {
+    globalThis.fetch = original;
+  }
+
+  // And the failure is not cached: a blip held here would leave every balance unpriced
+  // for the rest of the session.
+  let attempts = 0;
+  globalThis.fetch = (async () => {
+    attempts++;
+    return new Response(JSON.stringify({ "wrap.near": 5 }), { status: 200 });
+  }) as typeof fetch;
+  try {
+    assert.equal((await pricesNear(["wrap.near"])).get("wrap.near"), 5);
+    assert.equal(attempts, 1);
+  } finally {
+    globalThis.fetch = original;
+    clearNearPrices();
   }
 });

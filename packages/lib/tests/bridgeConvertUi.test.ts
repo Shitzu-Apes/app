@@ -104,7 +104,12 @@ test("changing a chain resets the quote rather than leaving a stale one", () => 
   // the amount, because the same string means something else at different decimals.
   assert.match(panel, /function reset\(keepAmount = false\)/);
   assert.match(panel, /source = chain;\s*\n\s*reset\(\);/);
-  assert.match(panel, /dest = chain;\s*\n\s*reset\(\);/);
+  // The destination drops the link's target first, since an address belongs to the
+  // chain it was named on; `reset` follows it as before.
+  assert.match(
+    panel,
+    /dest = chain;\s*\n(?:\s*(?:\/\/[^\n]*|urlTarget\w* = (?:null|false);)\s*\n)*\s*reset\(\);/,
+  );
 });
 
 test("choosing a new target does not clear the amount", () => {
@@ -1126,6 +1131,51 @@ test("the receipt reports what arrived, not what was expected", () => {
     /landedAmount/,
     "the pre-swap arrival is never the headline number",
   );
+});
+
+// A link's target is a token, not an address in a query string.
+
+test("a link's target is looked up, not replaced by the list's first row", () => {
+  // The reported bug: searching a contract and refreshing showed a different token.
+  // `t` holds an address, and the catalogue is the *browsable* list while the search
+  // reaches tokens it never had — so the address was validated against a set it was
+  // not in, the first row won, and the URL was rewritten to that row. The link's
+  // target is resolved back into a token and its row is put on top of the list.
+  const body = readFileSync("src/bridge/AnyToAnyPanel.svelte", "utf8");
+  assert.match(
+    body,
+    /urlTarget = \{ chain: dest, address: initial\.target \}/,
+    "the address is recorded with the chain it was named on",
+  );
+  assert.match(body, /urlTargetLookup = true;/);
+  // Resolved through the same search the box uses, so whatever a search could find,
+  // a link can restore.
+  assert.match(body, /await resolveTarget\(target\.address, \{/);
+  assert.match(body, /suggestTargets\(target\.chain, address, \{/);
+  // The row is prepended, which is what gives the selection something to render as.
+  assert.match(body, /\[urlTargetRow, \.\.\.catalog\]/);
+});
+
+test("the link's target is held while it is looked up", () => {
+  // Without the hold, the catalogue landing is enough to replace the selection: the
+  // lookup cannot have produced its row yet, and the first row would win the race.
+  const body = readFileSync("src/bridge/AnyToAnyPanel.svelte", "utf8");
+  const start = body.indexOf("$: visibleTokens =");
+  const guard = body.slice(start, body.indexOf("let targetTokenId", start));
+  assert.match(guard, /!urlTargetLookup/);
+});
+
+test("a chain change drops the link's target with the chain", () => {
+  // An address belongs to the chain it was named on. A Solana mint carried into the
+  // NEAR list is a token the conversion cannot deliver, and the lookup in flight
+  // checks the same thing so a late answer cannot pin it back.
+  const body = readFileSync("src/bridge/AnyToAnyPanel.svelte", "utf8");
+  const start = body.indexOf("function pickDest(chain: ConvertChain)");
+  const fn = body.slice(start, body.indexOf("\n  }\n", start));
+  assert.match(fn, /urlTarget = null;/);
+  assert.match(fn, /urlTargetToken = null;/);
+  assert.match(fn, /urlTargetLookup = false;/);
+  assert.match(body, /if \(urlTarget !== target\) return;/);
 });
 
 test("the receipt is a sheet, and its button resets rather than dispatches into nothing", () => {

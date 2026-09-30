@@ -18,10 +18,10 @@
   } from "$lib/bridge/amount";
   import {
     buildCatalog,
+    pricesNear,
     suggestTargets,
     type CatalogToken,
   } from "$lib/bridge/catalog";
-  import { searchNear } from "$lib/bridge/catalog";
   import { CHAINS } from "$lib/bridge/chains";
   import {
     EMPTY_RETRY_DELAYS_MS,
@@ -31,6 +31,7 @@
   import { convertGate } from "$lib/bridge/convertGate";
   import {
     readConvertQuery,
+    resolveTarget,
     writeConvertQuery,
   } from "$lib/bridge/convertQuery";
   import { isDust } from "$lib/bridge/dust";
@@ -144,7 +145,14 @@
     const initial = readConvertQuery(location.search);
     source = initial.from;
     dest = initial.to;
-    if (initial.target) targetTokenId = initial.target;
+    if (initial.target) {
+      targetTokenId = initial.target;
+      // The address alone is not a token: the picker needs a row to select, and the
+      // catalogue is not necessarily where the link's target lives. See the
+      // resolution below.
+      urlTarget = { chain: dest, address: initial.target };
+      urlTargetLookup = true;
+    }
   });
 
   $: if (hydrated) {
@@ -174,6 +182,13 @@
 
   function pickDest(chain: ConvertChain) {
     dest = chain;
+    // The link's target belongs to the chain it named. On the other one the address
+    // means nothing, and a row carried across would offer a token the new destination
+    // cannot receive — so the pin goes with the chain. The lookup in flight checks
+    // this too, so a late answer cannot pin it back.
+    urlTarget = null;
+    urlTargetToken = null;
+    urlTargetLookup = false;
     reset();
   }
 
@@ -752,12 +767,87 @@
     suggestFor = "";
   }
 
+  // --- the link's target ---------------------------------------------------------
+
+  /**
+   * The target a shared link named, when the catalogue does not carry it.
+   *
+   * `t` is an address, and the search reaches tokens the browsable list never had —
+   * which is most of the market on NEAR. Such a link arrived, its target was validated
+   * against the catalogue, found missing, and replaced by the first row; the URL was
+   * then rewritten to that row, so a refresh did not show the token the link was about.
+   * Resolving the address back into a token and putting its row on top of the list is
+   * what makes the link mean what it says.
+   */
+  let urlTarget: { chain: ConvertChain; address: string } | null = null;
+  /** The token it named, once resolved. */
+  let urlTargetToken: CatalogToken | null = null;
+  /** The selection is the link's until the lookup answers, one way or the other. */
+  let urlTargetLookup = false;
+  let urlTargetStarted = false;
+
+  // `catalog` is named in the call rather than read inside the resolver, for the same
+  // reason the route search names its inputs: a value read through a closure is a
+  // dependency Svelte cannot see. The started flag makes a re-run a no-op.
+  $: if (hydrated && urlTarget && !urlTargetStarted) {
+    void resolveUrlTarget(urlTarget, catalog);
+  }
+
+  async function resolveUrlTarget(
+    target: { chain: ConvertChain; address: string },
+    loaded: CatalogToken[],
+  ) {
+    urlTargetStarted = true;
+    const found = await resolveTarget(target.address, {
+      loaded,
+      lookup: (address) =>
+        suggestTargets(target.chain, address, {
+          accountId: $accountId$ ?? undefined,
+          loaded,
+        }),
+    });
+    // A chain change abandons the link: `pickDest` clears `urlTarget`. Writing the
+    // token anyway would pin a row the newly selected destination cannot receive.
+    if (urlTarget !== target) return;
+    urlTargetToken = found;
+    urlTargetLookup = false;
+  }
+
+  /**
+   * The link's token as a list row, when the catalogue does not carry it.
+   *
+   * A search result and a catalogue row are different sets, so a token found by its
+   * contract is often absent from the list on a reload. Prepending it is what gives the
+   * selection a row to be; a target that arrived from a link but is missing from the
+   * list has nothing to render against, which is the half of the bug that showed.
+   * Dropped when the destination moves, since an address belongs to the chain it was
+   * named on.
+   */
+  function urlTargetRowFor(
+    target: { chain: ConvertChain; address: string } | null,
+    token: CatalogToken | null,
+    chain: ConvertChain,
+    rows: CatalogToken[],
+  ): CatalogToken | null {
+    if (target === null || token === null) return null;
+    if (target.chain !== chain) return null;
+    if (rows.some((row) => row.address === token.address)) return null;
+    return token;
+  }
+  $: urlTargetRow = urlTargetRowFor(urlTarget, urlTargetToken, dest, catalog);
+  $: browseTokens =
+    urlTargetRow !== null ? [urlTargetRow, ...catalog] : catalog;
+
   // A search result is a different set from the list, so the selection has to be
-  // re-validated against whichever one is on screen.
-  $: visibleTokens = suggestFor.trim() === "" ? catalog : suggestions;
+  // re-validated against whichever one is on screen. Not while the link's target is
+  // still being looked up: the lookup is the only thing that can produce its row, and
+  // the first catalogue row would otherwise win the moment the catalogue lands —
+  // which is exactly the bug this closes.
+  $: visibleTokens = suggestFor.trim() === "" ? browseTokens : suggestions;
   $: if (
     !visibleTokens.some((t) => t.tokenId === targetTokenId) &&
-    visibleTokens.length > 0
+    visibleTokens.length > 0 &&
+    !urlTargetLookup
   ) {
     targetTokenId = visibleTokens[0].tokenId;
   }
@@ -775,7 +865,7 @@
    * no price rather than printing a confident "$0.00".
    */
   $: targetPrices = Object.fromEntries(
-    catalog.map((t) => [t.tokenId, t.price]),
+    browseTokens.map((t) => [t.tokenId, t.price]),
   );
 
   // --- amount -------------------------------------------------------------------
@@ -2020,7 +2110,9 @@
         accountId,
         REGISTRY,
         nearDeps,
-        (ids) => pricesForNear(ids),
+        // One request for the market's prices, cached for the page, rather than a
+        // search per holding — see `pricesNear`.
+        pricesNear,
       );
       nearHoldings = found;
       // Bumped *after* the balances land, not before the request goes out. The counter
@@ -2038,23 +2130,6 @@
     } finally {
       isLoadingNearHoldings = false;
     }
-  }
-
-  /** USD prices for the tokens held, so they can be ordered by value. */
-  async function pricesForNear(ids: string[]): Promise<Map<string, number>> {
-    const out = new Map<string, number>();
-    const wanted = ids.filter((id) => id !== "near");
-    if (wanted.length === 0) return out;
-    // The indexer prices by contract id and already knows decimals, so this is
-    // one request for everything held.
-    const found = await searchNear(
-      wanted.join(" "),
-      $accountId$ ?? undefined,
-    ).catch(() => []);
-    for (const token of found) {
-      if (token.price !== undefined) out.set(token.tokenId, token.price);
-    }
-    return out;
   }
 </script>
 
