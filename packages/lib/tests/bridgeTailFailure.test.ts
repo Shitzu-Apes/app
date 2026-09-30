@@ -103,6 +103,14 @@ test("a recalculation does not erase a failure the wallet still remembers", () =
   assert.ok(guard > 0, "the recovery is guarded");
   assert.ok(park > guard, "and the deposit park is never reached with it set");
   assert.ok(idle > guard, "and it is not reset to idle either");
+  // The guard is the first thing the function does. A form that cannot be priced
+  // any more — the source token spent, a wallet disconnected — reaches this too,
+  // and the failed step, the reason it failed and the plan both recoveries are
+  // built from are all part of the same fact.
+  assert.ok(
+    guard < fn.indexOf("stepFailed = false;"),
+    "nothing is cleared before the recovery is guarded",
+  );
 });
 
 test("the form is never left with a dead button under a live recovery", () => {

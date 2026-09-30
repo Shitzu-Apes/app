@@ -105,10 +105,11 @@ test("changing a chain resets the quote rather than leaving a stale one", () => 
   assert.match(panel, /function reset\(keepAmount = false\)/);
   assert.match(panel, /source = chain;\s*\n\s*reset\(\);/);
   // The destination drops the link's target first, since an address belongs to the
-  // chain it was named on; `reset` follows it as before.
+  // chain it was named on, and the type-ahead results, which belong to the chain
+  // that was searched; `reset` follows both.
   assert.match(
     panel,
-    /dest = chain;\s*\n(?:\s*(?:\/\/[^\n]*|urlTarget\w* = (?:null|false);)\s*\n)*\s*reset\(\);/,
+    /dest = chain;\s*\n(?:\s*(?:\/\/[^\n]*|urlTarget\w* = (?:null|false);|clearSuggest\(\);)\s*\n)*\s*reset\(\);/,
   );
 });
 
@@ -623,18 +624,22 @@ test("a Solana source still advances leg by leg", () => {
   assert.match(solanaHandler, /begin\("bridge"\)/);
 });
 
-test("a recalculation forgets the previous attempt", () => {
+test("a recalculation forgets the previous attempt, but only a moved form does", () => {
   // Typing an amount after a run ended in an error used to leave that run's message
   // and its red step on screen under a route that had never been attempted — the app
   // reporting a failure for something the user had not tried.
+  //
+  // But a search also runs because a transfer's pause lifted, and clearing there
+  // wiped the failure the user was reading: the form had not moved, so the question
+  // had not changed. `formChangedSincePricing` is that difference.
   assert.match(
     panel,
-    /async function runSearch\(\) \{[\s\S]*?if \(transferState !== "running"\) clearAttempt\(\);/,
+    /async function runSearch\(\) \{[\s\S]*?if \(transferState !== "running" && formChangedSincePricing\) clearAttempt\(\);/,
   );
-  // Both ways a route stops being current: a recalculation, and a form that cannot be
-  // priced at all.
+  // Both ways a route stops being current: a moved form re-priced, and a form that
+  // cannot be priced at all.
   assert.equal(
-    (panel.match(/if \(transferState !== "running"\)/g) ?? []).length,
+    (panel.match(/if \(transferState !== "running"/g) ?? []).length,
     2,
   );
 });
@@ -1075,29 +1080,34 @@ test("the empty message asks about the source chain's own wallet", () => {
   assert.match(body, /"Connect your wallet to see your balances\."/);
 });
 
-test("a finished transfer is not re-parked as awaiting a deposit", () => {
+test("a finished transfer is not re-parked, and does not linger as current", () => {
   // The bug: `clearAttempt` re-parked whenever a surviving swap existed, which is true
   // until the conversion completes and false afterwards. A recalculation arriving after
   // the final swap — and one does, because the arrival lands in the destination wallet,
   // which is a balance change, which re-prices — turned a finished transfer back into a
   // pending one, and the button went back to offering to bridge money that had arrived.
+  //
+  // Keeping the *display* was the other half of it: `transferDone` was cleared on the
+  // way in and the bridge step was marked active, so a completed transfer showed a
+  // spinner on a finished bridge under a "Convert" button that would run the whole
+  // conversion again. The receipt was opened when it finished; the facts go with it.
   const body = readFileSync("src/bridge/AnyToAnyPanel.svelte", "utf8");
   const start = body.indexOf("function clearAttempt()");
   const fn = body.slice(start, body.indexOf("\n  }\n", start));
   assert.match(fn, /if \(transferState === "done"\) \{/);
-  // And the park is only re-entered when the transfer is genuinely unfinished.
   const doneGuard = fn.indexOf('if (transferState === "done")');
   const park = fn.indexOf('transferState = "awaiting-deposit"');
   assert.ok(
     doneGuard > 0 && park > doneGuard,
     "the finished case returns before the park",
   );
-  // The swap and the landed amount survive, because the receipt is built from them.
-  assert.doesNotMatch(
-    fn.slice(doneGuard, park),
-    /swapLeg = null/,
-    "a finished transfer keeps what it produced",
-  );
+  // It returns to idle instead, so the form is free to price the new question, and
+  // the plan goes with it — left behind, "What happens" kept rendering the finished
+  // transfer under a route priced for the one now on screen.
+  const finished = fn.slice(doneGuard, park);
+  assert.match(finished, /transferState = "idle";/);
+  assert.match(finished, /runningPlan = null;/);
+  assert.doesNotMatch(finished, /awaiting-deposit/);
 });
 
 test("the receipt reports what arrived, not what was expected", () => {

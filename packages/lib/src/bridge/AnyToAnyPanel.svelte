@@ -189,6 +189,10 @@
     urlTarget = null;
     urlTargetToken = null;
     urlTargetLookup = false;
+    // And the type-ahead results belong to the chain that was searched: on the new
+    // destination they are rows it cannot receive, listed under a box whose
+    // placeholder now names the new chain. The query goes with them.
+    clearSuggest();
     reset();
   }
 
@@ -286,6 +290,48 @@
       ? (sourceWalletToken?.usdPrice ?? 0)
       : (sourceHolding?.price ?? 0);
 
+  /**
+   * One way to change the source token.
+   *
+   * Picking one from the list went through `reset()`, and the two places that
+   * re-point the selection from a balance read did not. So a token that vanished
+   * from a read of the wallet silently replaced the selection and everything the
+   * old one had produced stayed on screen: the amount was re-parsed at the new
+   * token's decimals, the route above was priced for the new token, and "What
+   * happens" was still the previous transfer's swap, because `runningPlan` had
+   * never been told to go — a swap of a token the form no longer had selected,
+   * under a route for one it did.
+   *
+   * A different token is a different thing to spend, so it gets the same
+   * treatment however it was chosen: the form starts over.
+   */
+  function pickSourceToken(id: string) {
+    if (id === sourceTokenId) return;
+    sourceTokenId = id;
+    reset();
+  }
+
+  /**
+   * Whether a balance read may re-point the selection on its own.
+   *
+   * A read is not a decision. While the form is the record of a transfer the chain
+   * has already been told about — in flight, parked on a signed swap, waiting to
+   * finish a landed one, or holding a late failure's recovery — the selection is
+   * part of that record, and the token it spent no longer being in the wallet is
+   * not a reason to take the record away: the press that finishes the transfer is
+   * built from `runningPlan` and `swapLeg`, not from the selection.
+   */
+  $: selectionIsFree = transferState === "idle" || transferState === "done";
+
+  /**
+   * The read's version of a token change: point at a token the wallet still holds,
+   * but never at the cost of an attempt that is already under way.
+   */
+  function followHeldSourceToken(id: string) {
+    if (!selectionIsFree) return;
+    pickSourceToken(id);
+  }
+
   // A chain change invalidates the selection: a Solana mint means nothing on NEAR.
   // Keep the selection valid against the rows actually on offer. Native NEAR is
   // always one of them — `buildSourceOptions` adds it unconditionally — so a
@@ -298,13 +344,18 @@
     sourceOptions.length > 0 &&
     !sourceOptions.some((o) => o.id === sourceTokenId)
   ) {
-    sourceTokenId = sourceOptions[0].id;
+    followHeldSourceToken(sourceOptions[0].id);
   }
+  // Only while the list has rows to choose from. An empty read is not a wallet
+  // holding nothing: it is a load still in flight, or one that came back with
+  // nothing, and rewriting the selection there would clear a form the user is
+  // working on over an answer that has not arrived.
   $: if (
     source === "solana" &&
+    solanaTokens.length > 0 &&
     !solanaTokens.some((t) => t.mint === sourceTokenId)
   ) {
-    sourceTokenId = solanaTokens[0]?.mint ?? WSOL_MINT;
+    followHeldSourceToken(solanaTokens[0]?.mint ?? WSOL_MINT);
   }
 
   /**
@@ -1029,12 +1080,20 @@
    * clicking the button re-fetched every quote, and the NEAR-side swap was re-checked
    * after it had already been signed.
    *
+   * `failed` is the fourth, and it is here for the same reason. The recalculation
+   * that a failed transfer triggers is not the user asking a new question — it is
+   * the search noticing its own pause lifting — and `runSearch` clears the previous
+   * attempt on the way in, so the message and the red step vanished about four
+   * hundred milliseconds after being shown. A failure the user never got to read is
+   * not a failure that was reported.
+   *
    * Not while the form has moved on, though. A user who changes the amount or the
    * target mid-transfer has abandoned the priced route and wants a new one, and
    * re-deriving it is the whole point — see `formChangedSincePricing`.
    */
   $: searchPaused =
     (transferState === "running" ||
+      transferState === "failed" ||
       transferState === "awaiting-deposit" ||
       transferState === "awaiting-final") &&
     !formChangedSincePricing;
@@ -1107,10 +1166,17 @@
     // step on screen under a route that had never been attempted — the app reporting
     // a failure for something the user had not tried.
     //
+    // Only when the form has actually moved, though. A search also runs because the
+    // pause lifted — a failure is paused, and a search in flight when the transfer
+    // began is not the user asking anything — and clearing there wiped the failure
+    // the user was reading, on a form nobody had touched. `formChangedSincePricing`
+    // is the difference between "the question changed" and "the same question was
+    // asked again".
+    //
     // Except mid-flight, where the progress *is* the truth: a search can land while
     // work is happening, and wiping it would leave a signed transfer with no visible
     // state.
-    if (transferState !== "running") clearAttempt();
+    if (transferState !== "running" && formChangedSincePricing) clearAttempt();
     try {
       // Re-run the whole search for as long as the emptiness looks like a cold
       // router, with the waits growing between attempts. `searching` stays true for
@@ -1243,6 +1309,20 @@
     const swapStillApplies =
       swapLeg !== null && amount !== null && amount === swapLeg.forAmount;
 
+    // A destination swap that failed after the bridge landed is not a form
+    // attempt, and a recalculation is not a reason to forget it: the arrived
+    // tokens are a fact about the wallet, and both recoveries still apply. It
+    // also must not reach the park below — that branch exists for a signed source
+    // swap with nothing bridged, and this is the opposite case, a signed deposit
+    // that has already been paid out.
+    //
+    // So this returns before anything is cleared. The failed step, the reason it
+    // failed and the plan both recoveries are built from are all part of the same
+    // fact, and a form that cannot be priced any more — the source token spent,
+    // the wallet disconnected — reaches this function too. `reset` is what ends
+    // the recovery, and it ends it deliberately.
+    if (tailFailed) return;
+
     // A transfer in flight is not cancelled by editing the form, but the plan the
     // progress list is rendering must not be one the user has already invalidated.
     activeStep = -1;
@@ -1252,36 +1332,38 @@
     waitingForBridge = null;
     transferMessage = null;
 
-    // A destination swap that failed after the bridge landed is not a form
-    // attempt, and a recalculation is not a reason to forget it: the arrived
-    // tokens are a fact about the wallet, and both recoveries still apply. It
-    // also must not reach the park below — that branch exists for a signed source
-    // swap with nothing bridged, and this is the opposite case, a signed deposit
-    // that has already been paid out.
-    if (tailFailed) return;
-
     if (!swapStillApplies) {
       swapLeg = null;
       // The landed amount belongs to the transfer that produced it. Left behind, a
       // second conversion would swap the previous transfer's arrival.
       landedAmount = null;
+      // And the plan goes with the attempt. This is what "What happens" renders
+      // from, so left behind it kept showing the swap and the amount of a
+      // conversion that had already ended, under a route priced for the one now
+      // on screen — two different transfers described at once.
+      runningPlan = null;
       transferState = "idle";
       return;
     }
 
-    // A transfer that already finished is not a transfer awaiting a deposit.
+    // A finished transfer is not an attempt to continue.
     //
-    // This branch assumes that a surviving swap means there is a signed swap with
-    // nothing bridged — which is true until the moment the whole thing completes, and
-    // false afterwards. So a recalculation arriving after the final swap (and one does:
-    // the arrival lands in the destination wallet, which is a balance change, which
-    // re-prices) re-parked a finished transfer, and the button went back to offering
-    // "Bridge to the destination chain" with every step already ticked. The user was
-    // asked to bridge money that had arrived.
+    // This is where a recalculation after the final swap used to land. Re-parking
+    // was the bug (`clearAttempt` re-parked whenever a surviving swap existed, and
+    // a finished transfer still has one) — the button went back to offering to
+    // bridge money that had arrived. But keeping the *display* was the other half
+    // of it: `transferDone` was cleared on the way in and the bridge step was
+    // marked as the active one, so a form whose transfer had completed showed a
+    // spinner on a finished bridge under a "Convert" button that would run the
+    // whole conversion again. The receipt was opened when it finished; the facts
+    // go with the attempt they belong to, and the form is free to price the new
+    // question.
     if (transferState === "done") {
-      // Keep the swap and the landed amount — they are what the receipt below is
-      // built from — but do not invent a pending press out of them.
-      begin("bridge");
+      swapLeg = null;
+      landedAmount = null;
+      receivedAmount = null;
+      runningPlan = null;
+      transferState = "idle";
       return;
     }
 
@@ -1352,6 +1434,11 @@
     activeStep = -1;
     stepFailed = false;
     transferDone = false;
+    // A new attempt is not the previous one's receipt, and its error message is not
+    // this one's: both of these outlive the attempt that produced them otherwise, and
+    // the receipt reads `receivedAmount` in preference to the plan's own figure.
+    receivedAmount = null;
+    transferError = null;
     // A new transfer is a new question. The previous failure's recovery goes with
     // it; the arrived tokens are still there for the form to be pointed at by hand.
     tailFailed = null;
@@ -1512,6 +1599,12 @@
     ) {
       return;
     }
+    // Nor while the last leg failed. The destination swap's failure handler returns
+    // to `afterBridge`, which calls this unconditionally — and a tick there marked
+    // the conversion done and opened a receipt on the *quote* for a swap that never
+    // ran, while the recovery card underneath said the swap had failed. Both cannot
+    // be true, and only one of them is a fact.
+    if (transferState === "failed") return;
     if (activeStep + 1 >= steps.length) {
       activeStep = steps.length;
       transferDone = true;
@@ -1754,7 +1847,12 @@
       waitingForBridge = null;
       transferMessage = null;
       stepFailed = true;
-      transferState = "failed";
+      // The swap is signed and the rail is in the account, so what failed is the
+      // deposit — not the conversion. Parked at the deposit rather than marked as a
+      // failed transfer, because that is the press that retries it: `failed` would
+      // put "Convert" under the form, and that press re-runs the source swap. A
+      // second swap into the rail for money that is already sitting in it.
+      transferState = "awaiting-deposit";
       transferError =
         err instanceof Error ? err.message : "The deposit did not go through.";
     } finally {
@@ -2109,12 +2207,19 @@
           // The destination list may have been built before this landed, without it.
           holdingsVersion += 1;
           // Keep the current selection if it is still held, else fall back to the
-          // first token that can actually be swapped.
-          if (!found.some((t) => t.mint === sourceTokenId)) {
-            sourceTokenId =
+          // first token that can actually be swapped. Through the read's own
+          // version of a token change, which resets the form but refuses to do so
+          // at the cost of an attempt already under way: the swap that spent this
+          // token is signed, and the press that bridges it is still to come.
+          if (
+            found.length > 0 &&
+            !found.some((t) => t.mint === sourceTokenId)
+          ) {
+            followHeldSourceToken(
               found.find((t) => t.routable)?.mint ??
-              found[0]?.mint ??
-              WSOL_MINT;
+                found[0]?.mint ??
+                WSOL_MINT,
+            );
           }
           return;
         } catch (err) {
@@ -2286,10 +2391,7 @@
                 ? "Couldn't read this wallet's balances. Reconnect and try again."
                 : "No tokens found in this wallet."
               : "Connect your wallet to see your balances."}
-            on:select={(e) => {
-              sourceTokenId = e.detail;
-              reset();
-            }}
+            on:select={(e) => pickSourceToken(e.detail)}
           />
         </div>
 

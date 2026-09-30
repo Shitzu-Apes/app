@@ -48,6 +48,21 @@
   let query = "";
 
   /**
+   * The box is emptied when the chain under it changes.
+   *
+   * The query used to survive a destination change, so switching chains left the old
+   * chain's search words in the input and its hits under them — a list of tokens the
+   * new destination cannot receive, under a placeholder saying it searched the new
+   * one. The panel clears its own type-ahead for the same reason; this is the half of
+   * it that lives in the input.
+   */
+  let lastNetwork = network;
+  $: if (network !== lastNetwork) {
+    lastNetwork = network;
+    query = "";
+  }
+
+  /**
    * How much of the catalogue to render.
    *
    * A hundred. It was twenty, on the argument that past twenty people are scrolling a
