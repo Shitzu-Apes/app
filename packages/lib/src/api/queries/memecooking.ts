@@ -32,7 +32,21 @@ export const memecookingKeys = createQueryKeyStore({
   account: {
     base: (accountId: string, blockHeight?: number) => ({
       queryKey: ["memecooking", "account", accountId, blockHeight],
-      queryFn: () => MemeCooking.getAccount(accountId),
+      queryFn: async () => {
+        const account = await MemeCooking.getAccount(accountId);
+        // The contract returns `null` for accounts with no stored record.
+        // Normalize it to an empty account: otherwise the queries that derive
+        // from this one treat the null as "not loaded yet" and never leave
+        // their loading state.
+        return (
+          account ?? {
+            account_id: accountId,
+            deposits: [],
+            income: [],
+            shitstar_claim: "0",
+          }
+        );
+      },
     }),
     storageBalance: (accountId: string) => ({
       queryKey: ["memecooking", "storage", accountId],
