@@ -67,6 +67,7 @@ test("the registry is read back completely", () => {
   // If the parse ever stops matching, every assertion below would pass
   // vacuously on an empty registry, so check the shape first.
   assert.deepEqual(Object.keys(registry).sort(), [
+    "CYPH",
     "JAMBO",
     "JLU",
     "NEAR",
@@ -95,12 +96,14 @@ test("every registry token has an explicit address for all six networks", () => 
   }
 });
 
-test("seven tokens can carry a NEAR <-> Solana bridge", () => {
+test("eight tokens can carry a NEAR <-> Solana bridge", () => {
   // Verified against the live aggregators: every one of these has a route on at
   // least one direction. XAUT is the exclusion, being NEAR and Ethereum only.
+  // CYPH is the omni bridge's own Solana-native token (burn-and-mint), carried
+  // by the same rail shape; both directions verified live on mainnet.
   assert.deepEqual(
     railCandidates(registry, "near", "solana").map((r) => r.tokenId),
-    ["NEAR", "SHITZU", "OMGY", "JAMBO", "JLU", "PURGE", "POPPY"],
+    ["NEAR", "SHITZU", "OMGY", "JAMBO", "JLU", "PURGE", "POPPY", "CYPH"],
   );
 });
 
@@ -125,8 +128,8 @@ test("Solana targets exclude XAUT, NEAR targets include it", () => {
   const near = targetCandidates(registry, "near").map((t) => t.tokenId);
   assert.ok(!solana.includes("XAUT"));
   assert.ok(near.includes("XAUT"));
-  assert.equal(solana.length, 7);
-  assert.equal(near.length, 8);
+  assert.equal(solana.length, 8);
+  assert.equal(near.length, 9);
 });
 
 test("POPPY's NEAR contract is named for testnet but is the mainnet token", () => {
