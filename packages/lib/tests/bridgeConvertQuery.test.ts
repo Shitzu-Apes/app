@@ -395,8 +395,10 @@ test("native NEAR is quoted as the contract the bridge and router expect", () =>
   // the contract that represents it, or a same-chain NEAR swap is quoted against
   // an address that does not exist.
   const panel = readFileSync("src/bridge/AnyToAnyPanel.svelte", "utf8");
+  // The bare `near`, or nothing that is not one of the rows on offer: a foreign
+  // id resolving through the registry would otherwise be quoted as an address.
   assert.match(
     panel,
-    /sourceTokenId === "near"\s*\?\s*\(REGISTRY\.NEAR\.addresses\.near/,
+    /sourceTokenId === "near" \|\|[\s\S]{0,160}?REGISTRY\.NEAR\.addresses\.near/,
   );
 });

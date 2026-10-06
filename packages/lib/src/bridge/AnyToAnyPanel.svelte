@@ -176,6 +176,22 @@
    */
   function pickSource(chain: ConvertChain) {
     source = chain;
+    // A chain change is a decision, not a balance read, so the selection is
+    // re-pointed here rather than left to the `selectionIsFree`-gated guards.
+    // Those guards deliberately refuse while a transfer is parked, and a
+    // selection from the other chain is never a legitimate record for one: left
+    // in place it kept quoting a Solana mint against NEAR rails after the swap
+    // was done. The fallbacks come from the same builder the list renders, so
+    // whatever is kept is something the user can see.
+    const options = buildSourceOptions(chain, solanaTokens, nearHoldings);
+    if (!options.some((option) => option.id === sourceTokenId)) {
+      sourceTokenId =
+        chain === "solana"
+          ? (solanaTokens.find((t) => t.routable)?.mint ??
+            solanaTokens[0]?.mint ??
+            WSOL_MINT)
+          : "near";
+    }
     reset();
   }
 
@@ -369,8 +385,15 @@
   // Native NEAR is selected as the bare id `near`, but the aggregators and the
   // bridge want the contract that represents it on the source chain — resolved
   // from the registry rather than written here, so there is one address for it.
+  //
+  // Anything that is not one of the rows actually on offer is not a NEAR token,
+  // and the address must not be passed through: that is how a Solana mint, left
+  // behind by a state change, reached the router's `token_in` and was quoted
+  // against NEAR rails. Native NEAR is always on offer, so it is the fallback,
+  // and the visible list and the quote agree on what is being spent.
   $: nearSourceAddress =
-    sourceTokenId === "near"
+    sourceTokenId === "near" ||
+    !sourceOptions.some((option) => option.id === sourceTokenId)
       ? (REGISTRY.NEAR.addresses.near ?? "near")
       : sourceTokenId;
   $: sourceAddress =
@@ -1310,8 +1333,21 @@
     // It is also only valid for the amount it swapped. Changing the amount makes it
     // the wrong swap, and keeping it would bridge a stale number — so that is the
     // one thing that does discard it.
+    //
+    // Read from the input rather than from the reactive `amount`. That variable is
+    // only recomputed on the next update pass, and `reset` clears `amountInput`
+    // and calls this in the same synchronous block — so `clearAttempt` used to see
+    // the amount the form no longer had. A signed swap then still looked valid
+    // across a chain or target change, the park was re-entered with the swap kept,
+    // and `selectionIsFree` stayed false: a stale selection from the other chain
+    // could not be corrected while the form re-priced around it. The question
+    // "does the swap still apply" is about this moment, so it is asked of the
+    // input as it stands now.
+    const liveAmount = parseBaseUnits(amountInput, sourceDecimals);
     const swapStillApplies =
-      swapLeg !== null && amount !== null && amount === swapLeg.forAmount;
+      swapLeg !== null &&
+      liveAmount !== null &&
+      liveAmount === swapLeg.forAmount;
 
     // A destination swap that failed after the bridge landed is not a form
     // attempt, and a recalculation is not a reason to forget it: the arrived

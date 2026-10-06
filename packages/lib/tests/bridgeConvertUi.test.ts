@@ -134,7 +134,15 @@ test("changing a chain resets the quote rather than leaving a stale one", () => 
   // result would show a route that no longer applies. A chain change also clears
   // the amount, because the same string means something else at different decimals.
   assert.match(panel, /function reset\(keepAmount = false\)/);
-  assert.match(panel, /source = chain;\s*\n\s*reset\(\);/);
+  const pick = panel.slice(
+    panel.indexOf("function pickSource(chain: ConvertChain)"),
+    panel.indexOf(
+      "\n  }\n",
+      panel.indexOf("function pickSource(chain: ConvertChain)"),
+    ),
+  );
+  assert.match(pick, /source = chain;/);
+  assert.match(pick, /reset\(\);/);
   // The destination drops the link's target first, since an address belongs to the
   // chain it was named on, and the type-ahead results, which belong to the chain
   // that was searched; `reset` follows both.
@@ -712,9 +720,18 @@ test("a recalculation does not delete a swap that has been signed", () => {
     panel.indexOf("function clearAttempt()"),
     panel.indexOf("function reset("),
   );
+  // The amount is read from the input, not from the reactive `amount`. `reset`
+  // clears the input and calls `clearAttempt` in the same synchronous block, and
+  // the reactive value is only recomputed on the next update pass — so the swap
+  // looked valid for an amount the form had already dropped, the park survived a
+  // chain or target change, and the selection guards stayed shut.
   assert.match(
     body,
-    /const swapStillApplies =\s*\n?\s*swapLeg !== null && amount !== null && amount === swapLeg\.forAmount;/,
+    /const liveAmount = parseBaseUnits\(amountInput, sourceDecimals\);/,
+  );
+  assert.match(
+    body,
+    /const swapStillApplies =\s*\n?\s*swapLeg !== null &&\s*\n?\s*liveAmount !== null &&\s*\n?\s*liveAmount === swapLeg\.forAmount;/,
   );
   // And the park survives with it, because a signed swap with nothing bridged is a
   // real position the button still has to act on.
@@ -734,6 +751,38 @@ test("a swap is only kept while it is still the right swap", () => {
   const near = readFileSync("src/bridge/executeNear.ts", "utf8");
   assert.match(near, /forAmount: amount,/);
   assert.match(near, /forAmount: bigint;/);
+});
+
+test("a chain's selection cannot stay on the other chain's token", () => {
+  // The reported failure: after a swap and some state churn the form was left
+  // with a Solana token selected on the NEAR side, and the router was asked to
+  // route it — `token_in` was a Solana address, quoted against NEAR rails. Two
+  // doors have to be shut. A chain change re-points the selection itself, because
+  // the balance-read guards deliberately refuse while a transfer is parked; and
+  // the NEAR address derivation passes through nothing that is not one of the
+  // rows on offer, so no state path can put a foreign address in the query.
+  const body = readFileSync("src/bridge/AnyToAnyPanel.svelte", "utf8");
+  const start = body.indexOf("function pickSource(chain: ConvertChain)");
+  const fn = body.slice(start, body.indexOf("\n  }\n", start));
+  assert.match(
+    fn,
+    /const options = buildSourceOptions\(chain, solanaTokens, nearHoldings\);/,
+  );
+  assert.match(
+    fn,
+    /if \(!options\.some\(\(option\) => option\.id === sourceTokenId\)\) \{/,
+  );
+  assert.match(fn, /chain === "solana"/);
+  assert.match(fn, /: "near";/);
+
+  const addr = body.slice(
+    body.indexOf("$: nearSourceAddress ="),
+    body.indexOf("$: sourceAddress ="),
+  );
+  assert.match(
+    addr,
+    /!sourceOptions\.some\(\(option\) => option\.id === sourceTokenId\)/,
+  );
 });
 
 test("a search quote gets one attempt, an execution gets the full budget", () => {
