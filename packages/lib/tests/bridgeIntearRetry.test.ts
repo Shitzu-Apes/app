@@ -10,7 +10,14 @@ const {
   MAX_RETRY_AFTER_MS,
   parseRetryAfter,
   rateLimitWaitMs,
+  resetIntearRouterCooldown,
 } = await import("../src/near/intear.ts");
+
+// The 429 cooldown is module state shared by every call, so a test that leaves
+// one behind would make the next wait out a window it never asked for.
+test.beforeEach(() => {
+  resetIntearRouterCooldown();
+});
 
 // The router is flaky, and the search was persistent about it while the execution
 // was not. These pin the shared behaviour, and the count, that both now rely on.
@@ -414,6 +421,107 @@ test("an aborted request does not sit out the rate-limit wait", async () => {
       Date.now() - started < 2_000,
       "an aborted request waited out Retry-After",
     );
+  } finally {
+    Math.random = realRandom;
+    stub.restore();
+  }
+});
+
+// The queue, which is what keeps a search's rails from earning the 429 together.
+
+test("router calls run one at a time, in the order they were made", async () => {
+  const original = globalThis.fetch;
+  const release: (() => void)[] = [];
+  const amountsOnTheWire: string[] = [];
+  let inFlight = 0;
+  let peak = 0;
+  globalThis.fetch = (async (url: unknown) => {
+    inFlight++;
+    peak = Math.max(peak, inFlight);
+    amountsOnTheWire.push(
+      new URL(String(url)).searchParams.get("amount_in") ?? "",
+    );
+    await new Promise<void>((resolve) => release.push(resolve));
+    inFlight--;
+    return new Response(JSON.stringify([route("100")]), { status: 200 });
+  }) as typeof fetch;
+
+  try {
+    const calls = ["1", "2", "3"].map((amount) =>
+      getIntearRoutes({ ...QUERY, amountIn: BigInt(amount) }),
+    );
+
+    // The first call reaches the network; the others must still be waiting.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.equal(release.length, 1, "two requests were on the wire at once");
+    assert.equal(peak, 1);
+
+    release[0]();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.equal(release.length, 2, "the second request did not start");
+
+    release[1]();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.equal(release.length, 3, "the third request did not start");
+
+    release[2]();
+    await Promise.all(calls);
+
+    assert.equal(peak, 1, "two router requests overlapped");
+    assert.deepEqual(amountsOnTheWire, ["1", "2", "3"], "the queue reordered");
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test("a 429 cools down the whole queue, not just the refused request", async () => {
+  // The point of the shared cooldown: a search's other rails must not fill the
+  // window the server just named while the refused request is waiting it out.
+  const original = globalThis.fetch;
+  const times: number[] = [];
+  let calls = 0;
+  globalThis.fetch = (async () => {
+    times.push(Date.now());
+    calls++;
+    return calls === 1
+      ? rateLimited()
+      : new Response(JSON.stringify([route("100")]), { status: 200 });
+  }) as typeof fetch;
+
+  const realRandom = Math.random;
+  Math.random = () => 0;
+  try {
+    const refused = getIntearRoutesRouted(QUERY, { rateLimitBaseMs: 150 });
+    const queued = getIntearRoutesRouted(QUERY, { rateLimitBaseMs: 150 });
+    await Promise.all([refused, queued]);
+
+    assert.equal(calls, 3, "both requests should have answered");
+    // The second request was queued behind the first, which 429'd and put a
+    // 150ms cooldown on the queue before releasing the slot. It has to wait it
+    // out rather than send into the window.
+    assert.ok(
+      times[1] - times[0] >= 120,
+      `the queued request fired into the cooldown (${times[1] - times[0]}ms)`,
+    );
+  } finally {
+    Math.random = realRandom;
+    globalThis.fetch = original;
+  }
+});
+
+test("a persistent rate limit is re-asked ten times before it is believed", async () => {
+  // "Many retries" is one number: the default budget. The waits are what the
+  // queue makes affordable, so the schedule is zeroed here and only the count
+  // is under test.
+  const stub = stubRouter([rateLimited("0")]);
+  const realRandom = Math.random;
+  Math.random = () => 0;
+  try {
+    await assert.rejects(
+      () => getIntearRoutesRouted(QUERY, { backoffMs: [], rateLimitBaseMs: 0 }),
+      (err: unknown) => err instanceof IntearError && err.status === 429,
+    );
+    assert.equal(stub.calls(), 10);
   } finally {
     Math.random = realRandom;
     stub.restore();

@@ -133,27 +133,26 @@
 
   // --- chains -------------------------------------------------------------------
 
-  let source: ConvertChain = "solana";
-  let dest: ConvertChain = "near";
-
   /**
    * The four parts of a conversion, mirrored into the URL so the form is a
-   * shareable link. Read once on mount; written on change. The amount is
-   * deliberately excluded — see `convertQuery.ts`.
+   * shareable link. The amount is deliberately excluded — see `convertQuery.ts`.
+   *
+   * Read here, at initialization, rather than in `onMount`: the first render has
+   * to already be the link's conversion. Read later, the form opened on its
+   * defaults — Solana as the source — and every piece of state derived from the
+   * source was built for the wrong chain: the source token stayed the Solana
+   * native mint (`WSOL_MINT`), so a `from=near` link asked the NEAR router to
+   * swap a Solana address and re-asked it while the answer was refused. The
+   * target id and the pin below are initialized from the same read for the same
+   * reason.
    */
-  onMount(() => {
-    const initial = readConvertQuery(location.search);
-    source = initial.from;
-    dest = initial.to;
-    if (initial.target) {
-      targetTokenId = initial.target;
-      // The address alone is not a token: the picker needs a row to select, and the
-      // catalogue is not necessarily where the link's target lives. See the
-      // resolution below.
-      urlTarget = { chain: dest, address: initial.target };
-      urlTargetLookup = true;
-    }
-  });
+  const initialQuery = readConvertQuery(
+    // `location` is absent under SSR. The defaults it would produce are the ones
+    // the form opens on anyway.
+    typeof location === "undefined" ? "" : location.search,
+  );
+  let source: ConvertChain = initialQuery.from;
+  let dest: ConvertChain = initialQuery.to;
 
   $: if (hydrated) {
     writeConvertQuery({ from: source, to: dest, target: targetTokenId });
@@ -231,7 +230,11 @@
     !isLoadingSolanaTokens &&
     solanaReadCameBackEmpty;
 
-  let sourceTokenId = WSOL_MINT;
+  // The default belongs to the source chain: native NEAR is what a `from=near`
+  // link opens on, and the Solana native mint only ever belongs to a Solana
+  // source. Defaulting to the mint regardless is what put a Solana address in
+  // the From card and in the router's query until the chain guard corrected it.
+  let sourceTokenId = source === "solana" ? WSOL_MINT : "near";
   $: sourceWalletToken =
     solanaTokens.find((t) => t.mint === sourceTokenId) ?? null;
 
@@ -830,11 +833,12 @@
    * Resolving the address back into a token and putting its row on top of the list is
    * what makes the link mean what it says.
    */
-  let urlTarget: { chain: ConvertChain; address: string } | null = null;
+  let urlTarget: { chain: ConvertChain; address: string } | null =
+    initialQuery.target ? { chain: dest, address: initialQuery.target } : null;
   /** The token it named, once resolved. */
   let urlTargetToken: CatalogToken | null = null;
   /** The selection is the link's until the lookup answers, one way or the other. */
-  let urlTargetLookup = false;
+  let urlTargetLookup = initialQuery.target !== undefined;
   let urlTargetStarted = false;
 
   // `catalog` is named in the call rather than read inside the resolver, for the same
@@ -906,7 +910,7 @@
   $: target = targets.find((t) => t.tokenId === targetTokenId) ?? null;
   $: targetAddress = target?.address ?? null;
 
-  let targetTokenId = "";
+  let targetTokenId = initialQuery.target ?? "";
 
   /**
    * Prices for the receive summary, keyed by token id.
@@ -2211,7 +2215,14 @@
           // version of a token change, which resets the form but refuses to do so
           // at the cost of an attempt already under way: the swap that spent this
           // token is signed, and the press that bridges it is still to come.
+          //
+          // Only for a Solana source. This read is gated on the Solana wallet,
+          // which is the *destination* wallet on a `from=near` link, and without
+          // the chain check it re-pointed the NEAR source selection at a Solana
+          // mint — the router saw a Solana address as `token_in` and the form was
+          // left on it until the chain guard happened to correct it back.
           if (
+            source === "solana" &&
             found.length > 0 &&
             !found.some((t) => t.mint === sourceTokenId)
           ) {

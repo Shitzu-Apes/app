@@ -50,6 +50,15 @@ export type SwapQuoter = {
     fromAddress: string,
     toAddress: string,
     amountIn: bigint,
+    /**
+     * The search's own cancellation, forwarded to the aggregator. Naming it on
+     * the quoter rather than on the call site is what lets a superseded search
+     * release its queued router calls — see `withRouterSlot` in `intear.ts` —
+     * instead of spending them on a result nobody will read. An execution leg
+     * quotes outside a search and has no signal, which is deliberate: a signed
+     * transfer keeps waiting.
+     */
+    signal?: AbortSignal,
   ): Promise<SwapLeg | null>;
   /** A one-line description of the route, for the UI. */
   describe(leg: SwapLeg): string;
@@ -133,14 +142,14 @@ const SEARCH_ATTEMPTS = 1;
 /**
  * Rate-limited asks a *search* may make, per leg.
  *
- * Four, against the execution's five, and the difference is only what is behind
- * each. A search has the form's own re-run behind it, and one refused re-ask was
- * the reported failure here — the rail was dropped and the route list came back
- * without it. Three re-asks at the server's interval span about fifteen seconds,
- * which is where a limit that outlasts its own hint stops being a limit and starts
- * being an outage.
+ * Ten, the same as the execution's budget and for the same reason. This used to
+ * be lower — four — because a search fires several rails at once and each re-ask
+ * landed on a bucket the others were still draining. Every router call now runs
+ * through the queue in `intear.ts` and honours the shared 429 cooldown, so a
+ * re-ask waits instead of adding to the burst, and a rail is given the same
+ * chance to survive a limit as an execution leg with money behind it.
  */
-const SEARCH_RATE_LIMIT_ATTEMPTS = 4;
+const SEARCH_RATE_LIMIT_ATTEMPTS = 10;
 
 export function intearQuoter(
   traderAccountId: string,
@@ -156,6 +165,7 @@ export function intearQuoter(
     fromAddress: string,
     toAddress: string,
     amountIn: bigint,
+    signal?: AbortSignal,
     routing: IntearRoutedOptions = {},
   ): Promise<IntearRoute[]> =>
     executableRoutes(
@@ -168,6 +178,7 @@ export function intearQuoter(
           // Thin pools need room. At 1% the same pair that routes at 3% returns
           // nothing, which would make a live market look dead.
           slippage: 0.03,
+          signal,
         },
         routing,
       ),
@@ -177,6 +188,7 @@ export function intearQuoter(
     fromAddress: string,
     toAddress: string,
     amountIn: bigint,
+    signal?: AbortSignal,
   ): Promise<SwapLeg | null> => {
     if (amountIn <= 0n) return null;
 
@@ -198,7 +210,7 @@ export function intearQuoter(
     // All of that is about *empty* answers, which are ambiguous. A rate limit is
     // not ambiguous and is not waited out by the form's schedule, so it gets a
     // budget of its own — see `SEARCH_RATE_LIMIT_ATTEMPTS`.
-    const routes = await request(fromAddress, toAddress, amountIn, {
+    const routes = await request(fromAddress, toAddress, amountIn, signal, {
       // Defaults, not overrides: a caller asking for more still gets it. The
       // spread matters because leaving `backoffMs` out silently replaced a test's
       // schedule with the app's, and the search's rate-limit budget needs to be

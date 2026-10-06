@@ -72,11 +72,42 @@ test("both chain ends are chosen, not assumed to be opposites", () => {
   // Forcing the destination to be whatever the source is not means the user
   // cannot express the most ordinary request there is: sending something the
   // other way. Both ends get a picker.
-  assert.match(panel, /let source: ConvertChain = "solana"/);
-  assert.match(panel, /let dest: ConvertChain = "near"/);
+  assert.match(panel, /let source: ConvertChain = initialQuery\.from/);
+  assert.match(panel, /let dest: ConvertChain = initialQuery\.to/);
   assert.match(panel, /function pickSource/);
   assert.match(panel, /function pickDest/);
   assert.doesNotMatch(panel, /destNetwork = fromSolana \? "near" : "solana"/);
+});
+
+test("a link's chains are the state's initialization, not a later assignment", () => {
+  // The reported bug: opening `?from=near&to=solana&t=…` opened the form on its
+  // Solana defaults and applied the query only afterwards, so the source token
+  // was the Solana native mint while the source chain was NEAR. The router was
+  // asked to swap that mint — an address that means nothing on NEAR — rail by
+  // rail, retry by retry, until the chain guard happened to correct the
+  // selection. Reading the query before the first render removes the window
+  // instead of closing it twice: the source token's default is now the source
+  // chain's own.
+  const body = readFileSync("src/bridge/AnyToAnyPanel.svelte", "utf8");
+  assert.match(body, /const initialQuery = readConvertQuery\(/);
+  assert.match(
+    body,
+    /typeof location === "undefined" \? "" : location\.search/,
+  );
+  assert.match(
+    body,
+    /let sourceTokenId = source === "solana" \? WSOL_MINT : "near";/,
+  );
+  assert.match(body, /let targetTokenId = initialQuery\.target \?\? "";/);
+  // And the Solana balance read — which runs on this link because Solana is the
+  // destination — may not re-point a NEAR source selection.
+  const start = body.indexOf("async function loadSolanaTokens(");
+  const fn = body.slice(start, body.indexOf("\n  }\n", start));
+  assert.match(
+    fn,
+    /source === "solana" &&\s*\n\s*found\.length > 0 &&/,
+    "the read only re-points its own chain's selection",
+  );
 });
 
 test("picking a chain does not force the other end to change", () => {
@@ -951,13 +982,13 @@ test("the token list waits for the URL, and is rebuilt when the balances move", 
   assert.match(body, /signature: heldSignature/);
   // The decision itself is tested in `bridgeWalletLoad`; this is the wiring.
   assert.match(body, /catalogHeldFor = heldSignature;/);
-  // `hydrated` is only set after the `onMount` that reads the query, so `dest` is
-  // already the chain the link asked for. Building before that asks for the *default*
-  // chain, and the aborted first request comes back empty and overwrites the list the
-  // link asked for.
+  // `hydrated` is only set after the initialization that reads the query, so `dest`
+  // is already the chain the link asked for. Building before that asks for the
+  // *default* chain, and the aborted first request comes back empty and overwrites
+  // the list the link asked for.
   const hydrated = body.indexOf("hydrated = true;");
-  const readsQuery = body.indexOf("source = initial.from;");
-  assert.ok(hydrated > 0 && readsQuery > 0, "both are set on mount");
+  const readsQuery = body.indexOf("const initialQuery = readConvertQuery(");
+  assert.ok(hydrated > 0 && readsQuery > 0, "both exist");
   assert.ok(
     readsQuery < hydrated,
     "and the query is read before the list is allowed to load",
@@ -1154,10 +1185,10 @@ test("a link's target is looked up, not replaced by the list's first row", () =>
   const body = readFileSync("src/bridge/AnyToAnyPanel.svelte", "utf8");
   assert.match(
     body,
-    /urlTarget = \{ chain: dest, address: initial\.target \}/,
+    /\{ chain: dest, address: initialQuery\.target \}/,
     "the address is recorded with the chain it was named on",
   );
-  assert.match(body, /urlTargetLookup = true;/);
+  assert.match(body, /urlTargetLookup = initialQuery\.target !== undefined;/);
   // Resolved through the same search the box uses, so whatever a search could find,
   // a link can restore.
   assert.match(body, /await resolveTarget\(target\.address, \{/);

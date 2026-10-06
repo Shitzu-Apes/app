@@ -210,29 +210,65 @@ export function buildRouteQuery({
  *
  * A 429 is the other kind of no-answer and is retried there too, on a budget of its
  * own: it is not ambiguous, and the response says exactly when to come back.
+ *
+ * This is the one place that talks to `router.intear.tech`, and every call runs
+ * through the queue in `withRouterSlot`: a search's rails and an execution's legs
+ * are never on the wire together, because the router limits concurrency as well
+ * as volume and firing them together is what earned the 429 in the first place.
  */
 export async function getIntearRoutes(
   query: IntearQuery,
 ): Promise<IntearRoute[]> {
-  const url = `${INTEAR_ROUTER}?${buildRouteQuery(query)}`;
+  return fetchIntearRoutes(query);
+}
 
-  const res = await fetch(url, { signal: query.signal });
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new IntearError(
-      `Intear router failed (${res.status}): ${body.slice(0, 200)}`,
-      res.status,
-      parseRetryAfter(res.headers.get("retry-after")),
-    );
-  }
+/**
+ * One request, alone on the queue, with the shared 429 cooldown enforced.
+ *
+ * `rateLimitAttempt` and `rateLimitBaseMs` are the caller's own retry schedule
+ * (`askRouter`'s). A 429 sets the queue's cooldown from them *before* the slot
+ * is released, so the wait the retrying caller is about to pay also holds the
+ * other queued requests back — otherwise they would fill the window the server
+ * just named and keep the bucket empty.
+ */
+async function fetchIntearRoutes(
+  query: IntearQuery,
+  rateLimitAttempt = 1,
+  rateLimitBaseMs: number = RATE_LIMIT_BASE_MS,
+): Promise<IntearRoute[]> {
+  return withRouterSlot(async () => {
+    await waitOutCooldown(query.signal);
 
-  const body = (await res.json()) as IntearRoute[] | unknown;
-  if (!Array.isArray(body)) {
-    throw new IntearError(
-      `Intear router returned ${typeof body}, expected a route array`,
-    );
-  }
-  return body;
+    const url = `${INTEAR_ROUTER}?${buildRouteQuery(query)}`;
+    const res = await fetch(url, { signal: query.signal });
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      const retryAfterMs = parseRetryAfter(res.headers.get("retry-after"));
+      if (res.status === 429) {
+        const wait = rateLimitWaitMs(
+          rateLimitAttempt,
+          retryAfterMs,
+          rateLimitBaseMs,
+        );
+        routerNotBefore = Math.max(routerNotBefore, Date.now() + wait);
+      }
+      throw new IntearError(
+        `Intear router failed (${res.status}): ${body.slice(0, 200)}`,
+        res.status,
+        retryAfterMs,
+      );
+    }
+
+    const body = (await res.json()) as IntearRoute[] | unknown;
+    if (!Array.isArray(body)) {
+      throw new IntearError(
+        `Intear router returned ${typeof body}, expected a route array`,
+      );
+    }
+    // A request the server answered means the window is open again.
+    routerNotBefore = 0;
+    return body;
+  });
 }
 
 /**
@@ -272,13 +308,12 @@ const ROUTE_BACKOFF_MS = [500, 1000, 1500, 2000];
 /**
  * How many times a rate-limited question is asked, in total.
  *
- * Five, where the first cut of this asked three (and the search two, which is the
- * one re-ask that was reported refused). The reason is what a limit is: a window
- * rather than a queue, so a single re-ask at the server's own interval lands inside
- * the same window about as often as beside it — especially on this page, where
- * several rails and legs are refused together and come back together. Retrying more
- * times is the only thing that tells those two cases apart, and each attempt is
- * spaced by the server's `Retry-After` where it sends one.
+ * Ten, up from five. The queue changed what a retry costs: a re-ask now waits
+ * behind the shared cooldown along with every other request, so the attempts
+ * spend their waiting instead of re-draining the bucket that refused them. A
+ * limit that clears in the seconds the server itself names is then ridden out
+ * rather than reported, which matters most for an execution leg with money
+ * already on the bridge.
  *
  * Deliberately separate from `ROUTE_ATTEMPTS`. An empty answer is ambiguous — it
  * is both "no pool" and "cold router" — so the count spent on it is a wager, and
@@ -286,7 +321,7 @@ const ROUTE_BACKOFF_MS = [500, 1000, 1500, 2000];
  * sharing the counters would have made a rate-limited rail in a search take the
  * single empty attempt and go unretried.
  */
-const RATE_LIMIT_ATTEMPTS = 5;
+const RATE_LIMIT_ATTEMPTS = 10;
 
 /**
  * The step of the linear wait when the server sends no `Retry-After`.
@@ -339,6 +374,60 @@ const sleep = (ms: number, signal?: AbortSignal) =>
     );
   });
 
+/**
+ * One queue for every request to `router.intear.tech`.
+ *
+ * A search is several requests at once — up to seven rails, each with a source
+ * and a destination leg — and the router rate-limits in ordinary use, so firing
+ * them together is what walked the form into a 429: the first few succeed, the
+ * rest are refused, and every refusal re-asks on its own schedule against a
+ * bucket the others are still draining. All requests now run alone, in the order
+ * they were made.
+ *
+ * The price is latency on a search, and it is paid deliberately: a search that
+ * waits a moment is better than one whose best rail silently loses a 429 race.
+ * The queue is per page, like the router's own limit.
+ */
+let routerInFlight = false;
+const routerQueue: (() => void)[] = [];
+
+async function withRouterSlot<T>(fn: () => Promise<T>): Promise<T> {
+  if (routerInFlight) {
+    await new Promise<void>((resolve) => routerQueue.push(resolve));
+  }
+  routerInFlight = true;
+  try {
+    return await fn();
+  } finally {
+    // The slot is handed straight to the next waiter instead of clearing the
+    // flag first: between those two steps a fresh arrival would see an empty
+    // queue and start alongside the waiter that is just waking.
+    const next = routerQueue.shift();
+    if (next) next();
+    else routerInFlight = false;
+  }
+}
+
+/**
+ * When the window a 429 named ends, in `Date.now()` terms.
+ *
+ * A 429 sets it before the queue slot is released, so the next queued request
+ * cannot slip out ahead of the window the server just asked for. Every request
+ * waits it out; a successful answer clears it, because a request the server
+ * accepted means the window is open again.
+ */
+let routerNotBefore = 0;
+
+/** Test seam: forget a cooldown, so one test's 429 cannot delay the next. */
+export function resetIntearRouterCooldown(): void {
+  routerNotBefore = 0;
+}
+
+async function waitOutCooldown(signal?: AbortSignal): Promise<void> {
+  const remaining = routerNotBefore - Date.now();
+  if (remaining > 0) await sleep(remaining, signal);
+}
+
 /** A rate-limited failure, or null for every other kind. */
 function rateLimited(err: unknown): IntearError | null {
   return err instanceof IntearError && err.status === 429 ? err : null;
@@ -360,11 +449,15 @@ async function askRouter(
 ): Promise<IntearRoute[]> {
   for (let attempt = 1; ; attempt++) {
     try {
-      return await getIntearRoutes(query);
+      return await fetchIntearRoutes(query, attempt, baseMs);
     } catch (err) {
       const limited = rateLimited(err);
       if (!limited || attempt >= attempts) throw err;
       const wait = rateLimitWaitMs(attempt, limited.retryAfterMs, baseMs);
+      // `fetchIntearRoutes` has already pointed the shared cooldown at this
+      // same deadline, so this sleep is the caller's own copy of it. The sleep
+      // is outside the queue on purpose: the other requests' turns are spent
+      // waiting out the cooldown, not sending into it.
       await sleep(
         wait + Math.random() * wait * RATE_LIMIT_JITTER_RATIO,
         query.signal,

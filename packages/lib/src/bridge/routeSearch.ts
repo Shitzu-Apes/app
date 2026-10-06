@@ -105,6 +105,7 @@ export function createRouteSearchDeps({
   nearAccountId,
   sourceTokenAddress,
   targetTokenAddress,
+  signal,
 }: Pick<
   FindRoutesOptions,
   | "source"
@@ -114,6 +115,7 @@ export function createRouteSearchDeps({
   | "nearAccountId"
   | "sourceTokenAddress"
   | "targetTokenAddress"
+  | "signal"
 >): RouteSearchDeps {
   const quoteFor = (chain: Network) =>
     chain === "near"
@@ -126,8 +128,12 @@ export function createRouteSearchDeps({
   const targetToken = asTokenAddress(REGISTRY, targetTokenAddress, dest);
 
   return {
+    // The search's signal goes into every quote: a superseded search must drop
+    // its queued router calls rather than spend them behind the ones it made
+    // obsolete (`SwapQuoter`). Jupiter ignores it, an execution leg never has
+    // one, and a fresh search should not wait behind a stale search's retries.
     quoteSourceSwap: (rail, amountIn) =>
-      sourceQuoter(sourceToken, rail.sourceAddress, amountIn),
+      sourceQuoter(sourceToken, rail.sourceAddress, amountIn, signal),
     quoteTargetSwap: (rail, amountIn) =>
       // What the rail's cargo is *held as* on arrival, not the registry's address
       // for it. On NEAR those differ for the wNEAR rail: the payout arrives as
@@ -135,7 +141,7 @@ export function createRouteSearchDeps({
       // unwrapping, and that transaction reverts on an account holding no wNEAR.
       // Quoting it here too means the number the user agreed to is the number a
       // real route gives.
-      destQuoter(railAssetOnArrival(rail, dest), targetToken, amountIn),
+      destQuoter(railAssetOnArrival(rail, dest), targetToken, amountIn, signal),
     quoteBridgeFee: (rail, amount) =>
       getBridgeFee({
         from: source,
@@ -149,7 +155,7 @@ export function createRouteSearchDeps({
     // it reuses the source quoter rather than picking a chain: source and dest are
     // the same by definition here.
     quoteSameChainSwap: (amountIn) =>
-      sourceQuoter(sourceToken, targetToken, amountIn),
+      sourceQuoter(sourceToken, targetToken, amountIn, signal),
   };
 }
 
