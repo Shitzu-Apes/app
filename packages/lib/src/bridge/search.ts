@@ -384,8 +384,8 @@ async function planForRail(
   // Which rail can carry this route at all.
   //
   // A swap happening on the Solana side means this rail's liquidity *there* decides
-  // whether the route can exist, and only wNEAR, SHITZU and JAMBO are known to have
-  // any. So the rail is what is restricted — not the token being swapped. That distinction is
+  // whether the route can exist, and only wNEAR, SHITZU, JAMBO and NINU are known to
+  // have any. So the rail is what is restricted — not the token being swapped. That distinction is
   // the whole rule: gating the target instead would forbid USDC → USDC, which is the
   // deepest pair on Solana and the conversion most likely to be wanted, and it would
   // do so only after asking the router about every rail in the registry.
