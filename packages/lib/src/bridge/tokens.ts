@@ -582,7 +582,7 @@ export const TOKENS = {
       },
       solana: {
         buy: {
-          url: "https://backpack.exchange/trade/cyph.us",
+          url: "https://backpack.exchange/stocks/CYPH",
           icon: "https://backpack.exchange/api/stock-logo/CYPH",
         },
         dexscreener: {
@@ -596,7 +596,6 @@ export const TOKENS = {
       },
     },
   },
-
 } as const satisfies Record<string, Token>;
 
 export const TOKEN_ENTRIES = Object.entries(TOKENS) as [
