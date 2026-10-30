@@ -23,6 +23,12 @@
    * target token and a ranked route list — and forcing them into one component
    * would make both worse.
    */
+  /**
+   * Temporary shutdown: the page stays mounted, but no bridge or convert UI is
+   * rendered, so nothing can be signed from here. Flip to false to restore.
+   */
+  const MAINTENANCE = true;
+
   type Mode = "bridge" | "convert";
 
   /**
@@ -50,44 +56,63 @@
   <div class="text-center mb-5">
     <h1 class="mb-0">OmniBridge</h1>
     <div>Transfer tokens between networks</div>
-    <button
-      on:click={() => openBottomSheet(OmniBridgeSheet)}
-      class="inline-block mt-2 text-sm text-lime/70 hover:text-lime transition-colors"
-    >
-      Learn more about NEAR's next-gen cross-chain infrastructure →
-    </button>
-  </div>
-
-  <div
-    class="flex rounded-xl border border-lime/30 overflow-hidden mb-4"
-    role="tablist"
-    aria-label="What to do"
-  >
-    {#each TABS as tab (tab.id)}
+    {#if !MAINTENANCE}
       <button
-        type="button"
-        role="tab"
-        aria-selected={mode === tab.id}
-        class="flex-1 px-3 py-2.5 transition-colors {mode === tab.id
-          ? 'bg-lime text-black'
-          : 'text-lime/70 hover:bg-lime/10'}"
-        on:click={() => (mode = tab.id)}
+        on:click={() => openBottomSheet(OmniBridgeSheet)}
+        class="inline-block mt-2 text-sm text-lime/70 hover:text-lime transition-colors"
       >
-        <div class="text-sm font-semibold">{tab.label}</div>
-        <div
-          class="text-[11px] leading-tight {mode === tab.id
-            ? 'text-black/70'
-            : 'text-lime/40'}"
-        >
-          {tab.hint}
-        </div>
+        Learn more about NEAR's next-gen cross-chain infrastructure →
       </button>
-    {/each}
+    {/if}
   </div>
 
-  {#if mode === "bridge"}
-    <NativeBridgePanel />
+  {#if MAINTENANCE}
+    <div
+      class="max-w-md mx-auto px-6 py-10 text-center not-prose rounded-xl border border-lime/30 bg-lime/5"
+      role="status"
+    >
+      <div
+        class="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-lime/15 text-lime"
+      >
+        <div class="i-mdi:tools size-6" />
+      </div>
+      <h2 class="text-lg font-bold text-lime">Under maintenance</h2>
+      <p class="mt-2 text-sm text-white/70">
+        Bridge and convert are temporarily paused. Please check back soon.
+      </p>
+    </div>
   {:else}
-    <AnyToAnyPanel />
+    <div
+      class="flex rounded-xl border border-lime/30 overflow-hidden mb-4"
+      role="tablist"
+      aria-label="What to do"
+    >
+      {#each TABS as tab (tab.id)}
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === tab.id}
+          class="flex-1 px-3 py-2.5 transition-colors {mode === tab.id
+            ? 'bg-lime text-black'
+            : 'text-lime/70 hover:bg-lime/10'}"
+          on:click={() => (mode = tab.id)}
+        >
+          <div class="text-sm font-semibold">{tab.label}</div>
+          <div
+            class="text-[11px] leading-tight {mode === tab.id
+              ? 'text-black/70'
+              : 'text-lime/40'}"
+          >
+            {tab.hint}
+          </div>
+        </button>
+      {/each}
+    </div>
+
+    {#if mode === "bridge"}
+      <NativeBridgePanel />
+    {:else}
+      <AnyToAnyPanel />
+    {/if}
   {/if}
 </div>
