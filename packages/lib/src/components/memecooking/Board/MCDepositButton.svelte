@@ -4,6 +4,8 @@
   import { addToast } from "../../Toast.svelte";
   import ReferralSheet from "../BottomSheet/ReferralSheet.svelte";
 
+  import { buildDepositPlan } from "./depositPlan";
+
   import {
     useTokenRegistrationQuery,
     useTokenStorageRequirementQuery,
@@ -50,152 +52,105 @@
   );
   const storageCostsQuery = useMcStorageCostsQuery();
 
-  // Add this before the action function
-  $: depositSteps = (() => {
-    if (
-      !$storageBalanceQuery.data ||
-      !$storageCostsQuery.data ||
-      !$wrapNearRegistrationQuery.data ||
-      !$wrapNearStorageQuery.data
-    ) {
-      return [];
-    }
+  // `storage_balance_of` answers null for an account that never registered and
+  // `isUserRegistered` answers false for one that never registered on wNEAR.
+  // Both are answers, not failures: they are the states that get a storage
+  // deposit folded into the same transaction. Only the query status can tell
+  // them apart from data that has not arrived.
+  $: coreQueriesReady =
+    $storageBalanceQuery.status === "success" &&
+    $storageCostsQuery.status === "success" &&
+    $wrapNearRegistrationQuery.status === "success" &&
+    $wrapNearStorageQuery.status === "success";
 
-    const steps: { text: string }[] = [];
+  $: coreQueriesFailed = [
+    $storageBalanceQuery,
+    $storageCostsQuery,
+    $wrapNearRegistrationQuery,
+    $wrapNearStorageQuery,
+  ].some((query) => query.status === "error");
 
-    // Check referrer validity first
-    if (referral) {
-      if (referral === accountId) {
-        steps.push({
-          text: "⚠️ Referral cannot be the same as depositor - referral will be ignored",
-        });
-      } else if ($referrerStorageBalanceQuery.data === null) {
-        steps.push({
-          text: "⚠️ Referral not registered - referral will be ignored",
-        });
-      }
-    }
+  $: referrerPending =
+    !!referral && $referrerStorageBalanceQuery.status === "pending";
 
-    // Storage deposit checks
-    if (
-      $storageBalanceQuery.data === null ||
-      ($storageBalanceQuery.data !== null &&
-        new FixedNumber($storageBalanceQuery.data.available).toBigInt() <
-          new FixedNumber($storageCostsQuery.data.account).toBigInt())
-    ) {
-      const depositAmount = (
-        BigInt($storageCostsQuery.data.account) +
-        5n * BigInt($storageCostsQuery.data.perMemeDeposit)
-      ).toString();
-      steps.push({
-        text: `Register account with storage deposit of ${new FixedNumber(depositAmount, 24).format()} NEAR`,
-      });
-    } else if (
-      BigInt($storageBalanceQuery.data.available) <
-      BigInt($storageCostsQuery.data.perMemeDeposit)
-    ) {
-      const depositAmount = (
-        5n * BigInt($storageCostsQuery.data.perMemeDeposit)
-      ).toString();
-      steps.push({
-        text: `Add storage deposit of ${new FixedNumber(depositAmount, 24).format()} NEAR`,
-      });
-    }
+  $: referrerBalance =
+    $referrerStorageBalanceQuery.status === "success"
+      ? { known: true as const, balance: $referrerStorageBalanceQuery.data }
+      : { known: false as const };
 
-    // wNEAR registration check
-    if (!$wrapNearRegistrationQuery.data) {
-      steps.push({
-        text: `Register wNEAR token (${new FixedNumber($wrapNearStorageQuery.data, 24).format()} NEAR)`,
-      });
-    }
+  $: depositPlan =
+    coreQueriesReady && !referrerPending
+      ? buildDepositPlan({
+          accountId,
+          referral,
+          storageBalance: $storageBalanceQuery.data!,
+          storageCosts: $storageCostsQuery.data!,
+          wrapNearRegistered: $wrapNearRegistrationQuery.data!,
+          wrapNearMinDeposit: $wrapNearStorageQuery.data!,
+          referrerBalance,
+          input,
+          wrapNearBalance: $wrapNearBalance.data,
+          memeSymbol: meme.symbol,
+        })
+      : null;
 
-    // NEAR wrapping check
-    const extraNearDeposit =
-      input?.toBigInt() > ($wrapNearBalance?.data?.toBigInt() ?? 0n)
-        ? input.toBigInt() - ($wrapNearBalance?.data?.toBigInt() ?? 0n)
-        : 0n;
-    if (extraNearDeposit > 0n) {
-      steps.push({
-        text: `Wrap ${new FixedNumber(extraNearDeposit.toString(), 24).format()} NEAR to wNEAR`,
-      });
-    }
-
-    // Always add the final deposit step
-    if (input) {
-      steps.push({
-        text: `Deposit ${input.format()} NEAR to $${meme.symbol}`,
-      });
-    }
-
-    return steps;
-  })();
+  $: depositSteps = (depositPlan?.steps ?? []).map((text) => ({ text }));
 
   async function action() {
-    let referrer = referral || undefined;
-
-    if (
-      !$storageBalanceQuery.data ||
-      !$storageCostsQuery.data ||
-      !$wrapNearRegistrationQuery.data ||
-      !$wrapNearStorageQuery.data ||
-      (referrer && !$referrerStorageBalanceQuery.data)
-    ) {
-      console.error("Queries still loading or failed");
+    if (coreQueriesFailed) {
+      addToast({
+        data: {
+          type: "simple",
+          data: {
+            title: "Could not load deposit details",
+            description: "Retrying - please try again in a moment.",
+            type: "error",
+          },
+        },
+      });
+      await Promise.all([
+        $storageBalanceQuery.refetch(),
+        $storageCostsQuery.refetch(),
+        $wrapNearRegistrationQuery.refetch(),
+        $wrapNearStorageQuery.refetch(),
+        ...(referral ? [$referrerStorageBalanceQuery.refetch()] : []),
+      ]);
       return;
     }
 
-    const storageBalance = $storageBalanceQuery.data;
-    const storageCosts = $storageCostsQuery.data;
-    const wrapNearRegistered = $wrapNearRegistrationQuery.data;
-    const wrapNearMinDeposit = $wrapNearStorageQuery.data;
-    const referrerStorageBalance = $referrerStorageBalanceQuery.data;
-
-    const { account: accountCost, perMemeDeposit } = storageCosts;
-
-    // Update referrer based on validation
-    if (
-      referrer === accountId ||
-      (referrer && referrerStorageBalance === null)
-    ) {
-      referrer = undefined;
-      if (referral) {
-        removeReferral();
-      }
+    if (!depositPlan) {
+      addToast({
+        data: {
+          type: "simple",
+          data: {
+            title: "Still loading",
+            description:
+              "Deposit details are still loading - please try again.",
+            type: "error",
+          },
+        },
+      });
+      return;
     }
 
-    let needStorageDeposit = null;
-    if (
-      storageBalance === null ||
-      (storageBalance !== null &&
-        new FixedNumber(storageBalance.available).toBigInt() <
-          new FixedNumber(accountCost).toBigInt())
-    ) {
-      needStorageDeposit = {
-        depositAmount: (
-          BigInt(accountCost) +
-          5n * BigInt(perMemeDeposit)
-        ).toString(),
-      };
-    } else if (BigInt(storageBalance.available) < BigInt(perMemeDeposit)) {
-      needStorageDeposit = {
-        depositAmount: (5n * BigInt(perMemeDeposit)).toString(),
-      };
-    }
+    const { referrer, needStorageDeposit, wrapNearDeposit, extraNearDeposit } =
+      depositPlan;
 
-    let wrapNearDeposit = null;
-    if (!wrapNearRegistered) {
-      wrapNearDeposit = {
-        depositAmount: wrapNearMinDeposit,
-      };
+    if (depositPlan.referralRejected) {
+      removeReferral();
     }
-
-    const extraNearDeposit =
-      input.toBigInt() > ($wrapNearBalance.data?.toBigInt() ?? 0n)
-        ? input.toBigInt() - ($wrapNearBalance.data?.toBigInt() ?? 0n)
-        : 0n;
 
     if (nearBalance && extraNearDeposit > ($nearBalance?.toBigInt() ?? 0n)) {
-      console.error("Not enough NEAR balance");
+      addToast({
+        data: {
+          type: "simple",
+          data: {
+            title: "Not enough NEAR balance",
+            description: "Add NEAR to cover the deposit and its storage.",
+            type: "error",
+          },
+        },
+      });
       return;
     }
 
